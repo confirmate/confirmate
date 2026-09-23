@@ -157,20 +157,20 @@ func (d *computeCollector) collectVolumes() ([]*ontology.BlockStorage, error) {
 		createTime := aws.ToTime(volume.CreateTime)
 
 		atRest := &ontology.ManagedKeyEncryption{
-			Enabled: encrypted,
+			Enabled: new(encrypted),
 		}
 
 		// AWS uses a fixed algorithm, if enabled
-		if atRest.Enabled {
-			atRest.Algorithm = "AES-256"
+		if *atRest.Enabled {
+			atRest.Algorithm = new("AES-256")
 		}
 
 		blocks = append(blocks, &ontology.BlockStorage{
-			Id:           d.arnify("volume", volume.VolumeId),
-			Name:         d.nameOrID(volume.Tags, volume.VolumeId),
+			Id:           new(d.arnify("volume", volume.VolumeId)),
+			Name:         new(d.nameOrID(volume.Tags, volume.VolumeId)),
 			CreationTime: timestamppb.New(createTime),
 			GeoLocation: &ontology.GeoLocation{
-				Region: d.awsConfig.cfg.Region,
+				Region: new(d.awsConfig.cfg.Region),
 			},
 			Labels: d.labels(volume.Tags),
 			AtRestEncryption: &ontology.AtRestEncryption{
@@ -178,7 +178,7 @@ func (d *computeCollector) collectVolumes() ([]*ontology.BlockStorage, error) {
 					ManagedKeyEncryption: atRest,
 				},
 			},
-			Raw: collector.Raw(&res.Volumes[i]),
+			Raw: new(collector.Raw(&res.Volumes[i])),
 		})
 	}
 
@@ -197,13 +197,13 @@ func (d *computeCollector) collectNetworkInterfaces() ([]*ontology.NetworkInterf
 		ifc := &res.NetworkInterfaces[i]
 
 		ifcs = append(ifcs, &ontology.NetworkInterface{
-			Id:   d.arnify("network-interface", ifc.NetworkInterfaceId),
-			Name: d.nameOrID(ifc.TagSet, ifc.NetworkInterfaceId),
+			Id:   new(d.arnify("network-interface", ifc.NetworkInterfaceId)),
+			Name: new(d.nameOrID(ifc.TagSet, ifc.NetworkInterfaceId)),
 			GeoLocation: &ontology.GeoLocation{
-				Region: d.awsConfig.cfg.Region,
+				Region: new(d.awsConfig.cfg.Region),
 			},
 			Labels: d.labels(ifc.TagSet),
-			Raw:    collector.Raw(&res.NetworkInterfaces[i]),
+			Raw:    new(collector.Raw(&res.NetworkInterfaces[i])),
 		})
 	}
 
@@ -222,17 +222,17 @@ func (d *computeCollector) collectVirtualMachines() ([]*ontology.VirtualMachine,
 			vm := &reservation.Instances[i]
 
 			resources = append(resources, &ontology.VirtualMachine{
-				Id:   d.arnify("instance", vm.InstanceId),
-				Name: d.getNameOfVM(vm),
+				Id:   new(d.arnify("instance", vm.InstanceId)),
+				Name: new(d.getNameOfVM(vm)),
 				GeoLocation: &ontology.GeoLocation{
-					Region: d.awsConfig.cfg.Region,
+					Region: new(d.awsConfig.cfg.Region),
 				},
 				Labels:              d.labels(vm.Tags),
 				NetworkInterfaceIds: d.getNetworkInterfacesOfVM(vm),
 				BlockStorageIds:     d.mapBlockStorageIDsOfVM(vm),
 				BootLogging:         d.getBootLog(vm),
 				OsLogging:           d.getOSLog(vm),
-				Raw:                 collector.Raw(&reservation),
+				Raw:                 new(collector.Raw(&reservation)),
 			})
 		}
 	}
@@ -269,12 +269,12 @@ func (d *computeCollector) mapFunctionResources(functions []typesLambda.Function
 		function := &functions[i]
 
 		resources = append(resources, &ontology.Function{
-			Id:   aws.ToString(function.FunctionArn),
-			Name: aws.ToString(function.FunctionName),
+			Id:   new(aws.ToString(function.FunctionArn)),
+			Name: new(aws.ToString(function.FunctionName)),
 			GeoLocation: &ontology.GeoLocation{
-				Region: d.awsConfig.cfg.Region,
+				Region: new(d.awsConfig.cfg.Region),
 			},
-			Raw: collector.Raw(&functions[i]),
+			Raw: new(collector.Raw(&functions[i])),
 		})
 	}
 	return
@@ -284,7 +284,7 @@ func (d *computeCollector) mapFunctionResources(functions []typesLambda.Function
 // Currently there is no option to find out if any logs are enabled -> Assign default zero values
 func (*computeCollector) getBootLog(_ *typesEC2.Instance) (l *ontology.BootLogging) {
 	l = &ontology.BootLogging{
-		Enabled: false,
+		Enabled: new(false),
 	}
 	return
 }
@@ -293,7 +293,7 @@ func (*computeCollector) getBootLog(_ *typesEC2.Instance) (l *ontology.BootLoggi
 // Currently there is no option to find out if any logs are enabled -> Assign default zero values
 func (*computeCollector) getOSLog(_ *typesEC2.Instance) (l *ontology.OSLogging) {
 	l = &ontology.OSLogging{
-		Enabled: false,
+		Enabled: new(false),
 	}
 	return
 }

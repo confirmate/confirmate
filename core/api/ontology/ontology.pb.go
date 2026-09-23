@@ -91,7 +91,7 @@ func (*ABAC) Descriptor() ([]byte, []int) {
 // AccessControlTypePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type AccessControlTypePolicy struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
-	AuthorizationTypes string                 `protobuf:"bytes,2672,opt,name=authorization_types,json=authorizationTypes,proto3" json:"authorization_types,omitempty"`
+	AuthorizationTypes *string                `protobuf:"bytes,2672,opt,name=authorization_types,json=authorizationTypes,proto3,oneof" json:"authorization_types,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -127,8 +127,8 @@ func (*AccessControlTypePolicy) Descriptor() ([]byte, []int) {
 }
 
 func (x *AccessControlTypePolicy) GetAuthorizationTypes() string {
-	if x != nil {
-		return x.AuthorizationTypes
+	if x != nil && x.AuthorizationTypes != nil {
+		return *x.AuthorizationTypes
 	}
 	return ""
 }
@@ -236,14 +236,14 @@ func (*AccessRestriction_RateLimiting) isAccessRestriction_Type() {}
 // This represents the cloud account as a whole, e.g., an Azure subscription.
 type Account struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,12742,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,8955,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,1395,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,5528,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,12742,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,8955,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,1395,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,5528,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,6485,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,18836,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,18836,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,14088,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,14088,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	AssetInventory                   *AssetInventory                   `protobuf:"bytes,14263,opt,name=asset_inventory,json=assetInventory,proto3" json:"asset_inventory,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7524,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,402,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -294,22 +294,22 @@ func (x *Account) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Account) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Account) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *Account) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -322,15 +322,15 @@ func (x *Account) GetLabels() map[string]string {
 }
 
 func (x *Account) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Account) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -394,12 +394,12 @@ func (x *Account) GetUsageStatistics() *UsageStatistics {
 // ActivityLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ActivityLogging struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
-	Enabled bool                   `protobuf:"varint,18133,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled *bool                  `protobuf:"varint,18133,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	// enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN
-	LogLevel                 string               `protobuf:"bytes,11221,opt,name=log_level,json=logLevel,proto3" json:"log_level,omitempty"`
-	MonitoringLogDataEnabled bool                 `protobuf:"varint,13626,opt,name=monitoring_log_data_enabled,json=monitoringLogDataEnabled,proto3" json:"monitoring_log_data_enabled,omitempty"`
-	RetentionPeriod          *durationpb.Duration `protobuf:"bytes,10788,opt,name=retention_period,json=retentionPeriod,proto3" json:"retention_period,omitempty"`
-	SecurityAlertsEnabled    bool                 `protobuf:"varint,17680,opt,name=security_alerts_enabled,json=securityAlertsEnabled,proto3" json:"security_alerts_enabled,omitempty"`
+	LogLevel                 *string              `protobuf:"bytes,11221,opt,name=log_level,json=logLevel,proto3,oneof" json:"log_level,omitempty"`
+	MonitoringLogDataEnabled *bool                `protobuf:"varint,13626,opt,name=monitoring_log_data_enabled,json=monitoringLogDataEnabled,proto3,oneof" json:"monitoring_log_data_enabled,omitempty"`
+	RetentionPeriod          *durationpb.Duration `protobuf:"bytes,10788,opt,name=retention_period,json=retentionPeriod,proto3,oneof" json:"retention_period,omitempty"`
+	SecurityAlertsEnabled    *bool                `protobuf:"varint,17680,opt,name=security_alerts_enabled,json=securityAlertsEnabled,proto3,oneof" json:"security_alerts_enabled,omitempty"`
 	LoggingServiceIds        []string             `protobuf:"bytes,16760,rep,name=logging_service_ids,json=loggingServiceIds,proto3" json:"logging_service_ids,omitempty"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
@@ -436,22 +436,22 @@ func (*ActivityLogging) Descriptor() ([]byte, []int) {
 }
 
 func (x *ActivityLogging) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *ActivityLogging) GetLogLevel() string {
-	if x != nil {
-		return x.LogLevel
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
 	}
 	return ""
 }
 
 func (x *ActivityLogging) GetMonitoringLogDataEnabled() bool {
-	if x != nil {
-		return x.MonitoringLogDataEnabled
+	if x != nil && x.MonitoringLogDataEnabled != nil {
+		return *x.MonitoringLogDataEnabled
 	}
 	return false
 }
@@ -464,8 +464,8 @@ func (x *ActivityLogging) GetRetentionPeriod() *durationpb.Duration {
 }
 
 func (x *ActivityLogging) GetSecurityAlertsEnabled() bool {
-	if x != nil {
-		return x.SecurityAlertsEnabled
+	if x != nil && x.SecurityAlertsEnabled != nil {
+		return *x.SecurityAlertsEnabled
 	}
 	return false
 }
@@ -481,13 +481,13 @@ func (x *ActivityLogging) GetLoggingServiceIds() []string {
 // Represents an agnostic architecture, which is not tied to a specific operating system.
 type Agnostic struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,2486,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,8346,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,142,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,2486,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,8346,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,142,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,3423,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,5900,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,5900,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                  string                 `protobuf:"bytes,10733,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                  *string                `protobuf:"bytes,10733,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CodeModuleIds        []string               `protobuf:"bytes,16288,rep,name=code_module_ids,json=codeModuleIds,proto3" json:"code_module_ids,omitempty"`
 	CodeRepositoryId     *string                `protobuf:"bytes,5545,opt,name=code_repository_id,json=codeRepositoryId,proto3,oneof" json:"code_repository_id,omitempty"`
 	Functionalities      []*Functionality       `protobuf:"bytes,4188,rep,name=functionalities,proto3" json:"functionalities,omitempty"`
@@ -535,15 +535,15 @@ func (x *Agnostic) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Agnostic) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Agnostic) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -556,15 +556,15 @@ func (x *Agnostic) GetLabels() map[string]string {
 }
 
 func (x *Agnostic) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Agnostic) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -661,13 +661,13 @@ func (x *Allocate) GetMemoryId() string {
 // Represents a rule that combines two other rules using a logical AND operation. This means that both rules must be satisfied for the combined rule to be satisfied.
 type AndRule struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,7268,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,3559,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,16497,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,7268,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,3559,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,16497,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,9934,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,2112,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,2112,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,15790,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw           *string       `protobuf:"bytes,15790,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	DataLocation  *DataLocation `protobuf:"bytes,12945,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,13799,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -712,15 +712,15 @@ func (x *AndRule) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *AndRule) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *AndRule) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -733,15 +733,15 @@ func (x *AndRule) GetLabels() map[string]string {
 }
 
 func (x *AndRule) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *AndRule) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -765,8 +765,8 @@ func (x *AndRule) GetParentId() string {
 // Scope contains the resource ID of the protected resource.
 type AnomalyDetection struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
-	Enabled            bool                   `protobuf:"varint,8852,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	Scope              string                 `protobuf:"bytes,8482,opt,name=scope,proto3" json:"scope,omitempty"`
+	Enabled            *bool                  `protobuf:"varint,8852,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	Scope              *string                `protobuf:"bytes,8482,opt,name=scope,proto3,oneof" json:"scope,omitempty"`
 	ApplicationLogging *ApplicationLogging    `protobuf:"bytes,16001,opt,name=application_logging,json=applicationLogging,proto3" json:"application_logging,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -803,15 +803,15 @@ func (*AnomalyDetection) Descriptor() ([]byte, []int) {
 }
 
 func (x *AnomalyDetection) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *AnomalyDetection) GetScope() string {
-	if x != nil {
-		return x.Scope
+	if x != nil && x.Scope != nil {
+		return *x.Scope
 	}
 	return ""
 }
@@ -827,15 +827,15 @@ func (x *AnomalyDetection) GetApplicationLogging() *ApplicationLogging {
 // This encapsulates the whole (source) code of an application.
 type Application struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime        *timestamppb.Timestamp `protobuf:"bytes,15057,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description         string                 `protobuf:"bytes,2283,opt,name=description,proto3" json:"description,omitempty"`
-	Id                  string                 `protobuf:"bytes,9299,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime        *timestamppb.Timestamp `protobuf:"bytes,15057,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description         *string                `protobuf:"bytes,2283,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                  *string                `protobuf:"bytes,9299,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels              map[string]string      `protobuf:"bytes,12760,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                string                 `protobuf:"bytes,1409,opt,name=name,proto3" json:"name,omitempty"`
-	ProgrammingLanguage string                 `protobuf:"bytes,1665,opt,name=programming_language,json=programmingLanguage,proto3" json:"programming_language,omitempty"`
-	ProgrammingVersion  string                 `protobuf:"bytes,3150,opt,name=programming_version,json=programmingVersion,proto3" json:"programming_version,omitempty"`
+	Name                *string                `protobuf:"bytes,1409,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	ProgrammingLanguage *string                `protobuf:"bytes,1665,opt,name=programming_language,json=programmingLanguage,proto3,oneof" json:"programming_language,omitempty"`
+	ProgrammingVersion  *string                `protobuf:"bytes,3150,opt,name=programming_version,json=programmingVersion,proto3,oneof" json:"programming_version,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                  string                 `protobuf:"bytes,18684,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                  *string                `protobuf:"bytes,18684,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	TranslationUnits     []string               `protobuf:"bytes,9449,rep,name=translation_units,json=translationUnits,proto3" json:"translation_units,omitempty"`
 	AutomaticUpdates     *AutomaticUpdates      `protobuf:"bytes,1992,opt,name=automatic_updates,json=automaticUpdates,proto3" json:"automatic_updates,omitempty"`
 	CodeModuleIds        []string               `protobuf:"bytes,18101,rep,name=code_module_ids,json=codeModuleIds,proto3" json:"code_module_ids,omitempty"`
@@ -887,15 +887,15 @@ func (x *Application) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Application) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Application) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -908,29 +908,29 @@ func (x *Application) GetLabels() map[string]string {
 }
 
 func (x *Application) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Application) GetProgrammingLanguage() string {
-	if x != nil {
-		return x.ProgrammingLanguage
+	if x != nil && x.ProgrammingLanguage != nil {
+		return *x.ProgrammingLanguage
 	}
 	return ""
 }
 
 func (x *Application) GetProgrammingVersion() string {
-	if x != nil {
-		return x.ProgrammingVersion
+	if x != nil && x.ProgrammingVersion != nil {
+		return *x.ProgrammingVersion
 	}
 	return ""
 }
 
 func (x *Application) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -1001,12 +1001,12 @@ func (x *Application) GetSoftwareAttestations() []*SoftwareAttestation {
 // ApplicationLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ApplicationLogging struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
-	Enabled bool                   `protobuf:"varint,13571,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled *bool                  `protobuf:"varint,13571,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	// enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN
-	LogLevel                 string               `protobuf:"bytes,14273,opt,name=log_level,json=logLevel,proto3" json:"log_level,omitempty"`
-	MonitoringLogDataEnabled bool                 `protobuf:"varint,4205,opt,name=monitoring_log_data_enabled,json=monitoringLogDataEnabled,proto3" json:"monitoring_log_data_enabled,omitempty"`
-	RetentionPeriod          *durationpb.Duration `protobuf:"bytes,6319,opt,name=retention_period,json=retentionPeriod,proto3" json:"retention_period,omitempty"`
-	SecurityAlertsEnabled    bool                 `protobuf:"varint,17870,opt,name=security_alerts_enabled,json=securityAlertsEnabled,proto3" json:"security_alerts_enabled,omitempty"`
+	LogLevel                 *string              `protobuf:"bytes,14273,opt,name=log_level,json=logLevel,proto3,oneof" json:"log_level,omitempty"`
+	MonitoringLogDataEnabled *bool                `protobuf:"varint,4205,opt,name=monitoring_log_data_enabled,json=monitoringLogDataEnabled,proto3,oneof" json:"monitoring_log_data_enabled,omitempty"`
+	RetentionPeriod          *durationpb.Duration `protobuf:"bytes,6319,opt,name=retention_period,json=retentionPeriod,proto3,oneof" json:"retention_period,omitempty"`
+	SecurityAlertsEnabled    *bool                `protobuf:"varint,17870,opt,name=security_alerts_enabled,json=securityAlertsEnabled,proto3,oneof" json:"security_alerts_enabled,omitempty"`
 	LoggingServiceIds        []string             `protobuf:"bytes,3884,rep,name=logging_service_ids,json=loggingServiceIds,proto3" json:"logging_service_ids,omitempty"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
@@ -1043,22 +1043,22 @@ func (*ApplicationLogging) Descriptor() ([]byte, []int) {
 }
 
 func (x *ApplicationLogging) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *ApplicationLogging) GetLogLevel() string {
-	if x != nil {
-		return x.LogLevel
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
 	}
 	return ""
 }
 
 func (x *ApplicationLogging) GetMonitoringLogDataEnabled() bool {
-	if x != nil {
-		return x.MonitoringLogDataEnabled
+	if x != nil && x.MonitoringLogDataEnabled != nil {
+		return *x.MonitoringLogDataEnabled
 	}
 	return false
 }
@@ -1071,8 +1071,8 @@ func (x *ApplicationLogging) GetRetentionPeriod() *durationpb.Duration {
 }
 
 func (x *ApplicationLogging) GetSecurityAlertsEnabled() bool {
-	if x != nil {
-		return x.SecurityAlertsEnabled
+	if x != nil && x.SecurityAlertsEnabled != nil {
+		return *x.SecurityAlertsEnabled
 	}
 	return false
 }
@@ -1095,20 +1095,20 @@ func (x *ApplicationLogging) GetLoggingServiceIds() []string {
 type AssetInventory struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Indicates whether all required information for an asset inventory entry has been recorded.
-	AllRequiredInformationRecorded bool `protobuf:"varint,5806,opt,name=all_required_information_recorded,json=allRequiredInformationRecorded,proto3" json:"all_required_information_recorded,omitempty"`
+	AllRequiredInformationRecorded *bool `protobuf:"varint,5806,opt,name=all_required_information_recorded,json=allRequiredInformationRecorded,proto3,oneof" json:"all_required_information_recorded,omitempty"`
 	// The time needed for an audit.
-	AuditInterval int32 `protobuf:"varint,15088,opt,name=audit_interval,json=auditInterval,proto3" json:"audit_interval,omitempty"`
+	AuditInterval *int32 `protobuf:"varint,15088,opt,name=audit_interval,json=auditInterval,proto3,oneof" json:"audit_interval,omitempty"`
 	// Percentage of completed reviews and updates of asset inventory entries.
-	CompletedReviewPercentage float32 `protobuf:"fixed32,15931,opt,name=completed_review_percentage,json=completedReviewPercentage,proto3" json:"completed_review_percentage,omitempty"`
-	ReviewFrequency           int32   `protobuf:"varint,12717,opt,name=review_frequency,json=reviewFrequency,proto3" json:"review_frequency,omitempty"`
+	CompletedReviewPercentage *float32 `protobuf:"fixed32,15931,opt,name=completed_review_percentage,json=completedReviewPercentage,proto3,oneof" json:"completed_review_percentage,omitempty"`
+	ReviewFrequency           *int32   `protobuf:"varint,12717,opt,name=review_frequency,json=reviewFrequency,proto3,oneof" json:"review_frequency,omitempty"`
 	// Service contains the name of the service (e.g., Asset Management).
-	Service         string `protobuf:"bytes,11727,opt,name=service,proto3" json:"service,omitempty"`
-	Status          string `protobuf:"bytes,11933,opt,name=status,proto3" json:"status,omitempty"`
-	StorageFacility string `protobuf:"bytes,2637,opt,name=storage_facility,json=storageFacility,proto3" json:"storage_facility,omitempty"`
-	Type            string `protobuf:"bytes,11720,opt,name=type,proto3" json:"type,omitempty"`
+	Service         *string  `protobuf:"bytes,11727,opt,name=service,proto3,oneof" json:"service,omitempty"`
+	Status          []string `protobuf:"bytes,11933,rep,name=status,proto3" json:"status,omitempty"`
+	StorageFacility []string `protobuf:"bytes,2637,rep,name=storage_facility,json=storageFacility,proto3" json:"storage_facility,omitempty"`
+	Type            *string  `protobuf:"bytes,11720,opt,name=type,proto3,oneof" json:"type,omitempty"`
 	// The time needed for an update.
-	UpdateDuration int32 `protobuf:"varint,5698,opt,name=update_duration,json=updateDuration,proto3" json:"update_duration,omitempty"`
-	UpdateInterval int32 `protobuf:"varint,4178,opt,name=update_interval,json=updateInterval,proto3" json:"update_interval,omitempty"`
+	UpdateDuration *int32 `protobuf:"varint,5698,opt,name=update_duration,json=updateDuration,proto3,oneof" json:"update_duration,omitempty"`
+	UpdateInterval *int32 `protobuf:"varint,4178,opt,name=update_interval,json=updateInterval,proto3,oneof" json:"update_interval,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1144,71 +1144,71 @@ func (*AssetInventory) Descriptor() ([]byte, []int) {
 }
 
 func (x *AssetInventory) GetAllRequiredInformationRecorded() bool {
-	if x != nil {
-		return x.AllRequiredInformationRecorded
+	if x != nil && x.AllRequiredInformationRecorded != nil {
+		return *x.AllRequiredInformationRecorded
 	}
 	return false
 }
 
 func (x *AssetInventory) GetAuditInterval() int32 {
-	if x != nil {
-		return x.AuditInterval
+	if x != nil && x.AuditInterval != nil {
+		return *x.AuditInterval
 	}
 	return 0
 }
 
 func (x *AssetInventory) GetCompletedReviewPercentage() float32 {
-	if x != nil {
-		return x.CompletedReviewPercentage
+	if x != nil && x.CompletedReviewPercentage != nil {
+		return *x.CompletedReviewPercentage
 	}
 	return 0
 }
 
 func (x *AssetInventory) GetReviewFrequency() int32 {
-	if x != nil {
-		return x.ReviewFrequency
+	if x != nil && x.ReviewFrequency != nil {
+		return *x.ReviewFrequency
 	}
 	return 0
 }
 
 func (x *AssetInventory) GetService() string {
-	if x != nil {
-		return x.Service
+	if x != nil && x.Service != nil {
+		return *x.Service
 	}
 	return ""
 }
 
-func (x *AssetInventory) GetStatus() string {
+func (x *AssetInventory) GetStatus() []string {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return nil
 }
 
-func (x *AssetInventory) GetStorageFacility() string {
+func (x *AssetInventory) GetStorageFacility() []string {
 	if x != nil {
 		return x.StorageFacility
 	}
-	return ""
+	return nil
 }
 
 func (x *AssetInventory) GetType() string {
-	if x != nil {
-		return x.Type
+	if x != nil && x.Type != nil {
+		return *x.Type
 	}
 	return ""
 }
 
 func (x *AssetInventory) GetUpdateDuration() int32 {
-	if x != nil {
-		return x.UpdateDuration
+	if x != nil && x.UpdateDuration != nil {
+		return *x.UpdateDuration
 	}
 	return 0
 }
 
 func (x *AssetInventory) GetUpdateInterval() int32 {
-	if x != nil {
-		return x.UpdateInterval
+	if x != nil && x.UpdateInterval != nil {
+		return *x.UpdateInterval
 	}
 	return 0
 }
@@ -1217,11 +1217,11 @@ func (x *AssetInventory) GetUpdateInterval() int32 {
 type AsymmetricCipher struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Block size of a cipher.
-	BlockSize int32 `protobuf:"varint,18752,opt,name=block_size,json=blockSize,proto3" json:"block_size,omitempty"`
+	BlockSize *int32 `protobuf:"varint,18752,opt,name=block_size,json=blockSize,proto3,oneof" json:"block_size,omitempty"`
 	// Name of a cryptographic cipher.
-	CipherName string `protobuf:"bytes,10744,opt,name=cipher_name,json=cipherName,proto3" json:"cipher_name,omitempty"`
+	CipherName *string `protobuf:"bytes,10744,opt,name=cipher_name,json=cipherName,proto3,oneof" json:"cipher_name,omitempty"`
 	// Key size refers to the length of a key used in an enryption.
-	KeySize       int32    `protobuf:"varint,8751,opt,name=key_size,json=keySize,proto3" json:"key_size,omitempty"`
+	KeySize       *int32   `protobuf:"varint,8751,opt,name=key_size,json=keySize,proto3,oneof" json:"key_size,omitempty"`
 	Padding       *Padding `protobuf:"bytes,15741,opt,name=padding,proto3" json:"padding,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1258,22 +1258,22 @@ func (*AsymmetricCipher) Descriptor() ([]byte, []int) {
 }
 
 func (x *AsymmetricCipher) GetBlockSize() int32 {
-	if x != nil {
-		return x.BlockSize
+	if x != nil && x.BlockSize != nil {
+		return *x.BlockSize
 	}
 	return 0
 }
 
 func (x *AsymmetricCipher) GetCipherName() string {
-	if x != nil {
-		return x.CipherName
+	if x != nil && x.CipherName != nil {
+		return *x.CipherName
 	}
 	return ""
 }
 
 func (x *AsymmetricCipher) GetKeySize() int32 {
-	if x != nil {
-		return x.KeySize
+	if x != nil && x.KeySize != nil {
+		return *x.KeySize
 	}
 	return 0
 }
@@ -2224,10 +2224,10 @@ func (x *AuthorizeJwt) GetCodeRegion() *CodeRegion {
 // This feature is, e.g., available on some VM services to automatically update their software. It ensures that a resource is protected from tampering with its state.
 type AutomaticUpdates struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
-	Enabled bool                   `protobuf:"varint,2283,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled *bool                  `protobuf:"varint,2283,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	// The interval refers to the update interval in days.
-	Interval      *durationpb.Duration `protobuf:"bytes,2309,opt,name=interval,proto3" json:"interval,omitempty"`
-	SecurityOnly  bool                 `protobuf:"varint,1034,opt,name=security_only,json=securityOnly,proto3" json:"security_only,omitempty"`
+	Interval      *durationpb.Duration `protobuf:"bytes,2309,opt,name=interval,proto3,oneof" json:"interval,omitempty"`
+	SecurityOnly  *bool                `protobuf:"varint,1034,opt,name=security_only,json=securityOnly,proto3,oneof" json:"security_only,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2263,8 +2263,8 @@ func (*AutomaticUpdates) Descriptor() ([]byte, []int) {
 }
 
 func (x *AutomaticUpdates) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
@@ -2277,8 +2277,8 @@ func (x *AutomaticUpdates) GetInterval() *durationpb.Duration {
 }
 
 func (x *AutomaticUpdates) GetSecurityOnly() bool {
-	if x != nil {
-		return x.SecurityOnly
+	if x != nil && x.SecurityOnly != nil {
+		return *x.SecurityOnly
 	}
 	return false
 }
@@ -2433,8 +2433,8 @@ func (*Availability_ZoneRedundancy) isAvailability_Type() {}
 // AwarenessTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type AwarenessTraining struct {
 	state                           protoimpl.MessageState `protogen:"open.v1"`
-	AnnualUpdateCompleted           bool                   `protobuf:"varint,4205,opt,name=annual_update_completed,json=annualUpdateCompleted,proto3" json:"annual_update_completed,omitempty"`
-	SuccessfullyCompletedPercentage bool                   `protobuf:"varint,9380,opt,name=successfully_completed_percentage,json=successfullyCompletedPercentage,proto3" json:"successfully_completed_percentage,omitempty"`
+	AnnualUpdateCompleted           *bool                  `protobuf:"varint,4205,opt,name=annual_update_completed,json=annualUpdateCompleted,proto3,oneof" json:"annual_update_completed,omitempty"`
+	SuccessfullyCompletedPercentage *bool                  `protobuf:"varint,9380,opt,name=successfully_completed_percentage,json=successfullyCompletedPercentage,proto3,oneof" json:"successfully_completed_percentage,omitempty"`
 	unknownFields                   protoimpl.UnknownFields
 	sizeCache                       protoimpl.SizeCache
 }
@@ -2470,15 +2470,15 @@ func (*AwarenessTraining) Descriptor() ([]byte, []int) {
 }
 
 func (x *AwarenessTraining) GetAnnualUpdateCompleted() bool {
-	if x != nil {
-		return x.AnnualUpdateCompleted
+	if x != nil && x.AnnualUpdateCompleted != nil {
+		return *x.AnnualUpdateCompleted
 	}
 	return false
 }
 
 func (x *AwarenessTraining) GetSuccessfullyCompletedPercentage() bool {
-	if x != nil {
-		return x.SuccessfullyCompletedPercentage
+	if x != nil && x.SuccessfullyCompletedPercentage != nil {
+		return *x.SuccessfullyCompletedPercentage
 	}
 	return false
 }
@@ -2487,12 +2487,12 @@ func (x *AwarenessTraining) GetSuccessfullyCompletedPercentage() bool {
 // RetentionPeriod in hours
 type Backup struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
-	Enabled   bool                   `protobuf:"varint,2815,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	Frequency int32                  `protobuf:"varint,9581,opt,name=frequency,proto3" json:"frequency,omitempty"`
+	Enabled   *bool                  `protobuf:"varint,2815,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	Frequency *int32                 `protobuf:"varint,9581,opt,name=frequency,proto3,oneof" json:"frequency,omitempty"`
 	// The interval refers to the update interval in days.
-	Interval            *durationpb.Duration `protobuf:"bytes,7186,opt,name=interval,proto3" json:"interval,omitempty"`
-	RecoveryFrequency   int32                `protobuf:"varint,8809,opt,name=recovery_frequency,json=recoveryFrequency,proto3" json:"recovery_frequency,omitempty"`
-	RetentionPeriod     *durationpb.Duration `protobuf:"bytes,6795,opt,name=retention_period,json=retentionPeriod,proto3" json:"retention_period,omitempty"`
+	Interval            *durationpb.Duration `protobuf:"bytes,7186,opt,name=interval,proto3,oneof" json:"interval,omitempty"`
+	RecoveryFrequency   *int32               `protobuf:"varint,8809,opt,name=recovery_frequency,json=recoveryFrequency,proto3,oneof" json:"recovery_frequency,omitempty"`
+	RetentionPeriod     *durationpb.Duration `protobuf:"bytes,6795,opt,name=retention_period,json=retentionPeriod,proto3,oneof" json:"retention_period,omitempty"`
 	StorageId           *string              `protobuf:"bytes,17051,opt,name=storage_id,json=storageId,proto3,oneof" json:"storage_id,omitempty"`
 	TransportEncryption *TransportEncryption `protobuf:"bytes,2398,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
 	unknownFields       protoimpl.UnknownFields
@@ -2530,15 +2530,15 @@ func (*Backup) Descriptor() ([]byte, []int) {
 }
 
 func (x *Backup) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *Backup) GetFrequency() int32 {
-	if x != nil {
-		return x.Frequency
+	if x != nil && x.Frequency != nil {
+		return *x.Frequency
 	}
 	return 0
 }
@@ -2551,8 +2551,8 @@ func (x *Backup) GetInterval() *durationpb.Duration {
 }
 
 func (x *Backup) GetRecoveryFrequency() int32 {
-	if x != nil {
-		return x.RecoveryFrequency
+	if x != nil && x.RecoveryFrequency != nil {
+		return *x.RecoveryFrequency
 	}
 	return 0
 }
@@ -2581,14 +2581,14 @@ func (x *Backup) GetTransportEncryption() *TransportEncryption {
 // BlockStorage is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type BlockStorage struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,11167,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,2163,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,7003,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,15007,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,11167,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,2163,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,7003,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,15007,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,15784,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,13869,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,13869,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,11057,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,11057,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,16146,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AtRestEncryption                 *AtRestEncryption                 `protobuf:"bytes,12598,opt,name=at_rest_encryption,json=atRestEncryption,proto3" json:"at_rest_encryption,omitempty"`
 	Backups                          []*Backup                         `protobuf:"bytes,2815,rep,name=backups,proto3" json:"backups,omitempty"`
@@ -2643,22 +2643,22 @@ func (x *BlockStorage) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *BlockStorage) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *BlockStorage) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *BlockStorage) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -2671,15 +2671,15 @@ func (x *BlockStorage) GetLabels() map[string]string {
 }
 
 func (x *BlockStorage) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *BlockStorage) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -2824,12 +2824,12 @@ func (x *BlockStorageOperation) GetCodeRegion() *CodeRegion {
 // BootLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type BootLogging struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
-	Enabled bool                   `protobuf:"varint,17321,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled *bool                  `protobuf:"varint,17321,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	// enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN
-	LogLevel                 string               `protobuf:"bytes,7946,opt,name=log_level,json=logLevel,proto3" json:"log_level,omitempty"`
-	MonitoringLogDataEnabled bool                 `protobuf:"varint,9135,opt,name=monitoring_log_data_enabled,json=monitoringLogDataEnabled,proto3" json:"monitoring_log_data_enabled,omitempty"`
-	RetentionPeriod          *durationpb.Duration `protobuf:"bytes,2338,opt,name=retention_period,json=retentionPeriod,proto3" json:"retention_period,omitempty"`
-	SecurityAlertsEnabled    bool                 `protobuf:"varint,3133,opt,name=security_alerts_enabled,json=securityAlertsEnabled,proto3" json:"security_alerts_enabled,omitempty"`
+	LogLevel                 *string              `protobuf:"bytes,7946,opt,name=log_level,json=logLevel,proto3,oneof" json:"log_level,omitempty"`
+	MonitoringLogDataEnabled *bool                `protobuf:"varint,9135,opt,name=monitoring_log_data_enabled,json=monitoringLogDataEnabled,proto3,oneof" json:"monitoring_log_data_enabled,omitempty"`
+	RetentionPeriod          *durationpb.Duration `protobuf:"bytes,2338,opt,name=retention_period,json=retentionPeriod,proto3,oneof" json:"retention_period,omitempty"`
+	SecurityAlertsEnabled    *bool                `protobuf:"varint,3133,opt,name=security_alerts_enabled,json=securityAlertsEnabled,proto3,oneof" json:"security_alerts_enabled,omitempty"`
 	LoggingServiceIds        []string             `protobuf:"bytes,17105,rep,name=logging_service_ids,json=loggingServiceIds,proto3" json:"logging_service_ids,omitempty"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
@@ -2866,22 +2866,22 @@ func (*BootLogging) Descriptor() ([]byte, []int) {
 }
 
 func (x *BootLogging) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *BootLogging) GetLogLevel() string {
-	if x != nil {
-		return x.LogLevel
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
 	}
 	return ""
 }
 
 func (x *BootLogging) GetMonitoringLogDataEnabled() bool {
-	if x != nil {
-		return x.MonitoringLogDataEnabled
+	if x != nil && x.MonitoringLogDataEnabled != nil {
+		return *x.MonitoringLogDataEnabled
 	}
 	return false
 }
@@ -2894,8 +2894,8 @@ func (x *BootLogging) GetRetentionPeriod() *durationpb.Duration {
 }
 
 func (x *BootLogging) GetSecurityAlertsEnabled() bool {
-	if x != nil {
-		return x.SecurityAlertsEnabled
+	if x != nil && x.SecurityAlertsEnabled != nil {
+		return *x.SecurityAlertsEnabled
 	}
 	return false
 }
@@ -3031,18 +3031,18 @@ func (*CICDService_Workflow) isCICDService_Type() {}
 // Certificate is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Certificate struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,18284,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,10382,opt,name=description,proto3" json:"description,omitempty"`
-	Enabled                    bool                   `protobuf:"varint,11036,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	ExpirationDate             *timestamppb.Timestamp `protobuf:"bytes,17025,opt,name=expiration_date,json=expirationDate,proto3" json:"expiration_date,omitempty"`
-	Id                         string                 `protobuf:"bytes,1585,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,15261,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
-	IsManaged                  bool                   `protobuf:"varint,16025,opt,name=is_managed,json=isManaged,proto3" json:"is_managed,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,18284,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,10382,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Enabled                    *bool                  `protobuf:"varint,11036,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	ExpirationDate             *timestamppb.Timestamp `protobuf:"bytes,17025,opt,name=expiration_date,json=expirationDate,proto3,oneof" json:"expiration_date,omitempty"`
+	Id                         *string                `protobuf:"bytes,1585,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,15261,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
+	IsManaged                  *bool                  `protobuf:"varint,16025,opt,name=is_managed,json=isManaged,proto3,oneof" json:"is_managed,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,1369,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,18981,opt,name=name,proto3" json:"name,omitempty"`
-	NotBeforeDate              *timestamppb.Timestamp `protobuf:"bytes,11770,opt,name=not_before_date,json=notBeforeDate,proto3" json:"not_before_date,omitempty"`
+	Name                       *string                `protobuf:"bytes,18981,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	NotBeforeDate              *timestamppb.Timestamp `protobuf:"bytes,11770,opt,name=not_before_date,json=notBeforeDate,proto3,oneof" json:"not_before_date,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,7199,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,7199,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,9330,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,4443,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	UsedByMultiple                   *Infrastructure                   `protobuf:"bytes,13381,opt,name=used_by_multiple,json=usedByMultiple,proto3" json:"used_by_multiple,omitempty"`
@@ -3093,15 +3093,15 @@ func (x *Certificate) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Certificate) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Certificate) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
@@ -3114,22 +3114,22 @@ func (x *Certificate) GetExpirationDate() *timestamppb.Timestamp {
 }
 
 func (x *Certificate) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *Certificate) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
 
 func (x *Certificate) GetIsManaged() bool {
-	if x != nil {
-		return x.IsManaged
+	if x != nil && x.IsManaged != nil {
+		return *x.IsManaged
 	}
 	return false
 }
@@ -3142,8 +3142,8 @@ func (x *Certificate) GetLabels() map[string]string {
 }
 
 func (x *Certificate) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -3156,8 +3156,8 @@ func (x *Certificate) GetNotBeforeDate() *timestamppb.Timestamp {
 }
 
 func (x *Certificate) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -3221,11 +3221,11 @@ func (x *Certificate) GetUsageStatistics() *UsageStatistics {
 // CertificateBasedAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type CertificateBasedAuthentication struct {
 	state                        protoimpl.MessageState `protogen:"open.v1"`
-	ContextIsChecked             bool                   `protobuf:"varint,14958,opt,name=context_is_checked,json=contextIsChecked,proto3" json:"context_is_checked,omitempty"`
-	Enabled                      bool                   `protobuf:"varint,11983,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	FailedAuthenticationAttempts int32                  `protobuf:"varint,2906,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3" json:"failed_authentication_attempts,omitempty"`
+	ContextIsChecked             *bool                  `protobuf:"varint,14958,opt,name=context_is_checked,json=contextIsChecked,proto3,oneof" json:"context_is_checked,omitempty"`
+	Enabled                      *bool                  `protobuf:"varint,11983,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	FailedAuthenticationAttempts *int32                 `protobuf:"varint,2906,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3,oneof" json:"failed_authentication_attempts,omitempty"`
 	// Maximum password rotation interval in months
-	RotationInterval int32 `protobuf:"varint,9404,opt,name=rotation_interval,json=rotationInterval,proto3" json:"rotation_interval,omitempty"`
+	RotationInterval *int32 `protobuf:"varint,9404,opt,name=rotation_interval,json=rotationInterval,proto3,oneof" json:"rotation_interval,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -3261,29 +3261,29 @@ func (*CertificateBasedAuthentication) Descriptor() ([]byte, []int) {
 }
 
 func (x *CertificateBasedAuthentication) GetContextIsChecked() bool {
-	if x != nil {
-		return x.ContextIsChecked
+	if x != nil && x.ContextIsChecked != nil {
+		return *x.ContextIsChecked
 	}
 	return false
 }
 
 func (x *CertificateBasedAuthentication) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *CertificateBasedAuthentication) GetFailedAuthenticationAttempts() int32 {
-	if x != nil {
-		return x.FailedAuthenticationAttempts
+	if x != nil && x.FailedAuthenticationAttempts != nil {
+		return *x.FailedAuthenticationAttempts
 	}
 	return 0
 }
 
 func (x *CertificateBasedAuthentication) GetRotationInterval() int32 {
-	if x != nil {
-		return x.RotationInterval
+	if x != nil && x.RotationInterval != nil {
+		return *x.RotationInterval
 	}
 	return 0
 }
@@ -3559,12 +3559,12 @@ func (*CipherOperation_Decryption) isCipherOperation_Type() {}
 type CipherSuite struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// for example: RSA, ECDSA
-	AuthenticationMechanism string `protobuf:"bytes,3667,opt,name=authentication_mechanism,json=authenticationMechanism,proto3" json:"authentication_mechanism,omitempty"`
-	KeyExchangeAlgorithm    string `protobuf:"bytes,14920,opt,name=key_exchange_algorithm,json=keyExchangeAlgorithm,proto3" json:"key_exchange_algorithm,omitempty"`
+	AuthenticationMechanism *string `protobuf:"bytes,3667,opt,name=authentication_mechanism,json=authenticationMechanism,proto3,oneof" json:"authentication_mechanism,omitempty"`
+	KeyExchangeAlgorithm    *string `protobuf:"bytes,14920,opt,name=key_exchange_algorithm,json=keyExchangeAlgorithm,proto3,oneof" json:"key_exchange_algorithm,omitempty"`
 	// naming schema: SHA-256
-	MacAlgorithm string `protobuf:"bytes,2344,opt,name=mac_algorithm,json=macAlgorithm,proto3" json:"mac_algorithm,omitempty"`
+	MacAlgorithm *string `protobuf:"bytes,2344,opt,name=mac_algorithm,json=macAlgorithm,proto3,oneof" json:"mac_algorithm,omitempty"`
 	// naming schema: AES-128-GCM
-	SessionCipher string    `protobuf:"bytes,5742,opt,name=session_cipher,json=sessionCipher,proto3" json:"session_cipher,omitempty"`
+	SessionCipher *string   `protobuf:"bytes,5742,opt,name=session_cipher,json=sessionCipher,proto3,oneof" json:"session_cipher,omitempty"`
 	Ciphers       []*Cipher `protobuf:"bytes,8372,rep,name=ciphers,proto3" json:"ciphers,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -3601,29 +3601,29 @@ func (*CipherSuite) Descriptor() ([]byte, []int) {
 }
 
 func (x *CipherSuite) GetAuthenticationMechanism() string {
-	if x != nil {
-		return x.AuthenticationMechanism
+	if x != nil && x.AuthenticationMechanism != nil {
+		return *x.AuthenticationMechanism
 	}
 	return ""
 }
 
 func (x *CipherSuite) GetKeyExchangeAlgorithm() string {
-	if x != nil {
-		return x.KeyExchangeAlgorithm
+	if x != nil && x.KeyExchangeAlgorithm != nil {
+		return *x.KeyExchangeAlgorithm
 	}
 	return ""
 }
 
 func (x *CipherSuite) GetMacAlgorithm() string {
-	if x != nil {
-		return x.MacAlgorithm
+	if x != nil && x.MacAlgorithm != nil {
+		return *x.MacAlgorithm
 	}
 	return ""
 }
 
 func (x *CipherSuite) GetSessionCipher() string {
-	if x != nil {
-		return x.SessionCipher
+	if x != nil && x.SessionCipher != nil {
+		return *x.SessionCipher
 	}
 	return ""
 }
@@ -4398,12 +4398,12 @@ func (*CloudSDK) Descriptor() ([]byte, []int) {
 // CodeRegion is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type CodeRegion struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,11271,opt,name=code,proto3" json:"code,omitempty"`
-	EndColumn     int32                  `protobuf:"varint,18978,opt,name=end_column,json=endColumn,proto3" json:"end_column,omitempty"`
-	EndLine       int32                  `protobuf:"varint,7512,opt,name=end_line,json=endLine,proto3" json:"end_line,omitempty"`
-	File          string                 `protobuf:"bytes,1260,opt,name=file,proto3" json:"file,omitempty"`
-	StartColumn   int32                  `protobuf:"varint,5651,opt,name=start_column,json=startColumn,proto3" json:"start_column,omitempty"`
-	StartLine     int32                  `protobuf:"varint,11889,opt,name=start_line,json=startLine,proto3" json:"start_line,omitempty"`
+	Code          *string                `protobuf:"bytes,11271,opt,name=code,proto3,oneof" json:"code,omitempty"`
+	EndColumn     *int32                 `protobuf:"varint,18978,opt,name=end_column,json=endColumn,proto3,oneof" json:"end_column,omitempty"`
+	EndLine       *int32                 `protobuf:"varint,7512,opt,name=end_line,json=endLine,proto3,oneof" json:"end_line,omitempty"`
+	File          *string                `protobuf:"bytes,1260,opt,name=file,proto3,oneof" json:"file,omitempty"`
+	StartColumn   *int32                 `protobuf:"varint,5651,opt,name=start_column,json=startColumn,proto3,oneof" json:"start_column,omitempty"`
+	StartLine     *int32                 `protobuf:"varint,11889,opt,name=start_line,json=startLine,proto3,oneof" json:"start_line,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4439,43 +4439,43 @@ func (*CodeRegion) Descriptor() ([]byte, []int) {
 }
 
 func (x *CodeRegion) GetCode() string {
-	if x != nil {
-		return x.Code
+	if x != nil && x.Code != nil {
+		return *x.Code
 	}
 	return ""
 }
 
 func (x *CodeRegion) GetEndColumn() int32 {
-	if x != nil {
-		return x.EndColumn
+	if x != nil && x.EndColumn != nil {
+		return *x.EndColumn
 	}
 	return 0
 }
 
 func (x *CodeRegion) GetEndLine() int32 {
-	if x != nil {
-		return x.EndLine
+	if x != nil && x.EndLine != nil {
+		return *x.EndLine
 	}
 	return 0
 }
 
 func (x *CodeRegion) GetFile() string {
-	if x != nil {
-		return x.File
+	if x != nil && x.File != nil {
+		return *x.File
 	}
 	return ""
 }
 
 func (x *CodeRegion) GetStartColumn() int32 {
-	if x != nil {
-		return x.StartColumn
+	if x != nil && x.StartColumn != nil {
+		return *x.StartColumn
 	}
 	return 0
 }
 
 func (x *CodeRegion) GetStartLine() int32 {
-	if x != nil {
-		return x.StartLine
+	if x != nil && x.StartLine != nil {
+		return *x.StartLine
 	}
 	return 0
 }
@@ -4486,18 +4486,18 @@ func (x *CodeRegion) GetStartLine() int32 {
 // ReviewPercentageLastMonth is the percentage of merged pull requests with code reviews in the last 30 days.
 type CodeRepository struct {
 	state                        protoimpl.MessageState `protogen:"open.v1"`
-	ApprovedCommitAuthorEnforced bool                   `protobuf:"varint,16902,opt,name=approved_commit_author_enforced,json=approvedCommitAuthorEnforced,proto3" json:"approved_commit_author_enforced,omitempty"`
-	CreationTime                 *timestamppb.Timestamp `protobuf:"bytes,14345,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                  string                 `protobuf:"bytes,5754,opt,name=description,proto3" json:"description,omitempty"`
-	Id                           string                 `protobuf:"bytes,1358,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint   bool                   `protobuf:"varint,8874,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	ApprovedCommitAuthorEnforced *bool                  `protobuf:"varint,16902,opt,name=approved_commit_author_enforced,json=approvedCommitAuthorEnforced,proto3,oneof" json:"approved_commit_author_enforced,omitempty"`
+	CreationTime                 *timestamppb.Timestamp `protobuf:"bytes,14345,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                  *string                `protobuf:"bytes,5754,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                           *string                `protobuf:"bytes,1358,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint   *bool                  `protobuf:"varint,8874,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                       map[string]string      `protobuf:"bytes,6055,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                         string                 `protobuf:"bytes,12766,opt,name=name,proto3" json:"name,omitempty"`
-	NumberOfRequiredReviewers    int32                  `protobuf:"varint,11195,opt,name=number_of_required_reviewers,json=numberOfRequiredReviewers,proto3" json:"number_of_required_reviewers,omitempty"`
+	Name                         *string                `protobuf:"bytes,12766,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	NumberOfRequiredReviewers    *int32                 `protobuf:"varint,11195,opt,name=number_of_required_reviewers,json=numberOfRequiredReviewers,proto3,oneof" json:"number_of_required_reviewers,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,15664,opt,name=raw,proto3" json:"raw,omitempty"`
-	ReviewPercentage                 float32                           `protobuf:"fixed32,17697,opt,name=review_percentage,json=reviewPercentage,proto3" json:"review_percentage,omitempty"`
-	ReviewPercentageLastMonth        float32                           `protobuf:"fixed32,747,opt,name=review_percentage_last_month,json=reviewPercentageLastMonth,proto3" json:"review_percentage_last_month,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,15664,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
+	ReviewPercentage                 *float32                          `protobuf:"fixed32,17697,opt,name=review_percentage,json=reviewPercentage,proto3,oneof" json:"review_percentage,omitempty"`
+	ReviewPercentageLastMonth        *float32                          `protobuf:"fixed32,747,opt,name=review_percentage_last_month,json=reviewPercentageLastMonth,proto3,oneof" json:"review_percentage_last_month,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,1727,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	CodeSignoff                      *CodeSignoff                      `protobuf:"bytes,1837,opt,name=code_signoff,json=codeSignoff,proto3" json:"code_signoff,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,111,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -4543,8 +4543,8 @@ func (*CodeRepository) Descriptor() ([]byte, []int) {
 }
 
 func (x *CodeRepository) GetApprovedCommitAuthorEnforced() bool {
-	if x != nil {
-		return x.ApprovedCommitAuthorEnforced
+	if x != nil && x.ApprovedCommitAuthorEnforced != nil {
+		return *x.ApprovedCommitAuthorEnforced
 	}
 	return false
 }
@@ -4557,22 +4557,22 @@ func (x *CodeRepository) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *CodeRepository) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *CodeRepository) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *CodeRepository) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -4585,36 +4585,36 @@ func (x *CodeRepository) GetLabels() map[string]string {
 }
 
 func (x *CodeRepository) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *CodeRepository) GetNumberOfRequiredReviewers() int32 {
-	if x != nil {
-		return x.NumberOfRequiredReviewers
+	if x != nil && x.NumberOfRequiredReviewers != nil {
+		return *x.NumberOfRequiredReviewers
 	}
 	return 0
 }
 
 func (x *CodeRepository) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
 
 func (x *CodeRepository) GetReviewPercentage() float32 {
-	if x != nil {
-		return x.ReviewPercentage
+	if x != nil && x.ReviewPercentage != nil {
+		return *x.ReviewPercentage
 	}
 	return 0
 }
 
 func (x *CodeRepository) GetReviewPercentageLastMonth() float32 {
-	if x != nil {
-		return x.ReviewPercentageLastMonth
+	if x != nil && x.ReviewPercentageLastMonth != nil {
+		return *x.ReviewPercentageLastMonth
 	}
 	return 0
 }
@@ -4695,9 +4695,9 @@ func (x *CodeRepository) GetVerifiedCommits() *VerifiedCommits {
 // Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository
 type CodeSignoff struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
-	Enforced            bool                   `protobuf:"varint,18628,opt,name=enforced,proto3" json:"enforced,omitempty"`
-	Percentage          float32                `protobuf:"fixed32,12099,opt,name=percentage,proto3" json:"percentage,omitempty"`
-	PercentageLastMonth float32                `protobuf:"fixed32,3739,opt,name=percentage_last_month,json=percentageLastMonth,proto3" json:"percentage_last_month,omitempty"`
+	Enforced            *bool                  `protobuf:"varint,18628,opt,name=enforced,proto3,oneof" json:"enforced,omitempty"`
+	Percentage          *float32               `protobuf:"fixed32,12099,opt,name=percentage,proto3,oneof" json:"percentage,omitempty"`
+	PercentageLastMonth *float32               `protobuf:"fixed32,3739,opt,name=percentage_last_month,json=percentageLastMonth,proto3,oneof" json:"percentage_last_month,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -4733,22 +4733,22 @@ func (*CodeSignoff) Descriptor() ([]byte, []int) {
 }
 
 func (x *CodeSignoff) GetEnforced() bool {
-	if x != nil {
-		return x.Enforced
+	if x != nil && x.Enforced != nil {
+		return *x.Enforced
 	}
 	return false
 }
 
 func (x *CodeSignoff) GetPercentage() float32 {
-	if x != nil {
-		return x.Percentage
+	if x != nil && x.Percentage != nil {
+		return *x.Percentage
 	}
 	return 0
 }
 
 func (x *CodeSignoff) GetPercentageLastMonth() float32 {
-	if x != nil {
-		return x.PercentageLastMonth
+	if x != nil && x.PercentageLastMonth != nil {
+		return *x.PercentageLastMonth
 	}
 	return 0
 }
@@ -4757,7 +4757,7 @@ func (x *CodeSignoff) GetPercentageLastMonth() float32 {
 type ComplianceAuditIntervalPolicy struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The time needed for an audit.
-	AuditInterval int32 `protobuf:"varint,7826,opt,name=audit_interval,json=auditInterval,proto3" json:"audit_interval,omitempty"`
+	AuditInterval *int32 `protobuf:"varint,7826,opt,name=audit_interval,json=auditInterval,proto3,oneof" json:"audit_interval,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4793,8 +4793,8 @@ func (*ComplianceAuditIntervalPolicy) Descriptor() ([]byte, []int) {
 }
 
 func (x *ComplianceAuditIntervalPolicy) GetAuditInterval() int32 {
-	if x != nil {
-		return x.AuditInterval
+	if x != nil && x.AuditInterval != nil {
+		return *x.AuditInterval
 	}
 	return 0
 }
@@ -4802,7 +4802,7 @@ func (x *ComplianceAuditIntervalPolicy) GetAuditInterval() int32 {
 // ComplianceMethodologyPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ComplianceMethodologyPolicy struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Methodology   string                 `protobuf:"bytes,8814,opt,name=methodology,proto3" json:"methodology,omitempty"`
+	Methodology   *string                `protobuf:"bytes,8814,opt,name=methodology,proto3,oneof" json:"methodology,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4838,8 +4838,8 @@ func (*ComplianceMethodologyPolicy) Descriptor() ([]byte, []int) {
 }
 
 func (x *ComplianceMethodologyPolicy) GetMethodology() string {
-	if x != nil {
-		return x.Methodology
+	if x != nil && x.Methodology != nil {
+		return *x.Methodology
 	}
 	return ""
 }
@@ -5177,13 +5177,13 @@ func (*Confidentiality_EncryptionInUse) isConfidentiality_Type() {}
 // Represents the abstract concept of a "configuration". This is a common pattern in many programming languages, where a data structure in code represents an aggregation of configuration values. For example, in Python, the [`configparser`](https://docs.python.org/3/library/configparser.html) module is used to read INI files, and the config values are represented as a dictionary-like object. Often, the configuration is loaded from multiple sources, such as INI files, environment variables, and command-line arguments.
 type Configuration struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,9313,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,4417,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,6322,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,9313,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,4417,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,6322,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,201,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,6896,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,6896,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                   string        `protobuf:"bytes,17099,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                   *string       `protobuf:"bytes,17099,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ConfigurationGroupIds []string      `protobuf:"bytes,7024,rep,name=configuration_group_ids,json=configurationGroupIds,proto3" json:"configuration_group_ids,omitempty"`
 	DataLocation          *DataLocation `protobuf:"bytes,5147,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId              *string       `protobuf:"bytes,13616,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
@@ -5229,15 +5229,15 @@ func (x *Configuration) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Configuration) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Configuration) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -5250,15 +5250,15 @@ func (x *Configuration) GetLabels() map[string]string {
 }
 
 func (x *Configuration) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Configuration) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -5287,14 +5287,14 @@ func (x *Configuration) GetParentId() string {
 // ConfigurationDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ConfigurationDocument struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,366,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,13594,opt,name=description,proto3" json:"description,omitempty"`
-	Filetype     string                 `protobuf:"bytes,17989,opt,name=filetype,proto3" json:"filetype,omitempty"`
-	Id           string                 `protobuf:"bytes,6200,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,366,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,13594,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Filetype     *string                `protobuf:"bytes,17989,opt,name=filetype,proto3,oneof" json:"filetype,omitempty"`
+	Id           *string                `protobuf:"bytes,6200,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,656,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,1266,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,1266,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                string               `protobuf:"bytes,1506,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                *string              `protobuf:"bytes,1506,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,11524,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
 	DataLocation       *DataLocation        `protobuf:"bytes,1817,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,14626,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
@@ -5343,22 +5343,22 @@ func (x *ConfigurationDocument) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ConfigurationDocument) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ConfigurationDocument) GetFiletype() string {
-	if x != nil {
-		return x.Filetype
+	if x != nil && x.Filetype != nil {
+		return *x.Filetype
 	}
 	return ""
 }
 
 func (x *ConfigurationDocument) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -5371,15 +5371,15 @@ func (x *ConfigurationDocument) GetLabels() map[string]string {
 }
 
 func (x *ConfigurationDocument) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ConfigurationDocument) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -5430,13 +5430,13 @@ func (x *ConfigurationDocument) GetSecurityFeatures() []*SecurityFeature {
 // Represents a group of configuration values within one [conf]. Depending on the type of configuration data structure, there might only be one group (e.g., a "default" one), or there might be several groups. For example, when loading a config from an INI file, each section would be mapped to a [ConfigurationGroup], and each key-value pair would be mapped to an [ConfigurationOption] within this group.
 type ConfigurationGroup struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,12120,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,3778,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,17529,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,12120,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,3778,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,17529,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,1612,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,14875,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,14875,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                    string        `protobuf:"bytes,15135,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                    *string       `protobuf:"bytes,15135,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ConfigurationId        *string       `protobuf:"bytes,3610,opt,name=configuration_id,json=configurationId,proto3,oneof" json:"configuration_id,omitempty"`
 	ConfigurationOptionIds []string      `protobuf:"bytes,5873,rep,name=configuration_option_ids,json=configurationOptionIds,proto3" json:"configuration_option_ids,omitempty"`
 	DataLocation           *DataLocation `protobuf:"bytes,10960,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
@@ -5483,15 +5483,15 @@ func (x *ConfigurationGroup) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ConfigurationGroup) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ConfigurationGroup) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -5504,15 +5504,15 @@ func (x *ConfigurationGroup) GetLabels() map[string]string {
 }
 
 func (x *ConfigurationGroup) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ConfigurationGroup) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -5549,13 +5549,13 @@ func (x *ConfigurationGroup) GetParentId() string {
 // Represents a possible group source for a configuration group. For example, when loading an INI file with our INI file frontend, each section is presented as a [RecordDeclaration]. This record declaration would be the source of the configuration group.
 type ConfigurationGroupSource struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,10113,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,9933,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,12139,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,10113,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,9933,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,12139,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,2039,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,7188,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,7188,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,10682,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw           *string       `protobuf:"bytes,10682,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	DataLocation  *DataLocation `protobuf:"bytes,9790,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,11712,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -5600,15 +5600,15 @@ func (x *ConfigurationGroupSource) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ConfigurationGroupSource) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ConfigurationGroupSource) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -5621,15 +5621,15 @@ func (x *ConfigurationGroupSource) GetLabels() map[string]string {
 }
 
 func (x *ConfigurationGroupSource) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ConfigurationGroupSource) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -5831,13 +5831,13 @@ func (*ConfigurationOperation_RegisterConfigurationOption) isConfigurationOperat
 // Represents a configuration option within one [group]. Usually there is one option for each entry in a configuration data structure.
 type ConfigurationOption struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,9806,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,11906,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,7923,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,9806,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,11906,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,7923,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,16245,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,17275,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,17275,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                  string        `protobuf:"bytes,8644,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                  *string       `protobuf:"bytes,8644,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ConfigurationGroupId *string       `protobuf:"bytes,6079,opt,name=configuration_group_id,json=configurationGroupId,proto3,oneof" json:"configuration_group_id,omitempty"`
 	DataLocation         *DataLocation `protobuf:"bytes,17197,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	KeyId                *string       `protobuf:"bytes,12044,opt,name=key_id,json=keyId,proto3,oneof" json:"key_id,omitempty"`
@@ -5885,15 +5885,15 @@ func (x *ConfigurationOption) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ConfigurationOption) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ConfigurationOption) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -5906,15 +5906,15 @@ func (x *ConfigurationOption) GetLabels() map[string]string {
 }
 
 func (x *ConfigurationOption) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ConfigurationOption) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -5958,13 +5958,13 @@ func (x *ConfigurationOption) GetValueId() string {
 // Represents a possible option source for a configuration option. For example, when loading an INI file with our INI file frontend, each key-value pair is presented as a [FieldDeclaration]. This field declaration would be the source to the configuration option.
 type ConfigurationOptionSource struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,9931,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,9308,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,6310,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,9931,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,9308,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,6310,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,7763,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,15744,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,15744,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,9031,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw           *string       `protobuf:"bytes,9031,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	DataLocation  *DataLocation `protobuf:"bytes,11870,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,312,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -6009,15 +6009,15 @@ func (x *ConfigurationOptionSource) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ConfigurationOptionSource) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ConfigurationOptionSource) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -6030,15 +6030,15 @@ func (x *ConfigurationOptionSource) GetLabels() map[string]string {
 }
 
 func (x *ConfigurationOptionSource) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ConfigurationOptionSource) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -6061,13 +6061,13 @@ func (x *ConfigurationOptionSource) GetParentId() string {
 // Represents a possible source for a configuration. For example, when loading an INI file with our INI file frontend, the whole file would be represented as a [TranslationUnitDeclaration]. This translation unit declaration would be the source of the configuration.
 type ConfigurationSource struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,13741,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,10663,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,7343,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,13741,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,10663,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,7343,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,8766,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,8639,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,8639,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                         string        `protobuf:"bytes,16840,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                         *string       `protobuf:"bytes,16840,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ConfigurationGroupSourceIds []string      `protobuf:"bytes,4705,rep,name=configuration_group_source_ids,json=configurationGroupSourceIds,proto3" json:"configuration_group_source_ids,omitempty"`
 	DataLocation                *DataLocation `protobuf:"bytes,16924,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId                    *string       `protobuf:"bytes,12170,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
@@ -6113,15 +6113,15 @@ func (x *ConfigurationSource) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ConfigurationSource) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ConfigurationSource) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -6134,15 +6134,15 @@ func (x *ConfigurationSource) GetLabels() map[string]string {
 }
 
 func (x *ConfigurationSource) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ConfigurationSource) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -6171,9 +6171,9 @@ func (x *ConfigurationSource) GetParentId() string {
 // ContactPerson is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ContactPerson struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	EmailAddress  string                 `protobuf:"bytes,15629,opt,name=email_address,json=emailAddress,proto3" json:"email_address,omitempty"`
-	JobTitle      string                 `protobuf:"bytes,6896,opt,name=job_title,json=jobTitle,proto3" json:"job_title,omitempty"`
-	PhoneNumber   string                 `protobuf:"bytes,13203,opt,name=phone_number,json=phoneNumber,proto3" json:"phone_number,omitempty"`
+	EmailAddress  *string                `protobuf:"bytes,15629,opt,name=email_address,json=emailAddress,proto3,oneof" json:"email_address,omitempty"`
+	JobTitle      *string                `protobuf:"bytes,6896,opt,name=job_title,json=jobTitle,proto3,oneof" json:"job_title,omitempty"`
+	PhoneNumber   *string                `protobuf:"bytes,13203,opt,name=phone_number,json=phoneNumber,proto3,oneof" json:"phone_number,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -6209,22 +6209,22 @@ func (*ContactPerson) Descriptor() ([]byte, []int) {
 }
 
 func (x *ContactPerson) GetEmailAddress() string {
-	if x != nil {
-		return x.EmailAddress
+	if x != nil && x.EmailAddress != nil {
+		return *x.EmailAddress
 	}
 	return ""
 }
 
 func (x *ContactPerson) GetJobTitle() string {
-	if x != nil {
-		return x.JobTitle
+	if x != nil && x.JobTitle != nil {
+		return *x.JobTitle
 	}
 	return ""
 }
 
 func (x *ContactPerson) GetPhoneNumber() string {
-	if x != nil {
-		return x.PhoneNumber
+	if x != nil && x.PhoneNumber != nil {
+		return *x.PhoneNumber
 	}
 	return ""
 }
@@ -6232,14 +6232,14 @@ func (x *ContactPerson) GetPhoneNumber() string {
 // Container is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Container struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,9429,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,12773,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,903,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,10112,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,9429,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,12773,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,903,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,10112,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,13214,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,736,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,736,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,18367,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,18367,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,1837,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	EncryptionInUse                  *EncryptionInUse                  `protobuf:"bytes,295,opt,name=encryption_in_use,json=encryptionInUse,proto3" json:"encryption_in_use,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,5503,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -6294,22 +6294,22 @@ func (x *Container) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Container) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Container) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *Container) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -6322,15 +6322,15 @@ func (x *Container) GetLabels() map[string]string {
 }
 
 func (x *Container) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Container) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -6422,14 +6422,14 @@ func (x *Container) GetUsageStatistics() *UsageStatistics {
 // ContainerImage is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ContainerImage struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,11155,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,10874,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,6384,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,13186,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,11155,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,10874,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,6384,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,13186,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,18019,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,2181,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,2181,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,10543,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,10543,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ApplicationId                    *string                           `protobuf:"bytes,758,opt,name=application_id,json=applicationId,proto3,oneof" json:"application_id,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3018,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,117,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -6480,22 +6480,22 @@ func (x *ContainerImage) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ContainerImage) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ContainerImage) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *ContainerImage) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -6508,15 +6508,15 @@ func (x *ContainerImage) GetLabels() map[string]string {
 }
 
 func (x *ContainerImage) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ContainerImage) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -6580,15 +6580,15 @@ func (x *ContainerImage) GetUsageStatistics() *UsageStatistics {
 // ContainerOrchestration is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ContainerOrchestration struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,10116,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,259,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,12671,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,2619,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,10116,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,259,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,12671,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,2619,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,15294,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	ManagementUrl              string                 `protobuf:"bytes,1007,opt,name=management_url,json=managementUrl,proto3" json:"management_url,omitempty"`
-	Name                       string                 `protobuf:"bytes,18187,opt,name=name,proto3" json:"name,omitempty"`
+	ManagementUrl              *string                `protobuf:"bytes,1007,opt,name=management_url,json=managementUrl,proto3,oneof" json:"management_url,omitempty"`
+	Name                       *string                `protobuf:"bytes,18187,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,17471,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,17471,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,4641,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ContainerIds                     []string                          `protobuf:"bytes,1059,rep,name=container_ids,json=containerIds,proto3" json:"container_ids,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8832,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -6640,22 +6640,22 @@ func (x *ContainerOrchestration) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ContainerOrchestration) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ContainerOrchestration) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *ContainerOrchestration) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -6668,22 +6668,22 @@ func (x *ContainerOrchestration) GetLabels() map[string]string {
 }
 
 func (x *ContainerOrchestration) GetManagementUrl() string {
-	if x != nil {
-		return x.ManagementUrl
+	if x != nil && x.ManagementUrl != nil {
+		return *x.ManagementUrl
 	}
 	return ""
 }
 
 func (x *ContainerOrchestration) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ContainerOrchestration) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -6754,14 +6754,14 @@ func (x *ContainerOrchestration) GetUsageStatistics() *UsageStatistics {
 // ContainerRegistry is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ContainerRegistry struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,4243,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,17637,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,17713,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,12721,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,4243,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,17637,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,17713,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,12721,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,2453,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,1523,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,1523,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,5030,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,5030,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,8763,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,5019,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,685,rep,name=loggings,proto3" json:"loggings,omitempty"`
@@ -6811,22 +6811,22 @@ func (x *ContainerRegistry) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ContainerRegistry) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ContainerRegistry) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *ContainerRegistry) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -6839,15 +6839,15 @@ func (x *ContainerRegistry) GetLabels() map[string]string {
 }
 
 func (x *ContainerRegistry) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ContainerRegistry) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -6905,13 +6905,13 @@ func (x *ContainerRegistry) GetUsageStatistics() *UsageStatistics {
 // Represents a context in which a policy is applied. Typically, a context contains information about a user or some other form of identity (e.g. a [Principal]).
 type Context struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,8888,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,18745,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,2967,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,8888,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,18745,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,2967,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,16579,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,12248,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,12248,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,4517,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw           *string       `protobuf:"bytes,4517,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	DataLocation  *DataLocation `protobuf:"bytes,14574,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,5287,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -6956,15 +6956,15 @@ func (x *Context) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Context) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Context) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -6977,15 +6977,15 @@ func (x *Context) GetLabels() map[string]string {
 }
 
 func (x *Context) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Context) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -7007,13 +7007,13 @@ func (x *Context) GetParentId() string {
 // CoordinatedVulnerabilityDisclosurePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type CoordinatedVulnerabilityDisclosurePolicy struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,16538,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,7702,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,4638,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,16538,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,7702,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,4638,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,13066,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,17333,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,17333,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,2293,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw           *string       `protobuf:"bytes,2293,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ContextId     *string       `protobuf:"bytes,13420,opt,name=context_id,json=contextId,proto3,oneof" json:"context_id,omitempty"`
 	DataLocation  *DataLocation `protobuf:"bytes,7041,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	PolicyRuleIds []string      `protobuf:"bytes,17592,rep,name=policy_rule_ids,json=policyRuleIds,proto3" json:"policy_rule_ids,omitempty"`
@@ -7060,15 +7060,15 @@ func (x *CoordinatedVulnerabilityDisclosurePolicy) GetCreationTime() *timestampp
 }
 
 func (x *CoordinatedVulnerabilityDisclosurePolicy) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *CoordinatedVulnerabilityDisclosurePolicy) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -7081,15 +7081,15 @@ func (x *CoordinatedVulnerabilityDisclosurePolicy) GetLabels() map[string]string
 }
 
 func (x *CoordinatedVulnerabilityDisclosurePolicy) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *CoordinatedVulnerabilityDisclosurePolicy) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -7461,7 +7461,7 @@ func (*Credential_Secret) isCredential_Type() {}
 // CryptographicHash is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type CryptographicHash struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Algorithm     string                 `protobuf:"bytes,18383,opt,name=algorithm,proto3" json:"algorithm,omitempty"`
+	Algorithm     *string                `protobuf:"bytes,18383,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
 	Errors        []*Error               `protobuf:"bytes,4094,rep,name=errors,proto3" json:"errors,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -7498,8 +7498,8 @@ func (*CryptographicHash) Descriptor() ([]byte, []int) {
 }
 
 func (x *CryptographicHash) GetAlgorithm() string {
-	if x != nil {
-		return x.Algorithm
+	if x != nil && x.Algorithm != nil {
+		return *x.Algorithm
 	}
 	return ""
 }
@@ -7581,9 +7581,9 @@ func (*CryptographicOperation_HashOperation) isCryptographicOperation_Type() {}
 // CustomerKeyEncryption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type CustomerKeyEncryption struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Algorithm     string                 `protobuf:"bytes,12685,opt,name=algorithm,proto3" json:"algorithm,omitempty"`
-	Enabled       bool                   `protobuf:"varint,14976,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	KeyUrl        string                 `protobuf:"bytes,13999,opt,name=key_url,json=keyUrl,proto3" json:"key_url,omitempty"`
+	Algorithm     *string                `protobuf:"bytes,12685,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
+	Enabled       *bool                  `protobuf:"varint,14976,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	KeyUrl        *string                `protobuf:"bytes,13999,opt,name=key_url,json=keyUrl,proto3,oneof" json:"key_url,omitempty"`
 	BasedOn       *Cipher                `protobuf:"bytes,13151,opt,name=based_on,json=basedOn,proto3" json:"based_on,omitempty"`
 	SecretId      *string                `protobuf:"bytes,4394,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -7621,22 +7621,22 @@ func (*CustomerKeyEncryption) Descriptor() ([]byte, []int) {
 }
 
 func (x *CustomerKeyEncryption) GetAlgorithm() string {
-	if x != nil {
-		return x.Algorithm
+	if x != nil && x.Algorithm != nil {
+		return *x.Algorithm
 	}
 	return ""
 }
 
 func (x *CustomerKeyEncryption) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *CustomerKeyEncryption) GetKeyUrl() string {
-	if x != nil {
-		return x.KeyUrl
+	if x != nil && x.KeyUrl != nil {
+		return *x.KeyUrl
 	}
 	return ""
 }
@@ -7658,14 +7658,14 @@ func (x *CustomerKeyEncryption) GetSecretId() string {
 // CyberSecurityRiskAssessmentDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type CyberSecurityRiskAssessmentDocument struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,12137,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,7939,opt,name=description,proto3" json:"description,omitempty"`
-	Filetype     string                 `protobuf:"bytes,4377,opt,name=filetype,proto3" json:"filetype,omitempty"`
-	Id           string                 `protobuf:"bytes,1847,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,12137,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,7939,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Filetype     *string                `protobuf:"bytes,4377,opt,name=filetype,proto3,oneof" json:"filetype,omitempty"`
+	Id           *string                `protobuf:"bytes,1847,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,17859,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,4291,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,4291,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                string               `protobuf:"bytes,14695,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                *string              `protobuf:"bytes,14695,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,8879,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
 	DataLocation       *DataLocation        `protobuf:"bytes,10511,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,6497,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
@@ -7714,22 +7714,22 @@ func (x *CyberSecurityRiskAssessmentDocument) GetCreationTime() *timestamppb.Tim
 }
 
 func (x *CyberSecurityRiskAssessmentDocument) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *CyberSecurityRiskAssessmentDocument) GetFiletype() string {
-	if x != nil {
-		return x.Filetype
+	if x != nil && x.Filetype != nil {
+		return *x.Filetype
 	}
 	return ""
 }
 
 func (x *CyberSecurityRiskAssessmentDocument) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -7742,15 +7742,15 @@ func (x *CyberSecurityRiskAssessmentDocument) GetLabels() map[string]string {
 }
 
 func (x *CyberSecurityRiskAssessmentDocument) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *CyberSecurityRiskAssessmentDocument) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -7838,13 +7838,13 @@ func (*DDoSProtection) Descriptor() ([]byte, []int) {
 // Represents a Darwin architecture, commonly found on macOS systems. macOS is a certified. [UNIX](https://www.opengroup.org/openbrand/register/apple.htm) and is (mostly) POSIX compatible.
 type Darwin struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,11803,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,6451,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,18308,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,11803,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,6451,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,18308,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,4761,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,9393,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,9393,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                  string                 `protobuf:"bytes,12162,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                  *string                `protobuf:"bytes,12162,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CodeModuleIds        []string               `protobuf:"bytes,3304,rep,name=code_module_ids,json=codeModuleIds,proto3" json:"code_module_ids,omitempty"`
 	CodeRepositoryId     *string                `protobuf:"bytes,3877,opt,name=code_repository_id,json=codeRepositoryId,proto3,oneof" json:"code_repository_id,omitempty"`
 	Functionalities      []*Functionality       `protobuf:"bytes,12307,rep,name=functionalities,proto3" json:"functionalities,omitempty"`
@@ -7892,15 +7892,15 @@ func (x *Darwin) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Darwin) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Darwin) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -7913,15 +7913,15 @@ func (x *Darwin) GetLabels() map[string]string {
 }
 
 func (x *Darwin) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Darwin) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -8448,7 +8448,7 @@ func (*Data_Value) isData_Type() {}
 // Represents a policy section within a [PolicyDocument] describing data confidentiality requirements for Software Defined Networking (SDN). isDefined: whether this policy section is present and defined.
 type DataConfidentialitySDNPolicy struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	IsDefined     bool                   `protobuf:"varint,1199,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
+	IsDefined     *bool                  `protobuf:"varint,1199,opt,name=is_defined,json=isDefined,proto3,oneof" json:"is_defined,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8484,8 +8484,8 @@ func (*DataConfidentialitySDNPolicy) Descriptor() ([]byte, []int) {
 }
 
 func (x *DataConfidentialitySDNPolicy) GetIsDefined() bool {
-	if x != nil {
-		return x.IsDefined
+	if x != nil && x.IsDefined != nil {
+		return *x.IsDefined
 	}
 	return false
 }
@@ -8730,7 +8730,7 @@ func (*DatabaseOperation_DatabaseQuery) isDatabaseOperation_Type() {}
 type DatabaseQuery struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	Calls              []string               `protobuf:"bytes,7647,rep,name=calls,proto3" json:"calls,omitempty"`
-	Modify             bool                   `protobuf:"varint,7601,opt,name=modify,proto3" json:"modify,omitempty"`
+	Modify             *bool                  `protobuf:"varint,7601,opt,name=modify,proto3,oneof" json:"modify,omitempty"`
 	CodeRegion         *CodeRegion            `protobuf:"bytes,5643,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	DatabaseServiceIds []string               `protobuf:"bytes,10199,rep,name=database_service_ids,json=databaseServiceIds,proto3" json:"database_service_ids,omitempty"`
 	DatabaseStorageId  *string                `protobuf:"bytes,15992,opt,name=database_storage_id,json=databaseStorageId,proto3,oneof" json:"database_storage_id,omitempty"`
@@ -8776,8 +8776,8 @@ func (x *DatabaseQuery) GetCalls() []string {
 }
 
 func (x *DatabaseQuery) GetModify() bool {
-	if x != nil {
-		return x.Modify
+	if x != nil && x.Modify != nil {
+		return *x.Modify
 	}
 	return false
 }
@@ -8923,15 +8923,15 @@ func (*DatabaseService_RelationalDatabaseService) isDatabaseService_Type() {}
 // describes the actual database or a table in a database
 type DatabaseStorage struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,14609,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,4217,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,5278,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,10131,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,14609,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,4217,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,5278,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,10131,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,15362,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,1264,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,1264,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,11538,opt,name=raw,proto3" json:"raw,omitempty"`
-	Ttl                              float64                           `protobuf:"fixed64,6277,opt,name=ttl,proto3" json:"ttl,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,11538,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
+	Ttl                              *float64                          `protobuf:"fixed64,6277,opt,name=ttl,proto3,oneof" json:"ttl,omitempty"`
 	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,14738,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AtRestEncryption                 *AtRestEncryption                 `protobuf:"bytes,16710,opt,name=at_rest_encryption,json=atRestEncryption,proto3" json:"at_rest_encryption,omitempty"`
 	Backups                          []*Backup                         `protobuf:"bytes,6649,rep,name=backups,proto3" json:"backups,omitempty"`
@@ -8986,22 +8986,22 @@ func (x *DatabaseStorage) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *DatabaseStorage) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *DatabaseStorage) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *DatabaseStorage) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -9014,22 +9014,22 @@ func (x *DatabaseStorage) GetLabels() map[string]string {
 }
 
 func (x *DatabaseStorage) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *DatabaseStorage) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
 
 func (x *DatabaseStorage) GetTtl() float64 {
-	if x != nil {
-		return x.Ttl
+	if x != nil && x.Ttl != nil {
+		return *x.Ttl
 	}
 	return 0
 }
@@ -9175,7 +9175,7 @@ func (x *DeAllocate) GetMemoryId() string {
 // Decryption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Decryption struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Algorithm     string                 `protobuf:"bytes,7747,opt,name=algorithm,proto3" json:"algorithm,omitempty"`
+	Algorithm     *string                `protobuf:"bytes,7747,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
 	Cipher        *Cipher                `protobuf:"bytes,10213,opt,name=cipher,proto3" json:"cipher,omitempty"`
 	CodeRegion    *CodeRegion            `protobuf:"bytes,7584,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	SecretId      *string                `protobuf:"bytes,2937,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
@@ -9214,8 +9214,8 @@ func (*Decryption) Descriptor() ([]byte, []int) {
 }
 
 func (x *Decryption) GetAlgorithm() string {
-	if x != nil {
-		return x.Algorithm
+	if x != nil && x.Algorithm != nil {
+		return *x.Algorithm
 	}
 	return ""
 }
@@ -9244,14 +9244,14 @@ func (x *Decryption) GetSecretId() string {
 // DeviceProvisioningService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type DeviceProvisioningService struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,17874,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,18095,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,18723,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,15029,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,17874,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,18095,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,18723,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,15029,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,5934,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,9731,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,9731,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,14841,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,14841,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,18538,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,3548,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,3832,rep,name=loggings,proto3" json:"loggings,omitempty"`
@@ -9301,22 +9301,22 @@ func (x *DeviceProvisioningService) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *DeviceProvisioningService) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *DeviceProvisioningService) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *DeviceProvisioningService) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -9329,15 +9329,15 @@ func (x *DeviceProvisioningService) GetLabels() map[string]string {
 }
 
 func (x *DeviceProvisioningService) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *DeviceProvisioningService) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -9394,9 +9394,9 @@ func (x *DeviceProvisioningService) GetUsageStatistics() *UsageStatistics {
 // DiskEncryption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type DiskEncryption struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Algorithm     string                 `protobuf:"bytes,2867,opt,name=algorithm,proto3" json:"algorithm,omitempty"`
-	Enabled       bool                   `protobuf:"varint,9285,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	KeyUrl        string                 `protobuf:"bytes,6086,opt,name=key_url,json=keyUrl,proto3" json:"key_url,omitempty"`
+	Algorithm     *string                `protobuf:"bytes,2867,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
+	Enabled       *bool                  `protobuf:"varint,9285,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	KeyUrl        *string                `protobuf:"bytes,6086,opt,name=key_url,json=keyUrl,proto3,oneof" json:"key_url,omitempty"`
 	UsedBy        *BlockStorage          `protobuf:"bytes,14240,opt,name=used_by,json=usedBy,proto3" json:"used_by,omitempty"`
 	BasedOn       *Cipher                `protobuf:"bytes,6881,opt,name=based_on,json=basedOn,proto3" json:"based_on,omitempty"`
 	SecretId      *string                `protobuf:"bytes,10114,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
@@ -9435,22 +9435,22 @@ func (*DiskEncryption) Descriptor() ([]byte, []int) {
 }
 
 func (x *DiskEncryption) GetAlgorithm() string {
-	if x != nil {
-		return x.Algorithm
+	if x != nil && x.Algorithm != nil {
+		return *x.Algorithm
 	}
 	return ""
 }
 
 func (x *DiskEncryption) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *DiskEncryption) GetKeyUrl() string {
-	if x != nil {
-		return x.KeyUrl
+	if x != nil && x.KeyUrl != nil {
+		return *x.KeyUrl
 	}
 	return ""
 }
@@ -9562,14 +9562,14 @@ func (*DiskEncryptionOperation_UnlockEncryptedDisk) isDiskEncryptionOperation_Ty
 // DistributionOfUpdatesDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type DistributionOfUpdatesDocument struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,2668,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,8362,opt,name=description,proto3" json:"description,omitempty"`
-	Filetype     string                 `protobuf:"bytes,6744,opt,name=filetype,proto3" json:"filetype,omitempty"`
-	Id           string                 `protobuf:"bytes,3219,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,2668,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,8362,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Filetype     *string                `protobuf:"bytes,6744,opt,name=filetype,proto3,oneof" json:"filetype,omitempty"`
+	Id           *string                `protobuf:"bytes,3219,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,11149,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,9560,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,9560,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                string               `protobuf:"bytes,3530,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                *string              `protobuf:"bytes,3530,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,10781,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
 	DataLocation       *DataLocation        `protobuf:"bytes,18419,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,12279,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
@@ -9618,22 +9618,22 @@ func (x *DistributionOfUpdatesDocument) GetCreationTime() *timestamppb.Timestamp
 }
 
 func (x *DistributionOfUpdatesDocument) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *DistributionOfUpdatesDocument) GetFiletype() string {
-	if x != nil {
-		return x.Filetype
+	if x != nil && x.Filetype != nil {
+		return *x.Filetype
 	}
 	return ""
 }
 
 func (x *DistributionOfUpdatesDocument) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -9646,15 +9646,15 @@ func (x *DistributionOfUpdatesDocument) GetLabels() map[string]string {
 }
 
 func (x *DistributionOfUpdatesDocument) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *DistributionOfUpdatesDocument) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -9948,16 +9948,16 @@ func (*Document_UserInformationAndIntructionDocument) isDocument_Type() {}
 // DocumentDatabaseService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type DocumentDatabaseService struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,11758,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,13774,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,7556,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,9855,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,11758,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,13774,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,7556,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,9855,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Ips                        []string               `protobuf:"bytes,7051,rep,name=ips,proto3" json:"ips,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,3177,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,12726,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,12726,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Ports                      []uint32               `protobuf:"varint,10225,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,7317,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,7317,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,6357,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AnomalyDetections                []*AnomalyDetection               `protobuf:"bytes,3091,rep,name=anomaly_detections,json=anomalyDetections,proto3" json:"anomaly_detections,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,12101,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
@@ -10014,22 +10014,22 @@ func (x *DocumentDatabaseService) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *DocumentDatabaseService) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *DocumentDatabaseService) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *DocumentDatabaseService) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -10049,8 +10049,8 @@ func (x *DocumentDatabaseService) GetLabels() map[string]string {
 }
 
 func (x *DocumentDatabaseService) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -10063,8 +10063,8 @@ func (x *DocumentDatabaseService) GetPorts() []uint32 {
 }
 
 func (x *DocumentDatabaseService) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -10292,14 +10292,14 @@ func (*DynamicLoadingOperation_LoadSymbol) isDynamicLoadingOperation_Type() {}
 // EUDeclarationOfConformity is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type EUDeclarationOfConformity struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,4057,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,6464,opt,name=description,proto3" json:"description,omitempty"`
-	Filetype     string                 `protobuf:"bytes,1936,opt,name=filetype,proto3" json:"filetype,omitempty"`
-	Id           string                 `protobuf:"bytes,6567,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,4057,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,6464,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Filetype     *string                `protobuf:"bytes,1936,opt,name=filetype,proto3,oneof" json:"filetype,omitempty"`
+	Id           *string                `protobuf:"bytes,6567,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,17602,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,10440,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,10440,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                string               `protobuf:"bytes,3395,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                *string              `protobuf:"bytes,3395,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,16462,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
 	DataLocation       *DataLocation        `protobuf:"bytes,5046,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,18195,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
@@ -10348,22 +10348,22 @@ func (x *EUDeclarationOfConformity) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *EUDeclarationOfConformity) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *EUDeclarationOfConformity) GetFiletype() string {
-	if x != nil {
-		return x.Filetype
+	if x != nil && x.Filetype != nil {
+		return *x.Filetype
 	}
 	return ""
 }
 
 func (x *EUDeclarationOfConformity) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -10376,15 +10376,15 @@ func (x *EUDeclarationOfConformity) GetLabels() map[string]string {
 }
 
 func (x *EUDeclarationOfConformity) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *EUDeclarationOfConformity) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -10550,7 +10550,7 @@ func (*Encryption_TransportEncryption) isEncryption_Type() {}
 // EncryptionInUse is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type EncryptionInUse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Enabled       bool                   `protobuf:"varint,8542,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled       *bool                  `protobuf:"varint,8542,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -10586,8 +10586,8 @@ func (*EncryptionInUse) Descriptor() ([]byte, []int) {
 }
 
 func (x *EncryptionInUse) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
@@ -10595,7 +10595,7 @@ func (x *EncryptionInUse) GetEnabled() bool {
 // EncryptionOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type EncryptionOperation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Algorithm     string                 `protobuf:"bytes,15092,opt,name=algorithm,proto3" json:"algorithm,omitempty"`
+	Algorithm     *string                `protobuf:"bytes,15092,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
 	CodeRegion    *CodeRegion            `protobuf:"bytes,14814,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	Encryption    *Encryption            `protobuf:"bytes,9123,opt,name=encryption,proto3" json:"encryption,omitempty"`
 	SecretId      *string                `protobuf:"bytes,7662,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
@@ -10634,8 +10634,8 @@ func (*EncryptionOperation) Descriptor() ([]byte, []int) {
 }
 
 func (x *EncryptionOperation) GetAlgorithm() string {
-	if x != nil {
-		return x.Algorithm
+	if x != nil && x.Algorithm != nil {
+		return *x.Algorithm
 	}
 	return ""
 }
@@ -10834,7 +10834,7 @@ func (x *EqualityCheck) GetRightPrincipal() *Principal {
 // Error is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Error struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,3497,opt,name=message,proto3" json:"message,omitempty"`
+	Message       *string                `protobuf:"bytes,3497,opt,name=message,proto3,oneof" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -10870,8 +10870,8 @@ func (*Error) Descriptor() ([]byte, []int) {
 }
 
 func (x *Error) GetMessage() string {
-	if x != nil {
-		return x.Message
+	if x != nil && x.Message != nil {
+		return *x.Message
 	}
 	return ""
 }
@@ -10970,13 +10970,13 @@ func (*ExplainableResults) Descriptor() ([]byte, []int) {
 // File is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type File struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,11828,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,14024,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,6144,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,11828,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,14024,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,6144,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,6794,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,16988,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,16988,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,17122,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw           *string       `protobuf:"bytes,17122,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	DataLocation  *DataLocation `protobuf:"bytes,9097,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,8615,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -11021,15 +11021,15 @@ func (x *File) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *File) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *File) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -11042,15 +11042,15 @@ func (x *File) GetLabels() map[string]string {
 }
 
 func (x *File) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *File) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -11073,13 +11073,13 @@ func (x *File) GetParentId() string {
 // This class represents a file handle.
 type FileHandle struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,1760,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,11112,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,12444,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,1760,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,11112,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,12444,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,16187,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,1128,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,1128,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,13657,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw           *string       `protobuf:"bytes,13657,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	DataLocation  *DataLocation `protobuf:"bytes,7246,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,8541,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -11124,15 +11124,15 @@ func (x *FileHandle) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *FileHandle) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *FileHandle) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -11145,15 +11145,15 @@ func (x *FileHandle) GetLabels() map[string]string {
 }
 
 func (x *FileHandle) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *FileHandle) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -11312,15 +11312,15 @@ func (x *FileOperation) GetFileId() string {
 // FileStorage is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type FileStorage struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,3786,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,6154,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,4569,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,3582,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,3786,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,6154,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,4569,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,3582,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,2787,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,16132,opt,name=name,proto3" json:"name,omitempty"`
-	PublicAccess               bool                   `protobuf:"varint,10539,opt,name=public_access,json=publicAccess,proto3" json:"public_access,omitempty"`
+	Name                       *string                `protobuf:"bytes,16132,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	PublicAccess               *bool                  `protobuf:"varint,10539,opt,name=public_access,json=publicAccess,proto3,oneof" json:"public_access,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,4379,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,4379,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,108,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AtRestEncryption                 *AtRestEncryption                 `protobuf:"bytes,12115,opt,name=at_rest_encryption,json=atRestEncryption,proto3" json:"at_rest_encryption,omitempty"`
 	Backups                          []*Backup                         `protobuf:"bytes,4043,rep,name=backups,proto3" json:"backups,omitempty"`
@@ -11375,22 +11375,22 @@ func (x *FileStorage) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *FileStorage) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *FileStorage) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *FileStorage) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -11403,22 +11403,22 @@ func (x *FileStorage) GetLabels() map[string]string {
 }
 
 func (x *FileStorage) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *FileStorage) GetPublicAccess() bool {
-	if x != nil {
-		return x.PublicAccess
+	if x != nil && x.PublicAccess != nil {
+		return *x.PublicAccess
 	}
 	return false
 }
 
 func (x *FileStorage) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -11511,16 +11511,16 @@ func (x *FileStorage) GetUsageStatistics() *UsageStatistics {
 // An file storage service represents the network service that is used to access a list of file storage shares. The storage itself is modelled as a FileStorage. The service has an http endpoint.
 type FileStorageService struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,18615,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,9940,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,17295,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,16036,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,18615,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,9940,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,17295,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,16036,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Ips                        []string               `protobuf:"bytes,6543,rep,name=ips,proto3" json:"ips,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,9347,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,3149,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,3149,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Ports                      []uint32               `protobuf:"varint,12509,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,13948,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,13948,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,16844,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,9861,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,11010,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
@@ -11576,22 +11576,22 @@ func (x *FileStorageService) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *FileStorageService) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *FileStorageService) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *FileStorageService) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -11611,8 +11611,8 @@ func (x *FileStorageService) GetLabels() map[string]string {
 }
 
 func (x *FileStorageService) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -11625,8 +11625,8 @@ func (x *FileStorageService) GetPorts() []uint32 {
 }
 
 func (x *FileStorageService) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -11923,16 +11923,16 @@ func (*Framework_Logger) isFramework_Type() {}
 // Function is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Function struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,4066,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,18203,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,11465,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,4184,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,4066,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,18203,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,11465,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,4184,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,15030,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,6517,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,6517,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,1531,opt,name=raw,proto3" json:"raw,omitempty"`
-	RuntimeLanguage                  string                            `protobuf:"bytes,7048,opt,name=runtime_language,json=runtimeLanguage,proto3" json:"runtime_language,omitempty"`
-	RuntimeVersion                   string                            `protobuf:"bytes,16017,opt,name=runtime_version,json=runtimeVersion,proto3" json:"runtime_version,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,1531,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
+	RuntimeLanguage                  *string                           `protobuf:"bytes,7048,opt,name=runtime_language,json=runtimeLanguage,proto3,oneof" json:"runtime_language,omitempty"`
+	RuntimeVersion                   *string                           `protobuf:"bytes,16017,opt,name=runtime_version,json=runtimeVersion,proto3,oneof" json:"runtime_version,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,2041,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	EncryptionInUse                  *EncryptionInUse                  `protobuf:"bytes,9821,opt,name=encryption_in_use,json=encryptionInUse,proto3" json:"encryption_in_use,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,5466,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -11986,22 +11986,22 @@ func (x *Function) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Function) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Function) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *Function) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -12014,29 +12014,29 @@ func (x *Function) GetLabels() map[string]string {
 }
 
 func (x *Function) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Function) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
 
 func (x *Function) GetRuntimeLanguage() string {
-	if x != nil {
-		return x.RuntimeLanguage
+	if x != nil && x.RuntimeLanguage != nil {
+		return *x.RuntimeLanguage
 	}
 	return ""
 }
 
 func (x *Function) GetRuntimeVersion() string {
-	if x != nil {
-		return x.RuntimeVersion
+	if x != nil && x.RuntimeVersion != nil {
+		return *x.RuntimeVersion
 	}
 	return ""
 }
@@ -12121,16 +12121,16 @@ func (x *Function) GetUsageStatistics() *UsageStatistics {
 // FunctionService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type FunctionService struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,3632,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,17359,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,3617,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,5242,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,3632,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,17359,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,3617,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,5242,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Ips                        []string               `protobuf:"bytes,7370,rep,name=ips,proto3" json:"ips,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,18713,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,15731,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,15731,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Ports                      []uint32               `protobuf:"varint,17713,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,4925,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,4925,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3264,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,10103,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
 	FunctionIds                      []string                          `protobuf:"bytes,2977,rep,name=function_ids,json=functionIds,proto3" json:"function_ids,omitempty"`
@@ -12184,22 +12184,22 @@ func (x *FunctionService) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *FunctionService) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *FunctionService) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *FunctionService) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -12219,8 +12219,8 @@ func (x *FunctionService) GetLabels() map[string]string {
 }
 
 func (x *FunctionService) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -12233,8 +12233,8 @@ func (x *FunctionService) GetPorts() []uint32 {
 }
 
 func (x *FunctionService) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -13783,16 +13783,16 @@ func (*GenericDocument_ReportDocument) isGenericDocument_Type() {}
 // A generic network service.
 type GenericNetworkService struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,16606,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,14235,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,12784,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,2744,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,16606,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,14235,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,12784,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,2744,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Ips                        []string               `protobuf:"bytes,11538,rep,name=ips,proto3" json:"ips,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,5016,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,13467,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,13467,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Ports                      []uint32               `protobuf:"varint,532,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,10844,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,10844,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,235,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,17384,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,1874,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -13845,22 +13845,22 @@ func (x *GenericNetworkService) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *GenericNetworkService) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *GenericNetworkService) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *GenericNetworkService) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -13880,8 +13880,8 @@ func (x *GenericNetworkService) GetLabels() map[string]string {
 }
 
 func (x *GenericNetworkService) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -13894,8 +13894,8 @@ func (x *GenericNetworkService) GetPorts() []uint32 {
 }
 
 func (x *GenericNetworkService) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -13973,7 +13973,7 @@ func (x *GenericNetworkService) GetUsageStatistics() *UsageStatistics {
 // GeoLocation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type GeoLocation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Region        string                 `protobuf:"bytes,7708,opt,name=region,proto3" json:"region,omitempty"`
+	Region        *string                `protobuf:"bytes,7708,opt,name=region,proto3,oneof" json:"region,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -14009,8 +14009,8 @@ func (*GeoLocation) Descriptor() ([]byte, []int) {
 }
 
 func (x *GeoLocation) GetRegion() string {
-	if x != nil {
-		return x.Region
+	if x != nil && x.Region != nil {
+		return *x.Region
 	}
 	return ""
 }
@@ -14352,8 +14352,8 @@ func (*Hardware_Memory) isHardware_Type() {}
 // HashOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type HashOperation struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	Algorithm       string                 `protobuf:"bytes,16160,opt,name=algorithm,proto3" json:"algorithm,omitempty"`
-	UsesSalt        bool                   `protobuf:"varint,14753,opt,name=uses_salt,json=usesSalt,proto3" json:"uses_salt,omitempty"`
+	Algorithm       *string                `protobuf:"bytes,16160,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
+	UsesSalt        *bool                  `protobuf:"varint,14753,opt,name=uses_salt,json=usesSalt,proto3,oneof" json:"uses_salt,omitempty"`
 	CodeRegion      *CodeRegion            `protobuf:"bytes,10758,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	SecurityFeature *SecurityFeature       `protobuf:"bytes,10332,opt,name=security_feature,json=securityFeature,proto3" json:"security_feature,omitempty"`
 	unknownFields   protoimpl.UnknownFields
@@ -14391,15 +14391,15 @@ func (*HashOperation) Descriptor() ([]byte, []int) {
 }
 
 func (x *HashOperation) GetAlgorithm() string {
-	if x != nil {
-		return x.Algorithm
+	if x != nil && x.Algorithm != nil {
+		return *x.Algorithm
 	}
 	return ""
 }
 
 func (x *HashOperation) GetUsesSalt() bool {
-	if x != nil {
-		return x.UsesSalt
+	if x != nil && x.UsesSalt != nil {
+		return *x.UsesSalt
 	}
 	return false
 }
@@ -14522,7 +14522,7 @@ func (*Http_HttpRequestHandler) isHttp_Type() {}
 // HTTP Client.
 type HttpClient struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	IsTls         bool                   `protobuf:"varint,2674,opt,name=is_tls,json=isTls,proto3" json:"is_tls,omitempty"`
+	IsTls         *bool                  `protobuf:"varint,2674,opt,name=is_tls,json=isTls,proto3,oneof" json:"is_tls,omitempty"`
 	Authenticity  *Authenticity          `protobuf:"bytes,14857,opt,name=authenticity,proto3" json:"authenticity,omitempty"`
 	Uses          *TransportEncryption   `protobuf:"bytes,18191,opt,name=uses,proto3" json:"uses,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -14560,8 +14560,8 @@ func (*HttpClient) Descriptor() ([]byte, []int) {
 }
 
 func (x *HttpClient) GetIsTls() bool {
-	if x != nil {
-		return x.IsTls
+	if x != nil && x.IsTls != nil {
+		return *x.IsTls
 	}
 	return false
 }
@@ -14690,11 +14690,11 @@ func (*HttpClientOperation_HttpRequest) isHttpClientOperation_Type() {}
 // Via the Authenticity relationship, the access type can be specified, e.g. public access (no authentication), password-based, etc.
 type HttpEndpoint struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
-	Handler             string                 `protobuf:"bytes,8702,opt,name=handler,proto3" json:"handler,omitempty"`
-	InputSize           int32                  `protobuf:"varint,13504,opt,name=input_size,json=inputSize,proto3" json:"input_size,omitempty"`
-	Method              string                 `protobuf:"bytes,1347,opt,name=method,proto3" json:"method,omitempty"`
-	Path                string                 `protobuf:"bytes,11504,opt,name=path,proto3" json:"path,omitempty"`
-	Url                 string                 `protobuf:"bytes,16076,opt,name=url,proto3" json:"url,omitempty"`
+	Handler             *string                `protobuf:"bytes,8702,opt,name=handler,proto3,oneof" json:"handler,omitempty"`
+	InputSize           *int32                 `protobuf:"varint,13504,opt,name=input_size,json=inputSize,proto3,oneof" json:"input_size,omitempty"`
+	Method              *string                `protobuf:"bytes,1347,opt,name=method,proto3,oneof" json:"method,omitempty"`
+	Path                *string                `protobuf:"bytes,11504,opt,name=path,proto3,oneof" json:"path,omitempty"`
+	Url                 *string                `protobuf:"bytes,16076,opt,name=url,proto3,oneof" json:"url,omitempty"`
 	Authenticity        *Authenticity          `protobuf:"bytes,3805,opt,name=authenticity,proto3" json:"authenticity,omitempty"`
 	Authorization       *Authorization         `protobuf:"bytes,2327,opt,name=authorization,proto3" json:"authorization,omitempty"`
 	HttpRequestContext  *HttpRequestContext    `protobuf:"bytes,4988,opt,name=http_request_context,json=httpRequestContext,proto3" json:"http_request_context,omitempty"`
@@ -14735,36 +14735,36 @@ func (*HttpEndpoint) Descriptor() ([]byte, []int) {
 }
 
 func (x *HttpEndpoint) GetHandler() string {
-	if x != nil {
-		return x.Handler
+	if x != nil && x.Handler != nil {
+		return *x.Handler
 	}
 	return ""
 }
 
 func (x *HttpEndpoint) GetInputSize() int32 {
-	if x != nil {
-		return x.InputSize
+	if x != nil && x.InputSize != nil {
+		return *x.InputSize
 	}
 	return 0
 }
 
 func (x *HttpEndpoint) GetMethod() string {
-	if x != nil {
-		return x.Method
+	if x != nil && x.Method != nil {
+		return *x.Method
 	}
 	return ""
 }
 
 func (x *HttpEndpoint) GetPath() string {
-	if x != nil {
-		return x.Path
+	if x != nil && x.Path != nil {
+		return *x.Path
 	}
 	return ""
 }
 
 func (x *HttpEndpoint) GetUrl() string {
-	if x != nil {
-		return x.Url
+	if x != nil && x.Url != nil {
+		return *x.Url
 	}
 	return ""
 }
@@ -14862,9 +14862,9 @@ func (x *HttpEndpointOperation) GetHttp() *Http {
 // enum:method=GET,POST,PUT,HEAD,PATCH,OPTIONS,CONNECT,TRACE,DELETE,UNKNOWN
 type HttpRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Call          string                 `protobuf:"bytes,16831,opt,name=call,proto3" json:"call,omitempty"`
-	Method        string                 `protobuf:"bytes,17392,opt,name=method,proto3" json:"method,omitempty"`
-	ReqBody       string                 `protobuf:"bytes,5634,opt,name=req_body,json=reqBody,proto3" json:"req_body,omitempty"`
+	Call          *string                `protobuf:"bytes,16831,opt,name=call,proto3,oneof" json:"call,omitempty"`
+	Method        *string                `protobuf:"bytes,17392,opt,name=method,proto3,oneof" json:"method,omitempty"`
+	ReqBody       *string                `protobuf:"bytes,5634,opt,name=req_body,json=reqBody,proto3,oneof" json:"req_body,omitempty"`
 	CodeRegion    *CodeRegion            `protobuf:"bytes,681,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	HttpClient    *HttpClient            `protobuf:"bytes,16750,opt,name=http_client,json=httpClient,proto3" json:"http_client,omitempty"`
 	HttpEndpoints []*HttpEndpoint        `protobuf:"bytes,1360,rep,name=http_endpoints,json=httpEndpoints,proto3" json:"http_endpoints,omitempty"`
@@ -14903,22 +14903,22 @@ func (*HttpRequest) Descriptor() ([]byte, []int) {
 }
 
 func (x *HttpRequest) GetCall() string {
-	if x != nil {
-		return x.Call
+	if x != nil && x.Call != nil {
+		return *x.Call
 	}
 	return ""
 }
 
 func (x *HttpRequest) GetMethod() string {
-	if x != nil {
-		return x.Method
+	if x != nil && x.Method != nil {
+		return *x.Method
 	}
 	return ""
 }
 
 func (x *HttpRequest) GetReqBody() string {
-	if x != nil {
-		return x.ReqBody
+	if x != nil && x.ReqBody != nil {
+		return *x.ReqBody
 	}
 	return ""
 }
@@ -14985,7 +14985,7 @@ func (*HttpRequestContext) Descriptor() ([]byte, []int) {
 // HttpRequestHandler is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type HttpRequestHandler struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          string                 `protobuf:"bytes,6440,opt,name=path,proto3" json:"path,omitempty"`
+	Path          *string                `protobuf:"bytes,6440,opt,name=path,proto3,oneof" json:"path,omitempty"`
 	ApplicationId *string                `protobuf:"bytes,18018,opt,name=application_id,json=applicationId,proto3,oneof" json:"application_id,omitempty"`
 	HttpEndpoints []*HttpEndpoint        `protobuf:"bytes,8156,rep,name=http_endpoints,json=httpEndpoints,proto3" json:"http_endpoints,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -15023,8 +15023,8 @@ func (*HttpRequestHandler) Descriptor() ([]byte, []int) {
 }
 
 func (x *HttpRequestHandler) GetPath() string {
-	if x != nil {
-		return x.Path
+	if x != nil && x.Path != nil {
+		return *x.Path
 	}
 	return ""
 }
@@ -15159,11 +15159,11 @@ func (x *HttpServer) GetHttpRequestHandler() *HttpRequestHandler {
 type HybridCipher struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Block size of a cipher.
-	BlockSize int32 `protobuf:"varint,4029,opt,name=block_size,json=blockSize,proto3" json:"block_size,omitempty"`
+	BlockSize *int32 `protobuf:"varint,4029,opt,name=block_size,json=blockSize,proto3,oneof" json:"block_size,omitempty"`
 	// Name of a cryptographic cipher.
-	CipherName string `protobuf:"bytes,4930,opt,name=cipher_name,json=cipherName,proto3" json:"cipher_name,omitempty"`
+	CipherName *string `protobuf:"bytes,4930,opt,name=cipher_name,json=cipherName,proto3,oneof" json:"cipher_name,omitempty"`
 	// Key size refers to the length of a key used in an enryption.
-	KeySize                   int32                      `protobuf:"varint,5462,opt,name=key_size,json=keySize,proto3" json:"key_size,omitempty"`
+	KeySize                   *int32                     `protobuf:"varint,5462,opt,name=key_size,json=keySize,proto3,oneof" json:"key_size,omitempty"`
 	Uses                      *AsymmetricCipher          `protobuf:"bytes,11248,opt,name=uses,proto3" json:"uses,omitempty"`
 	KeyDerivationFunction     *KeyDerivationFunction     `protobuf:"bytes,16735,opt,name=key_derivation_function,json=keyDerivationFunction,proto3" json:"key_derivation_function,omitempty"`
 	MessageAuthenticationCode *MessageAuthenticationCode `protobuf:"bytes,14986,opt,name=message_authentication_code,json=messageAuthenticationCode,proto3" json:"message_authentication_code,omitempty"`
@@ -15204,22 +15204,22 @@ func (*HybridCipher) Descriptor() ([]byte, []int) {
 }
 
 func (x *HybridCipher) GetBlockSize() int32 {
-	if x != nil {
-		return x.BlockSize
+	if x != nil && x.BlockSize != nil {
+		return *x.BlockSize
 	}
 	return 0
 }
 
 func (x *HybridCipher) GetCipherName() string {
-	if x != nil {
-		return x.CipherName
+	if x != nil && x.CipherName != nil {
+		return *x.CipherName
 	}
 	return ""
 }
 
 func (x *HybridCipher) GetKeySize() int32 {
-	if x != nil {
-		return x.KeySize
+	if x != nil && x.KeySize != nil {
+		return *x.KeySize
 	}
 	return 0
 }
@@ -15345,20 +15345,20 @@ func (*Identifiable_RoleAssignment) isIdentifiable_Type() {}
 // Identity is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Identity struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	Activated                  bool                   `protobuf:"varint,10116,opt,name=activated,proto3" json:"activated,omitempty"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,14103,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,9218,opt,name=description,proto3" json:"description,omitempty"`
-	DisablePasswordPolicy      bool                   `protobuf:"varint,5968,opt,name=disable_password_policy,json=disablePasswordPolicy,proto3" json:"disable_password_policy,omitempty"`
-	EnforceMfa                 bool                   `protobuf:"varint,13721,opt,name=enforce_mfa,json=enforceMfa,proto3" json:"enforce_mfa,omitempty"`
-	Id                         string                 `protobuf:"bytes,5350,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,15444,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	Activated                  *bool                  `protobuf:"varint,10116,opt,name=activated,proto3,oneof" json:"activated,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,14103,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,9218,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	DisablePasswordPolicy      *bool                  `protobuf:"varint,5968,opt,name=disable_password_policy,json=disablePasswordPolicy,proto3,oneof" json:"disable_password_policy,omitempty"`
+	EnforceMfa                 *bool                  `protobuf:"varint,13721,opt,name=enforce_mfa,json=enforceMfa,proto3,oneof" json:"enforce_mfa,omitempty"`
+	Id                         *string                `protobuf:"bytes,5350,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,15444,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,716,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	LastActivity               *timestamppb.Timestamp `protobuf:"bytes,2591,opt,name=last_activity,json=lastActivity,proto3" json:"last_activity,omitempty"`
-	LoginDefenderEnabled       bool                   `protobuf:"varint,18632,opt,name=login_defender_enabled,json=loginDefenderEnabled,proto3" json:"login_defender_enabled,omitempty"`
-	Name                       string                 `protobuf:"bytes,2578,opt,name=name,proto3" json:"name,omitempty"`
-	Privileged                 bool                   `protobuf:"varint,2301,opt,name=privileged,proto3" json:"privileged,omitempty"`
+	LastActivity               *timestamppb.Timestamp `protobuf:"bytes,2591,opt,name=last_activity,json=lastActivity,proto3,oneof" json:"last_activity,omitempty"`
+	LoginDefenderEnabled       *bool                  `protobuf:"varint,18632,opt,name=login_defender_enabled,json=loginDefenderEnabled,proto3,oneof" json:"login_defender_enabled,omitempty"`
+	Name                       *string                `protobuf:"bytes,2578,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	Privileged                 *bool                  `protobuf:"varint,2301,opt,name=privileged,proto3,oneof" json:"privileged,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,16151,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,16151,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	Authorization                    *Authorization                    `protobuf:"bytes,16314,opt,name=authorization,proto3" json:"authorization,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,5595,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8606,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -15402,8 +15402,8 @@ func (*Identity) Descriptor() ([]byte, []int) {
 }
 
 func (x *Identity) GetActivated() bool {
-	if x != nil {
-		return x.Activated
+	if x != nil && x.Activated != nil {
+		return *x.Activated
 	}
 	return false
 }
@@ -15416,36 +15416,36 @@ func (x *Identity) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Identity) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Identity) GetDisablePasswordPolicy() bool {
-	if x != nil {
-		return x.DisablePasswordPolicy
+	if x != nil && x.DisablePasswordPolicy != nil {
+		return *x.DisablePasswordPolicy
 	}
 	return false
 }
 
 func (x *Identity) GetEnforceMfa() bool {
-	if x != nil {
-		return x.EnforceMfa
+	if x != nil && x.EnforceMfa != nil {
+		return *x.EnforceMfa
 	}
 	return false
 }
 
 func (x *Identity) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *Identity) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -15465,29 +15465,29 @@ func (x *Identity) GetLastActivity() *timestamppb.Timestamp {
 }
 
 func (x *Identity) GetLoginDefenderEnabled() bool {
-	if x != nil {
-		return x.LoginDefenderEnabled
+	if x != nil && x.LoginDefenderEnabled != nil {
+		return *x.LoginDefenderEnabled
 	}
 	return false
 }
 
 func (x *Identity) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Identity) GetPrivileged() bool {
-	if x != nil {
-		return x.Privileged
+	if x != nil && x.Privileged != nil {
+		return *x.Privileged
 	}
 	return false
 }
 
 func (x *Identity) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -15634,7 +15634,7 @@ func (*Image_VmImage) isImage_Type() {}
 // Immutability is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Immutability struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Enabled       bool                   `protobuf:"varint,1859,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled       *bool                  `protobuf:"varint,1859,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -15670,8 +15670,8 @@ func (*Immutability) Descriptor() ([]byte, []int) {
 }
 
 func (x *Immutability) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
@@ -16201,14 +16201,14 @@ func (x *IssueJwt) GetCodeRegion() *CodeRegion {
 // Job is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Job struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,2948,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,7869,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,14780,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,5659,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,2948,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,7869,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,14780,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,5659,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,17969,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,18498,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,18498,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,5776,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,5776,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,13997,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,9162,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,13308,rep,name=loggings,proto3" json:"loggings,omitempty"`
@@ -16258,22 +16258,22 @@ func (x *Job) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Job) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Job) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *Job) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -16286,15 +16286,15 @@ func (x *Job) GetLabels() map[string]string {
 }
 
 func (x *Job) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Job) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -16352,12 +16352,12 @@ func (x *Job) GetUsageStatistics() *UsageStatistics {
 // Represents a JWT-based authentication, which extends the [TokenBasedAuth].
 type JwtAuthentication struct {
 	state                        protoimpl.MessageState `protogen:"open.v1"`
-	ContextIsChecked             bool                   `protobuf:"varint,3538,opt,name=context_is_checked,json=contextIsChecked,proto3" json:"context_is_checked,omitempty"`
-	Enabled                      bool                   `protobuf:"varint,3085,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	Enforced                     bool                   `protobuf:"varint,13206,opt,name=enforced,proto3" json:"enforced,omitempty"`
-	FailedAuthenticationAttempts int32                  `protobuf:"varint,16139,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3" json:"failed_authentication_attempts,omitempty"`
+	ContextIsChecked             *bool                  `protobuf:"varint,3538,opt,name=context_is_checked,json=contextIsChecked,proto3,oneof" json:"context_is_checked,omitempty"`
+	Enabled                      *bool                  `protobuf:"varint,3085,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	Enforced                     *bool                  `protobuf:"varint,13206,opt,name=enforced,proto3,oneof" json:"enforced,omitempty"`
+	FailedAuthenticationAttempts *int32                 `protobuf:"varint,16139,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3,oneof" json:"failed_authentication_attempts,omitempty"`
 	// Maximum password rotation interval in months
-	RotationInterval int32   `protobuf:"varint,3257,opt,name=rotation_interval,json=rotationInterval,proto3" json:"rotation_interval,omitempty"`
+	RotationInterval *int32  `protobuf:"varint,3257,opt,name=rotation_interval,json=rotationInterval,proto3,oneof" json:"rotation_interval,omitempty"`
 	TokenId          *string `protobuf:"bytes,17648,opt,name=token_id,json=tokenId,proto3,oneof" json:"token_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -16394,36 +16394,36 @@ func (*JwtAuthentication) Descriptor() ([]byte, []int) {
 }
 
 func (x *JwtAuthentication) GetContextIsChecked() bool {
-	if x != nil {
-		return x.ContextIsChecked
+	if x != nil && x.ContextIsChecked != nil {
+		return *x.ContextIsChecked
 	}
 	return false
 }
 
 func (x *JwtAuthentication) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *JwtAuthentication) GetEnforced() bool {
-	if x != nil {
-		return x.Enforced
+	if x != nil && x.Enforced != nil {
+		return *x.Enforced
 	}
 	return false
 }
 
 func (x *JwtAuthentication) GetFailedAuthenticationAttempts() int32 {
-	if x != nil {
-		return x.FailedAuthenticationAttempts
+	if x != nil && x.FailedAuthenticationAttempts != nil {
+		return *x.FailedAuthenticationAttempts
 	}
 	return 0
 }
 
 func (x *JwtAuthentication) GetRotationInterval() int32 {
-	if x != nil {
-		return x.RotationInterval
+	if x != nil && x.RotationInterval != nil {
+		return *x.RotationInterval
 	}
 	return 0
 }
@@ -16508,21 +16508,21 @@ func (*TokenBasedAuthentication_JwtAuthentication) isTokenBasedAuthentication_Ty
 // The node that represents the "key" of this option. For example, in an INI file, this would be the [FieldDeclaration] node that represents the key.
 type Key struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	Algorithm                  string                 `protobuf:"bytes,1413,opt,name=algorithm,proto3" json:"algorithm,omitempty"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,4922,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,17406,opt,name=description,proto3" json:"description,omitempty"`
-	Enabled                    bool                   `protobuf:"varint,12499,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	ExpirationDate             *timestamppb.Timestamp `protobuf:"bytes,15098,opt,name=expiration_date,json=expirationDate,proto3" json:"expiration_date,omitempty"`
-	Id                         string                 `protobuf:"bytes,15294,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,434,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
-	IsManaged                  bool                   `protobuf:"varint,16202,opt,name=is_managed,json=isManaged,proto3" json:"is_managed,omitempty"`
+	Algorithm                  *string                `protobuf:"bytes,1413,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,4922,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,17406,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Enabled                    *bool                  `protobuf:"varint,12499,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	ExpirationDate             *timestamppb.Timestamp `protobuf:"bytes,15098,opt,name=expiration_date,json=expirationDate,proto3,oneof" json:"expiration_date,omitempty"`
+	Id                         *string                `protobuf:"bytes,15294,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,434,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
+	IsManaged                  *bool                  `protobuf:"varint,16202,opt,name=is_managed,json=isManaged,proto3,oneof" json:"is_managed,omitempty"`
 	// Key size refers to the length of a key used in an enryption.
-	KeySize       int32                  `protobuf:"varint,16391,opt,name=key_size,json=keySize,proto3" json:"key_size,omitempty"`
+	KeySize       *int32                 `protobuf:"varint,16391,opt,name=key_size,json=keySize,proto3,oneof" json:"key_size,omitempty"`
 	Labels        map[string]string      `protobuf:"bytes,4273,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name          string                 `protobuf:"bytes,18961,opt,name=name,proto3" json:"name,omitempty"`
-	NotBeforeDate *timestamppb.Timestamp `protobuf:"bytes,235,opt,name=not_before_date,json=notBeforeDate,proto3" json:"not_before_date,omitempty"`
+	Name          *string                `protobuf:"bytes,18961,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	NotBeforeDate *timestamppb.Timestamp `protobuf:"bytes,235,opt,name=not_before_date,json=notBeforeDate,proto3,oneof" json:"not_before_date,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,11846,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,11846,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,15846,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,215,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	UsedByMultiple                   *Infrastructure                   `protobuf:"bytes,5694,opt,name=used_by_multiple,json=usedByMultiple,proto3" json:"used_by_multiple,omitempty"`
@@ -16566,8 +16566,8 @@ func (*Key) Descriptor() ([]byte, []int) {
 }
 
 func (x *Key) GetAlgorithm() string {
-	if x != nil {
-		return x.Algorithm
+	if x != nil && x.Algorithm != nil {
+		return *x.Algorithm
 	}
 	return ""
 }
@@ -16580,15 +16580,15 @@ func (x *Key) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Key) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Key) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
@@ -16601,29 +16601,29 @@ func (x *Key) GetExpirationDate() *timestamppb.Timestamp {
 }
 
 func (x *Key) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *Key) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
 
 func (x *Key) GetIsManaged() bool {
-	if x != nil {
-		return x.IsManaged
+	if x != nil && x.IsManaged != nil {
+		return *x.IsManaged
 	}
 	return false
 }
 
 func (x *Key) GetKeySize() int32 {
-	if x != nil {
-		return x.KeySize
+	if x != nil && x.KeySize != nil {
+		return *x.KeySize
 	}
 	return 0
 }
@@ -16636,8 +16636,8 @@ func (x *Key) GetLabels() map[string]string {
 }
 
 func (x *Key) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -16650,8 +16650,8 @@ func (x *Key) GetNotBeforeDate() *timestamppb.Timestamp {
 }
 
 func (x *Key) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -16715,7 +16715,7 @@ func (x *Key) GetUsageStatistics() *UsageStatistics {
 // KeyDerivationFunction is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type KeyDerivationFunction struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,3552,opt,name=type,proto3" json:"type,omitempty"`
+	Type          *string                `protobuf:"bytes,3552,opt,name=type,proto3,oneof" json:"type,omitempty"`
 	Input         *Input                 `protobuf:"bytes,6321,opt,name=input,proto3" json:"input,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -16752,8 +16752,8 @@ func (*KeyDerivationFunction) Descriptor() ([]byte, []int) {
 }
 
 func (x *KeyDerivationFunction) GetType() string {
-	if x != nil {
-		return x.Type
+	if x != nil && x.Type != nil {
+		return *x.Type
 	}
 	return ""
 }
@@ -16768,16 +16768,16 @@ func (x *KeyDerivationFunction) GetInput() *Input {
 // KeyValueDatabaseService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type KeyValueDatabaseService struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,15632,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,1436,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,14675,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,1908,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,15632,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,1436,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,14675,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,1908,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Ips                        []string               `protobuf:"bytes,10855,rep,name=ips,proto3" json:"ips,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,13607,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,11207,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,11207,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Ports                      []uint32               `protobuf:"varint,6710,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,14509,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,14509,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,4083,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AnomalyDetections                []*AnomalyDetection               `protobuf:"bytes,121,rep,name=anomaly_detections,json=anomalyDetections,proto3" json:"anomaly_detections,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,16118,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
@@ -16834,22 +16834,22 @@ func (x *KeyValueDatabaseService) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *KeyValueDatabaseService) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *KeyValueDatabaseService) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *KeyValueDatabaseService) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -16869,8 +16869,8 @@ func (x *KeyValueDatabaseService) GetLabels() map[string]string {
 }
 
 func (x *KeyValueDatabaseService) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -16883,8 +16883,8 @@ func (x *KeyValueDatabaseService) GetPorts() []uint32 {
 }
 
 func (x *KeyValueDatabaseService) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -16990,14 +16990,14 @@ func (x *KeyValueDatabaseService) GetUsageStatistics() *UsageStatistics {
 // KeyVault is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type KeyVault struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,13116,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,4543,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,11681,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,15576,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,13116,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,4543,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,11681,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,15576,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,11857,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,5705,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,5705,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,16199,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,16199,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,11331,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	CredentialIds                    []string                          `protobuf:"bytes,16714,rep,name=credential_ids,json=credentialIds,proto3" json:"credential_ids,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,7862,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -17048,22 +17048,22 @@ func (x *KeyVault) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *KeyVault) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *KeyVault) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *KeyVault) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -17076,15 +17076,15 @@ func (x *KeyVault) GetLabels() map[string]string {
 }
 
 func (x *KeyVault) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *KeyVault) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -17149,8 +17149,8 @@ func (x *KeyVault) GetUsageStatistics() *UsageStatistics {
 type L3Firewall struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	AllowedSources  []string               `protobuf:"bytes,4470,rep,name=allowed_sources,json=allowedSources,proto3" json:"allowed_sources,omitempty"`
-	Enabled         bool                   `protobuf:"varint,9476,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	Inbound         bool                   `protobuf:"varint,1000,opt,name=inbound,proto3" json:"inbound,omitempty"`
+	Enabled         *bool                  `protobuf:"varint,9476,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	Inbound         *bool                  `protobuf:"varint,1000,opt,name=inbound,proto3,oneof" json:"inbound,omitempty"`
 	RestrictedPorts []string               `protobuf:"bytes,7341,rep,name=restricted_ports,json=restrictedPorts,proto3" json:"restricted_ports,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -17194,15 +17194,15 @@ func (x *L3Firewall) GetAllowedSources() []string {
 }
 
 func (x *L3Firewall) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *L3Firewall) GetInbound() bool {
-	if x != nil {
-		return x.Inbound
+	if x != nil && x.Inbound != nil {
+		return *x.Inbound
 	}
 	return false
 }
@@ -17218,7 +17218,7 @@ func (x *L3Firewall) GetRestrictedPorts() []string {
 // Represents a policy section within a [PolicyDocument] describing least privilege requirements. isDefined: whether this policy section is present and defined.
 type LeastPrivilegePolicy struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	IsDefined     bool                   `protobuf:"varint,18064,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
+	IsDefined     *bool                  `protobuf:"varint,18064,opt,name=is_defined,json=isDefined,proto3,oneof" json:"is_defined,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -17254,8 +17254,8 @@ func (*LeastPrivilegePolicy) Descriptor() ([]byte, []int) {
 }
 
 func (x *LeastPrivilegePolicy) GetIsDefined() bool {
-	if x != nil {
-		return x.IsDefined
+	if x != nil && x.IsDefined != nil {
+		return *x.IsDefined
 	}
 	return false
 }
@@ -17263,13 +17263,13 @@ func (x *LeastPrivilegePolicy) GetIsDefined() bool {
 // Library is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Library struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,11987,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,2499,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,11694,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,11987,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,2499,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,11694,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,7546,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,18601,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,18601,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                  string                 `protobuf:"bytes,9988,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                  *string                `protobuf:"bytes,9988,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CodeModuleIds        []string               `protobuf:"bytes,7635,rep,name=code_module_ids,json=codeModuleIds,proto3" json:"code_module_ids,omitempty"`
 	CodeRepositoryId     *string                `protobuf:"bytes,17722,opt,name=code_repository_id,json=codeRepositoryId,proto3,oneof" json:"code_repository_id,omitempty"`
 	Functionalities      []*Functionality       `protobuf:"bytes,16350,rep,name=functionalities,proto3" json:"functionalities,omitempty"`
@@ -17319,15 +17319,15 @@ func (x *Library) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Library) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Library) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -17340,15 +17340,15 @@ func (x *Library) GetLabels() map[string]string {
 }
 
 func (x *Library) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Library) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -17452,17 +17452,17 @@ func (x *LibraryEntryPoint) GetUsedBy() *OperatingSystemArchitecture {
 // A Load Balancer may have multiple access restriction features, e.g. a L3 firewall and a WAF
 type LoadBalancer struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,2708,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,2822,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,8281,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,16617,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,2708,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,2822,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,8281,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,16617,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Ips                        []string               `protobuf:"bytes,12489,rep,name=ips,proto3" json:"ips,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,1121,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,16420,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,16420,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Ports                      []uint32               `protobuf:"varint,5004,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,16379,opt,name=raw,proto3" json:"raw,omitempty"`
-	Url                              string                            `protobuf:"bytes,2355,opt,name=url,proto3" json:"url,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,16379,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
+	Url                              *string                           `protobuf:"bytes,2355,opt,name=url,proto3,oneof" json:"url,omitempty"`
 	AccessRestriction                *AccessRestriction                `protobuf:"bytes,11292,opt,name=access_restriction,json=accessRestriction,proto3" json:"access_restriction,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,799,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,16161,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
@@ -17518,22 +17518,22 @@ func (x *LoadBalancer) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *LoadBalancer) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *LoadBalancer) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *LoadBalancer) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -17553,8 +17553,8 @@ func (x *LoadBalancer) GetLabels() map[string]string {
 }
 
 func (x *LoadBalancer) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -17567,15 +17567,15 @@ func (x *LoadBalancer) GetPorts() []uint32 {
 }
 
 func (x *LoadBalancer) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
 
 func (x *LoadBalancer) GetUrl() string {
-	if x != nil {
-		return x.Url
+	if x != nil && x.Url != nil {
+		return *x.Url
 	}
 	return ""
 }
@@ -17860,7 +17860,7 @@ func (x *LoadSymbol) GetOperatingSystemArchitectureId() string {
 // LocalAttestation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type LocalAttestation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Enabled       bool                   `protobuf:"varint,12670,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled       *bool                  `protobuf:"varint,12670,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -17896,8 +17896,8 @@ func (*LocalAttestation) Descriptor() ([]byte, []int) {
 }
 
 func (x *LocalAttestation) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
@@ -17905,7 +17905,7 @@ func (x *LocalAttestation) GetEnabled() bool {
 // LocalDataLocation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type LocalDataLocation struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	Path             string                 `protobuf:"bytes,16659,opt,name=path,proto3" json:"path,omitempty"`
+	Path             *string                `protobuf:"bytes,16659,opt,name=path,proto3,oneof" json:"path,omitempty"`
 	AtRestEncryption *AtRestEncryption      `protobuf:"bytes,6913,opt,name=at_rest_encryption,json=atRestEncryption,proto3" json:"at_rest_encryption,omitempty"`
 	StorageId        *string                `protobuf:"bytes,231,opt,name=storage_id,json=storageId,proto3,oneof" json:"storage_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
@@ -17943,8 +17943,8 @@ func (*LocalDataLocation) Descriptor() ([]byte, []int) {
 }
 
 func (x *LocalDataLocation) GetPath() string {
-	if x != nil {
-		return x.Path
+	if x != nil && x.Path != nil {
+		return *x.Path
 	}
 	return ""
 }
@@ -18095,14 +18095,14 @@ func (x *LocalRedundancy) GetGeoLocations() []*GeoLocation {
 // LogDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type LogDocument struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,518,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,106,opt,name=description,proto3" json:"description,omitempty"`
-	Filetype     string                 `protobuf:"bytes,5258,opt,name=filetype,proto3" json:"filetype,omitempty"`
-	Id           string                 `protobuf:"bytes,8449,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,518,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,106,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Filetype     *string                `protobuf:"bytes,5258,opt,name=filetype,proto3,oneof" json:"filetype,omitempty"`
+	Id           *string                `protobuf:"bytes,8449,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,14750,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,11879,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,11879,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                string               `protobuf:"bytes,546,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                *string              `protobuf:"bytes,546,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,9077,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
 	DataLocation       *DataLocation        `protobuf:"bytes,12350,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,8195,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
@@ -18151,22 +18151,22 @@ func (x *LogDocument) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *LogDocument) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *LogDocument) GetFiletype() string {
-	if x != nil {
-		return x.Filetype
+	if x != nil && x.Filetype != nil {
+		return *x.Filetype
 	}
 	return ""
 }
 
 func (x *LogDocument) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -18179,15 +18179,15 @@ func (x *LogDocument) GetLabels() map[string]string {
 }
 
 func (x *LogDocument) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *LogDocument) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -18375,8 +18375,8 @@ func (*LogOperation_LogWrite) isLogOperation_Type() {}
 // A generic Logoutput.
 type LogOutput struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Call          string                 `protobuf:"bytes,6341,opt,name=call,proto3" json:"call,omitempty"`
-	Value         string                 `protobuf:"bytes,16550,opt,name=value,proto3" json:"value,omitempty"`
+	Call          *string                `protobuf:"bytes,6341,opt,name=call,proto3,oneof" json:"call,omitempty"`
+	Value         *string                `protobuf:"bytes,16550,opt,name=value,proto3,oneof" json:"value,omitempty"`
 	CodeRegion    *CodeRegion            `protobuf:"bytes,3291,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	Logging       *Logging               `protobuf:"bytes,1240,opt,name=logging,proto3" json:"logging,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -18414,15 +18414,15 @@ func (*LogOutput) Descriptor() ([]byte, []int) {
 }
 
 func (x *LogOutput) GetCall() string {
-	if x != nil {
-		return x.Call
+	if x != nil && x.Call != nil {
+		return *x.Call
 	}
 	return ""
 }
 
 func (x *LogOutput) GetValue() string {
-	if x != nil {
-		return x.Value
+	if x != nil && x.Value != nil {
+		return *x.Value
 	}
 	return ""
 }
@@ -18446,7 +18446,7 @@ func (x *LogOutput) GetLogging() *Logging {
 type LogWrite struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN
-	LogLevel      string      `protobuf:"bytes,11587,opt,name=log_level,json=logLevel,proto3" json:"log_level,omitempty"`
+	LogLevel      *string     `protobuf:"bytes,11587,opt,name=log_level,json=logLevel,proto3,oneof" json:"log_level,omitempty"`
 	CodeRegion    *CodeRegion `protobuf:"bytes,3510,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	Logging       *Logging    `protobuf:"bytes,15543,opt,name=logging,proto3" json:"logging,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -18484,8 +18484,8 @@ func (*LogWrite) Descriptor() ([]byte, []int) {
 }
 
 func (x *LogWrite) GetLogLevel() string {
-	if x != nil {
-		return x.LogLevel
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
 	}
 	return ""
 }
@@ -18677,16 +18677,16 @@ func (*Logging_ResourceLogging) isLogging_Type() {}
 // A logging-as-a-service offering, e.g. for analyzing logs; has a Storage resource that stores the logs
 type LoggingService struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,13718,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,15076,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,10888,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,3605,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,13718,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,15076,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,10888,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,3605,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Ips                        []string               `protobuf:"bytes,4262,rep,name=ips,proto3" json:"ips,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,769,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,3964,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,3964,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Ports                      []uint32               `protobuf:"varint,2549,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,3703,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,3703,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,853,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,18796,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,4817,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -18740,22 +18740,22 @@ func (x *LoggingService) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *LoggingService) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *LoggingService) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *LoggingService) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -18775,8 +18775,8 @@ func (x *LoggingService) GetLabels() map[string]string {
 }
 
 func (x *LoggingService) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -18789,8 +18789,8 @@ func (x *LoggingService) GetPorts() []uint32 {
 }
 
 func (x *LoggingService) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -18958,15 +18958,15 @@ func (*MachineLearning_MachineLearningModel) isMachineLearning_Type() {}
 // MachineLearningDataset is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type MachineLearningDataset struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,14589,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,4701,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,13709,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,14589,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,4701,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,13709,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,3339,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,14431,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,14431,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,6307,opt,name=raw,proto3" json:"raw,omitempty"`
-	Size          int32         `protobuf:"varint,7901,opt,name=size,proto3" json:"size,omitempty"`
-	Type          string        `protobuf:"bytes,5204,opt,name=type,proto3" json:"type,omitempty"`
+	Raw           *string       `protobuf:"bytes,6307,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
+	Size          *int32        `protobuf:"varint,7901,opt,name=size,proto3,oneof" json:"size,omitempty"`
+	Type          *string       `protobuf:"bytes,5204,opt,name=type,proto3,oneof" json:"type,omitempty"`
 	DataLocation  *DataLocation `protobuf:"bytes,14136,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,11544,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -19011,15 +19011,15 @@ func (x *MachineLearningDataset) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *MachineLearningDataset) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *MachineLearningDataset) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -19032,29 +19032,29 @@ func (x *MachineLearningDataset) GetLabels() map[string]string {
 }
 
 func (x *MachineLearningDataset) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *MachineLearningDataset) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
 
 func (x *MachineLearningDataset) GetSize() int32 {
-	if x != nil {
-		return x.Size
+	if x != nil && x.Size != nil {
+		return *x.Size
 	}
 	return 0
 }
 
 func (x *MachineLearningDataset) GetType() string {
-	if x != nil {
-		return x.Type
+	if x != nil && x.Type != nil {
+		return *x.Type
 	}
 	return ""
 }
@@ -19076,21 +19076,21 @@ func (x *MachineLearningDataset) GetParentId() string {
 // MachineLearningModel is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type MachineLearningModel struct {
 	state                         protoimpl.MessageState `protogen:"open.v1"`
-	AdversarialRobustnessScore    float32                `protobuf:"fixed32,11136,opt,name=adversarial_robustness_score,json=adversarialRobustnessScore,proto3" json:"adversarial_robustness_score,omitempty"`
-	CreationTime                  *timestamppb.Timestamp `protobuf:"bytes,18005,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                   string                 `protobuf:"bytes,5272,opt,name=description,proto3" json:"description,omitempty"`
-	EvasionEfficacyLevel          float32                `protobuf:"fixed32,17752,opt,name=evasion_efficacy_level,json=evasionEfficacyLevel,proto3" json:"evasion_efficacy_level,omitempty"`
-	Explainability                float32                `protobuf:"fixed32,1384,opt,name=explainability,proto3" json:"explainability,omitempty"`
-	ExplainabilityEnabled         bool                   `protobuf:"varint,14424,opt,name=explainability_enabled,json=explainabilityEnabled,proto3" json:"explainability_enabled,omitempty"`
-	Id                            string                 `protobuf:"bytes,5520,opt,name=id,proto3" json:"id,omitempty"`
+	AdversarialRobustnessScore    *float32               `protobuf:"fixed32,11136,opt,name=adversarial_robustness_score,json=adversarialRobustnessScore,proto3,oneof" json:"adversarial_robustness_score,omitempty"`
+	CreationTime                  *timestamppb.Timestamp `protobuf:"bytes,18005,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                   *string                `protobuf:"bytes,5272,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	EvasionEfficacyLevel          *float32               `protobuf:"fixed32,17752,opt,name=evasion_efficacy_level,json=evasionEfficacyLevel,proto3,oneof" json:"evasion_efficacy_level,omitempty"`
+	Explainability                *float32               `protobuf:"fixed32,1384,opt,name=explainability,proto3,oneof" json:"explainability,omitempty"`
+	ExplainabilityEnabled         *bool                  `protobuf:"varint,14424,opt,name=explainability_enabled,json=explainabilityEnabled,proto3,oneof" json:"explainability_enabled,omitempty"`
+	Id                            *string                `protobuf:"bytes,5520,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels                        map[string]string      `protobuf:"bytes,1548,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	MembershipInferenceResilience float32                `protobuf:"fixed32,4244,opt,name=membership_inference_resilience,json=membershipInferenceResilience,proto3" json:"membership_inference_resilience,omitempty"`
-	ModelStealResilience          float32                `protobuf:"fixed32,1827,opt,name=model_steal_resilience,json=modelStealResilience,proto3" json:"model_steal_resilience,omitempty"`
-	Name                          string                 `protobuf:"bytes,1575,opt,name=name,proto3" json:"name,omitempty"`
-	PoisonedDataLevel             float32                `protobuf:"fixed32,13816,opt,name=poisoned_data_level,json=poisonedDataLevel,proto3" json:"poisoned_data_level,omitempty"`
-	PoisoningResilienceLevel      float32                `protobuf:"fixed32,16395,opt,name=poisoning_resilience_level,json=poisoningResilienceLevel,proto3" json:"poisoning_resilience_level,omitempty"`
+	MembershipInferenceResilience *float32               `protobuf:"fixed32,4244,opt,name=membership_inference_resilience,json=membershipInferenceResilience,proto3,oneof" json:"membership_inference_resilience,omitempty"`
+	ModelStealResilience          *float32               `protobuf:"fixed32,1827,opt,name=model_steal_resilience,json=modelStealResilience,proto3,oneof" json:"model_steal_resilience,omitempty"`
+	Name                          *string                `protobuf:"bytes,1575,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	PoisonedDataLevel             *float32               `protobuf:"fixed32,13816,opt,name=poisoned_data_level,json=poisonedDataLevel,proto3,oneof" json:"poisoned_data_level,omitempty"`
+	PoisoningResilienceLevel      *float32               `protobuf:"fixed32,16395,opt,name=poisoning_resilience_level,json=poisoningResilienceLevel,proto3,oneof" json:"poisoning_resilience_level,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw             string           `protobuf:"bytes,12454,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw             *string          `protobuf:"bytes,12454,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	DataLocation    *DataLocation    `protobuf:"bytes,1022,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId        *string          `protobuf:"bytes,17150,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	Vulnerabilities []*Vulnerability `protobuf:"bytes,9542,rep,name=vulnerabilities,proto3" json:"vulnerabilities,omitempty"`
@@ -19129,8 +19129,8 @@ func (*MachineLearningModel) Descriptor() ([]byte, []int) {
 }
 
 func (x *MachineLearningModel) GetAdversarialRobustnessScore() float32 {
-	if x != nil {
-		return x.AdversarialRobustnessScore
+	if x != nil && x.AdversarialRobustnessScore != nil {
+		return *x.AdversarialRobustnessScore
 	}
 	return 0
 }
@@ -19143,36 +19143,36 @@ func (x *MachineLearningModel) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *MachineLearningModel) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *MachineLearningModel) GetEvasionEfficacyLevel() float32 {
-	if x != nil {
-		return x.EvasionEfficacyLevel
+	if x != nil && x.EvasionEfficacyLevel != nil {
+		return *x.EvasionEfficacyLevel
 	}
 	return 0
 }
 
 func (x *MachineLearningModel) GetExplainability() float32 {
-	if x != nil {
-		return x.Explainability
+	if x != nil && x.Explainability != nil {
+		return *x.Explainability
 	}
 	return 0
 }
 
 func (x *MachineLearningModel) GetExplainabilityEnabled() bool {
-	if x != nil {
-		return x.ExplainabilityEnabled
+	if x != nil && x.ExplainabilityEnabled != nil {
+		return *x.ExplainabilityEnabled
 	}
 	return false
 }
 
 func (x *MachineLearningModel) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -19185,43 +19185,43 @@ func (x *MachineLearningModel) GetLabels() map[string]string {
 }
 
 func (x *MachineLearningModel) GetMembershipInferenceResilience() float32 {
-	if x != nil {
-		return x.MembershipInferenceResilience
+	if x != nil && x.MembershipInferenceResilience != nil {
+		return *x.MembershipInferenceResilience
 	}
 	return 0
 }
 
 func (x *MachineLearningModel) GetModelStealResilience() float32 {
-	if x != nil {
-		return x.ModelStealResilience
+	if x != nil && x.ModelStealResilience != nil {
+		return *x.ModelStealResilience
 	}
 	return 0
 }
 
 func (x *MachineLearningModel) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *MachineLearningModel) GetPoisonedDataLevel() float32 {
-	if x != nil {
-		return x.PoisonedDataLevel
+	if x != nil && x.PoisonedDataLevel != nil {
+		return *x.PoisonedDataLevel
 	}
 	return 0
 }
 
 func (x *MachineLearningModel) GetPoisoningResilienceLevel() float32 {
-	if x != nil {
-		return x.PoisoningResilienceLevel
+	if x != nil && x.PoisoningResilienceLevel != nil {
+		return *x.PoisoningResilienceLevel
 	}
 	return 0
 }
 
 func (x *MachineLearningModel) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -19250,16 +19250,16 @@ func (x *MachineLearningModel) GetVulnerabilities() []*Vulnerability {
 // MachineLearningService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type MachineLearningService struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,18259,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,2080,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,14176,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,16109,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,18259,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,2080,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,14176,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,16109,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Ips                        []string               `protobuf:"bytes,11814,rep,name=ips,proto3" json:"ips,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,18935,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,6061,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,6061,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Ports                      []uint32               `protobuf:"varint,6816,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,5983,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,5983,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7490,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,16877,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,4584,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -19314,22 +19314,22 @@ func (x *MachineLearningService) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *MachineLearningService) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *MachineLearningService) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *MachineLearningService) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -19349,8 +19349,8 @@ func (x *MachineLearningService) GetLabels() map[string]string {
 }
 
 func (x *MachineLearningService) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -19363,8 +19363,8 @@ func (x *MachineLearningService) GetPorts() []uint32 {
 }
 
 func (x *MachineLearningService) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -19503,9 +19503,9 @@ func (x *Main) GetUsedBy() *OperatingSystemArchitecture {
 // analyzes the activity within a Compute resource
 type MalwareProtection struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
-	DurationSinceActive  *durationpb.Duration   `protobuf:"bytes,18754,opt,name=duration_since_active,json=durationSinceActive,proto3" json:"duration_since_active,omitempty"`
-	Enabled              bool                   `protobuf:"varint,18004,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	NumberOfThreatsFound int32                  `protobuf:"varint,11973,opt,name=number_of_threats_found,json=numberOfThreatsFound,proto3" json:"number_of_threats_found,omitempty"`
+	DurationSinceActive  *durationpb.Duration   `protobuf:"bytes,18754,opt,name=duration_since_active,json=durationSinceActive,proto3,oneof" json:"duration_since_active,omitempty"`
+	Enabled              *bool                  `protobuf:"varint,18004,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	NumberOfThreatsFound *int32                 `protobuf:"varint,11973,opt,name=number_of_threats_found,json=numberOfThreatsFound,proto3,oneof" json:"number_of_threats_found,omitempty"`
 	ApplicationLogging   *ApplicationLogging    `protobuf:"bytes,12380,opt,name=application_logging,json=applicationLogging,proto3" json:"application_logging,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
@@ -19549,15 +19549,15 @@ func (x *MalwareProtection) GetDurationSinceActive() *durationpb.Duration {
 }
 
 func (x *MalwareProtection) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *MalwareProtection) GetNumberOfThreatsFound() int32 {
-	if x != nil {
-		return x.NumberOfThreatsFound
+	if x != nil && x.NumberOfThreatsFound != nil {
+		return *x.NumberOfThreatsFound
 	}
 	return 0
 }
@@ -19572,9 +19572,9 @@ func (x *MalwareProtection) GetApplicationLogging() *ApplicationLogging {
 // ManagedKeyEncryption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ManagedKeyEncryption struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Algorithm     string                 `protobuf:"bytes,4822,opt,name=algorithm,proto3" json:"algorithm,omitempty"`
-	Enabled       bool                   `protobuf:"varint,13201,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	KeyUrl        string                 `protobuf:"bytes,16982,opt,name=key_url,json=keyUrl,proto3" json:"key_url,omitempty"`
+	Algorithm     *string                `protobuf:"bytes,4822,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
+	Enabled       *bool                  `protobuf:"varint,13201,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	KeyUrl        *string                `protobuf:"bytes,16982,opt,name=key_url,json=keyUrl,proto3,oneof" json:"key_url,omitempty"`
 	BasedOn       *Cipher                `protobuf:"bytes,9630,opt,name=based_on,json=basedOn,proto3" json:"based_on,omitempty"`
 	SecretId      *string                `protobuf:"bytes,13805,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -19612,22 +19612,22 @@ func (*ManagedKeyEncryption) Descriptor() ([]byte, []int) {
 }
 
 func (x *ManagedKeyEncryption) GetAlgorithm() string {
-	if x != nil {
-		return x.Algorithm
+	if x != nil && x.Algorithm != nil {
+		return *x.Algorithm
 	}
 	return ""
 }
 
 func (x *ManagedKeyEncryption) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *ManagedKeyEncryption) GetKeyUrl() string {
-	if x != nil {
-		return x.KeyUrl
+	if x != nil && x.KeyUrl != nil {
+		return *x.KeyUrl
 	}
 	return ""
 }
@@ -19650,14 +19650,14 @@ func (x *ManagedKeyEncryption) GetSecretId() string {
 // A generic concept to describe memory operations with a program. This includes allocation and de-allocation of memory as well as copying memory regions.
 type Memory struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,13895,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,3400,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,5207,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,13895,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,3400,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,5207,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,14359,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Mode         string                 `protobuf:"bytes,16940,opt,name=mode,proto3" json:"mode,omitempty"`
-	Name         string                 `protobuf:"bytes,13793,opt,name=name,proto3" json:"name,omitempty"`
+	Mode         *string                `protobuf:"bytes,16940,opt,name=mode,proto3,oneof" json:"mode,omitempty"`
+	Name         *string                `protobuf:"bytes,13793,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string  `protobuf:"bytes,13754,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw           *string `protobuf:"bytes,13754,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ParentId      *string `protobuf:"bytes,2283,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -19701,15 +19701,15 @@ func (x *Memory) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Memory) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Memory) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -19722,22 +19722,22 @@ func (x *Memory) GetLabels() map[string]string {
 }
 
 func (x *Memory) GetMode() string {
-	if x != nil {
-		return x.Mode
+	if x != nil && x.Mode != nil {
+		return *x.Mode
 	}
 	return ""
 }
 
 func (x *Memory) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Memory) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -19868,7 +19868,7 @@ func (*MemoryOperation_LoadSymbol) isMemoryOperation_Type() {}
 // MessageAuthenticationCode is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type MessageAuthenticationCode struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,16668,opt,name=type,proto3" json:"type,omitempty"`
+	Type          *string                `protobuf:"bytes,16668,opt,name=type,proto3,oneof" json:"type,omitempty"`
 	Input         *Input                 `protobuf:"bytes,14423,opt,name=input,proto3" json:"input,omitempty"`
 	KeyId         *string                `protobuf:"bytes,3220,opt,name=key_id,json=keyId,proto3,oneof" json:"key_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -19906,8 +19906,8 @@ func (*MessageAuthenticationCode) Descriptor() ([]byte, []int) {
 }
 
 func (x *MessageAuthenticationCode) GetType() string {
-	if x != nil {
-		return x.Type
+	if x != nil && x.Type != nil {
+		return *x.Type
 	}
 	return ""
 }
@@ -19929,14 +19929,14 @@ func (x *MessageAuthenticationCode) GetKeyId() string {
 // MessagingHub is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type MessagingHub struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,8454,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,11913,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,7039,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,5261,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,8454,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,11913,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,7039,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,5261,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,4650,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,4131,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,4131,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,6465,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,6465,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,1045,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,392,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,13600,rep,name=loggings,proto3" json:"loggings,omitempty"`
@@ -19986,22 +19986,22 @@ func (x *MessagingHub) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *MessagingHub) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *MessagingHub) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *MessagingHub) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -20014,15 +20014,15 @@ func (x *MessagingHub) GetLabels() map[string]string {
 }
 
 func (x *MessagingHub) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *MessagingHub) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -20164,7 +20164,7 @@ func (*CodeModule_SourceCodeFile) isCodeModule_Type() {}
 type MonitoringProcedure struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The interval refers to the interval in months.
-	IntervalMonths int32 `protobuf:"varint,13218,opt,name=interval_months,json=intervalMonths,proto3" json:"interval_months,omitempty"`
+	IntervalMonths *int32 `protobuf:"varint,13218,opt,name=interval_months,json=intervalMonths,proto3,oneof" json:"interval_months,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -20200,8 +20200,8 @@ func (*MonitoringProcedure) Descriptor() ([]byte, []int) {
 }
 
 func (x *MonitoringProcedure) GetIntervalMonths() int32 {
-	if x != nil {
-		return x.IntervalMonths
+	if x != nil && x.IntervalMonths != nil {
+		return *x.IntervalMonths
 	}
 	return 0
 }
@@ -20209,10 +20209,10 @@ func (x *MonitoringProcedure) GetIntervalMonths() int32 {
 // MultiFactorAuthentiation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type MultiFactorAuthentiation struct {
 	state                        protoimpl.MessageState `protogen:"open.v1"`
-	ContextIsChecked             bool                   `protobuf:"varint,17335,opt,name=context_is_checked,json=contextIsChecked,proto3" json:"context_is_checked,omitempty"`
-	FailedAuthenticationAttempts int32                  `protobuf:"varint,15562,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3" json:"failed_authentication_attempts,omitempty"`
+	ContextIsChecked             *bool                  `protobuf:"varint,17335,opt,name=context_is_checked,json=contextIsChecked,proto3,oneof" json:"context_is_checked,omitempty"`
+	FailedAuthenticationAttempts *int32                 `protobuf:"varint,15562,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3,oneof" json:"failed_authentication_attempts,omitempty"`
 	// Maximum password rotation interval in months
-	RotationInterval int32           `protobuf:"varint,11722,opt,name=rotation_interval,json=rotationInterval,proto3" json:"rotation_interval,omitempty"`
+	RotationInterval *int32          `protobuf:"varint,11722,opt,name=rotation_interval,json=rotationInterval,proto3,oneof" json:"rotation_interval,omitempty"`
 	Authenticities   []*Authenticity `protobuf:"bytes,14430,rep,name=authenticities,proto3" json:"authenticities,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -20249,22 +20249,22 @@ func (*MultiFactorAuthentiation) Descriptor() ([]byte, []int) {
 }
 
 func (x *MultiFactorAuthentiation) GetContextIsChecked() bool {
-	if x != nil {
-		return x.ContextIsChecked
+	if x != nil && x.ContextIsChecked != nil {
+		return *x.ContextIsChecked
 	}
 	return false
 }
 
 func (x *MultiFactorAuthentiation) GetFailedAuthenticationAttempts() int32 {
-	if x != nil {
-		return x.FailedAuthenticationAttempts
+	if x != nil && x.FailedAuthenticationAttempts != nil {
+		return *x.FailedAuthenticationAttempts
 	}
 	return 0
 }
 
 func (x *MultiFactorAuthentiation) GetRotationInterval() int32 {
-	if x != nil {
-		return x.RotationInterval
+	if x != nil && x.RotationInterval != nil {
+		return *x.RotationInterval
 	}
 	return 0
 }
@@ -20280,16 +20280,16 @@ func (x *MultiFactorAuthentiation) GetAuthenticities() []*Authenticity {
 // This class represents a database service that identifies itself as "multi-model", e.g., offers document storage as well as relational features.
 type MultiModalDatabaseService struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,10465,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,15631,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,5439,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,16156,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,10465,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,15631,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,5439,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,16156,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Ips                        []string               `protobuf:"bytes,8280,rep,name=ips,proto3" json:"ips,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,7492,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,13533,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,13533,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Ports                      []uint32               `protobuf:"varint,5,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,17449,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,17449,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,9310,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AnomalyDetections                []*AnomalyDetection               `protobuf:"bytes,9066,rep,name=anomaly_detections,json=anomalyDetections,proto3" json:"anomaly_detections,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3349,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
@@ -20346,22 +20346,22 @@ func (x *MultiModalDatabaseService) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *MultiModalDatabaseService) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *MultiModalDatabaseService) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *MultiModalDatabaseService) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -20381,8 +20381,8 @@ func (x *MultiModalDatabaseService) GetLabels() map[string]string {
 }
 
 func (x *MultiModalDatabaseService) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -20395,8 +20395,8 @@ func (x *MultiModalDatabaseService) GetPorts() []uint32 {
 }
 
 func (x *MultiModalDatabaseService) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -20503,7 +20503,7 @@ func (x *MultiModalDatabaseService) GetUsageStatistics() *UsageStatistics {
 // Represents a policy section within a [PolicyDocument] describing need-to-know access control requirements. isDefined: whether this policy section is present and defined.
 type NeedToKnowPolicy struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	IsDefined     bool                   `protobuf:"varint,17587,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
+	IsDefined     *bool                  `protobuf:"varint,17587,opt,name=is_defined,json=isDefined,proto3,oneof" json:"is_defined,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -20539,8 +20539,8 @@ func (*NeedToKnowPolicy) Descriptor() ([]byte, []int) {
 }
 
 func (x *NeedToKnowPolicy) GetIsDefined() bool {
-	if x != nil {
-		return x.IsDefined
+	if x != nil && x.IsDefined != nil {
+		return *x.IsDefined
 	}
 	return false
 }
@@ -20548,14 +20548,14 @@ func (x *NeedToKnowPolicy) GetIsDefined() bool {
 // NetworkInterface is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type NetworkInterface struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,5497,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,10885,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,17981,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,14370,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,5497,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,10885,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,17981,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,14370,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,4721,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,12404,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,12404,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,5176,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,5176,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	AccessRestriction                *AccessRestriction                `protobuf:"bytes,17872,opt,name=access_restriction,json=accessRestriction,proto3" json:"access_restriction,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,11699,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10038,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -20607,22 +20607,22 @@ func (x *NetworkInterface) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *NetworkInterface) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *NetworkInterface) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *NetworkInterface) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -20635,15 +20635,15 @@ func (x *NetworkInterface) GetLabels() map[string]string {
 }
 
 func (x *NetworkInterface) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *NetworkInterface) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -20714,14 +20714,14 @@ func (x *NetworkInterface) GetUsageStatistics() *UsageStatistics {
 // NetworkSecurityGroup is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type NetworkSecurityGroup struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,7240,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,3524,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,11635,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,15045,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,7240,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,3524,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,11635,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,15045,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,5905,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,11440,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,11440,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,11170,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,11170,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,15869,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,11423,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,393,rep,name=loggings,proto3" json:"loggings,omitempty"`
@@ -20771,22 +20771,22 @@ func (x *NetworkSecurityGroup) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *NetworkSecurityGroup) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *NetworkSecurityGroup) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *NetworkSecurityGroup) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -20799,15 +20799,15 @@ func (x *NetworkSecurityGroup) GetLabels() map[string]string {
 }
 
 func (x *NetworkSecurityGroup) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *NetworkSecurityGroup) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -21462,10 +21462,10 @@ func (*Networking_VirtualSubNetwork) isNetworking_Type() {}
 // NoAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type NoAuthentication struct {
 	state                        protoimpl.MessageState `protogen:"open.v1"`
-	ContextIsChecked             bool                   `protobuf:"varint,12023,opt,name=context_is_checked,json=contextIsChecked,proto3" json:"context_is_checked,omitempty"`
-	FailedAuthenticationAttempts int32                  `protobuf:"varint,4797,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3" json:"failed_authentication_attempts,omitempty"`
+	ContextIsChecked             *bool                  `protobuf:"varint,12023,opt,name=context_is_checked,json=contextIsChecked,proto3,oneof" json:"context_is_checked,omitempty"`
+	FailedAuthenticationAttempts *int32                 `protobuf:"varint,4797,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3,oneof" json:"failed_authentication_attempts,omitempty"`
 	// Maximum password rotation interval in months
-	RotationInterval int32 `protobuf:"varint,11214,opt,name=rotation_interval,json=rotationInterval,proto3" json:"rotation_interval,omitempty"`
+	RotationInterval *int32 `protobuf:"varint,11214,opt,name=rotation_interval,json=rotationInterval,proto3,oneof" json:"rotation_interval,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -21501,22 +21501,22 @@ func (*NoAuthentication) Descriptor() ([]byte, []int) {
 }
 
 func (x *NoAuthentication) GetContextIsChecked() bool {
-	if x != nil {
-		return x.ContextIsChecked
+	if x != nil && x.ContextIsChecked != nil {
+		return *x.ContextIsChecked
 	}
 	return false
 }
 
 func (x *NoAuthentication) GetFailedAuthenticationAttempts() int32 {
-	if x != nil {
-		return x.FailedAuthenticationAttempts
+	if x != nil && x.FailedAuthenticationAttempts != nil {
+		return *x.FailedAuthenticationAttempts
 	}
 	return 0
 }
 
 func (x *NoAuthentication) GetRotationInterval() int32 {
-	if x != nil {
-		return x.RotationInterval
+	if x != nil && x.RotationInterval != nil {
+		return *x.RotationInterval
 	}
 	return 0
 }
@@ -21524,12 +21524,12 @@ func (x *NoAuthentication) GetRotationInterval() int32 {
 // OSLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type OSLogging struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
-	Enabled bool                   `protobuf:"varint,207,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled *bool                  `protobuf:"varint,207,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	// enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN
-	LogLevel                 string               `protobuf:"bytes,10256,opt,name=log_level,json=logLevel,proto3" json:"log_level,omitempty"`
-	MonitoringLogDataEnabled bool                 `protobuf:"varint,12434,opt,name=monitoring_log_data_enabled,json=monitoringLogDataEnabled,proto3" json:"monitoring_log_data_enabled,omitempty"`
-	RetentionPeriod          *durationpb.Duration `protobuf:"bytes,11358,opt,name=retention_period,json=retentionPeriod,proto3" json:"retention_period,omitempty"`
-	SecurityAlertsEnabled    bool                 `protobuf:"varint,7453,opt,name=security_alerts_enabled,json=securityAlertsEnabled,proto3" json:"security_alerts_enabled,omitempty"`
+	LogLevel                 *string              `protobuf:"bytes,10256,opt,name=log_level,json=logLevel,proto3,oneof" json:"log_level,omitempty"`
+	MonitoringLogDataEnabled *bool                `protobuf:"varint,12434,opt,name=monitoring_log_data_enabled,json=monitoringLogDataEnabled,proto3,oneof" json:"monitoring_log_data_enabled,omitempty"`
+	RetentionPeriod          *durationpb.Duration `protobuf:"bytes,11358,opt,name=retention_period,json=retentionPeriod,proto3,oneof" json:"retention_period,omitempty"`
+	SecurityAlertsEnabled    *bool                `protobuf:"varint,7453,opt,name=security_alerts_enabled,json=securityAlertsEnabled,proto3,oneof" json:"security_alerts_enabled,omitempty"`
 	LoggingServiceIds        []string             `protobuf:"bytes,14966,rep,name=logging_service_ids,json=loggingServiceIds,proto3" json:"logging_service_ids,omitempty"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
@@ -21566,22 +21566,22 @@ func (*OSLogging) Descriptor() ([]byte, []int) {
 }
 
 func (x *OSLogging) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *OSLogging) GetLogLevel() string {
-	if x != nil {
-		return x.LogLevel
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
 	}
 	return ""
 }
 
 func (x *OSLogging) GetMonitoringLogDataEnabled() bool {
-	if x != nil {
-		return x.MonitoringLogDataEnabled
+	if x != nil && x.MonitoringLogDataEnabled != nil {
+		return *x.MonitoringLogDataEnabled
 	}
 	return false
 }
@@ -21594,8 +21594,8 @@ func (x *OSLogging) GetRetentionPeriod() *durationpb.Duration {
 }
 
 func (x *OSLogging) GetSecurityAlertsEnabled() bool {
-	if x != nil {
-		return x.SecurityAlertsEnabled
+	if x != nil && x.SecurityAlertsEnabled != nil {
+		return *x.SecurityAlertsEnabled
 	}
 	return false
 }
@@ -21610,11 +21610,11 @@ func (x *OSLogging) GetLoggingServiceIds() []string {
 // OTPBasedAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type OTPBasedAuthentication struct {
 	state                        protoimpl.MessageState `protogen:"open.v1"`
-	Activated                    bool                   `protobuf:"varint,7456,opt,name=activated,proto3" json:"activated,omitempty"`
-	ContextIsChecked             bool                   `protobuf:"varint,18913,opt,name=context_is_checked,json=contextIsChecked,proto3" json:"context_is_checked,omitempty"`
-	FailedAuthenticationAttempts int32                  `protobuf:"varint,11364,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3" json:"failed_authentication_attempts,omitempty"`
+	Activated                    *bool                  `protobuf:"varint,7456,opt,name=activated,proto3,oneof" json:"activated,omitempty"`
+	ContextIsChecked             *bool                  `protobuf:"varint,18913,opt,name=context_is_checked,json=contextIsChecked,proto3,oneof" json:"context_is_checked,omitempty"`
+	FailedAuthenticationAttempts *int32                 `protobuf:"varint,11364,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3,oneof" json:"failed_authentication_attempts,omitempty"`
 	// Maximum password rotation interval in months
-	RotationInterval int32 `protobuf:"varint,12621,opt,name=rotation_interval,json=rotationInterval,proto3" json:"rotation_interval,omitempty"`
+	RotationInterval *int32 `protobuf:"varint,12621,opt,name=rotation_interval,json=rotationInterval,proto3,oneof" json:"rotation_interval,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -21650,29 +21650,29 @@ func (*OTPBasedAuthentication) Descriptor() ([]byte, []int) {
 }
 
 func (x *OTPBasedAuthentication) GetActivated() bool {
-	if x != nil {
-		return x.Activated
+	if x != nil && x.Activated != nil {
+		return *x.Activated
 	}
 	return false
 }
 
 func (x *OTPBasedAuthentication) GetContextIsChecked() bool {
-	if x != nil {
-		return x.ContextIsChecked
+	if x != nil && x.ContextIsChecked != nil {
+		return *x.ContextIsChecked
 	}
 	return false
 }
 
 func (x *OTPBasedAuthentication) GetFailedAuthenticationAttempts() int32 {
-	if x != nil {
-		return x.FailedAuthenticationAttempts
+	if x != nil && x.FailedAuthenticationAttempts != nil {
+		return *x.FailedAuthenticationAttempts
 	}
 	return 0
 }
 
 func (x *OTPBasedAuthentication) GetRotationInterval() int32 {
-	if x != nil {
-		return x.RotationInterval
+	if x != nil && x.RotationInterval != nil {
+		return *x.RotationInterval
 	}
 	return 0
 }
@@ -21680,15 +21680,15 @@ func (x *OTPBasedAuthentication) GetRotationInterval() int32 {
 // ObjectStorage is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ObjectStorage struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,3389,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,7516,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,4155,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,18085,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,3389,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,7516,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,4155,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,18085,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,15572,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,13009,opt,name=name,proto3" json:"name,omitempty"`
-	PublicAccess               bool                   `protobuf:"varint,4621,opt,name=public_access,json=publicAccess,proto3" json:"public_access,omitempty"`
+	Name                       *string                `protobuf:"bytes,13009,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	PublicAccess               *bool                  `protobuf:"varint,4621,opt,name=public_access,json=publicAccess,proto3,oneof" json:"public_access,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,6632,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,6632,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,11889,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AtRestEncryption                 *AtRestEncryption                 `protobuf:"bytes,6489,opt,name=at_rest_encryption,json=atRestEncryption,proto3" json:"at_rest_encryption,omitempty"`
 	Backups                          []*Backup                         `protobuf:"bytes,4514,rep,name=backups,proto3" json:"backups,omitempty"`
@@ -21743,22 +21743,22 @@ func (x *ObjectStorage) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ObjectStorage) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ObjectStorage) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *ObjectStorage) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -21771,22 +21771,22 @@ func (x *ObjectStorage) GetLabels() map[string]string {
 }
 
 func (x *ObjectStorage) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ObjectStorage) GetPublicAccess() bool {
-	if x != nil {
-		return x.PublicAccess
+	if x != nil && x.PublicAccess != nil {
+		return *x.PublicAccess
 	}
 	return false
 }
 
 func (x *ObjectStorage) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -21878,7 +21878,7 @@ func (x *ObjectStorage) GetUsageStatistics() *UsageStatistics {
 // ObjectStorageRequest is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ObjectStorageRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	Source           string                 `protobuf:"bytes,178,opt,name=source,proto3" json:"source,omitempty"`
+	Source           *string                `protobuf:"bytes,178,opt,name=source,proto3,oneof" json:"source,omitempty"`
 	CodeRegion       *CodeRegion            `protobuf:"bytes,11189,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	ObjectStorageIds []string               `protobuf:"bytes,17017,rep,name=object_storage_ids,json=objectStorageIds,proto3" json:"object_storage_ids,omitempty"`
 	StorageId        *string                `protobuf:"bytes,7565,opt,name=storage_id,json=storageId,proto3,oneof" json:"storage_id,omitempty"`
@@ -21917,8 +21917,8 @@ func (*ObjectStorageRequest) Descriptor() ([]byte, []int) {
 }
 
 func (x *ObjectStorageRequest) GetSource() string {
-	if x != nil {
-		return x.Source
+	if x != nil && x.Source != nil {
+		return *x.Source
 	}
 	return ""
 }
@@ -21948,16 +21948,16 @@ func (x *ObjectStorageRequest) GetStorageId() string {
 // An object storage service represents the network service that is used to access a list of object storage containers. The storage itself is modelled as a ObjectStorage. The service has an http endpoint.
 type ObjectStorageService struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,11795,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,11196,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,18683,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,16284,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,11795,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,11196,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,18683,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,16284,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Ips                        []string               `protobuf:"bytes,17168,rep,name=ips,proto3" json:"ips,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,17764,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,1365,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,1365,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Ports                      []uint32               `protobuf:"varint,8166,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,16651,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,16651,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,16914,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,777,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,15695,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
@@ -22013,22 +22013,22 @@ func (x *ObjectStorageService) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ObjectStorageService) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ObjectStorageService) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *ObjectStorageService) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -22048,8 +22048,8 @@ func (x *ObjectStorageService) GetLabels() map[string]string {
 }
 
 func (x *ObjectStorageService) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -22062,8 +22062,8 @@ func (x *ObjectStorageService) GetPorts() []uint32 {
 }
 
 func (x *ObjectStorageService) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -23007,13 +23007,13 @@ func (*Output) Descriptor() ([]byte, []int) {
 // Represents a POSIX architecture, commonly found on Linux systems.
 type POSIX struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,13531,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,4720,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,6746,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,13531,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,4720,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,6746,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,8873,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,18076,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,18076,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                  string                 `protobuf:"bytes,6560,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                  *string                `protobuf:"bytes,6560,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CodeModuleIds        []string               `protobuf:"bytes,5732,rep,name=code_module_ids,json=codeModuleIds,proto3" json:"code_module_ids,omitempty"`
 	CodeRepositoryId     *string                `protobuf:"bytes,13099,opt,name=code_repository_id,json=codeRepositoryId,proto3,oneof" json:"code_repository_id,omitempty"`
 	Functionalities      []*Functionality       `protobuf:"bytes,2402,rep,name=functionalities,proto3" json:"functionalities,omitempty"`
@@ -23061,15 +23061,15 @@ func (x *POSIX) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *POSIX) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *POSIX) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -23082,15 +23082,15 @@ func (x *POSIX) GetLabels() map[string]string {
 }
 
 func (x *POSIX) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *POSIX) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -23134,13 +23134,13 @@ func (x *POSIX) GetSoftwareAttestations() []*SoftwareAttestation {
 // Represents a grouping of (source) code into logical unit, for example a package for a namespace.
 type Package struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,17760,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,13199,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,11460,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,17760,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,13199,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,11460,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,3230,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,11479,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,11479,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                  string                 `protobuf:"bytes,603,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                  *string                `protobuf:"bytes,603,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CodeModuleIds        []string               `protobuf:"bytes,16160,rep,name=code_module_ids,json=codeModuleIds,proto3" json:"code_module_ids,omitempty"`
 	CodeRepositoryId     *string                `protobuf:"bytes,17202,opt,name=code_repository_id,json=codeRepositoryId,proto3,oneof" json:"code_repository_id,omitempty"`
 	Functionalities      []*Functionality       `protobuf:"bytes,8054,rep,name=functionalities,proto3" json:"functionalities,omitempty"`
@@ -23188,15 +23188,15 @@ func (x *Package) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Package) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Package) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -23209,15 +23209,15 @@ func (x *Package) GetLabels() map[string]string {
 }
 
 func (x *Package) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Package) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -23262,7 +23262,7 @@ func (x *Package) GetSoftwareAttestations() []*SoftwareAttestation {
 type Padding struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Describes a certain scheme e.g. a padding scheme.
-	Scheme        string `protobuf:"bytes,15940,opt,name=scheme,proto3" json:"scheme,omitempty"`
+	Scheme        *string `protobuf:"bytes,15940,opt,name=scheme,proto3,oneof" json:"scheme,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -23298,8 +23298,8 @@ func (*Padding) Descriptor() ([]byte, []int) {
 }
 
 func (x *Padding) GetScheme() string {
-	if x != nil {
-		return x.Scheme
+	if x != nil && x.Scheme != nil {
+		return *x.Scheme
 	}
 	return ""
 }
@@ -23307,11 +23307,11 @@ func (x *Padding) GetScheme() string {
 // PasswordBasedAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type PasswordBasedAuthentication struct {
 	state                        protoimpl.MessageState `protogen:"open.v1"`
-	Activated                    bool                   `protobuf:"varint,11798,opt,name=activated,proto3" json:"activated,omitempty"`
-	ContextIsChecked             bool                   `protobuf:"varint,1362,opt,name=context_is_checked,json=contextIsChecked,proto3" json:"context_is_checked,omitempty"`
-	FailedAuthenticationAttempts int32                  `protobuf:"varint,14390,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3" json:"failed_authentication_attempts,omitempty"`
+	Activated                    *bool                  `protobuf:"varint,11798,opt,name=activated,proto3,oneof" json:"activated,omitempty"`
+	ContextIsChecked             *bool                  `protobuf:"varint,1362,opt,name=context_is_checked,json=contextIsChecked,proto3,oneof" json:"context_is_checked,omitempty"`
+	FailedAuthenticationAttempts *int32                 `protobuf:"varint,14390,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3,oneof" json:"failed_authentication_attempts,omitempty"`
 	// Maximum password rotation interval in months
-	RotationInterval int32 `protobuf:"varint,9048,opt,name=rotation_interval,json=rotationInterval,proto3" json:"rotation_interval,omitempty"`
+	RotationInterval *int32 `protobuf:"varint,9048,opt,name=rotation_interval,json=rotationInterval,proto3,oneof" json:"rotation_interval,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -23347,29 +23347,29 @@ func (*PasswordBasedAuthentication) Descriptor() ([]byte, []int) {
 }
 
 func (x *PasswordBasedAuthentication) GetActivated() bool {
-	if x != nil {
-		return x.Activated
+	if x != nil && x.Activated != nil {
+		return *x.Activated
 	}
 	return false
 }
 
 func (x *PasswordBasedAuthentication) GetContextIsChecked() bool {
-	if x != nil {
-		return x.ContextIsChecked
+	if x != nil && x.ContextIsChecked != nil {
+		return *x.ContextIsChecked
 	}
 	return false
 }
 
 func (x *PasswordBasedAuthentication) GetFailedAuthenticationAttempts() int32 {
-	if x != nil {
-		return x.FailedAuthenticationAttempts
+	if x != nil && x.FailedAuthenticationAttempts != nil {
+		return *x.FailedAuthenticationAttempts
 	}
 	return 0
 }
 
 func (x *PasswordBasedAuthentication) GetRotationInterval() int32 {
-	if x != nil {
-		return x.RotationInterval
+	if x != nil && x.RotationInterval != nil {
+		return *x.RotationInterval
 	}
 	return 0
 }
@@ -23377,14 +23377,14 @@ func (x *PasswordBasedAuthentication) GetRotationInterval() int32 {
 // PasswordPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type PasswordPolicy struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,1562,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,16661,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,2029,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,14885,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,1562,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,16661,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,2029,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,14885,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,716,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,8966,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,8966,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,10264,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,10264,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7943,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8344,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,6081,rep,name=loggings,proto3" json:"loggings,omitempty"`
@@ -23434,22 +23434,22 @@ func (x *PasswordPolicy) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *PasswordPolicy) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *PasswordPolicy) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *PasswordPolicy) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -23462,15 +23462,15 @@ func (x *PasswordPolicy) GetLabels() map[string]string {
 }
 
 func (x *PasswordPolicy) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *PasswordPolicy) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -23791,14 +23791,14 @@ func (*Policy_CoordinatedVulnerabilityDisclosurePolicy) isPolicy_Type() {}
 // PolicyDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type PolicyDocument struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,8545,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,1423,opt,name=description,proto3" json:"description,omitempty"`
-	Filetype     string                 `protobuf:"bytes,11838,opt,name=filetype,proto3" json:"filetype,omitempty"`
-	Id           string                 `protobuf:"bytes,6550,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,8545,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,1423,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Filetype     *string                `protobuf:"bytes,11838,opt,name=filetype,proto3,oneof" json:"filetype,omitempty"`
+	Id           *string                `protobuf:"bytes,6550,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,5677,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,2052,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,2052,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                           string                         `protobuf:"bytes,5038,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                           *string                        `protobuf:"bytes,5038,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	AccessControlTypePolicy       *AccessControlTypePolicy       `protobuf:"bytes,9164,opt,name=access_control_type_policy,json=accessControlTypePolicy,proto3" json:"access_control_type_policy,omitempty"`
 	AssetInventory                *AssetInventory                `protobuf:"bytes,16496,opt,name=asset_inventory,json=assetInventory,proto3" json:"asset_inventory,omitempty"`
 	Backup                        *Backup                        `protobuf:"bytes,16402,opt,name=backup,proto3" json:"backup,omitempty"`
@@ -23859,22 +23859,22 @@ func (x *PolicyDocument) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *PolicyDocument) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *PolicyDocument) GetFiletype() string {
-	if x != nil {
-		return x.Filetype
+	if x != nil && x.Filetype != nil {
+		return *x.Filetype
 	}
 	return ""
 }
 
 func (x *PolicyDocument) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -23887,15 +23887,15 @@ func (x *PolicyDocument) GetLabels() map[string]string {
 }
 
 func (x *PolicyDocument) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *PolicyDocument) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -24257,19 +24257,19 @@ func (x *ProtectedAsset) GetProtects() *Resource {
 // Product is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Product struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
-	ContextOfUse       string                 `protobuf:"bytes,18080,opt,name=context_of_use,json=contextOfUse,proto3" json:"context_of_use,omitempty"`
-	CreationTime       *timestamppb.Timestamp `protobuf:"bytes,17898,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description        string                 `protobuf:"bytes,9219,opt,name=description,proto3" json:"description,omitempty"`
-	Id                 string                 `protobuf:"bytes,4962,opt,name=id,proto3" json:"id,omitempty"`
+	ContextOfUse       *string                `protobuf:"bytes,18080,opt,name=context_of_use,json=contextOfUse,proto3,oneof" json:"context_of_use,omitempty"`
+	CreationTime       *timestamppb.Timestamp `protobuf:"bytes,17898,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description        *string                `protobuf:"bytes,9219,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                 *string                `protobuf:"bytes,4962,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels             map[string]string      `protobuf:"bytes,13974,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name               string                 `protobuf:"bytes,1083,opt,name=name,proto3" json:"name,omitempty"`
-	ProgrammingVersion string                 `protobuf:"bytes,17597,opt,name=programming_version,json=programmingVersion,proto3" json:"programming_version,omitempty"`
-	Purpose            string                 `protobuf:"bytes,8719,opt,name=purpose,proto3" json:"purpose,omitempty"`
+	Name               *string                `protobuf:"bytes,1083,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	ProgrammingVersion *string                `protobuf:"bytes,17597,opt,name=programming_version,json=programmingVersion,proto3,oneof" json:"programming_version,omitempty"`
+	Purpose            *string                `protobuf:"bytes,8719,opt,name=purpose,proto3,oneof" json:"purpose,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw string `protobuf:"bytes,16261,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw *string `protobuf:"bytes,16261,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	// Support ends date for a certain resource.
-	SupportEnds       *timestamppb.Timestamp `protobuf:"bytes,14253,opt,name=support_ends,json=supportEnds,proto3" json:"support_ends,omitempty"`
-	Type              string                 `protobuf:"bytes,6467,opt,name=type,proto3" json:"type,omitempty"`
+	SupportEnds       *timestamppb.Timestamp `protobuf:"bytes,14253,opt,name=support_ends,json=supportEnds,proto3,oneof" json:"support_ends,omitempty"`
+	Type              *string                `protobuf:"bytes,6467,opt,name=type,proto3,oneof" json:"type,omitempty"`
 	CodeIds           []string               `protobuf:"bytes,10540,rep,name=code_ids,json=codeIds,proto3" json:"code_ids,omitempty"`
 	ContactPerson     *ContactPerson         `protobuf:"bytes,8641,opt,name=contact_person,json=contactPerson,proto3" json:"contact_person,omitempty"`
 	DataIds           []string               `protobuf:"bytes,11462,rep,name=data_ids,json=dataIds,proto3" json:"data_ids,omitempty"`
@@ -24312,8 +24312,8 @@ func (*Product) Descriptor() ([]byte, []int) {
 }
 
 func (x *Product) GetContextOfUse() string {
-	if x != nil {
-		return x.ContextOfUse
+	if x != nil && x.ContextOfUse != nil {
+		return *x.ContextOfUse
 	}
 	return ""
 }
@@ -24326,15 +24326,15 @@ func (x *Product) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Product) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Product) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -24347,29 +24347,29 @@ func (x *Product) GetLabels() map[string]string {
 }
 
 func (x *Product) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Product) GetProgrammingVersion() string {
-	if x != nil {
-		return x.ProgrammingVersion
+	if x != nil && x.ProgrammingVersion != nil {
+		return *x.ProgrammingVersion
 	}
 	return ""
 }
 
 func (x *Product) GetPurpose() string {
-	if x != nil {
-		return x.Purpose
+	if x != nil && x.Purpose != nil {
+		return *x.Purpose
 	}
 	return ""
 }
 
 func (x *Product) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -24382,8 +24382,8 @@ func (x *Product) GetSupportEnds() *timestamppb.Timestamp {
 }
 
 func (x *Product) GetType() string {
-	if x != nil {
-		return x.Type
+	if x != nil && x.Type != nil {
+		return *x.Type
 	}
 	return ""
 }
@@ -24440,14 +24440,14 @@ func (x *Product) GetParentId() string {
 // ProductionAndMonitoringProcessDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ProductionAndMonitoringProcessDocument struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,673,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,16985,opt,name=description,proto3" json:"description,omitempty"`
-	Filetype     string                 `protobuf:"bytes,15732,opt,name=filetype,proto3" json:"filetype,omitempty"`
-	Id           string                 `protobuf:"bytes,3038,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,673,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,16985,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Filetype     *string                `protobuf:"bytes,15732,opt,name=filetype,proto3,oneof" json:"filetype,omitempty"`
+	Id           *string                `protobuf:"bytes,3038,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,11986,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,10714,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,10714,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                string               `protobuf:"bytes,12529,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                *string              `protobuf:"bytes,12529,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,11667,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
 	DataLocation       *DataLocation        `protobuf:"bytes,3635,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,13921,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
@@ -24496,22 +24496,22 @@ func (x *ProductionAndMonitoringProcessDocument) GetCreationTime() *timestamppb.
 }
 
 func (x *ProductionAndMonitoringProcessDocument) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ProductionAndMonitoringProcessDocument) GetFiletype() string {
-	if x != nil {
-		return x.Filetype
+	if x != nil && x.Filetype != nil {
+		return *x.Filetype
 	}
 	return ""
 }
 
 func (x *ProductionAndMonitoringProcessDocument) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -24524,15 +24524,15 @@ func (x *ProductionAndMonitoringProcessDocument) GetLabels() map[string]string {
 }
 
 func (x *ProductionAndMonitoringProcessDocument) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ProductionAndMonitoringProcessDocument) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -24851,24 +24851,24 @@ func (x *ProvideConfigurationOption) GetConfigurationOptionSourceId() string {
 // QPU is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type QPU struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
-	OneQubitErrorRate float32                `protobuf:"fixed32,3838,opt,name=one_qubit_error_rate,json=oneQubitErrorRate,proto3" json:"one_qubit_error_rate,omitempty"`
-	SpamErrorRate     float32                `protobuf:"fixed32,2960,opt,name=spam_error_rate,json=spamErrorRate,proto3" json:"spam_error_rate,omitempty"`
+	OneQubitErrorRate *float32               `protobuf:"fixed32,3838,opt,name=one_qubit_error_rate,json=oneQubitErrorRate,proto3,oneof" json:"one_qubit_error_rate,omitempty"`
+	SpamErrorRate     *float32               `protobuf:"fixed32,2960,opt,name=spam_error_rate,json=spamErrorRate,proto3,oneof" json:"spam_error_rate,omitempty"`
 	// Coherence times are a standard measure for the reliability of executing quantum circuits. T1 is the qubits's energy relaxation time (in seconds).
-	T1CoherenceTime float32 `protobuf:"fixed32,10446,opt,name=t1_coherence_time,json=t1CoherenceTime,proto3" json:"t1_coherence_time,omitempty"`
+	T1CoherenceTime *float32 `protobuf:"fixed32,10446,opt,name=t1_coherence_time,json=t1CoherenceTime,proto3,oneof" json:"t1_coherence_time,omitempty"`
 	// Coherence times are a standard measure for the reliability of executing quantum circuits. T1 is the qubits's energy dephasing time (in seconds).
-	T2CoherenceTime   float32 `protobuf:"fixed32,16909,opt,name=t2_coherence_time,json=t2CoherenceTime,proto3" json:"t2_coherence_time,omitempty"`
-	TwoQubitErrorRate float32 `protobuf:"fixed32,6385,opt,name=two_qubit_error_rate,json=twoQubitErrorRate,proto3" json:"two_qubit_error_rate,omitempty"`
+	T2CoherenceTime   *float32 `protobuf:"fixed32,16909,opt,name=t2_coherence_time,json=t2CoherenceTime,proto3,oneof" json:"t2_coherence_time,omitempty"`
+	TwoQubitErrorRate *float32 `protobuf:"fixed32,6385,opt,name=two_qubit_error_rate,json=twoQubitErrorRate,proto3,oneof" json:"two_qubit_error_rate,omitempty"`
 	// The physical operations shall include a finite set of gates capable of approximating any unitary operation on qubits. This is typically achieved through combinations of one-qubit gates and a two-qubit entangling gate, such as CNOT, enabling the execution of a broad range of quantum algorithms.
-	UniversalGateSetEnabled    bool                   `protobuf:"varint,15025,opt,name=universal_gate_set_enabled,json=universalGateSetEnabled,proto3" json:"universal_gate_set_enabled,omitempty"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,3446,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,4376,opt,name=description,proto3" json:"description,omitempty"`
-	ErrorCorrectionEnabled     bool                   `protobuf:"varint,12983,opt,name=error_correction_enabled,json=errorCorrectionEnabled,proto3" json:"error_correction_enabled,omitempty"`
-	Id                         string                 `protobuf:"bytes,14403,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,9684,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	UniversalGateSetEnabled    *bool                  `protobuf:"varint,15025,opt,name=universal_gate_set_enabled,json=universalGateSetEnabled,proto3,oneof" json:"universal_gate_set_enabled,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,3446,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,4376,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	ErrorCorrectionEnabled     *bool                  `protobuf:"varint,12983,opt,name=error_correction_enabled,json=errorCorrectionEnabled,proto3,oneof" json:"error_correction_enabled,omitempty"`
+	Id                         *string                `protobuf:"bytes,14403,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,9684,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,11544,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,1538,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,1538,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,8462,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,8462,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,2743,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	EncryptionInUse                  *EncryptionInUse                  `protobuf:"bytes,7289,opt,name=encryption_in_use,json=encryptionInUse,proto3" json:"encryption_in_use,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,16264,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -24915,43 +24915,43 @@ func (*QPU) Descriptor() ([]byte, []int) {
 }
 
 func (x *QPU) GetOneQubitErrorRate() float32 {
-	if x != nil {
-		return x.OneQubitErrorRate
+	if x != nil && x.OneQubitErrorRate != nil {
+		return *x.OneQubitErrorRate
 	}
 	return 0
 }
 
 func (x *QPU) GetSpamErrorRate() float32 {
-	if x != nil {
-		return x.SpamErrorRate
+	if x != nil && x.SpamErrorRate != nil {
+		return *x.SpamErrorRate
 	}
 	return 0
 }
 
 func (x *QPU) GetT1CoherenceTime() float32 {
-	if x != nil {
-		return x.T1CoherenceTime
+	if x != nil && x.T1CoherenceTime != nil {
+		return *x.T1CoherenceTime
 	}
 	return 0
 }
 
 func (x *QPU) GetT2CoherenceTime() float32 {
-	if x != nil {
-		return x.T2CoherenceTime
+	if x != nil && x.T2CoherenceTime != nil {
+		return *x.T2CoherenceTime
 	}
 	return 0
 }
 
 func (x *QPU) GetTwoQubitErrorRate() float32 {
-	if x != nil {
-		return x.TwoQubitErrorRate
+	if x != nil && x.TwoQubitErrorRate != nil {
+		return *x.TwoQubitErrorRate
 	}
 	return 0
 }
 
 func (x *QPU) GetUniversalGateSetEnabled() bool {
-	if x != nil {
-		return x.UniversalGateSetEnabled
+	if x != nil && x.UniversalGateSetEnabled != nil {
+		return *x.UniversalGateSetEnabled
 	}
 	return false
 }
@@ -24964,29 +24964,29 @@ func (x *QPU) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *QPU) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *QPU) GetErrorCorrectionEnabled() bool {
-	if x != nil {
-		return x.ErrorCorrectionEnabled
+	if x != nil && x.ErrorCorrectionEnabled != nil {
+		return *x.ErrorCorrectionEnabled
 	}
 	return false
 }
 
 func (x *QPU) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *QPU) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -24999,15 +24999,15 @@ func (x *QPU) GetLabels() map[string]string {
 }
 
 func (x *QPU) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *QPU) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -25093,9 +25093,9 @@ func (x *QPU) GetUsageStatistics() *UsageStatistics {
 type RBAC struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// see Privacy Smells: Detecting Privacy Problems in Cloud Architectures (2020)
-	BroadAssignments float32 `protobuf:"fixed32,5678,opt,name=broad_assignments,json=broadAssignments,proto3" json:"broad_assignments,omitempty"`
+	BroadAssignments *float32 `protobuf:"fixed32,5678,opt,name=broad_assignments,json=broadAssignments,proto3,oneof" json:"broad_assignments,omitempty"`
 	// see Privacy Smells: Detecting Privacy Problems in Cloud Architectures (2020)
-	MixedDuties   float32 `protobuf:"fixed32,14446,opt,name=mixed_duties,json=mixedDuties,proto3" json:"mixed_duties,omitempty"`
+	MixedDuties   *float32 `protobuf:"fixed32,14446,opt,name=mixed_duties,json=mixedDuties,proto3,oneof" json:"mixed_duties,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -25131,15 +25131,15 @@ func (*RBAC) Descriptor() ([]byte, []int) {
 }
 
 func (x *RBAC) GetBroadAssignments() float32 {
-	if x != nil {
-		return x.BroadAssignments
+	if x != nil && x.BroadAssignments != nil {
+		return *x.BroadAssignments
 	}
 	return 0
 }
 
 func (x *RBAC) GetMixedDuties() float32 {
-	if x != nil {
-		return x.MixedDuties
+	if x != nil && x.MixedDuties != nil {
+		return *x.MixedDuties
 	}
 	return 0
 }
@@ -25148,9 +25148,9 @@ func (x *RBAC) GetMixedDuties() float32 {
 // Rate limiting is used to control the frequency of incoming requests to prevent system overload
 type RateLimiting struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
-	Enabled           bool                   `protobuf:"varint,11910,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	MaxRequests       int32                  `protobuf:"varint,8962,opt,name=max_requests,json=maxRequests,proto3" json:"max_requests,omitempty"`
-	TimeWindowSeconds int32                  `protobuf:"varint,6657,opt,name=time_window_seconds,json=timeWindowSeconds,proto3" json:"time_window_seconds,omitempty"`
+	Enabled           *bool                  `protobuf:"varint,11910,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	MaxRequests       *int32                 `protobuf:"varint,8962,opt,name=max_requests,json=maxRequests,proto3,oneof" json:"max_requests,omitempty"`
+	TimeWindowSeconds *int32                 `protobuf:"varint,6657,opt,name=time_window_seconds,json=timeWindowSeconds,proto3,oneof" json:"time_window_seconds,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -25186,22 +25186,22 @@ func (*RateLimiting) Descriptor() ([]byte, []int) {
 }
 
 func (x *RateLimiting) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *RateLimiting) GetMaxRequests() int32 {
-	if x != nil {
-		return x.MaxRequests
+	if x != nil && x.MaxRequests != nil {
+		return *x.MaxRequests
 	}
 	return 0
 }
 
 func (x *RateLimiting) GetTimeWindowSeconds() int32 {
-	if x != nil {
-		return x.TimeWindowSeconds
+	if x != nil && x.TimeWindowSeconds != nil {
+		return *x.TimeWindowSeconds
 	}
 	return 0
 }
@@ -25617,16 +25617,16 @@ func (x *RegisterHttpEndpoint) GetHttpRequestHandler() *HttpRequestHandler {
 // RelationalDatabaseService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type RelationalDatabaseService struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,10783,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,12776,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,13147,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,12634,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,10783,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,12776,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,13147,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,12634,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Ips                        []string               `protobuf:"bytes,13907,rep,name=ips,proto3" json:"ips,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,5189,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,10710,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,10710,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Ports                      []uint32               `protobuf:"varint,285,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,308,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,308,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,17935,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AnomalyDetections                []*AnomalyDetection               `protobuf:"bytes,18542,rep,name=anomaly_detections,json=anomalyDetections,proto3" json:"anomaly_detections,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,11313,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
@@ -25683,22 +25683,22 @@ func (x *RelationalDatabaseService) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *RelationalDatabaseService) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *RelationalDatabaseService) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *RelationalDatabaseService) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -25718,8 +25718,8 @@ func (x *RelationalDatabaseService) GetLabels() map[string]string {
 }
 
 func (x *RelationalDatabaseService) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -25732,8 +25732,8 @@ func (x *RelationalDatabaseService) GetPorts() []uint32 {
 }
 
 func (x *RelationalDatabaseService) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -25922,9 +25922,9 @@ func (*Reliability_RobustnessScore) isReliability_Type() {}
 // RemoteAttestation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type RemoteAttestation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime  *timestamppb.Timestamp `protobuf:"bytes,7501,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Enabled       bool                   `protobuf:"varint,1238,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	Status        bool                   `protobuf:"varint,9341,opt,name=status,proto3" json:"status,omitempty"`
+	CreationTime  *timestamppb.Timestamp `protobuf:"bytes,7501,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Enabled       *bool                  `protobuf:"varint,1238,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	Status        *bool                  `protobuf:"varint,9341,opt,name=status,proto3,oneof" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -25967,15 +25967,15 @@ func (x *RemoteAttestation) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *RemoteAttestation) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *RemoteAttestation) GetStatus() bool {
-	if x != nil {
-		return x.Status
+	if x != nil && x.Status != nil {
+		return *x.Status
 	}
 	return false
 }
@@ -25983,7 +25983,7 @@ func (x *RemoteAttestation) GetStatus() bool {
 // RemoteDataLocation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type RemoteDataLocation struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
-	Path                string                 `protobuf:"bytes,5099,opt,name=path,proto3" json:"path,omitempty"`
+	Path                *string                `protobuf:"bytes,5099,opt,name=path,proto3,oneof" json:"path,omitempty"`
 	Authenticity        *Authenticity          `protobuf:"bytes,1719,opt,name=authenticity,proto3" json:"authenticity,omitempty"`
 	StorageId           *string                `protobuf:"bytes,9156,opt,name=storage_id,json=storageId,proto3,oneof" json:"storage_id,omitempty"`
 	TransportEncryption *TransportEncryption   `protobuf:"bytes,1008,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
@@ -26022,8 +26022,8 @@ func (*RemoteDataLocation) Descriptor() ([]byte, []int) {
 }
 
 func (x *RemoteDataLocation) GetPath() string {
-	if x != nil {
-		return x.Path
+	if x != nil && x.Path != nil {
+		return *x.Path
 	}
 	return ""
 }
@@ -26120,14 +26120,14 @@ func (*RemoteEntryPoint_HttpEndpoint) isRemoteEntryPoint_Type() {}
 // ReportDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ReportDocument struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,8995,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,17449,opt,name=description,proto3" json:"description,omitempty"`
-	Filetype     string                 `protobuf:"bytes,8246,opt,name=filetype,proto3" json:"filetype,omitempty"`
-	Id           string                 `protobuf:"bytes,17973,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,8995,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,17449,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Filetype     *string                `protobuf:"bytes,8246,opt,name=filetype,proto3,oneof" json:"filetype,omitempty"`
+	Id           *string                `protobuf:"bytes,17973,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,4505,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,14944,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,14944,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                string               `protobuf:"bytes,2605,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                *string              `protobuf:"bytes,2605,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,17448,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
 	DataLocation       *DataLocation        `protobuf:"bytes,18583,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,367,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
@@ -26176,22 +26176,22 @@ func (x *ReportDocument) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ReportDocument) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ReportDocument) GetFiletype() string {
-	if x != nil {
-		return x.Filetype
+	if x != nil && x.Filetype != nil {
+		return *x.Filetype
 	}
 	return ""
 }
 
 func (x *ReportDocument) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -26204,15 +26204,15 @@ func (x *ReportDocument) GetLabels() map[string]string {
 }
 
 func (x *ReportDocument) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ReportDocument) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -26262,7 +26262,7 @@ func (x *ReportDocument) GetSecurityFeatures() []*SecurityFeature {
 // RequestForChange is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type RequestForChange struct {
 	state                    protoimpl.MessageState `protogen:"open.v1"`
-	ApprovedBeforeDeployment bool                   `protobuf:"varint,16813,opt,name=approved_before_deployment,json=approvedBeforeDeployment,proto3" json:"approved_before_deployment,omitempty"`
+	ApprovedBeforeDeployment *bool                  `protobuf:"varint,16813,opt,name=approved_before_deployment,json=approvedBeforeDeployment,proto3,oneof" json:"approved_before_deployment,omitempty"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
@@ -26298,8 +26298,8 @@ func (*RequestForChange) Descriptor() ([]byte, []int) {
 }
 
 func (x *RequestForChange) GetApprovedBeforeDeployment() bool {
-	if x != nil {
-		return x.ApprovedBeforeDeployment
+	if x != nil && x.ApprovedBeforeDeployment != nil {
+		return *x.ApprovedBeforeDeployment
 	}
 	return false
 }
@@ -27622,14 +27622,14 @@ func (*Resource_Win32) isResource_Type() {}
 // ResourceGroup is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ResourceGroup struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,16852,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,12107,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,11216,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,14821,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,16852,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,12107,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,11216,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,14821,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,17517,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,18950,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,18950,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,16903,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,16903,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,6025,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10139,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,17486,rep,name=loggings,proto3" json:"loggings,omitempty"`
@@ -27679,22 +27679,22 @@ func (x *ResourceGroup) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ResourceGroup) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ResourceGroup) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *ResourceGroup) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -27707,15 +27707,15 @@ func (x *ResourceGroup) GetLabels() map[string]string {
 }
 
 func (x *ResourceGroup) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ResourceGroup) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -27772,12 +27772,12 @@ func (x *ResourceGroup) GetUsageStatistics() *UsageStatistics {
 // ResourceLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ResourceLogging struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
-	Enabled bool                   `protobuf:"varint,1509,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled *bool                  `protobuf:"varint,1509,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	// enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN
-	LogLevel                 string               `protobuf:"bytes,5969,opt,name=log_level,json=logLevel,proto3" json:"log_level,omitempty"`
-	MonitoringLogDataEnabled bool                 `protobuf:"varint,6804,opt,name=monitoring_log_data_enabled,json=monitoringLogDataEnabled,proto3" json:"monitoring_log_data_enabled,omitempty"`
-	RetentionPeriod          *durationpb.Duration `protobuf:"bytes,6776,opt,name=retention_period,json=retentionPeriod,proto3" json:"retention_period,omitempty"`
-	SecurityAlertsEnabled    bool                 `protobuf:"varint,6099,opt,name=security_alerts_enabled,json=securityAlertsEnabled,proto3" json:"security_alerts_enabled,omitempty"`
+	LogLevel                 *string              `protobuf:"bytes,5969,opt,name=log_level,json=logLevel,proto3,oneof" json:"log_level,omitempty"`
+	MonitoringLogDataEnabled *bool                `protobuf:"varint,6804,opt,name=monitoring_log_data_enabled,json=monitoringLogDataEnabled,proto3,oneof" json:"monitoring_log_data_enabled,omitempty"`
+	RetentionPeriod          *durationpb.Duration `protobuf:"bytes,6776,opt,name=retention_period,json=retentionPeriod,proto3,oneof" json:"retention_period,omitempty"`
+	SecurityAlertsEnabled    *bool                `protobuf:"varint,6099,opt,name=security_alerts_enabled,json=securityAlertsEnabled,proto3,oneof" json:"security_alerts_enabled,omitempty"`
 	LoggingServiceIds        []string             `protobuf:"bytes,3295,rep,name=logging_service_ids,json=loggingServiceIds,proto3" json:"logging_service_ids,omitempty"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
@@ -27814,22 +27814,22 @@ func (*ResourceLogging) Descriptor() ([]byte, []int) {
 }
 
 func (x *ResourceLogging) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *ResourceLogging) GetLogLevel() string {
-	if x != nil {
-		return x.LogLevel
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
 	}
 	return ""
 }
 
 func (x *ResourceLogging) GetMonitoringLogDataEnabled() bool {
-	if x != nil {
-		return x.MonitoringLogDataEnabled
+	if x != nil && x.MonitoringLogDataEnabled != nil {
+		return *x.MonitoringLogDataEnabled
 	}
 	return false
 }
@@ -27842,8 +27842,8 @@ func (x *ResourceLogging) GetRetentionPeriod() *durationpb.Duration {
 }
 
 func (x *ResourceLogging) GetSecurityAlertsEnabled() bool {
-	if x != nil {
-		return x.SecurityAlertsEnabled
+	if x != nil && x.SecurityAlertsEnabled != nil {
+		return *x.SecurityAlertsEnabled
 	}
 	return false
 }
@@ -27932,15 +27932,15 @@ func (*RobustnessScore) Descriptor() ([]byte, []int) {
 // RoleAssignment is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type RoleAssignment struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	Activated                  bool                   `protobuf:"varint,11248,opt,name=activated,proto3" json:"activated,omitempty"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,13977,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,8960,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,6310,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,16789,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	Activated                  *bool                  `protobuf:"varint,11248,opt,name=activated,proto3,oneof" json:"activated,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,13977,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,8960,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,6310,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,16789,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,18346,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,2963,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,2963,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,10862,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,10862,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	Authorization                    *Authorization                    `protobuf:"bytes,18501,opt,name=authorization,proto3" json:"authorization,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,12427,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10092,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -27984,8 +27984,8 @@ func (*RoleAssignment) Descriptor() ([]byte, []int) {
 }
 
 func (x *RoleAssignment) GetActivated() bool {
-	if x != nil {
-		return x.Activated
+	if x != nil && x.Activated != nil {
+		return *x.Activated
 	}
 	return false
 }
@@ -27998,22 +27998,22 @@ func (x *RoleAssignment) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *RoleAssignment) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *RoleAssignment) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *RoleAssignment) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -28026,15 +28026,15 @@ func (x *RoleAssignment) GetLabels() map[string]string {
 }
 
 func (x *RoleAssignment) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *RoleAssignment) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -28098,14 +28098,14 @@ func (x *RoleAssignment) GetUsageStatistics() *UsageStatistics {
 // SBOMDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type SBOMDocument struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,18871,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,12620,opt,name=description,proto3" json:"description,omitempty"`
-	Filetype     string                 `protobuf:"bytes,11066,opt,name=filetype,proto3" json:"filetype,omitempty"`
-	Id           string                 `protobuf:"bytes,12226,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,18871,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,12620,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Filetype     *string                `protobuf:"bytes,11066,opt,name=filetype,proto3,oneof" json:"filetype,omitempty"`
+	Id           *string                `protobuf:"bytes,12226,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,9737,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,3717,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,3717,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                string               `protobuf:"bytes,16176,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                *string              `protobuf:"bytes,16176,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,1611,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
 	DataLocation       *DataLocation        `protobuf:"bytes,2559,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,2453,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
@@ -28154,22 +28154,22 @@ func (x *SBOMDocument) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *SBOMDocument) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *SBOMDocument) GetFiletype() string {
-	if x != nil {
-		return x.Filetype
+	if x != nil && x.Filetype != nil {
+		return *x.Filetype
 	}
 	return ""
 }
 
 func (x *SBOMDocument) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -28182,15 +28182,15 @@ func (x *SBOMDocument) GetLabels() map[string]string {
 }
 
 func (x *SBOMDocument) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *SBOMDocument) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -28241,7 +28241,7 @@ func (x *SBOMDocument) GetSecurityFeatures() []*SecurityFeature {
 // Represents a policy section within a [PolicyDocument] describing validation and testing requirements for SDN functions. isDefined: whether this policy section is present and defined.
 type SDNFunctionValidationPolicy struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	IsDefined     bool                   `protobuf:"varint,10249,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
+	IsDefined     *bool                  `protobuf:"varint,10249,opt,name=is_defined,json=isDefined,proto3,oneof" json:"is_defined,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -28277,8 +28277,8 @@ func (*SDNFunctionValidationPolicy) Descriptor() ([]byte, []int) {
 }
 
 func (x *SDNFunctionValidationPolicy) GetIsDefined() bool {
-	if x != nil {
-		return x.IsDefined
+	if x != nil && x.IsDefined != nil {
+		return *x.IsDefined
 	}
 	return false
 }
@@ -28286,8 +28286,8 @@ func (x *SDNFunctionValidationPolicy) GetIsDefined() bool {
 // SchemaValidation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type SchemaValidation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Format        string                 `protobuf:"bytes,1670,opt,name=format,proto3" json:"format,omitempty"`
-	SchemaUrl     string                 `protobuf:"bytes,13358,opt,name=schema_url,json=schemaUrl,proto3" json:"schema_url,omitempty"`
+	Format        *string                `protobuf:"bytes,1670,opt,name=format,proto3,oneof" json:"format,omitempty"`
+	SchemaUrl     *string                `protobuf:"bytes,13358,opt,name=schema_url,json=schemaUrl,proto3,oneof" json:"schema_url,omitempty"`
 	Errors        []*Error               `protobuf:"bytes,16452,rep,name=errors,proto3" json:"errors,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -28324,15 +28324,15 @@ func (*SchemaValidation) Descriptor() ([]byte, []int) {
 }
 
 func (x *SchemaValidation) GetFormat() string {
-	if x != nil {
-		return x.Format
+	if x != nil && x.Format != nil {
+		return *x.Format
 	}
 	return ""
 }
 
 func (x *SchemaValidation) GetSchemaUrl() string {
-	if x != nil {
-		return x.SchemaUrl
+	if x != nil && x.SchemaUrl != nil {
+		return *x.SchemaUrl
 	}
 	return ""
 }
@@ -28347,20 +28347,20 @@ func (x *SchemaValidation) GetErrors() []*Error {
 // Secret is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Secret struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,17509,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,11419,opt,name=description,proto3" json:"description,omitempty"`
-	Enabled                    bool                   `protobuf:"varint,5437,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	ExpirationDate             *timestamppb.Timestamp `protobuf:"bytes,2358,opt,name=expiration_date,json=expirationDate,proto3" json:"expiration_date,omitempty"`
-	Id                         string                 `protobuf:"bytes,13519,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,2994,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
-	IsManaged                  bool                   `protobuf:"varint,3899,opt,name=is_managed,json=isManaged,proto3" json:"is_managed,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,17509,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,11419,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Enabled                    *bool                  `protobuf:"varint,5437,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	ExpirationDate             *timestamppb.Timestamp `protobuf:"bytes,2358,opt,name=expiration_date,json=expirationDate,proto3,oneof" json:"expiration_date,omitempty"`
+	Id                         *string                `protobuf:"bytes,13519,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,2994,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
+	IsManaged                  *bool                  `protobuf:"varint,3899,opt,name=is_managed,json=isManaged,proto3,oneof" json:"is_managed,omitempty"`
 	// Key size refers to the length of a key used in an enryption.
-	KeySize       int32                  `protobuf:"varint,14835,opt,name=key_size,json=keySize,proto3" json:"key_size,omitempty"`
+	KeySize       *int32                 `protobuf:"varint,14835,opt,name=key_size,json=keySize,proto3,oneof" json:"key_size,omitempty"`
 	Labels        map[string]string      `protobuf:"bytes,1676,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name          string                 `protobuf:"bytes,964,opt,name=name,proto3" json:"name,omitempty"`
-	NotBeforeDate *timestamppb.Timestamp `protobuf:"bytes,13335,opt,name=not_before_date,json=notBeforeDate,proto3" json:"not_before_date,omitempty"`
+	Name          *string                `protobuf:"bytes,964,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	NotBeforeDate *timestamppb.Timestamp `protobuf:"bytes,13335,opt,name=not_before_date,json=notBeforeDate,proto3,oneof" json:"not_before_date,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,5998,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,5998,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7249,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	BasedOn                          *Cipher                           `protobuf:"bytes,7866,opt,name=based_on,json=basedOn,proto3" json:"based_on,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,4152,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -28412,15 +28412,15 @@ func (x *Secret) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Secret) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Secret) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
@@ -28433,29 +28433,29 @@ func (x *Secret) GetExpirationDate() *timestamppb.Timestamp {
 }
 
 func (x *Secret) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *Secret) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
 
 func (x *Secret) GetIsManaged() bool {
-	if x != nil {
-		return x.IsManaged
+	if x != nil && x.IsManaged != nil {
+		return *x.IsManaged
 	}
 	return false
 }
 
 func (x *Secret) GetKeySize() int32 {
-	if x != nil {
-		return x.KeySize
+	if x != nil && x.KeySize != nil {
+		return *x.KeySize
 	}
 	return 0
 }
@@ -28468,8 +28468,8 @@ func (x *Secret) GetLabels() map[string]string {
 }
 
 func (x *Secret) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -28482,8 +28482,8 @@ func (x *Secret) GetNotBeforeDate() *timestamppb.Timestamp {
 }
 
 func (x *Secret) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -28637,14 +28637,14 @@ func (*SecretOperation_GetSecret) isSecretOperation_Type() {}
 // SecurityAdvisoryDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type SecurityAdvisoryDocument struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,10952,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,3599,opt,name=description,proto3" json:"description,omitempty"`
-	Filetype     string                 `protobuf:"bytes,17266,opt,name=filetype,proto3" json:"filetype,omitempty"`
-	Id           string                 `protobuf:"bytes,15804,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,10952,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,3599,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Filetype     *string                `protobuf:"bytes,17266,opt,name=filetype,proto3,oneof" json:"filetype,omitempty"`
+	Id           *string                `protobuf:"bytes,15804,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,16720,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,15161,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,15161,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                string               `protobuf:"bytes,3544,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                *string              `protobuf:"bytes,3544,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,4824,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
 	DataLocation       *DataLocation        `protobuf:"bytes,12507,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,16888,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
@@ -28694,22 +28694,22 @@ func (x *SecurityAdvisoryDocument) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *SecurityAdvisoryDocument) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *SecurityAdvisoryDocument) GetFiletype() string {
-	if x != nil {
-		return x.Filetype
+	if x != nil && x.Filetype != nil {
+		return *x.Filetype
 	}
 	return ""
 }
 
 func (x *SecurityAdvisoryDocument) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -28722,15 +28722,15 @@ func (x *SecurityAdvisoryDocument) GetLabels() map[string]string {
 }
 
 func (x *SecurityAdvisoryDocument) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *SecurityAdvisoryDocument) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -28833,16 +28833,16 @@ func (x *SecurityAdvisoryFeed) GetSecurityAdvisoryDocumentIds() []string {
 // This service discloses security advisories, e.g. according to the CSAF standard. It has one or more feeds that contain the actual advisories as well as multiple (public) keys that are used to sign the advisory documents.
 type SecurityAdvisoryService struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,3025,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,2320,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,18683,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,4910,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,3025,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,2320,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,18683,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,4910,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Ips                        []string               `protobuf:"bytes,2661,rep,name=ips,proto3" json:"ips,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,837,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,2102,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,2102,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Ports                      []uint32               `protobuf:"varint,4555,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,10467,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,10467,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3016,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,18065,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,11088,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -28897,22 +28897,22 @@ func (x *SecurityAdvisoryService) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *SecurityAdvisoryService) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *SecurityAdvisoryService) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *SecurityAdvisoryService) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -28932,8 +28932,8 @@ func (x *SecurityAdvisoryService) GetLabels() map[string]string {
 }
 
 func (x *SecurityAdvisoryService) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
@@ -28946,8 +28946,8 @@ func (x *SecurityAdvisoryService) GetPorts() []uint32 {
 }
 
 func (x *SecurityAdvisoryService) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -29839,8 +29839,8 @@ func (x *SecurityIncident) GetTeam() []string {
 // SecurityTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type SecurityTraining struct {
 	state                           protoimpl.MessageState `protogen:"open.v1"`
-	AnnualUpdateCompleted           bool                   `protobuf:"varint,10890,opt,name=annual_update_completed,json=annualUpdateCompleted,proto3" json:"annual_update_completed,omitempty"`
-	SuccessfullyCompletedPercentage bool                   `protobuf:"varint,18938,opt,name=successfully_completed_percentage,json=successfullyCompletedPercentage,proto3" json:"successfully_completed_percentage,omitempty"`
+	AnnualUpdateCompleted           *bool                  `protobuf:"varint,10890,opt,name=annual_update_completed,json=annualUpdateCompleted,proto3,oneof" json:"annual_update_completed,omitempty"`
+	SuccessfullyCompletedPercentage *bool                  `protobuf:"varint,18938,opt,name=successfully_completed_percentage,json=successfullyCompletedPercentage,proto3,oneof" json:"successfully_completed_percentage,omitempty"`
 	unknownFields                   protoimpl.UnknownFields
 	sizeCache                       protoimpl.SizeCache
 }
@@ -29876,15 +29876,15 @@ func (*SecurityTraining) Descriptor() ([]byte, []int) {
 }
 
 func (x *SecurityTraining) GetAnnualUpdateCompleted() bool {
-	if x != nil {
-		return x.AnnualUpdateCompleted
+	if x != nil && x.AnnualUpdateCompleted != nil {
+		return *x.AnnualUpdateCompleted
 	}
 	return false
 }
 
 func (x *SecurityTraining) GetSuccessfullyCompletedPercentage() bool {
-	if x != nil {
-		return x.SuccessfullyCompletedPercentage
+	if x != nil && x.SuccessfullyCompletedPercentage != nil {
+		return *x.SuccessfullyCompletedPercentage
 	}
 	return false
 }
@@ -29893,7 +29893,7 @@ func (x *SecurityTraining) GetSuccessfullyCompletedPercentage() bool {
 // Represents a policy section within a [PolicyDocument] describing separation of duties requirements. isDefined: whether this policy section is present and defined.
 type SeparationOfDutiesPolicy struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	IsDefined     bool                   `protobuf:"varint,14281,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
+	IsDefined     *bool                  `protobuf:"varint,14281,opt,name=is_defined,json=isDefined,proto3,oneof" json:"is_defined,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -29929,8 +29929,8 @@ func (*SeparationOfDutiesPolicy) Descriptor() ([]byte, []int) {
 }
 
 func (x *SeparationOfDutiesPolicy) GetIsDefined() bool {
-	if x != nil {
-		return x.IsDefined
+	if x != nil && x.IsDefined != nil {
+		return *x.IsDefined
 	}
 	return false
 }
@@ -29938,14 +29938,14 @@ func (x *SeparationOfDutiesPolicy) GetIsDefined() bool {
 // ServiceMetadataDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ServiceMetadataDocument struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,5797,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,3765,opt,name=description,proto3" json:"description,omitempty"`
-	Filetype     string                 `protobuf:"bytes,4547,opt,name=filetype,proto3" json:"filetype,omitempty"`
-	Id           string                 `protobuf:"bytes,8259,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,5797,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,3765,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Filetype     *string                `protobuf:"bytes,4547,opt,name=filetype,proto3,oneof" json:"filetype,omitempty"`
+	Id           *string                `protobuf:"bytes,8259,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,1672,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,10912,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,10912,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                string               `protobuf:"bytes,8064,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                *string              `protobuf:"bytes,8064,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,12184,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
 	DataLocation       *DataLocation        `protobuf:"bytes,14106,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,4448,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
@@ -29994,22 +29994,22 @@ func (x *ServiceMetadataDocument) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *ServiceMetadataDocument) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *ServiceMetadataDocument) GetFiletype() string {
-	if x != nil {
-		return x.Filetype
+	if x != nil && x.Filetype != nil {
+		return *x.Filetype
 	}
 	return ""
 }
 
 func (x *ServiceMetadataDocument) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -30022,15 +30022,15 @@ func (x *ServiceMetadataDocument) GetLabels() map[string]string {
 }
 
 func (x *ServiceMetadataDocument) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *ServiceMetadataDocument) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -30080,7 +30080,7 @@ func (x *ServiceMetadataDocument) GetSecurityFeatures() []*SecurityFeature {
 // DocumentSignature is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type DocumentSignature struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Algorithm     string                 `protobuf:"bytes,4031,opt,name=algorithm,proto3" json:"algorithm,omitempty"`
+	Algorithm     *string                `protobuf:"bytes,4031,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
 	Errors        []*Error               `protobuf:"bytes,14433,rep,name=errors,proto3" json:"errors,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -30117,8 +30117,8 @@ func (*DocumentSignature) Descriptor() ([]byte, []int) {
 }
 
 func (x *DocumentSignature) GetAlgorithm() string {
-	if x != nil {
-		return x.Algorithm
+	if x != nil && x.Algorithm != nil {
+		return *x.Algorithm
 	}
 	return ""
 }
@@ -30138,9 +30138,9 @@ func (x *DocumentSignature) GetErrors() []*Error {
 // PercentageLastMonth: Percentage of signed commits in the last 30 days.
 type SignedCommits struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
-	Enforced            bool                   `protobuf:"varint,3239,opt,name=enforced,proto3" json:"enforced,omitempty"`
-	Percentage          float32                `protobuf:"fixed32,11723,opt,name=percentage,proto3" json:"percentage,omitempty"`
-	PercentageLastMonth float32                `protobuf:"fixed32,3788,opt,name=percentage_last_month,json=percentageLastMonth,proto3" json:"percentage_last_month,omitempty"`
+	Enforced            *bool                  `protobuf:"varint,3239,opt,name=enforced,proto3,oneof" json:"enforced,omitempty"`
+	Percentage          *float32               `protobuf:"fixed32,11723,opt,name=percentage,proto3,oneof" json:"percentage,omitempty"`
+	PercentageLastMonth *float32               `protobuf:"fixed32,3788,opt,name=percentage_last_month,json=percentageLastMonth,proto3,oneof" json:"percentage_last_month,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -30176,22 +30176,22 @@ func (*SignedCommits) Descriptor() ([]byte, []int) {
 }
 
 func (x *SignedCommits) GetEnforced() bool {
-	if x != nil {
-		return x.Enforced
+	if x != nil && x.Enforced != nil {
+		return *x.Enforced
 	}
 	return false
 }
 
 func (x *SignedCommits) GetPercentage() float32 {
-	if x != nil {
-		return x.Percentage
+	if x != nil && x.Percentage != nil {
+		return *x.Percentage
 	}
 	return 0
 }
 
 func (x *SignedCommits) GetPercentageLastMonth() float32 {
-	if x != nil {
-		return x.PercentageLastMonth
+	if x != nil && x.PercentageLastMonth != nil {
+		return *x.PercentageLastMonth
 	}
 	return 0
 }
@@ -30199,11 +30199,11 @@ func (x *SignedCommits) GetPercentageLastMonth() float32 {
 // SingleSignOn is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type SingleSignOn struct {
 	state                        protoimpl.MessageState `protogen:"open.v1"`
-	ContextIsChecked             bool                   `protobuf:"varint,14488,opt,name=context_is_checked,json=contextIsChecked,proto3" json:"context_is_checked,omitempty"`
-	Enabled                      bool                   `protobuf:"varint,10569,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	FailedAuthenticationAttempts int32                  `protobuf:"varint,10119,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3" json:"failed_authentication_attempts,omitempty"`
+	ContextIsChecked             *bool                  `protobuf:"varint,14488,opt,name=context_is_checked,json=contextIsChecked,proto3,oneof" json:"context_is_checked,omitempty"`
+	Enabled                      *bool                  `protobuf:"varint,10569,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	FailedAuthenticationAttempts *int32                 `protobuf:"varint,10119,opt,name=failed_authentication_attempts,json=failedAuthenticationAttempts,proto3,oneof" json:"failed_authentication_attempts,omitempty"`
 	// Maximum password rotation interval in months
-	RotationInterval int32 `protobuf:"varint,9185,opt,name=rotation_interval,json=rotationInterval,proto3" json:"rotation_interval,omitempty"`
+	RotationInterval *int32 `protobuf:"varint,9185,opt,name=rotation_interval,json=rotationInterval,proto3,oneof" json:"rotation_interval,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -30239,29 +30239,29 @@ func (*SingleSignOn) Descriptor() ([]byte, []int) {
 }
 
 func (x *SingleSignOn) GetContextIsChecked() bool {
-	if x != nil {
-		return x.ContextIsChecked
+	if x != nil && x.ContextIsChecked != nil {
+		return *x.ContextIsChecked
 	}
 	return false
 }
 
 func (x *SingleSignOn) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *SingleSignOn) GetFailedAuthenticationAttempts() int32 {
-	if x != nil {
-		return x.FailedAuthenticationAttempts
+	if x != nil && x.FailedAuthenticationAttempts != nil {
+		return *x.FailedAuthenticationAttempts
 	}
 	return 0
 }
 
 func (x *SingleSignOn) GetRotationInterval() int32 {
-	if x != nil {
-		return x.RotationInterval
+	if x != nil && x.RotationInterval != nil {
+		return *x.RotationInterval
 	}
 	return 0
 }
@@ -30269,9 +30269,9 @@ func (x *SingleSignOn) GetRotationInterval() int32 {
 // SoftwareAttestation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type SoftwareAttestation struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
-	Enabled bool                   `protobuf:"varint,5129,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled *bool                  `protobuf:"varint,5129,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	// predicate: Property being affirmed
-	Predicate string `protobuf:"bytes,6461,opt,name=predicate,proto3" json:"predicate,omitempty"`
+	Predicate *string `protobuf:"bytes,6461,opt,name=predicate,proto3,oneof" json:"predicate,omitempty"`
 	// subject: Subject of an assertion
 	Subject       []string `protobuf:"bytes,13149,rep,name=subject,proto3" json:"subject,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -30309,15 +30309,15 @@ func (*SoftwareAttestation) Descriptor() ([]byte, []int) {
 }
 
 func (x *SoftwareAttestation) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *SoftwareAttestation) GetPredicate() string {
-	if x != nil {
-		return x.Predicate
+	if x != nil && x.Predicate != nil {
+		return *x.Predicate
 	}
 	return ""
 }
@@ -30511,13 +30511,13 @@ func (*Code_Win32) isCode_Type() {}
 // SourceCodeFile is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type SourceCodeFile struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,7260,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,14944,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,10519,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,7260,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,14944,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,10519,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,7345,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,14615,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,14615,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                  string                 `protobuf:"bytes,16625,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                  *string                `protobuf:"bytes,16625,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CodeModuleIds        []string               `protobuf:"bytes,14101,rep,name=code_module_ids,json=codeModuleIds,proto3" json:"code_module_ids,omitempty"`
 	CodeRepositoryId     *string                `protobuf:"bytes,8294,opt,name=code_repository_id,json=codeRepositoryId,proto3,oneof" json:"code_repository_id,omitempty"`
 	Functionalities      []*Functionality       `protobuf:"bytes,3267,rep,name=functionalities,proto3" json:"functionalities,omitempty"`
@@ -30565,15 +30565,15 @@ func (x *SourceCodeFile) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *SourceCodeFile) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *SourceCodeFile) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -30586,15 +30586,15 @@ func (x *SourceCodeFile) GetLabels() map[string]string {
 }
 
 func (x *SourceCodeFile) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *SourceCodeFile) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -30902,15 +30902,15 @@ func (*StorageService_ObjectStorageService) isStorageService_Type() {}
 type SymmetricCipher struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// AuthTagSize of a symmetric cipher
-	AuthTagSize int32 `protobuf:"varint,7608,opt,name=auth_tag_size,json=authTagSize,proto3" json:"auth_tag_size,omitempty"`
+	AuthTagSize *int32 `protobuf:"varint,7608,opt,name=auth_tag_size,json=authTagSize,proto3,oneof" json:"auth_tag_size,omitempty"`
 	// Block size of a cipher.
-	BlockSize int32 `protobuf:"varint,11096,opt,name=block_size,json=blockSize,proto3" json:"block_size,omitempty"`
+	BlockSize *int32 `protobuf:"varint,11096,opt,name=block_size,json=blockSize,proto3,oneof" json:"block_size,omitempty"`
 	// Name of a cryptographic cipher.
-	CipherName string `protobuf:"bytes,1930,opt,name=cipher_name,json=cipherName,proto3" json:"cipher_name,omitempty"`
+	CipherName *string `protobuf:"bytes,1930,opt,name=cipher_name,json=cipherName,proto3,oneof" json:"cipher_name,omitempty"`
 	// Key size refers to the length of a key used in an enryption.
-	KeySize int32 `protobuf:"varint,488,opt,name=key_size,json=keySize,proto3" json:"key_size,omitempty"`
+	KeySize *int32 `protobuf:"varint,488,opt,name=key_size,json=keySize,proto3,oneof" json:"key_size,omitempty"`
 	// Describes a modus of something being executed. (e.g. used by an Encryption)
-	Modus                string                `protobuf:"bytes,10292,opt,name=modus,proto3" json:"modus,omitempty"`
+	Modus                *string               `protobuf:"bytes,10292,opt,name=modus,proto3,oneof" json:"modus,omitempty"`
 	InitializationVector *InitializationVector `protobuf:"bytes,11325,opt,name=initialization_vector,json=initializationVector,proto3" json:"initialization_vector,omitempty"`
 	Padding              *Padding              `protobuf:"bytes,2670,opt,name=padding,proto3" json:"padding,omitempty"`
 	unknownFields        protoimpl.UnknownFields
@@ -30948,36 +30948,36 @@ func (*SymmetricCipher) Descriptor() ([]byte, []int) {
 }
 
 func (x *SymmetricCipher) GetAuthTagSize() int32 {
-	if x != nil {
-		return x.AuthTagSize
+	if x != nil && x.AuthTagSize != nil {
+		return *x.AuthTagSize
 	}
 	return 0
 }
 
 func (x *SymmetricCipher) GetBlockSize() int32 {
-	if x != nil {
-		return x.BlockSize
+	if x != nil && x.BlockSize != nil {
+		return *x.BlockSize
 	}
 	return 0
 }
 
 func (x *SymmetricCipher) GetCipherName() string {
-	if x != nil {
-		return x.CipherName
+	if x != nil && x.CipherName != nil {
+		return *x.CipherName
 	}
 	return ""
 }
 
 func (x *SymmetricCipher) GetKeySize() int32 {
-	if x != nil {
-		return x.KeySize
+	if x != nil && x.KeySize != nil {
+		return *x.KeySize
 	}
 	return 0
 }
 
 func (x *SymmetricCipher) GetModus() string {
-	if x != nil {
-		return x.Modus
+	if x != nil && x.Modus != nil {
+		return *x.Modus
 	}
 	return ""
 }
@@ -31037,13 +31037,13 @@ func (*Time) Descriptor() ([]byte, []int) {
 // A Token used for TokenBasedAuthentication.
 type Token struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,9208,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,4081,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,16665,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,9208,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,4081,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,16665,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,15658,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,15808,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,15808,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,16748,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw           *string       `protobuf:"bytes,16748,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	DataLocation  *DataLocation `protobuf:"bytes,13703,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,10701,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -31088,15 +31088,15 @@ func (x *Token) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Token) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Token) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -31109,15 +31109,15 @@ func (x *Token) GetLabels() map[string]string {
 }
 
 func (x *Token) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Token) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -31223,12 +31223,12 @@ func (*Training_SecurityTraining) isTraining_Type() {}
 // enabled means the resource _can_ be reached via https, while enforced means it _can only_ be reached via https (or http traffic is redirected)
 type TransportEncryption struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	Enabled         bool                   `protobuf:"varint,14517,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	Enforced        bool                   `protobuf:"varint,9699,opt,name=enforced,proto3" json:"enforced,omitempty"`
-	Protocol        string                 `protobuf:"bytes,6987,opt,name=protocol,proto3" json:"protocol,omitempty"`
-	ProtocolVersion float32                `protobuf:"fixed32,11009,opt,name=protocol_version,json=protocolVersion,proto3" json:"protocol_version,omitempty"`
+	Enabled         *bool                  `protobuf:"varint,14517,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	Enforced        *bool                  `protobuf:"varint,9699,opt,name=enforced,proto3,oneof" json:"enforced,omitempty"`
+	Protocol        *string                `protobuf:"bytes,6987,opt,name=protocol,proto3,oneof" json:"protocol,omitempty"`
+	ProtocolVersion *float32               `protobuf:"fixed32,11009,opt,name=protocol_version,json=protocolVersion,proto3,oneof" json:"protocol_version,omitempty"`
 	// tlsSignatureAlgorithm: e.g., rsa_pss_rsae_sha256/384/512, ecdsa_secp256r1_sha256, ed25519
-	TlsSignatureAlgorithm string         `protobuf:"bytes,14996,opt,name=tls_signature_algorithm,json=tlsSignatureAlgorithm,proto3" json:"tls_signature_algorithm,omitempty"`
+	TlsSignatureAlgorithm *string        `protobuf:"bytes,14996,opt,name=tls_signature_algorithm,json=tlsSignatureAlgorithm,proto3,oneof" json:"tls_signature_algorithm,omitempty"`
 	BasedOn               *Cipher        `protobuf:"bytes,17349,opt,name=based_on,json=basedOn,proto3" json:"based_on,omitempty"`
 	CipherSuites          []*CipherSuite `protobuf:"bytes,5672,rep,name=cipher_suites,json=cipherSuites,proto3" json:"cipher_suites,omitempty"`
 	SecretId              *string        `protobuf:"bytes,9451,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
@@ -31267,36 +31267,36 @@ func (*TransportEncryption) Descriptor() ([]byte, []int) {
 }
 
 func (x *TransportEncryption) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
 
 func (x *TransportEncryption) GetEnforced() bool {
-	if x != nil {
-		return x.Enforced
+	if x != nil && x.Enforced != nil {
+		return *x.Enforced
 	}
 	return false
 }
 
 func (x *TransportEncryption) GetProtocol() string {
-	if x != nil {
-		return x.Protocol
+	if x != nil && x.Protocol != nil {
+		return *x.Protocol
 	}
 	return ""
 }
 
 func (x *TransportEncryption) GetProtocolVersion() float32 {
-	if x != nil {
-		return x.ProtocolVersion
+	if x != nil && x.ProtocolVersion != nil {
+		return *x.ProtocolVersion
 	}
 	return 0
 }
 
 func (x *TransportEncryption) GetTlsSignatureAlgorithm() string {
-	if x != nil {
-		return x.TlsSignatureAlgorithm
+	if x != nil && x.TlsSignatureAlgorithm != nil {
+		return *x.TlsSignatureAlgorithm
 	}
 	return ""
 }
@@ -31378,7 +31378,7 @@ func (x *UnlockEncryptedDisk) GetDiskEncryption() *DiskEncryption {
 // UsageStatistics is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type UsageStatistics struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	ApiHitsPerMonth int32                  `protobuf:"varint,7625,opt,name=api_hits_per_month,json=apiHitsPerMonth,proto3" json:"api_hits_per_month,omitempty"`
+	ApiHitsPerMonth *int32                 `protobuf:"varint,7625,opt,name=api_hits_per_month,json=apiHitsPerMonth,proto3,oneof" json:"api_hits_per_month,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -31414,8 +31414,8 @@ func (*UsageStatistics) Descriptor() ([]byte, []int) {
 }
 
 func (x *UsageStatistics) GetApiHitsPerMonth() int32 {
-	if x != nil {
-		return x.ApiHitsPerMonth
+	if x != nil && x.ApiHitsPerMonth != nil {
+		return *x.ApiHitsPerMonth
 	}
 	return 0
 }
@@ -31423,14 +31423,14 @@ func (x *UsageStatistics) GetApiHitsPerMonth() int32 {
 // UserInformationAndIntructionDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type UserInformationAndIntructionDocument struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,4472,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,8002,opt,name=description,proto3" json:"description,omitempty"`
-	Filetype     string                 `protobuf:"bytes,9176,opt,name=filetype,proto3" json:"filetype,omitempty"`
-	Id           string                 `protobuf:"bytes,7706,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,4472,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,8002,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Filetype     *string                `protobuf:"bytes,9176,opt,name=filetype,proto3,oneof" json:"filetype,omitempty"`
+	Id           *string                `protobuf:"bytes,7706,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,4894,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,13104,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,13104,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                string               `protobuf:"bytes,13906,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                *string              `protobuf:"bytes,13906,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,5030,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
 	DataLocation       *DataLocation        `protobuf:"bytes,10061,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,8364,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
@@ -31479,22 +31479,22 @@ func (x *UserInformationAndIntructionDocument) GetCreationTime() *timestamppb.Ti
 }
 
 func (x *UserInformationAndIntructionDocument) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *UserInformationAndIntructionDocument) GetFiletype() string {
-	if x != nil {
-		return x.Filetype
+	if x != nil && x.Filetype != nil {
+		return *x.Filetype
 	}
 	return ""
 }
 
 func (x *UserInformationAndIntructionDocument) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -31507,15 +31507,15 @@ func (x *UserInformationAndIntructionDocument) GetLabels() map[string]string {
 }
 
 func (x *UserInformationAndIntructionDocument) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *UserInformationAndIntructionDocument) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -31565,14 +31565,14 @@ func (x *UserInformationAndIntructionDocument) GetSecurityFeatures() []*Security
 // VMImage is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type VMImage struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,8279,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,4760,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,17867,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,14985,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,8279,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,4760,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,17867,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,14985,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,17229,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,6244,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,6244,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,3459,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,3459,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ApplicationId                    *string                           `protobuf:"bytes,5181,opt,name=application_id,json=applicationId,proto3,oneof" json:"application_id,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3927,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,18401,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
@@ -31623,22 +31623,22 @@ func (x *VMImage) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *VMImage) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *VMImage) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *VMImage) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -31651,15 +31651,15 @@ func (x *VMImage) GetLabels() map[string]string {
 }
 
 func (x *VMImage) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *VMImage) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -31778,13 +31778,13 @@ func (x *ValidateJwt) GetCodeRegion() *CodeRegion {
 // The node that represents the "value" of this option. For example, in an INI file, this would be the [FieldDeclaration.initializer] node that represents the value.
 type Value struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,2464,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,9865,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,4039,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,2464,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,9865,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,4039,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,6833,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,3876,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,3876,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,7659,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw           *string       `protobuf:"bytes,7659,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	DataLocation  *DataLocation `protobuf:"bytes,18490,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,18063,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -31829,15 +31829,15 @@ func (x *Value) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Value) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Value) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -31850,15 +31850,15 @@ func (x *Value) GetLabels() map[string]string {
 }
 
 func (x *Value) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Value) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -31885,8 +31885,8 @@ func (x *Value) GetParentId() string {
 // PercentageLastMonth: Percentage of verified commits in the last 30 days.
 type VerifiedCommits struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
-	Percentage          float32                `protobuf:"fixed32,14857,opt,name=percentage,proto3" json:"percentage,omitempty"`
-	PercentageLastMonth float32                `protobuf:"fixed32,6431,opt,name=percentage_last_month,json=percentageLastMonth,proto3" json:"percentage_last_month,omitempty"`
+	Percentage          *float32               `protobuf:"fixed32,14857,opt,name=percentage,proto3,oneof" json:"percentage,omitempty"`
+	PercentageLastMonth *float32               `protobuf:"fixed32,6431,opt,name=percentage_last_month,json=percentageLastMonth,proto3,oneof" json:"percentage_last_month,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -31922,15 +31922,15 @@ func (*VerifiedCommits) Descriptor() ([]byte, []int) {
 }
 
 func (x *VerifiedCommits) GetPercentage() float32 {
-	if x != nil {
-		return x.Percentage
+	if x != nil && x.Percentage != nil {
+		return *x.Percentage
 	}
 	return 0
 }
 
 func (x *VerifiedCommits) GetPercentageLastMonth() float32 {
-	if x != nil {
-		return x.PercentageLastMonth
+	if x != nil && x.PercentageLastMonth != nil {
+		return *x.PercentageLastMonth
 	}
 	return 0
 }
@@ -31938,14 +31938,14 @@ func (x *VerifiedCommits) GetPercentageLastMonth() float32 {
 // VirtualMachine is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type VirtualMachine struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,6633,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,14513,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,8104,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,2070,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,6633,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,14513,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,8104,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,2070,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,2416,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,11617,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,11617,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,14073,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,14073,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,9858,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AutomaticUpdates                 *AutomaticUpdates                 `protobuf:"bytes,14565,opt,name=automatic_updates,json=automaticUpdates,proto3" json:"automatic_updates,omitempty"`
 	BlockStorageIds                  []string                          `protobuf:"bytes,17882,rep,name=block_storage_ids,json=blockStorageIds,proto3" json:"block_storage_ids,omitempty"`
@@ -32004,22 +32004,22 @@ func (x *VirtualMachine) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *VirtualMachine) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *VirtualMachine) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *VirtualMachine) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -32032,15 +32032,15 @@ func (x *VirtualMachine) GetLabels() map[string]string {
 }
 
 func (x *VirtualMachine) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *VirtualMachine) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -32160,14 +32160,14 @@ func (x *VirtualMachine) GetUsageStatistics() *UsageStatistics {
 // VirtualNetwork is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type VirtualNetwork struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,1885,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,9930,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,4087,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,7871,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,1885,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,9930,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,4087,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,7871,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,6818,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,818,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,818,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,14216,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,14216,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,157,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,3004,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,18851,rep,name=loggings,proto3" json:"loggings,omitempty"`
@@ -32217,22 +32217,22 @@ func (x *VirtualNetwork) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *VirtualNetwork) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *VirtualNetwork) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *VirtualNetwork) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -32245,15 +32245,15 @@ func (x *VirtualNetwork) GetLabels() map[string]string {
 }
 
 func (x *VirtualNetwork) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *VirtualNetwork) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -32310,14 +32310,14 @@ func (x *VirtualNetwork) GetUsageStatistics() *UsageStatistics {
 // VirtualSubNetwork is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type VirtualSubNetwork struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,317,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,14512,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,10226,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,14405,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,317,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,14512,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,10226,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,14405,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,4188,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,1563,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,1563,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,15165,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,15165,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,9134,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,518,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,9326,rep,name=loggings,proto3" json:"loggings,omitempty"`
@@ -32367,22 +32367,22 @@ func (x *VirtualSubNetwork) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *VirtualSubNetwork) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *VirtualSubNetwork) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *VirtualSubNetwork) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -32395,15 +32395,15 @@ func (x *VirtualSubNetwork) GetLabels() map[string]string {
 }
 
 func (x *VirtualSubNetwork) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *VirtualSubNetwork) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -32463,13 +32463,13 @@ func (x *VirtualSubNetwork) GetUsageStatistics() *UsageStatistics {
 type Vulnerability struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// criticality: Contains the criticality of a vulnerability, e.g., low, medium, high, critical
-	Criticality string   `protobuf:"bytes,9970,opt,name=criticality,proto3" json:"criticality,omitempty"`
-	Cve         string   `protobuf:"bytes,205,opt,name=cve,proto3" json:"cve,omitempty"`
+	Criticality *string  `protobuf:"bytes,9970,opt,name=criticality,proto3,oneof" json:"criticality,omitempty"`
+	Cve         *string  `protobuf:"bytes,205,opt,name=cve,proto3,oneof" json:"cve,omitempty"`
 	Cwe         []string `protobuf:"bytes,18325,rep,name=cwe,proto3" json:"cwe,omitempty"`
-	Description string   `protobuf:"bytes,10690,opt,name=description,proto3" json:"description,omitempty"`
+	Description *string  `protobuf:"bytes,10690,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	// exploitable: Indicates whether a vulnerability is exploitable for the given target of evaluation (TOE)
-	Exploitable   bool   `protobuf:"varint,15966,opt,name=exploitable,proto3" json:"exploitable,omitempty"`
-	Url           string `protobuf:"bytes,11925,opt,name=url,proto3" json:"url,omitempty"`
+	Exploitable   *bool   `protobuf:"varint,15966,opt,name=exploitable,proto3,oneof" json:"exploitable,omitempty"`
+	Url           *string `protobuf:"bytes,11925,opt,name=url,proto3,oneof" json:"url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -32505,15 +32505,15 @@ func (*Vulnerability) Descriptor() ([]byte, []int) {
 }
 
 func (x *Vulnerability) GetCriticality() string {
-	if x != nil {
-		return x.Criticality
+	if x != nil && x.Criticality != nil {
+		return *x.Criticality
 	}
 	return ""
 }
 
 func (x *Vulnerability) GetCve() string {
-	if x != nil {
-		return x.Cve
+	if x != nil && x.Cve != nil {
+		return *x.Cve
 	}
 	return ""
 }
@@ -32526,22 +32526,22 @@ func (x *Vulnerability) GetCwe() []string {
 }
 
 func (x *Vulnerability) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Vulnerability) GetExploitable() bool {
-	if x != nil {
-		return x.Exploitable
+	if x != nil && x.Exploitable != nil {
+		return *x.Exploitable
 	}
 	return false
 }
 
 func (x *Vulnerability) GetUrl() string {
-	if x != nil {
-		return x.Url
+	if x != nil && x.Url != nil {
+		return *x.Url
 	}
 	return ""
 }
@@ -32550,7 +32550,7 @@ func (x *Vulnerability) GetUrl() string {
 // A WAF is a L7 firewall that includes L3 capabilities
 type WebApplicationFirewall struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Enabled       bool                   `protobuf:"varint,8961,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled       *bool                  `protobuf:"varint,8961,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -32586,8 +32586,8 @@ func (*WebApplicationFirewall) Descriptor() ([]byte, []int) {
 }
 
 func (x *WebApplicationFirewall) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
 	return false
 }
@@ -32596,13 +32596,13 @@ func (x *WebApplicationFirewall) GetEnabled() bool {
 // Represents a Win32 architecture, commonly found on Windows systems.
 type Win32 struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,9110,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,2068,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,8737,opt,name=id,proto3" json:"id,omitempty"`
+	CreationTime *timestamppb.Timestamp `protobuf:"bytes,9110,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description  *string                `protobuf:"bytes,2068,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id           *string                `protobuf:"bytes,8737,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Labels       map[string]string      `protobuf:"bytes,12211,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,8220,opt,name=name,proto3" json:"name,omitempty"`
+	Name         *string                `protobuf:"bytes,8220,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                  string                 `protobuf:"bytes,17302,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                  *string                `protobuf:"bytes,17302,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CodeModuleIds        []string               `protobuf:"bytes,822,rep,name=code_module_ids,json=codeModuleIds,proto3" json:"code_module_ids,omitempty"`
 	CodeRepositoryId     *string                `protobuf:"bytes,16090,opt,name=code_repository_id,json=codeRepositoryId,proto3,oneof" json:"code_repository_id,omitempty"`
 	Functionalities      []*Functionality       `protobuf:"bytes,18689,rep,name=functionalities,proto3" json:"functionalities,omitempty"`
@@ -32650,15 +32650,15 @@ func (x *Win32) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Win32) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Win32) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
@@ -32671,15 +32671,15 @@ func (x *Win32) GetLabels() map[string]string {
 }
 
 func (x *Win32) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Win32) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -32722,14 +32722,14 @@ func (x *Win32) GetSoftwareAttestations() []*SoftwareAttestation {
 // Workflow is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Workflow struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,5596,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description                string                 `protobuf:"bytes,2895,opt,name=description,proto3" json:"description,omitempty"`
-	Id                         string                 `protobuf:"bytes,6168,opt,name=id,proto3" json:"id,omitempty"`
-	InternetAccessibleEndpoint bool                   `protobuf:"varint,5072,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3" json:"internet_accessible_endpoint,omitempty"`
+	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,5596,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
+	Description                *string                `protobuf:"bytes,2895,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Id                         *string                `protobuf:"bytes,6168,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	InternetAccessibleEndpoint *bool                  `protobuf:"varint,5072,opt,name=internet_accessible_endpoint,json=internetAccessibleEndpoint,proto3,oneof" json:"internet_accessible_endpoint,omitempty"`
 	Labels                     map[string]string      `protobuf:"bytes,9318,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name                       string                 `protobuf:"bytes,12414,opt,name=name,proto3" json:"name,omitempty"`
+	Name                       *string                `protobuf:"bytes,12414,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                              string                            `protobuf:"bytes,9416,opt,name=raw,proto3" json:"raw,omitempty"`
+	Raw                              *string                           `protobuf:"bytes,9416,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7785,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	GeoLocation                      *GeoLocation                      `protobuf:"bytes,18272,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,4437,rep,name=loggings,proto3" json:"loggings,omitempty"`
@@ -32779,22 +32779,22 @@ func (x *Workflow) GetCreationTime() *timestamppb.Timestamp {
 }
 
 func (x *Workflow) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *Workflow) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *Workflow) GetInternetAccessibleEndpoint() bool {
-	if x != nil {
-		return x.InternetAccessibleEndpoint
+	if x != nil && x.InternetAccessibleEndpoint != nil {
+		return *x.InternetAccessibleEndpoint
 	}
 	return false
 }
@@ -32807,15 +32807,15 @@ func (x *Workflow) GetLabels() map[string]string {
 }
 
 func (x *Workflow) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *Workflow) GetRaw() string {
-	if x != nil {
-		return x.Raw
+	if x != nil && x.Raw != nil {
+		return *x.Raw
 	}
 	return ""
 }
@@ -32936,24 +32936,25 @@ var File_policies_security_metrics_ontology_v1_ontology_proto protoreflect.FileD
 const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"4policies/security-metrics/ontology/v1/ontology.proto\x12\x16confirmate.ontology.v1\x1a\x1bbuf/validate/validate.proto\x1a google/protobuf/descriptor.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"4\n" +
-	"\x04ABAC:,\x82\xa6\x1d\x04ABAC\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"\x85\x01\n" +
-	"\x17AccessControlTypePolicy\x120\n" +
-	"\x13authorization_types\x18\xf0\x14 \x01(\tR\x12authorizationTypes:8\x82\xa6\x1d\x17AccessControlTypePolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\x9e\x02\n" +
+	"\x04ABAC:,\x82\xa6\x1d\x04ABAC\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"\xa2\x01\n" +
+	"\x17AccessControlTypePolicy\x125\n" +
+	"\x13authorization_types\x18\xf0\x14 \x01(\tH\x00R\x12authorizationTypes\x88\x01\x01:8\x82\xa6\x1d\x17AccessControlTypePolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\x16\n" +
+	"\x14_authorization_types\"\x9e\x02\n" +
 	"\x11AccessRestriction\x12F\n" +
 	"\vl3_firewall\x18\xa5G \x01(\v2\".confirmate.ontology.v1.L3FirewallH\x00R\n" +
 	"l3Firewall\x12k\n" +
 	"\x18web_application_firewall\x18\x9d- \x01(\v2..confirmate.ontology.v1.WebApplicationFirewallH\x00R\x16webApplicationFirewall\x12L\n" +
 	"\rrate_limiting\x18\xf2' \x01(\v2$.confirmate.ontology.v1.RateLimitingH\x00R\frateLimitingB\x06\n" +
-	"\x04type\"\xb5\b\n" +
-	"\aAccount\x12@\n" +
-	"\rcreation_time\x18\xc6c \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xfbE \x01(\tR\vdescription\x12\x17\n" +
+	"\x04type\"\xae\t\n" +
+	"\aAccount\x12E\n" +
+	"\rcreation_time\x18\xc6c \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xfbE \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
 	"\x02id\x18\xf3\n" +
-	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x98+ \x01(\bR\x1ainternetAccessibleEndpoint\x12D\n" +
-	"\x06labels\x18\xd52 \x03(\v2+.confirmate.ontology.v1.Account.LabelsEntryR\x06labels\x12\x1c\n" +
-	"\x04name\x18\x94\x93\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x88n \x01(\tR\x03raw\x12P\n" +
+	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x98+ \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12D\n" +
+	"\x06labels\x18\xd52 \x03(\v2+.confirmate.ontology.v1.Account.LabelsEntryR\x06labels\x12!\n" +
+	"\x04name\x18\x94\x93\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x88n \x01(\tH\x05R\x03raw\x88\x01\x01\x12P\n" +
 	"\x0fasset_inventory\x18\xb7o \x01(\v2&.confirmate.ontology.v1.AssetInventoryR\x0eassetInventory\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xe4: \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\x92\x03 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
@@ -32961,35 +32962,53 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x12malware_protection\x18\x95F \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xf1\x16 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
 	"\tparent_id\x18\x86\n" +
-	" \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	" \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xc2\x1f \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:)\x82\xa6\x1d\aAccount\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:)\x82\xa6\x1d\aAccount\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xfd\x02\n" +
-	"\x0fActivityLogging\x12\x1a\n" +
-	"\aenabled\x18Ս\x01 \x01(\bR\aenabled\x12\x1c\n" +
-	"\tlog_level\x18\xd5W \x01(\tR\blogLevel\x12>\n" +
-	"\x1bmonitoring_log_data_enabled\x18\xbaj \x01(\bR\x18monitoringLogDataEnabled\x12E\n" +
-	"\x10retention_period\x18\xa4T \x01(\v2\x19.google.protobuf.DurationR\x0fretentionPeriod\x128\n" +
-	"\x17security_alerts_enabled\x18\x90\x8a\x01 \x01(\bR\x15securityAlertsEnabled\x120\n" +
-	"\x13logging_service_ids\x18\xf8\x82\x01 \x03(\tR\x11loggingServiceIds:=\x82\xa6\x1d\x0fActivityLogging\x82\xa6\x1d\aLogging\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeature\"\xd5\x05\n" +
-	"\bAgnostic\x12@\n" +
-	"\rcreation_time\x18\xb6\x13 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x9aA \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x8e\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12E\n" +
-	"\x06labels\x18\xdf\x1a \x03(\v2,.confirmate.ontology.v1.Agnostic.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x8c. \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xedS \x01(\tR\x03raw\x12'\n" +
+	"_parent_id\"\x81\x04\n" +
+	"\x0fActivityLogging\x12\x1f\n" +
+	"\aenabled\x18Ս\x01 \x01(\bH\x00R\aenabled\x88\x01\x01\x12!\n" +
+	"\tlog_level\x18\xd5W \x01(\tH\x01R\blogLevel\x88\x01\x01\x12C\n" +
+	"\x1bmonitoring_log_data_enabled\x18\xbaj \x01(\bH\x02R\x18monitoringLogDataEnabled\x88\x01\x01\x12J\n" +
+	"\x10retention_period\x18\xa4T \x01(\v2\x19.google.protobuf.DurationH\x03R\x0fretentionPeriod\x88\x01\x01\x12=\n" +
+	"\x17security_alerts_enabled\x18\x90\x8a\x01 \x01(\bH\x04R\x15securityAlertsEnabled\x88\x01\x01\x120\n" +
+	"\x13logging_service_ids\x18\xf8\x82\x01 \x03(\tR\x11loggingServiceIds:=\x82\xa6\x1d\x0fActivityLogging\x82\xa6\x1d\aLogging\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabledB\f\n" +
+	"\n" +
+	"_log_levelB\x1e\n" +
+	"\x1c_monitoring_log_data_enabledB\x13\n" +
+	"\x11_retention_periodB\x1a\n" +
+	"\x18_security_alerts_enabled\"\xa8\x06\n" +
+	"\bAgnostic\x12E\n" +
+	"\rcreation_time\x18\xb6\x13 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x9aA \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x8e\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12E\n" +
+	"\x06labels\x18\xdf\x1a \x03(\v2,.confirmate.ontology.v1.Agnostic.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x8c. \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xedS \x01(\tH\x04R\x03raw\x88\x01\x01\x12'\n" +
 	"\x0fcode_module_ids\x18\xa0\x7f \x03(\tR\rcodeModuleIds\x122\n" +
-	"\x12code_repository_id\x18\xa9+ \x01(\tH\x00R\x10codeRepositoryId\x88\x01\x01\x12P\n" +
+	"\x12code_repository_id\x18\xa9+ \x01(\tH\x05R\x10codeRepositoryId\x88\x01\x01\x12P\n" +
 	"\x0ffunctionalities\x18\xdc  \x03(\v2%.confirmate.ontology.v1.FunctionalityR\x0ffunctionalities\x12!\n" +
-	"\tparent_id\x18\xea\x05 \x01(\tH\x01R\bparentId\x88\x01\x01\x12a\n" +
+	"\tparent_id\x18\xea\x05 \x01(\tH\x06R\bparentId\x88\x01\x01\x12a\n" +
 	"\x15software_attestations\x18\xc6c \x03(\v2+.confirmate.ontology.v1.SoftwareAttestationR\x14softwareAttestations\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:?\x82\xa6\x1d\bAgnostic\x82\xa6\x1d\x1bOperatingSystemArchitecture\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x15\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:?\x82\xa6\x1d\bAgnostic\x82\xa6\x1d\x1bOperatingSystemArchitecture\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x15\n" +
 	"\x13_code_repository_idB\f\n" +
 	"\n" +
 	"_parent_id\"\xc0\x01\n" +
@@ -32998,78 +33017,112 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"codeRegion\x12!\n" +
 	"\tmemory_id\x18\xa9U \x01(\tH\x00R\bmemoryId\x88\x01\x01:=\x82\xa6\x1d\bAllocate\x82\xa6\x1d\x0fMemoryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
-	"_memory_id\"\xe5\x03\n" +
-	"\aAndRule\x12@\n" +
-	"\rcreation_time\x18\xe48 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xe7\x1b \x01(\tR\vdescription\x12\x18\n" +
-	"\x02id\x18\xf1\x80\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12D\n" +
-	"\x06labels\x18\xceM \x03(\v2+.confirmate.ontology.v1.AndRule.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xc0\x10 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xae{ \x01(\tR\x03raw\x12J\n" +
+	"_memory_id\"\xb8\x04\n" +
+	"\aAndRule\x12E\n" +
+	"\rcreation_time\x18\xe48 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xe7\x1b \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18\xf1\x80\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12D\n" +
+	"\x06labels\x18\xceM \x03(\v2+.confirmate.ontology.v1.AndRule.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xc0\x10 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xae{ \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
 	"\rdata_location\x18\x91e \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
-	"\tparent_id\x18\xe7k \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xe7k \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:-\x82\xa6\x1d\aAndRule\x82\xa6\x1d\n" +
-	"PolicyRule\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"PolicyRule\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xd7\x01\n" +
-	"\x10AnomalyDetection\x12\x19\n" +
-	"\aenabled\x18\x94E \x01(\bR\aenabled\x12\x15\n" +
-	"\x05scope\x18\xa2B \x01(\tR\x05scope\x12\\\n" +
-	"\x13application_logging\x18\x81} \x01(\v2*.confirmate.ontology.v1.ApplicationLoggingR\x12applicationLogging:3\x82\xa6\x1d\x10AnomalyDetection\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeature\"\x91\b\n" +
-	"\vApplication\x12@\n" +
-	"\rcreation_time\x18\xd1u \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xeb\x11 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xd3H \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12H\n" +
-	"\x06labels\x18\xd8c \x03(\v2/.confirmate.ontology.v1.Application.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x81\v \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x122\n" +
-	"\x14programming_language\x18\x81\r \x01(\tR\x13programmingLanguage\x120\n" +
-	"\x13programming_version\x18\xce\x18 \x01(\tR\x12programmingVersion\x12\x12\n" +
-	"\x03raw\x18\xfc\x91\x01 \x01(\tR\x03raw\x12,\n" +
+	"_parent_id\"\xf7\x01\n" +
+	"\x10AnomalyDetection\x12\x1e\n" +
+	"\aenabled\x18\x94E \x01(\bH\x00R\aenabled\x88\x01\x01\x12\x1a\n" +
+	"\x05scope\x18\xa2B \x01(\tH\x01R\x05scope\x88\x01\x01\x12\\\n" +
+	"\x13application_logging\x18\x81} \x01(\v2*.confirmate.ontology.v1.ApplicationLoggingR\x12applicationLogging:3\x82\xa6\x1d\x10AnomalyDetection\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabledB\b\n" +
+	"\x06_scope\"\x9f\t\n" +
+	"\vApplication\x12E\n" +
+	"\rcreation_time\x18\xd1u \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xeb\x11 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xd3H \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12H\n" +
+	"\x06labels\x18\xd8c \x03(\v2/.confirmate.ontology.v1.Application.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x81\v \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x127\n" +
+	"\x14programming_language\x18\x81\r \x01(\tH\x04R\x13programmingLanguage\x88\x01\x01\x125\n" +
+	"\x13programming_version\x18\xce\x18 \x01(\tH\x05R\x12programmingVersion\x88\x01\x01\x12\x17\n" +
+	"\x03raw\x18\xfc\x91\x01 \x01(\tH\x06R\x03raw\x88\x01\x01\x12,\n" +
 	"\x11translation_units\x18\xe9I \x03(\tR\x10translationUnits\x12V\n" +
 	"\x11automatic_updates\x18\xc8\x0f \x01(\v2(.confirmate.ontology.v1.AutomaticUpdatesR\x10automaticUpdates\x12(\n" +
 	"\x0fcode_module_ids\x18\xb5\x8d\x01 \x03(\tR\rcodeModuleIds\x122\n" +
-	"\x12code_repository_id\x18\xdf\x1b \x01(\tH\x00R\x10codeRepositoryId\x88\x01\x01\x12#\n" +
+	"\x12code_repository_id\x18\xdf\x1b \x01(\tH\aR\x10codeRepositoryId\x88\x01\x01\x12#\n" +
 	"\n" +
-	"compute_id\x18\x8eh \x01(\tH\x01R\tcomputeId\x88\x01\x01\x12P\n" +
+	"compute_id\x18\x8eh \x01(\tH\bR\tcomputeId\x88\x01\x01\x12P\n" +
 	"\x0ffunctionalities\x18\xac3 \x03(\v2%.confirmate.ontology.v1.FunctionalityR\x0ffunctionalities\x12 \n" +
 	"\vlibrary_ids\x18\xeaZ \x03(\tR\n" +
 	"libraryIds\x12!\n" +
-	"\tparent_id\x18\x90\x1f \x01(\tH\x02R\bparentId\x88\x01\x01\x12b\n" +
+	"\tparent_id\x18\x90\x1f \x01(\tH\tR\bparentId\x88\x01\x01\x12b\n" +
 	"\x15software_attestations\x18ۀ\x01 \x03(\v2+.confirmate.ontology.v1.SoftwareAttestationR\x14softwareAttestations\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\vApplication\x82\xa6\x1d\tComponent\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x15\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\vApplication\x82\xa6\x1d\tComponent\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x17\n" +
+	"\x15_programming_languageB\x16\n" +
+	"\x14_programming_versionB\x06\n" +
+	"\x04_rawB\x15\n" +
 	"\x13_code_repository_idB\r\n" +
 	"\v_compute_idB\f\n" +
 	"\n" +
-	"_parent_id\"\x81\x03\n" +
-	"\x12ApplicationLogging\x12\x19\n" +
-	"\aenabled\x18\x83j \x01(\bR\aenabled\x12\x1c\n" +
-	"\tlog_level\x18\xc1o \x01(\tR\blogLevel\x12>\n" +
-	"\x1bmonitoring_log_data_enabled\x18\xed  \x01(\bR\x18monitoringLogDataEnabled\x12E\n" +
-	"\x10retention_period\x18\xaf1 \x01(\v2\x19.google.protobuf.DurationR\x0fretentionPeriod\x128\n" +
-	"\x17security_alerts_enabled\x18\u038b\x01 \x01(\bR\x15securityAlertsEnabled\x12/\n" +
-	"\x13logging_service_ids\x18\xac\x1e \x03(\tR\x11loggingServiceIds:@\x82\xa6\x1d\x12ApplicationLogging\x82\xa6\x1d\aLogging\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeature\"\xed\x03\n" +
-	"\x0eAssetInventory\x12J\n" +
-	"!all_required_information_recorded\x18\xae- \x01(\bR\x1eallRequiredInformationRecorded\x12&\n" +
-	"\x0eaudit_interval\x18\xf0u \x01(\x05R\rauditInterval\x12?\n" +
-	"\x1bcompleted_review_percentage\x18\xbb| \x01(\x02R\x19completedReviewPercentage\x12*\n" +
-	"\x10review_frequency\x18\xadc \x01(\x05R\x0freviewFrequency\x12\x19\n" +
-	"\aservice\x18\xcf[ \x01(\tR\aservice\x12\x17\n" +
-	"\x06status\x18\x9d] \x01(\tR\x06status\x12*\n" +
-	"\x10storage_facility\x18\xcd\x14 \x01(\tR\x0fstorageFacility\x12\x13\n" +
-	"\x04type\x18\xc8[ \x01(\tR\x04type\x12(\n" +
-	"\x0fupdate_duration\x18\xc2, \x01(\x05R\x0eupdateDuration\x12(\n" +
-	"\x0fupdate_interval\x18\xd2  \x01(\x05R\x0eupdateInterval:1\x82\xa6\x1d\x0eAssetInventory\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeature\"\xde\x01\n" +
-	"\x10AsymmetricCipher\x12\x1f\n" +
+	"_parent_id\"\x85\x04\n" +
+	"\x12ApplicationLogging\x12\x1e\n" +
+	"\aenabled\x18\x83j \x01(\bH\x00R\aenabled\x88\x01\x01\x12!\n" +
+	"\tlog_level\x18\xc1o \x01(\tH\x01R\blogLevel\x88\x01\x01\x12C\n" +
+	"\x1bmonitoring_log_data_enabled\x18\xed  \x01(\bH\x02R\x18monitoringLogDataEnabled\x88\x01\x01\x12J\n" +
+	"\x10retention_period\x18\xaf1 \x01(\v2\x19.google.protobuf.DurationH\x03R\x0fretentionPeriod\x88\x01\x01\x12=\n" +
+	"\x17security_alerts_enabled\x18\u038b\x01 \x01(\bH\x04R\x15securityAlertsEnabled\x88\x01\x01\x12/\n" +
+	"\x13logging_service_ids\x18\xac\x1e \x03(\tR\x11loggingServiceIds:@\x82\xa6\x1d\x12ApplicationLogging\x82\xa6\x1d\aLogging\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\n" +
 	"\n" +
-	"block_size\x18\xc0\x92\x01 \x01(\x05R\tblockSize\x12 \n" +
-	"\vcipher_name\x18\xf8S \x01(\tR\n" +
-	"cipherName\x12\x1a\n" +
-	"\bkey_size\x18\xafD \x01(\x05R\akeySize\x12:\n" +
-	"\apadding\x18\xfdz \x01(\v2\x1f.confirmate.ontology.v1.PaddingR\apadding:/\x82\xa6\x1d\x10AsymmetricCipher\x82\xa6\x1d\x06Cipher\x82\xa6\x1d\rFunctionality\"\xbf\x02\n" +
+	"\b_enabledB\f\n" +
+	"\n" +
+	"_log_levelB\x1e\n" +
+	"\x1c_monitoring_log_data_enabledB\x13\n" +
+	"\x11_retention_periodB\x1a\n" +
+	"\x18_security_alerts_enabled\"\xc0\x05\n" +
+	"\x0eAssetInventory\x12O\n" +
+	"!all_required_information_recorded\x18\xae- \x01(\bH\x00R\x1eallRequiredInformationRecorded\x88\x01\x01\x12+\n" +
+	"\x0eaudit_interval\x18\xf0u \x01(\x05H\x01R\rauditInterval\x88\x01\x01\x12D\n" +
+	"\x1bcompleted_review_percentage\x18\xbb| \x01(\x02H\x02R\x19completedReviewPercentage\x88\x01\x01\x12/\n" +
+	"\x10review_frequency\x18\xadc \x01(\x05H\x03R\x0freviewFrequency\x88\x01\x01\x12\x1e\n" +
+	"\aservice\x18\xcf[ \x01(\tH\x04R\aservice\x88\x01\x01\x12\x17\n" +
+	"\x06status\x18\x9d] \x03(\tR\x06status\x12*\n" +
+	"\x10storage_facility\x18\xcd\x14 \x03(\tR\x0fstorageFacility\x12\x18\n" +
+	"\x04type\x18\xc8[ \x01(\tH\x05R\x04type\x88\x01\x01\x12-\n" +
+	"\x0fupdate_duration\x18\xc2, \x01(\x05H\x06R\x0eupdateDuration\x88\x01\x01\x12-\n" +
+	"\x0fupdate_interval\x18\xd2  \x01(\x05H\aR\x0eupdateInterval\x88\x01\x01:1\x82\xa6\x1d\x0eAssetInventory\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB$\n" +
+	"\"_all_required_information_recordedB\x11\n" +
+	"\x0f_audit_intervalB\x1e\n" +
+	"\x1c_completed_review_percentageB\x13\n" +
+	"\x11_review_frequencyB\n" +
+	"\n" +
+	"\b_serviceB\a\n" +
+	"\x05_typeB\x12\n" +
+	"\x10_update_durationB\x12\n" +
+	"\x10_update_interval\"\x99\x02\n" +
+	"\x10AsymmetricCipher\x12$\n" +
+	"\n" +
+	"block_size\x18\xc0\x92\x01 \x01(\x05H\x00R\tblockSize\x88\x01\x01\x12%\n" +
+	"\vcipher_name\x18\xf8S \x01(\tH\x01R\n" +
+	"cipherName\x88\x01\x01\x12\x1f\n" +
+	"\bkey_size\x18\xafD \x01(\x05H\x02R\akeySize\x88\x01\x01\x12:\n" +
+	"\apadding\x18\xfdz \x01(\v2\x1f.confirmate.ontology.v1.PaddingR\apadding:/\x82\xa6\x1d\x10AsymmetricCipher\x82\xa6\x1d\x06Cipher\x82\xa6\x1d\rFunctionalityB\r\n" +
+	"\v_block_sizeB\x0e\n" +
+	"\f_cipher_nameB\v\n" +
+	"\t_key_size\"\xbf\x02\n" +
 	"\x10AtRestEncryption\x12h\n" +
 	"\x17customer_key_encryption\x18\x9a\\ \x01(\v2-.confirmate.ontology.v1.CustomerKeyEncryptionH\x00R\x15customerKeyEncryption\x12R\n" +
 	"\x0fdisk_encryption\x18\x8cF \x01(\v2&.confirmate.ontology.v1.DiskEncryptionH\x00R\x0ediskEncryption\x12e\n" +
@@ -33125,11 +33178,15 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\fAuthorizeJwt\x12I\n" +
 	"\fauthenticity\x18\xbc\x03 \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12D\n" +
 	"\vcode_region\x18\xbf\x14 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
-	"codeRegion:I\x82\xa6\x1d\fAuthorizeJwt\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xc1\x01\n" +
-	"\x10AutomaticUpdates\x12\x19\n" +
-	"\aenabled\x18\xeb\x11 \x01(\bR\aenabled\x126\n" +
-	"\binterval\x18\x85\x12 \x01(\v2\x19.google.protobuf.DurationR\binterval\x12$\n" +
-	"\rsecurity_only\x18\x8a\b \x01(\bR\fsecurityOnly:4\x82\xa6\x1d\x10AutomaticUpdates\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeature\"\xf0\x03\n" +
+	"codeRegion:I\x82\xa6\x1d\fAuthorizeJwt\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xfb\x01\n" +
+	"\x10AutomaticUpdates\x12\x1e\n" +
+	"\aenabled\x18\xeb\x11 \x01(\bH\x00R\aenabled\x88\x01\x01\x12;\n" +
+	"\binterval\x18\x85\x12 \x01(\v2\x19.google.protobuf.DurationH\x01R\binterval\x88\x01\x01\x12)\n" +
+	"\rsecurity_only\x18\x8a\b \x01(\bH\x02R\fsecurityOnly\x88\x01\x01:4\x82\xa6\x1d\x10AutomaticUpdates\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabledB\v\n" +
+	"\t_intervalB\x10\n" +
+	"\x0e_security_only\"\xf0\x03\n" +
 	"\fAvailability\x12:\n" +
 	"\x06backup\x18\x9d\x80\x01 \x01(\v2\x1e.confirmate.ontology.v1.BackupH\x00R\x06backup\x12U\n" +
 	"\x11d_do_s_protection\x18Â\x01 \x01(\v2&.confirmate.ontology.v1.DDoSProtectionH\x00R\x0edDoSProtection\x12I\n" +
@@ -33137,29 +33194,38 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x0egeo_redundancy\x18\x84\x13 \x01(\v2%.confirmate.ontology.v1.GeoRedundancyH\x00R\rgeoRedundancy\x12U\n" +
 	"\x10local_redundancy\x18\xe9\x13 \x01(\v2'.confirmate.ontology.v1.LocalRedundancyH\x00R\x0flocalRedundancy\x12R\n" +
 	"\x0fzone_redundancy\x18\x89W \x01(\v2&.confirmate.ontology.v1.ZoneRedundancyH\x00R\x0ezoneRedundancyB\x06\n" +
-	"\x04type\"\xdb\x01\n" +
-	"\x11AwarenessTraining\x127\n" +
-	"\x17annual_update_completed\x18\xed  \x01(\bR\x15annualUpdateCompleted\x12K\n" +
-	"!successfully_completed_percentage\x18\xa4I \x01(\bR\x1fsuccessfullyCompletedPercentage:@\x82\xa6\x1d\x11AwarenessTraining\x82\xa6\x1d\bTraining\x82\xa6\x1d\n" +
-	"Governance\x82\xa6\x1d\rFunctionality\"\xb6\x03\n" +
-	"\x06Backup\x12\x19\n" +
-	"\aenabled\x18\xff\x15 \x01(\bR\aenabled\x12\x1d\n" +
-	"\tfrequency\x18\xedJ \x01(\x05R\tfrequency\x126\n" +
-	"\binterval\x18\x928 \x01(\v2\x19.google.protobuf.DurationR\binterval\x12.\n" +
-	"\x12recovery_frequency\x18\xe9D \x01(\x05R\x11recoveryFrequency\x12E\n" +
-	"\x10retention_period\x18\x8b5 \x01(\v2\x19.google.protobuf.DurationR\x0fretentionPeriod\x12$\n" +
+	"\x04type\"\xa7\x02\n" +
+	"\x11AwarenessTraining\x12<\n" +
+	"\x17annual_update_completed\x18\xed  \x01(\bH\x00R\x15annualUpdateCompleted\x88\x01\x01\x12P\n" +
+	"!successfully_completed_percentage\x18\xa4I \x01(\bH\x01R\x1fsuccessfullyCompletedPercentage\x88\x01\x01:@\x82\xa6\x1d\x11AwarenessTraining\x82\xa6\x1d\bTraining\x82\xa6\x1d\n" +
+	"Governance\x82\xa6\x1d\rFunctionalityB\x1a\n" +
+	"\x18_annual_update_completedB$\n" +
+	"\"_successfully_completed_percentage\"\xa2\x04\n" +
+	"\x06Backup\x12\x1e\n" +
+	"\aenabled\x18\xff\x15 \x01(\bH\x00R\aenabled\x88\x01\x01\x12\"\n" +
+	"\tfrequency\x18\xedJ \x01(\x05H\x01R\tfrequency\x88\x01\x01\x12;\n" +
+	"\binterval\x18\x928 \x01(\v2\x19.google.protobuf.DurationH\x02R\binterval\x88\x01\x01\x123\n" +
+	"\x12recovery_frequency\x18\xe9D \x01(\x05H\x03R\x11recoveryFrequency\x88\x01\x01\x12J\n" +
+	"\x10retention_period\x18\x8b5 \x01(\v2\x19.google.protobuf.DurationH\x04R\x0fretentionPeriod\x88\x01\x01\x12$\n" +
 	"\n" +
-	"storage_id\x18\x9b\x85\x01 \x01(\tH\x00R\tstorageId\x88\x01\x01\x12_\n" +
-	"\x14transport_encryption\x18\xde\x12 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption:-\x82\xa6\x1d\x06Backup\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeatureB\r\n" +
-	"\v_storage_id\"\x85\v\n" +
-	"\fBlockStorage\x12@\n" +
-	"\rcreation_time\x18\x9fW \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xf3\x10 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xdb6 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x9fu \x01(\bR\x1ainternetAccessibleEndpoint\x12I\n" +
-	"\x06labels\x18\xa8{ \x03(\v20.confirmate.ontology.v1.BlockStorage.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xadl \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xb1V \x01(\tR\x03raw\x12S\n" +
+	"storage_id\x18\x9b\x85\x01 \x01(\tH\x05R\tstorageId\x88\x01\x01\x12_\n" +
+	"\x14transport_encryption\x18\xde\x12 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption:-\x82\xa6\x1d\x06Backup\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabledB\f\n" +
+	"\n" +
+	"_frequencyB\v\n" +
+	"\t_intervalB\x15\n" +
+	"\x13_recovery_frequencyB\x13\n" +
+	"\x11_retention_periodB\r\n" +
+	"\v_storage_id\"\xfe\v\n" +
+	"\fBlockStorage\x12E\n" +
+	"\rcreation_time\x18\x9fW \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xf3\x10 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xdb6 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x9fu \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12I\n" +
+	"\x06labels\x18\xa8{ \x03(\v20.confirmate.ontology.v1.BlockStorage.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xadl \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xb1V \x01(\tH\x05R\x03raw\x88\x01\x01\x12S\n" +
 	"\x10activity_logging\x18\x92~ \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12W\n" +
 	"\x12at_rest_encryption\x18\xb6b \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionR\x10atRestEncryption\x129\n" +
 	"\abackups\x18\xff\x15 \x03(\v2\x1e.confirmate.ontology.v1.BackupR\abackups\x12\x88\x01\n" +
@@ -33169,65 +33235,94 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\xa5> \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xf1r \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xae\x7f \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xbcx \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xbcx \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10resource_logging\x18\xa2# \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
 	"\x10usage_statistics\x18\xc0H \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:9\x82\xa6\x1d\fBlockStorage\x82\xa6\x1d\aStorage\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:9\x82\xa6\x1d\fBlockStorage\x82\xa6\x1d\aStorage\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xdb\x01\n" +
 	"\x15BlockStorageOperation\x12.\n" +
 	"\x10block_storage_id\x18\xa5i \x01(\tH\x00R\x0eblockStorageId\x88\x01\x01\x12D\n" +
 	"\vcode_region\x18\xc4\x15 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion:7\x82\xa6\x1d\x15BlockStorageOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
-	"\x11_block_storage_id\"\xf4\x02\n" +
-	"\vBootLogging\x12\x1a\n" +
-	"\aenabled\x18\xa9\x87\x01 \x01(\bR\aenabled\x12\x1c\n" +
-	"\tlog_level\x18\x8a> \x01(\tR\blogLevel\x12>\n" +
-	"\x1bmonitoring_log_data_enabled\x18\xafG \x01(\bR\x18monitoringLogDataEnabled\x12E\n" +
-	"\x10retention_period\x18\xa2\x12 \x01(\v2\x19.google.protobuf.DurationR\x0fretentionPeriod\x127\n" +
-	"\x17security_alerts_enabled\x18\xbd\x18 \x01(\bR\x15securityAlertsEnabled\x120\n" +
-	"\x13logging_service_ids\x18х\x01 \x03(\tR\x11loggingServiceIds:9\x82\xa6\x1d\vBootLogging\x82\xa6\x1d\aLogging\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeature\")\n" +
+	"\x11_block_storage_id\"\xf8\x03\n" +
+	"\vBootLogging\x12\x1f\n" +
+	"\aenabled\x18\xa9\x87\x01 \x01(\bH\x00R\aenabled\x88\x01\x01\x12!\n" +
+	"\tlog_level\x18\x8a> \x01(\tH\x01R\blogLevel\x88\x01\x01\x12C\n" +
+	"\x1bmonitoring_log_data_enabled\x18\xafG \x01(\bH\x02R\x18monitoringLogDataEnabled\x88\x01\x01\x12J\n" +
+	"\x10retention_period\x18\xa2\x12 \x01(\v2\x19.google.protobuf.DurationH\x03R\x0fretentionPeriod\x88\x01\x01\x12<\n" +
+	"\x17security_alerts_enabled\x18\xbd\x18 \x01(\bH\x04R\x15securityAlertsEnabled\x88\x01\x01\x120\n" +
+	"\x13logging_service_ids\x18х\x01 \x03(\tR\x11loggingServiceIds:9\x82\xa6\x1d\vBootLogging\x82\xa6\x1d\aLogging\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabledB\f\n" +
+	"\n" +
+	"_log_levelB\x1e\n" +
+	"\x1c_monitoring_log_data_enabledB\x13\n" +
+	"\x11_retention_periodB\x1a\n" +
+	"\x18_security_alerts_enabled\")\n" +
 	"\bBoundary:\x1d\x82\xa6\x1d\bBoundary\x82\xa6\x1d\rFunctionality\"\x88\x01\n" +
 	"\vCICDService\x120\n" +
 	"\x03job\x18\x9f\x1f \x01(\v2\x1b.confirmate.ontology.v1.JobH\x00R\x03job\x12?\n" +
 	"\bworkflow\x18\xaaD \x01(\v2 .confirmate.ontology.v1.WorkflowH\x00R\bworkflowB\x06\n" +
-	"\x04type\"\x98\n" +
+	"\x04type\"\xe8\v\n" +
+	"\vCertificate\x12F\n" +
+	"\rcreation_time\x18\xec\x8e\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x8eQ \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1e\n" +
+	"\aenabled\x18\x9cV \x01(\bH\x02R\aenabled\x88\x01\x01\x12J\n" +
+	"\x0fexpiration_date\x18\x81\x85\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x03R\x0eexpirationDate\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xb1\f \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x9dw \x01(\bH\x05R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12#\n" +
 	"\n" +
-	"\vCertificate\x12A\n" +
-	"\rcreation_time\x18\xec\x8e\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x8eQ \x01(\tR\vdescription\x12\x19\n" +
-	"\aenabled\x18\x9cV \x01(\bR\aenabled\x12E\n" +
-	"\x0fexpiration_date\x18\x81\x85\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x0eexpirationDate\x12\x17\n" +
-	"\x02id\x18\xb1\f \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x9dw \x01(\bR\x1ainternetAccessibleEndpoint\x12\x1e\n" +
-	"\n" +
-	"is_managed\x18\x99} \x01(\bR\tisManaged\x12H\n" +
+	"is_managed\x18\x99} \x01(\bH\x06R\tisManaged\x88\x01\x01\x12H\n" +
 	"\x06labels\x18\xd9\n" +
-	" \x03(\v2/.confirmate.ontology.v1.Certificate.LabelsEntryR\x06labels\x12\x1c\n" +
-	"\x04name\x18\xa5\x94\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12C\n" +
-	"\x0fnot_before_date\x18\xfa[ \x01(\v2\x1a.google.protobuf.TimestampR\rnotBeforeDate\x12\x11\n" +
-	"\x03raw\x18\x9f8 \x01(\tR\x03raw\x12\x88\x01\n" +
+	" \x03(\v2/.confirmate.ontology.v1.Certificate.LabelsEntryR\x06labels\x12!\n" +
+	"\x04name\x18\xa5\x94\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\aR\x04name\x88\x01\x01\x12H\n" +
+	"\x0fnot_before_date\x18\xfa[ \x01(\v2\x1a.google.protobuf.TimestampH\bR\rnotBeforeDate\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x9f8 \x01(\tH\tR\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xf2H \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\xdb\" \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12Q\n" +
 	"\x10used_by_multiple\x18\xc5h \x01(\v2&.confirmate.ontology.v1.InfrastructureR\x0eusedByMultiple\x12<\n" +
 	"\bloggings\x18\xea\x18 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\x99k \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xc2{ \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xccJ \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xccJ \x01(\tH\n" +
+	"R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xdf\x1c \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:;\x82\xa6\x1d\vCertificate\x82\xa6\x1d\n" +
-	"Credential\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Credential\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\n" +
 	"\n" +
-	"_parent_id\"\xa6\x02\n" +
-	"\x1eCertificateBasedAuthentication\x12-\n" +
-	"\x12context_is_checked\x18\xeet \x01(\bR\x10contextIsChecked\x12\x19\n" +
-	"\aenabled\x18\xcf] \x01(\bR\aenabled\x12E\n" +
-	"\x1efailed_authentication_attempts\x18\xda\x16 \x01(\x05R\x1cfailedAuthenticationAttempts\x12,\n" +
-	"\x11rotation_interval\x18\xbcI \x01(\x05R\x10rotationInterval:E\x82\xa6\x1d\x1eCertificateBasedAuthentication\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeature\"\xb2\x01\n" +
+	"\b_enabledB\x12\n" +
+	"\x10_expiration_dateB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\r\n" +
+	"\v_is_managedB\a\n" +
+	"\x05_nameB\x12\n" +
+	"\x10_not_before_dateB\x06\n" +
+	"\x04_rawB\f\n" +
+	"\n" +
+	"_parent_id\"\x96\x03\n" +
+	"\x1eCertificateBasedAuthentication\x122\n" +
+	"\x12context_is_checked\x18\xeet \x01(\bH\x00R\x10contextIsChecked\x88\x01\x01\x12\x1e\n" +
+	"\aenabled\x18\xcf] \x01(\bH\x01R\aenabled\x88\x01\x01\x12J\n" +
+	"\x1efailed_authentication_attempts\x18\xda\x16 \x01(\x05H\x02R\x1cfailedAuthenticationAttempts\x88\x01\x01\x121\n" +
+	"\x11rotation_interval\x18\xbcI \x01(\x05H\x03R\x10rotationInterval\x88\x01\x01:E\x82\xa6\x1d\x1eCertificateBasedAuthentication\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeatureB\x15\n" +
+	"\x13_context_is_checkedB\n" +
+	"\n" +
+	"\b_enabledB!\n" +
+	"\x1f_failed_authentication_attemptsB\x14\n" +
+	"\x12_rotation_interval\"\xb2\x01\n" +
 	" ChangeAndConfigurationManagement\x12W\n" +
 	"\x12request_for_change\x18\xe9, \x01(\v2(.confirmate.ontology.v1.RequestForChangeR\x10requestForChange:5\x82\xa6\x1d ChangeAndConfigurationManagement\x82\xa6\x1d\rFunctionality\"\xef\x01\n" +
 	"\vCheckAccess\x12D\n" +
@@ -33243,13 +33338,17 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"decryption\x18\xcbl \x01(\v2\".confirmate.ontology.v1.DecryptionH\x00R\n" +
 	"decryptionB\x06\n" +
-	"\x04type\"\xab\x02\n" +
-	"\vCipherSuite\x12:\n" +
-	"\x18authentication_mechanism\x18\xd3\x1c \x01(\tR\x17authenticationMechanism\x125\n" +
-	"\x16key_exchange_algorithm\x18\xc8t \x01(\tR\x14keyExchangeAlgorithm\x12$\n" +
-	"\rmac_algorithm\x18\xa8\x12 \x01(\tR\fmacAlgorithm\x12&\n" +
-	"\x0esession_cipher\x18\xee, \x01(\tR\rsessionCipher\x129\n" +
-	"\aciphers\x18\xb4A \x03(\v2\x1e.confirmate.ontology.v1.CipherR\aciphers: \x82\xa6\x1d\vCipherSuite\x82\xa6\x1d\rFunctionality\"\x8c\x1c\n" +
+	"\x04type\"\x9c\x03\n" +
+	"\vCipherSuite\x12?\n" +
+	"\x18authentication_mechanism\x18\xd3\x1c \x01(\tH\x00R\x17authenticationMechanism\x88\x01\x01\x12:\n" +
+	"\x16key_exchange_algorithm\x18\xc8t \x01(\tH\x01R\x14keyExchangeAlgorithm\x88\x01\x01\x12)\n" +
+	"\rmac_algorithm\x18\xa8\x12 \x01(\tH\x02R\fmacAlgorithm\x88\x01\x01\x12+\n" +
+	"\x0esession_cipher\x18\xee, \x01(\tH\x03R\rsessionCipher\x88\x01\x01\x129\n" +
+	"\aciphers\x18\xb4A \x03(\v2\x1e.confirmate.ontology.v1.CipherR\aciphers: \x82\xa6\x1d\vCipherSuite\x82\xa6\x1d\rFunctionalityB\x1b\n" +
+	"\x19_authentication_mechanismB\x19\n" +
+	"\x17_key_exchange_algorithmB\x10\n" +
+	"\x0e_mac_algorithmB\x11\n" +
+	"\x0f_session_cipher\"\x8c\x1c\n" +
 	"\x0eInfrastructure\x12<\n" +
 	"\aaccount\x18\xc0Y \x01(\v2\x1f.confirmate.ontology.v1.AccountH\x00R\aaccount\x120\n" +
 	"\x03job\x18\x9f\x1f \x01(\v2\x1b.confirmate.ontology.v1.JobH\x00R\x03job\x12?\n" +
@@ -33295,56 +33394,78 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\ffile_storage\x18\xb0\x15 \x01(\v2#.confirmate.ontology.v1.FileStorageH\x00R\vfileStorage\x12O\n" +
 	"\x0eobject_storage\x18\xf6T \x01(\v2%.confirmate.ontology.v1.ObjectStorageH\x00R\robjectStorageB\x06\n" +
 	"\x04type\"-\n" +
-	"\bCloudSDK:!\x82\xa6\x1d\bCloudSDK\x82\xa6\x1d\tFramework\x82\xa6\x1d\x04Core\"\xd8\x01\n" +
+	"\bCloudSDK:!\x82\xa6\x1d\bCloudSDK\x82\xa6\x1d\tFramework\x82\xa6\x1d\x04Core\"\xc4\x02\n" +
 	"\n" +
-	"CodeRegion\x12\x13\n" +
-	"\x04code\x18\x87X \x01(\tR\x04code\x12\x1f\n" +
+	"CodeRegion\x12\x18\n" +
+	"\x04code\x18\x87X \x01(\tH\x00R\x04code\x88\x01\x01\x12$\n" +
 	"\n" +
-	"end_column\x18\xa2\x94\x01 \x01(\x05R\tendColumn\x12\x1a\n" +
-	"\bend_line\x18\xd8: \x01(\x05R\aendLine\x12\x13\n" +
-	"\x04file\x18\xec\t \x01(\tR\x04file\x12\"\n" +
-	"\fstart_column\x18\x93, \x01(\x05R\vstartColumn\x12\x1e\n" +
+	"end_column\x18\xa2\x94\x01 \x01(\x05H\x01R\tendColumn\x88\x01\x01\x12\x1f\n" +
+	"\bend_line\x18\xd8: \x01(\x05H\x02R\aendLine\x88\x01\x01\x12\x18\n" +
+	"\x04file\x18\xec\t \x01(\tH\x03R\x04file\x88\x01\x01\x12'\n" +
+	"\fstart_column\x18\x93, \x01(\x05H\x04R\vstartColumn\x88\x01\x01\x12#\n" +
 	"\n" +
-	"start_line\x18\xf1\\ \x01(\x05R\tstartLine:\x1f\x82\xa6\x1d\n" +
-	"CodeRegion\x82\xa6\x1d\rFunctionality\"\xdf\v\n" +
-	"\x0eCodeRepository\x12G\n" +
-	"\x1fapproved_commit_author_enforced\x18\x86\x84\x01 \x01(\bR\x1capprovedCommitAuthorEnforced\x12@\n" +
-	"\rcreation_time\x18\x89p \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xfa, \x01(\tR\vdescription\x12\x17\n" +
+	"start_line\x18\xf1\\ \x01(\x05H\x05R\tstartLine\x88\x01\x01:\x1f\x82\xa6\x1d\n" +
+	"CodeRegion\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05_codeB\r\n" +
+	"\v_end_columnB\v\n" +
+	"\t_end_lineB\a\n" +
+	"\x05_fileB\x0f\n" +
+	"\r_start_columnB\r\n" +
+	"\v_start_line\"\xe8\r\n" +
+	"\x0eCodeRepository\x12L\n" +
+	"\x1fapproved_commit_author_enforced\x18\x86\x84\x01 \x01(\bH\x00R\x1capprovedCommitAuthorEnforced\x88\x01\x01\x12E\n" +
+	"\rcreation_time\x18\x89p \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xfa, \x01(\tH\x02R\vdescription\x88\x01\x01\x12\x1c\n" +
 	"\x02id\x18\xce\n" +
-	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xaaE \x01(\bR\x1ainternetAccessibleEndpoint\x12K\n" +
-	"\x06labels\x18\xa7/ \x03(\v22.confirmate.ontology.v1.CodeRepository.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xdec \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12@\n" +
-	"\x1cnumber_of_required_reviewers\x18\xbbW \x01(\x05R\x19numberOfRequiredReviewers\x12\x11\n" +
-	"\x03raw\x18\xb0z \x01(\tR\x03raw\x12-\n" +
-	"\x11review_percentage\x18\xa1\x8a\x01 \x01(\x02R\x10reviewPercentage\x12@\n" +
-	"\x1creview_percentage_last_month\x18\xeb\x05 \x01(\x02R\x19reviewPercentageLastMonth\x12\x88\x01\n" +
+	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xaaE \x01(\bH\x04R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12K\n" +
+	"\x06labels\x18\xa7/ \x03(\v22.confirmate.ontology.v1.CodeRepository.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xdec \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x05R\x04name\x88\x01\x01\x12E\n" +
+	"\x1cnumber_of_required_reviewers\x18\xbbW \x01(\x05H\x06R\x19numberOfRequiredReviewers\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xb0z \x01(\tH\aR\x03raw\x88\x01\x01\x122\n" +
+	"\x11review_percentage\x18\xa1\x8a\x01 \x01(\x02H\bR\x10reviewPercentage\x88\x01\x01\x12E\n" +
+	"\x1creview_percentage_last_month\x18\xeb\x05 \x01(\x02H\tR\x19reviewPercentageLastMonth\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xbf\r \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fcode_signoff\x18\xad\x0e \x01(\v2#.confirmate.ontology.v1.CodeSignoffR\vcodeSignoff\x12F\n" +
 	"\fgeo_location\x18o \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\x85\x01 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\x97\x10 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\x89X \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xed) \x01(\tH\x00R\bparentId\x88\x01\x01\x12M\n" +
+	"\tparent_id\x18\xed) \x01(\tH\n" +
+	"R\bparentId\x88\x01\x01\x12M\n" +
 	"\x0esigned_commits\x18\xb2\x03 \x01(\v2%.confirmate.ontology.v1.SignedCommitsR\rsignedCommits\x12S\n" +
 	"\x10usage_statistics\x18\x98\x1b \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x12S\n" +
 	"\x10verified_commits\x18\x8d[ \x01(\v2'.confirmate.ontology.v1.VerifiedCommitsR\x0fverifiedCommits\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x0eCodeRepository\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x0eCodeRepository\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\"\n" +
+	" _approved_commit_author_enforcedB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x1f\n" +
+	"\x1d_number_of_required_reviewersB\x06\n" +
+	"\x04_rawB\x14\n" +
+	"\x12_review_percentageB\x1f\n" +
+	"\x1d_review_percentage_last_monthB\f\n" +
 	"\n" +
-	"_parent_id\"\xb1\x01\n" +
-	"\vCodeSignoff\x12\x1c\n" +
-	"\benforced\x18đ\x01 \x01(\bR\benforced\x12\x1f\n" +
+	"_parent_id\"\xf6\x01\n" +
+	"\vCodeSignoff\x12!\n" +
+	"\benforced\x18đ\x01 \x01(\bH\x00R\benforced\x88\x01\x01\x12$\n" +
 	"\n" +
-	"percentage\x18\xc3^ \x01(\x02R\n" +
-	"percentage\x123\n" +
-	"\x15percentage_last_month\x18\x9b\x1d \x01(\x02R\x13percentageLastMonth:.\x82\xa6\x1d\vCodeSignoff\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeature\"\x87\x01\n" +
-	"\x1dComplianceAuditIntervalPolicy\x12&\n" +
-	"\x0eaudit_interval\x18\x92= \x01(\x05R\rauditInterval:>\x82\xa6\x1d\x1dComplianceAuditIntervalPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"~\n" +
-	"\x1bComplianceMethodologyPolicy\x12!\n" +
-	"\vmethodology\x18\xeeD \x01(\tR\vmethodology:<\x82\xa6\x1d\x1bComplianceMethodologyPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\x9c\x01\n" +
+	"percentage\x18\xc3^ \x01(\x02H\x01R\n" +
+	"percentage\x88\x01\x01\x128\n" +
+	"\x15percentage_last_month\x18\x9b\x1d \x01(\x02H\x02R\x13percentageLastMonth\x88\x01\x01:.\x82\xa6\x1d\vCodeSignoff\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\v\n" +
+	"\t_enforcedB\r\n" +
+	"\v_percentageB\x18\n" +
+	"\x16_percentage_last_month\"\x9f\x01\n" +
+	"\x1dComplianceAuditIntervalPolicy\x12+\n" +
+	"\x0eaudit_interval\x18\x92= \x01(\x05H\x00R\rauditInterval\x88\x01\x01:>\x82\xa6\x1d\x1dComplianceAuditIntervalPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\x11\n" +
+	"\x0f_audit_interval\"\x93\x01\n" +
+	"\x1bComplianceMethodologyPolicy\x12&\n" +
+	"\vmethodology\x18\xeeD \x01(\tH\x00R\vmethodology\x88\x01\x01:<\x82\xa6\x1d\x1bComplianceMethodologyPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\x0e\n" +
+	"\f_methodology\"\x9c\x01\n" +
 	"\tComponent\x12I\n" +
 	"\vapplication\x18\xfa\x90\x01 \x01(\v2#.confirmate.ontology.v1.ApplicationH\x00R\vapplication\x12<\n" +
 	"\alibrary\x18\xb9o \x01(\v2\x1f.confirmate.ontology.v1.LibraryH\x00R\alibraryB\x06\n" +
@@ -33361,70 +33482,91 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x16managed_key_encryption\x18\x80Z \x01(\v2,.confirmate.ontology.v1.ManagedKeyEncryptionH\x00R\x14managedKeyEncryption\x12a\n" +
 	"\x14transport_encryption\x18\xb3n \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\x00R\x13transportEncryption\x12V\n" +
 	"\x11encryption_in_use\x18\x9f{ \x01(\v2'.confirmate.ontology.v1.EncryptionInUseH\x00R\x0fencryptionInUseB\x06\n" +
-	"\x04type\"\xa2\x04\n" +
-	"\rConfiguration\x12@\n" +
-	"\rcreation_time\x18\xe1H \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xc1\" \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xb21 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12J\n" +
-	"\x06labels\x18\xc9\x01 \x03(\v21.confirmate.ontology.v1.Configuration.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xf05 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x12\n" +
-	"\x03raw\x18˅\x01 \x01(\tR\x03raw\x127\n" +
+	"\x04type\"\xf5\x04\n" +
+	"\rConfiguration\x12E\n" +
+	"\rcreation_time\x18\xe1H \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xc1\" \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xb21 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12J\n" +
+	"\x06labels\x18\xc9\x01 \x03(\v21.confirmate.ontology.v1.Configuration.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xf05 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x17\n" +
+	"\x03raw\x18˅\x01 \x01(\tH\x04R\x03raw\x88\x01\x01\x127\n" +
 	"\x17configuration_group_ids\x18\xf06 \x03(\tR\x15configurationGroupIds\x12J\n" +
 	"\rdata_location\x18\x9b( \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
-	"\tparent_id\x18\xb0j \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xb0j \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:%\x82\xa6\x1d\rConfiguration\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:%\x82\xa6\x1d\rConfiguration\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\x89\a\n" +
-	"\x15ConfigurationDocument\x12@\n" +
-	"\rcreation_time\x18\xee\x02 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x9aj \x01(\tR\vdescription\x12\x1c\n" +
-	"\bfiletype\x18Ō\x01 \x01(\tR\bfiletype\x12\x17\n" +
-	"\x02id\x18\xb80 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12R\n" +
-	"\x06labels\x18\x90\x05 \x03(\v29.confirmate.ontology.v1.ConfigurationDocument.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xf2\t \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xe2\v \x01(\tR\x03raw\x12[\n" +
+	"_parent_id\"\xee\a\n" +
+	"\x15ConfigurationDocument\x12E\n" +
+	"\rcreation_time\x18\xee\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x9aj \x01(\tH\x01R\vdescription\x88\x01\x01\x12!\n" +
+	"\bfiletype\x18Ō\x01 \x01(\tH\x02R\bfiletype\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xb80 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12R\n" +
+	"\x06labels\x18\x90\x05 \x03(\v29.confirmate.ontology.v1.ConfigurationDocument.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xf2\t \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xe2\v \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
 	"\x13cryptographic_hashs\x18\x84Z \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
 	"\rdata_location\x18\x99\x0e \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xa2r \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\x95Y \x01(\tH\x00R\bparentId\x88\x01\x01\x12L\n" +
+	"\tparent_id\x18\x95Y \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
 	"\fvalidated_by\x18\xfa\t \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xdc] \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:9\x82\xa6\x1d\x15ConfigurationDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:9\x82\xa6\x1d\x15ConfigurationDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\v\n" +
+	"\t_filetypeB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xfa\x04\n" +
-	"\x12ConfigurationGroup\x12@\n" +
-	"\rcreation_time\x18\xd8^ \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xc2\x1d \x01(\tR\vdescription\x12\x18\n" +
-	"\x02id\x18\xf9\x88\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12O\n" +
-	"\x06labels\x18\xcc\f \x03(\v26.confirmate.ontology.v1.ConfigurationGroup.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x9bt \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x9fv \x01(\tR\x03raw\x12/\n" +
-	"\x10configuration_id\x18\x9a\x1c \x01(\tH\x00R\x0fconfigurationId\x88\x01\x01\x129\n" +
+	"_parent_id\"\xcd\x05\n" +
+	"\x12ConfigurationGroup\x12E\n" +
+	"\rcreation_time\x18\xd8^ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xc2\x1d \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18\xf9\x88\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12O\n" +
+	"\x06labels\x18\xcc\f \x03(\v26.confirmate.ontology.v1.ConfigurationGroup.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x9bt \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x9fv \x01(\tH\x04R\x03raw\x88\x01\x01\x12/\n" +
+	"\x10configuration_id\x18\x9a\x1c \x01(\tH\x05R\x0fconfigurationId\x88\x01\x01\x129\n" +
 	"\x18configuration_option_ids\x18\xf1- \x03(\tR\x16configurationOptionIds\x12J\n" +
 	"\rdata_location\x18\xd0U \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12\"\n" +
-	"\tparent_id\x18Ä\x01 \x01(\tH\x01R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18Ä\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:*\x82\xa6\x1d\x12ConfigurationGroup\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x13\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:*\x82\xa6\x1d\x12ConfigurationGroup\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x13\n" +
 	"\x11_configuration_idB\f\n" +
 	"\n" +
-	"_parent_id\"\x89\x04\n" +
-	"\x18ConfigurationGroupSource\x12@\n" +
-	"\rcreation_time\x18\x81O \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xcdM \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xeb^ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12U\n" +
-	"\x06labels\x18\xf7\x0f \x03(\v2<.confirmate.ontology.v1.ConfigurationGroupSource.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x948 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xbaS \x01(\tR\x03raw\x12J\n" +
+	"_parent_id\"\xdc\x04\n" +
+	"\x18ConfigurationGroupSource\x12E\n" +
+	"\rcreation_time\x18\x81O \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xcdM \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xeb^ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12U\n" +
+	"\x06labels\x18\xf7\x0f \x03(\v2<.confirmate.ontology.v1.ConfigurationGroupSource.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x948 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xbaS \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
 	"\rdata_location\x18\xbeL \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
-	"\tparent_id\x18\xc0[ \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xc0[ \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x18ConfigurationGroupSource\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x18ConfigurationGroupSource\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xa4\a\n" +
 	"\x16ConfigurationOperation\x12[\n" +
@@ -33436,182 +33578,236 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x19read_configuration_option\x18\x8dw \x01(\v2/.confirmate.ontology.v1.ReadConfigurationOptionH\x00R\x17readConfigurationOption\x12w\n" +
 	"\x1cregister_configuration_group\x18\xc2O \x01(\v22.confirmate.ontology.v1.RegisterConfigurationGroupH\x00R\x1aregisterConfigurationGroup\x12z\n" +
 	"\x1dregister_configuration_option\x18\xf7f \x01(\v23.confirmate.ontology.v1.RegisterConfigurationOptionH\x00R\x1bregisterConfigurationOptionB\x06\n" +
-	"\x04type\"\xa9\x05\n" +
-	"\x13ConfigurationOption\x12@\n" +
-	"\rcreation_time\x18\xceL \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x82] \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xf3= \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12P\n" +
-	"\x06labels\x18\xf5~ \x03(\v27.confirmate.ontology.v1.ConfigurationOption.LabelsEntryR\x06labels\x12\x1c\n" +
-	"\x04name\x18\xfb\x86\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xc4C \x01(\tR\x03raw\x12:\n" +
-	"\x16configuration_group_id\x18\xbf/ \x01(\tH\x00R\x14configurationGroupId\x88\x01\x01\x12K\n" +
+	"\x04type\"\xfc\x05\n" +
+	"\x13ConfigurationOption\x12E\n" +
+	"\rcreation_time\x18\xceL \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x82] \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xf3= \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12P\n" +
+	"\x06labels\x18\xf5~ \x03(\v27.confirmate.ontology.v1.ConfigurationOption.LabelsEntryR\x06labels\x12!\n" +
+	"\x04name\x18\xfb\x86\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xc4C \x01(\tH\x04R\x03raw\x88\x01\x01\x12:\n" +
+	"\x16configuration_group_id\x18\xbf/ \x01(\tH\x05R\x14configurationGroupId\x88\x01\x01\x12K\n" +
 	"\rdata_location\x18\xad\x86\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12\x1b\n" +
-	"\x06key_id\x18\x8c^ \x01(\tH\x01R\x05keyId\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\xcf0 \x01(\tH\x02R\bparentId\x88\x01\x01\x12\x1f\n" +
-	"\bvalue_id\x18\x8c\x14 \x01(\tH\x03R\avalueId\x88\x01\x01\x1a9\n" +
+	"\x06key_id\x18\x8c^ \x01(\tH\x06R\x05keyId\x88\x01\x01\x12!\n" +
+	"\tparent_id\x18\xcf0 \x01(\tH\aR\bparentId\x88\x01\x01\x12\x1f\n" +
+	"\bvalue_id\x18\x8c\x14 \x01(\tH\bR\avalueId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:+\x82\xa6\x1d\x13ConfigurationOption\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x19\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:+\x82\xa6\x1d\x13ConfigurationOption\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x19\n" +
 	"\x17_configuration_group_idB\t\n" +
 	"\a_key_idB\f\n" +
 	"\n" +
 	"_parent_idB\v\n" +
-	"\t_value_id\"\x8c\x04\n" +
-	"\x19ConfigurationOptionSource\x12@\n" +
-	"\rcreation_time\x18\xcbM \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xdcH \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xa61 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12V\n" +
-	"\x06labels\x18\xd3< \x03(\v2=.confirmate.ontology.v1.ConfigurationOptionSource.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x80{ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xc7F \x01(\tR\x03raw\x12J\n" +
+	"\t_value_id\"\xdf\x04\n" +
+	"\x19ConfigurationOptionSource\x12E\n" +
+	"\rcreation_time\x18\xcbM \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xdcH \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xa61 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12V\n" +
+	"\x06labels\x18\xd3< \x03(\v2=.confirmate.ontology.v1.ConfigurationOptionSource.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x80{ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xc7F \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
 	"\rdata_location\x18\xde\\ \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
-	"\tparent_id\x18\xb8\x02 \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xb8\x02 \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:1\x82\xa6\x1d\x19ConfigurationOptionSource\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:1\x82\xa6\x1d\x19ConfigurationOptionSource\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xc2\x04\n" +
-	"\x13ConfigurationSource\x12@\n" +
-	"\rcreation_time\x18\xadk \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xa7S \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xaf9 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12P\n" +
-	"\x06labels\x18\xbeD \x03(\v27.confirmate.ontology.v1.ConfigurationSource.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xbfC \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x12\n" +
-	"\x03raw\x18ȃ\x01 \x01(\tR\x03raw\x12D\n" +
+	"_parent_id\"\x95\x05\n" +
+	"\x13ConfigurationSource\x12E\n" +
+	"\rcreation_time\x18\xadk \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xa7S \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xaf9 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12P\n" +
+	"\x06labels\x18\xbeD \x03(\v27.confirmate.ontology.v1.ConfigurationSource.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xbfC \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x17\n" +
+	"\x03raw\x18ȃ\x01 \x01(\tH\x04R\x03raw\x88\x01\x01\x12D\n" +
 	"\x1econfiguration_group_source_ids\x18\xe1$ \x03(\tR\x1bconfigurationGroupSourceIds\x12K\n" +
 	"\rdata_location\x18\x9c\x84\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
-	"\tparent_id\x18\x8a_ \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\x8a_ \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:+\x82\xa6\x1d\x13ConfigurationSource\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:+\x82\xa6\x1d\x13ConfigurationSource\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xa9\x01\n" +
-	"\rContactPerson\x12$\n" +
-	"\remail_address\x18\x8dz \x01(\tR\femailAddress\x12\x1c\n" +
-	"\tjob_title\x18\xf05 \x01(\tR\bjobTitle\x12\"\n" +
-	"\fphone_number\x18\x93g \x01(\tR\vphoneNumber:0\x82\xa6\x1d\rContactPerson\x82\xa6\x1d\n" +
-	"Governance\x82\xa6\x1d\rFunctionality\"\xdd\n" +
+	"_parent_id\"\xe9\x01\n" +
+	"\rContactPerson\x12)\n" +
+	"\remail_address\x18\x8dz \x01(\tH\x00R\femailAddress\x88\x01\x01\x12!\n" +
+	"\tjob_title\x18\xf05 \x01(\tH\x01R\bjobTitle\x88\x01\x01\x12'\n" +
+	"\fphone_number\x18\x93g \x01(\tH\x02R\vphoneNumber\x88\x01\x01:0\x82\xa6\x1d\rContactPerson\x82\xa6\x1d\n" +
+	"Governance\x82\xa6\x1d\rFunctionalityB\x10\n" +
+	"\x0e_email_addressB\f\n" +
 	"\n" +
-	"\tContainer\x12@\n" +
-	"\rcreation_time\x18\xd5I \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xe5c \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x87\a \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x80O \x01(\bR\x1ainternetAccessibleEndpoint\x12F\n" +
-	"\x06labels\x18\x9eg \x03(\v2-.confirmate.ontology.v1.Container.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xe0\x05 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x12\n" +
-	"\x03raw\x18\xbf\x8f\x01 \x01(\tR\x03raw\x12\x88\x01\n" +
+	"_job_titleB\x0f\n" +
+	"\r_phone_number\"\xd6\v\n" +
+	"\tContainer\x12E\n" +
+	"\rcreation_time\x18\xd5I \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xe5c \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x87\a \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x80O \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12F\n" +
+	"\x06labels\x18\x9eg \x03(\v2-.confirmate.ontology.v1.Container.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xe0\x05 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x17\n" +
+	"\x03raw\x18\xbf\x8f\x01 \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xad\x0e \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12T\n" +
 	"\x11encryption_in_use\x18\xa7\x02 \x01(\v2'.confirmate.ontology.v1.EncryptionInUseR\x0fencryptionInUse\x12G\n" +
 	"\fgeo_location\x18\xff* \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12\x1f\n" +
-	"\bimage_id\x18\xac] \x01(\tH\x00R\aimageId\x88\x01\x01\x12<\n" +
+	"\bimage_id\x18\xac] \x01(\tH\x06R\aimageId\x88\x01\x01\x12<\n" +
 	"\bloggings\x18\xc5& \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xcbO \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x123\n" +
 	"\x15network_interface_ids\x18\xd7+ \x03(\tR\x13networkInterfaceIds\x12G\n" +
 	"\fredundancies\x18\xd4H \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12Y\n" +
 	"\x12remote_attestation\x18\x8e  \x01(\v2).confirmate.ontology.v1.RemoteAttestationR\x11remoteAttestation\x12!\n" +
-	"\tparent_id\x18\x88r \x01(\tH\x01R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\x88r \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10resource_logging\x18\x9am \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
 	"\x10usage_statistics\x18\xb0Y \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:6\x82\xa6\x1d\tContainer\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\v\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:6\x82\xa6\x1d\tContainer\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\v\n" +
 	"\t_image_idB\f\n" +
 	"\n" +
-	"_parent_id\"\xc1\b\n" +
-	"\x0eContainerImage\x12@\n" +
-	"\rcreation_time\x18\x93W \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xfaT \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xf01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x82g \x01(\bR\x1ainternetAccessibleEndpoint\x12L\n" +
-	"\x06labels\x18\xe3\x8c\x01 \x03(\v22.confirmate.ontology.v1.ContainerImage.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x85\x11 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xafR \x01(\tR\x03raw\x12+\n" +
-	"\x0eapplication_id\x18\xf6\x05 \x01(\tH\x00R\rapplicationId\x88\x01\x01\x12\x88\x01\n" +
+	"_parent_id\"\xba\t\n" +
+	"\x0eContainerImage\x12E\n" +
+	"\rcreation_time\x18\x93W \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xfaT \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xf01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x82g \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12L\n" +
+	"\x06labels\x18\xe3\x8c\x01 \x03(\v22.confirmate.ontology.v1.ContainerImage.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x85\x11 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xafR \x01(\tH\x05R\x03raw\x88\x01\x01\x12+\n" +
+	"\x0eapplication_id\x18\xf6\x05 \x01(\tH\x06R\rapplicationId\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xca\x17 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12F\n" +
 	"\fgeo_location\x18u \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xed_ \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xd7V \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12H\n" +
 	"\fredundancies\x18\x98\x81\x01 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xce\x03 \x01(\tH\x01R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xce\x03 \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xdd\x02 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:9\x82\xa6\x1d\x0eContainerImage\x82\xa6\x1d\x05Image\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x11\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:9\x82\xa6\x1d\x0eContainerImage\x82\xa6\x1d\x05Image\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x11\n" +
 	"\x0f_application_idB\f\n" +
 	"\n" +
-	"_parent_id\"\xb4\t\n" +
-	"\x16ContainerOrchestration\x12@\n" +
-	"\rcreation_time\x18\x84O \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x83\x02 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xffb \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xbb\x14 \x01(\bR\x1ainternetAccessibleEndpoint\x12S\n" +
-	"\x06labels\x18\xbew \x03(\v2:.confirmate.ontology.v1.ContainerOrchestration.LabelsEntryR\x06labels\x12&\n" +
-	"\x0emanagement_url\x18\xef\a \x01(\tR\rmanagementUrl\x12\x1c\n" +
-	"\x04name\x18\x8b\x8e\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x12\n" +
-	"\x03raw\x18\xbf\x88\x01 \x01(\tR\x03raw\x12\x88\x01\n" +
+	"_parent_id\"\xc5\n" +
+	"\n" +
+	"\x16ContainerOrchestration\x12E\n" +
+	"\rcreation_time\x18\x84O \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x83\x02 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xffb \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xbb\x14 \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12S\n" +
+	"\x06labels\x18\xbew \x03(\v2:.confirmate.ontology.v1.ContainerOrchestration.LabelsEntryR\x06labels\x12+\n" +
+	"\x0emanagement_url\x18\xef\a \x01(\tH\x04R\rmanagementUrl\x88\x01\x01\x12!\n" +
+	"\x04name\x18\x8b\x8e\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x05R\x04name\x88\x01\x01\x12\x17\n" +
+	"\x03raw\x18\xbf\x88\x01 \x01(\tH\x06R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xa1$ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12$\n" +
 	"\rcontainer_ids\x18\xa3\b \x03(\tR\fcontainerIds\x12G\n" +
 	"\fgeo_location\x18\x80E \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xd0\x13 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xc9\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\x95) \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x8b\x01 \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\x8b\x01 \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10resource_logging\x18\xb7\x0e \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
 	"\x10usage_statistics\x18\x905 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:8\x82\xa6\x1d\x16ContainerOrchestration\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:8\x82\xa6\x1d\x16ContainerOrchestration\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\x11\n" +
+	"\x0f_management_urlB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\x83\b\n" +
-	"\x11ContainerRegistry\x12@\n" +
-	"\rcreation_time\x18\x93! \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12\"\n" +
-	"\vdescription\x18\xe5\x89\x01 \x01(\tR\vdescription\x12\x18\n" +
-	"\x02id\x18\xb1\x8a\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xb1c \x01(\bR\x1ainternetAccessibleEndpoint\x12N\n" +
-	"\x06labels\x18\x95\x13 \x03(\v25.confirmate.ontology.v1.ContainerRegistry.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xf3\v \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xa6' \x01(\tR\x03raw\x12\x88\x01\n" +
+	"_parent_id\"\xfc\b\n" +
+	"\x11ContainerRegistry\x12E\n" +
+	"\rcreation_time\x18\x93! \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
+	"\vdescription\x18\xe5\x89\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18\xb1\x8a\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xb1c \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12N\n" +
+	"\x06labels\x18\x95\x13 \x03(\v25.confirmate.ontology.v1.ContainerRegistry.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xf3\v \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xa6' \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xbbD \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\x9b' \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xad\x05 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Z\n" +
 	"\x12malware_protection\x18\xe8\x90\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xc4c \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xa7o \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xa7o \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xf2i \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:3\x82\xa6\x1d\x11ContainerRegistry\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:3\x82\xa6\x1d\x11ContainerRegistry\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xd8\x03\n" +
-	"\aContext\x12@\n" +
-	"\rcreation_time\x18\xb8E \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12\"\n" +
-	"\vdescription\x18\xb9\x92\x01 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x97\x17 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12E\n" +
-	"\x06labels\x18Á\x01 \x03(\v2+.confirmate.ontology.v1.Context.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xd8_ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xa5# \x01(\tR\x03raw\x12J\n" +
+	"_parent_id\"\xab\x04\n" +
+	"\aContext\x12E\n" +
+	"\rcreation_time\x18\xb8E \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
+	"\vdescription\x18\xb9\x92\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x97\x17 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12E\n" +
+	"\x06labels\x18Á\x01 \x03(\v2+.confirmate.ontology.v1.Context.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xd8_ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xa5# \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
 	"\rdata_location\x18\xeeq \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
-	"\tparent_id\x18\xa7) \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xa7) \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x1f\x82\xa6\x1d\aContext\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x1f\x82\xa6\x1d\aContext\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xa3\x05\n" +
-	"(CoordinatedVulnerabilityDisclosurePolicy\x12A\n" +
-	"\rcreation_time\x18\x9a\x81\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x96< \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x9e$ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12e\n" +
-	"\x06labels\x18\x8af \x03(\v2L.confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy.LabelsEntryR\x06labels\x12\x1c\n" +
-	"\x04name\x18\xb5\x87\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xf5\x11 \x01(\tR\x03raw\x12#\n" +
+	"_parent_id\"\xf6\x05\n" +
+	"(CoordinatedVulnerabilityDisclosurePolicy\x12F\n" +
+	"\rcreation_time\x18\x9a\x81\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x96< \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x9e$ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12e\n" +
+	"\x06labels\x18\x8af \x03(\v2L.confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy.LabelsEntryR\x06labels\x12!\n" +
+	"\x04name\x18\xb5\x87\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xf5\x11 \x01(\tH\x04R\x03raw\x88\x01\x01\x12#\n" +
 	"\n" +
-	"context_id\x18\xech \x01(\tH\x00R\tcontextId\x88\x01\x01\x12J\n" +
+	"context_id\x18\xech \x01(\tH\x05R\tcontextId\x88\x01\x01\x12J\n" +
 	"\rdata_location\x18\x817 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12(\n" +
 	"\x0fpolicy_rule_ids\x18\xb8\x89\x01 \x03(\tR\rpolicyRuleIds\x12!\n" +
-	"\tparent_id\x18\xed\v \x01(\tH\x01R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xed\v \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:J\x82\xa6\x1d(CoordinatedVulnerabilityDisclosurePolicy\x82\xa6\x1d\x06Policy\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\r\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:J\x82\xa6\x1d(CoordinatedVulnerabilityDisclosurePolicy\x82\xa6\x1d\x06Policy\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\r\n" +
 	"\v_context_idB\f\n" +
 	"\n" +
 	"_parent_id\"\xff\x02\n" +
@@ -33638,58 +33834,77 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vcertificate\x18\xdeB \x01(\v2#.confirmate.ontology.v1.CertificateH\x00R\vcertificate\x120\n" +
 	"\x03key\x18\x82( \x01(\v2\x1b.confirmate.ontology.v1.KeyH\x00R\x03key\x129\n" +
 	"\x06secret\x18\xff} \x01(\v2\x1e.confirmate.ontology.v1.SecretH\x00R\x06secretB\x06\n" +
-	"\x04type\"\xa2\x01\n" +
-	"\x11CryptographicHash\x12\x1e\n" +
-	"\talgorithm\x18Ϗ\x01 \x01(\tR\talgorithm\x126\n" +
-	"\x06errors\x18\xfe\x1f \x03(\v2\x1d.confirmate.ontology.v1.ErrorR\x06errors:5\x82\xa6\x1d\x11CryptographicHash\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeature\"q\n" +
+	"\x04type\"\xb5\x01\n" +
+	"\x11CryptographicHash\x12#\n" +
+	"\talgorithm\x18Ϗ\x01 \x01(\tH\x00R\talgorithm\x88\x01\x01\x126\n" +
+	"\x06errors\x18\xfe\x1f \x03(\v2\x1d.confirmate.ontology.v1.ErrorR\x06errors:5\x82\xa6\x1d\x11CryptographicHash\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeatureB\f\n" +
+	"\n" +
+	"_algorithm\"q\n" +
 	"\x16CryptographicOperation\x12O\n" +
 	"\x0ehash_operation\x18\xceZ \x01(\v2%.confirmate.ontology.v1.HashOperationH\x00R\rhashOperationB\x06\n" +
-	"\x04type\"\xbb\x02\n" +
-	"\x15CustomerKeyEncryption\x12\x1d\n" +
-	"\talgorithm\x18\x8dc \x01(\tR\talgorithm\x12\x19\n" +
-	"\aenabled\x18\x80u \x01(\bR\aenabled\x12\x18\n" +
-	"\akey_url\x18\xafm \x01(\tR\x06keyUrl\x12:\n" +
+	"\x04type\"\xf0\x02\n" +
+	"\x15CustomerKeyEncryption\x12\"\n" +
+	"\talgorithm\x18\x8dc \x01(\tH\x00R\talgorithm\x88\x01\x01\x12\x1e\n" +
+	"\aenabled\x18\x80u \x01(\bH\x01R\aenabled\x88\x01\x01\x12\x1d\n" +
+	"\akey_url\x18\xafm \x01(\tH\x02R\x06keyUrl\x88\x01\x01\x12:\n" +
 	"\bbased_on\x18\xdff \x01(\v2\x1e.confirmate.ontology.v1.CipherR\abasedOn\x12!\n" +
-	"\tsecret_id\x18\xaa\" \x01(\tH\x00R\bsecretId\x88\x01\x01:a\x82\xa6\x1d\x15CustomerKeyEncryption\x82\xa6\x1d\x10AtRestEncryption\x82\xa6\x1d\n" +
+	"\tsecret_id\x18\xaa\" \x01(\tH\x03R\bsecretId\x88\x01\x01:a\x82\xa6\x1d\x15CustomerKeyEncryption\x82\xa6\x1d\x10AtRestEncryption\x82\xa6\x1d\n" +
 	"Encryption\x82\xa6\x1d\x0fConfidentiality\x82\xa6\x1d\x0fSecurityFeatureB\f\n" +
 	"\n" +
-	"_secret_id\"\xb3\a\n" +
-	"#CyberSecurityRiskAssessmentDocument\x12@\n" +
-	"\rcreation_time\x18\xe9^ \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x83> \x01(\tR\vdescription\x12\x1b\n" +
-	"\bfiletype\x18\x99\" \x01(\tR\bfiletype\x12\x17\n" +
-	"\x02id\x18\xb7\x0e \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12a\n" +
-	"\x06labels\x18Ë\x01 \x03(\v2G.confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xc3! \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xe7r \x01(\tR\x03raw\x12[\n" +
+	"_algorithmB\n" +
+	"\n" +
+	"\b_enabledB\n" +
+	"\n" +
+	"\b_key_urlB\f\n" +
+	"\n" +
+	"_secret_id\"\x98\b\n" +
+	"#CyberSecurityRiskAssessmentDocument\x12E\n" +
+	"\rcreation_time\x18\xe9^ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x83> \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
+	"\bfiletype\x18\x99\" \x01(\tH\x02R\bfiletype\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xb7\x0e \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12a\n" +
+	"\x06labels\x18Ë\x01 \x03(\v2G.confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xc3! \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xe7r \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
 	"\x13cryptographic_hashs\x18\xafE \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
 	"\rdata_location\x18\x8fR \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xe12 \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xcf\x16 \x01(\tH\x00R\bparentId\x88\x01\x01\x12L\n" +
+	"\tparent_id\x18\xcf\x16 \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
 	"\fvalidated_by\x18\x90` \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xe1m \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:G\x82\xa6\x1d#CyberSecurityRiskAssessmentDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:G\x82\xa6\x1d#CyberSecurityRiskAssessmentDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\v\n" +
+	"\t_filetypeB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"G\n" +
-	"\x0eDDoSProtection:5\x82\xa6\x1d\x0eDDoSProtection\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeature\"\xd0\x05\n" +
-	"\x06Darwin\x12@\n" +
-	"\rcreation_time\x18\x9b\\ \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xb32 \x01(\tR\vdescription\x12\x18\n" +
-	"\x02id\x18\x84\x8f\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12C\n" +
-	"\x06labels\x18\x99% \x03(\v2*.confirmate.ontology.v1.Darwin.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xb1I \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x82_ \x01(\tR\x03raw\x12'\n" +
+	"\x0eDDoSProtection:5\x82\xa6\x1d\x0eDDoSProtection\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeature\"\xa3\x06\n" +
+	"\x06Darwin\x12E\n" +
+	"\rcreation_time\x18\x9b\\ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xb32 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18\x84\x8f\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12C\n" +
+	"\x06labels\x18\x99% \x03(\v2*.confirmate.ontology.v1.Darwin.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xb1I \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x82_ \x01(\tH\x04R\x03raw\x88\x01\x01\x12'\n" +
 	"\x0fcode_module_ids\x18\xe8\x19 \x03(\tR\rcodeModuleIds\x122\n" +
-	"\x12code_repository_id\x18\xa5\x1e \x01(\tH\x00R\x10codeRepositoryId\x88\x01\x01\x12P\n" +
+	"\x12code_repository_id\x18\xa5\x1e \x01(\tH\x05R\x10codeRepositoryId\x88\x01\x01\x12P\n" +
 	"\x0ffunctionalities\x18\x93` \x03(\v2%.confirmate.ontology.v1.FunctionalityR\x0ffunctionalities\x12!\n" +
 	"\tparent_id\x18\xf0\n" +
-	" \x01(\tH\x01R\bparentId\x88\x01\x01\x12a\n" +
+	" \x01(\tH\x06R\bparentId\x88\x01\x01\x12a\n" +
 	"\x15software_attestations\x18\xadq \x03(\v2+.confirmate.ontology.v1.SoftwareAttestationR\x14softwareAttestations\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:=\x82\xa6\x1d\x06Darwin\x82\xa6\x1d\x1bOperatingSystemArchitecture\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x15\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:=\x82\xa6\x1d\x06Darwin\x82\xa6\x1d\x1bOperatingSystemArchitecture\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x15\n" +
 	"\x13_code_repository_idB\f\n" +
 	"\n" +
 	"_parent_id\"\xad\x15\n" +
@@ -33722,10 +33937,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\band_rule\x18\xda\b \x01(\v2\x1f.confirmate.ontology.v1.AndRuleH\x00R\aandRule\x126\n" +
 	"\x05token\x18\x92) \x01(\v2\x1d.confirmate.ontology.v1.TokenH\x00R\x05token\x126\n" +
 	"\x05value\x18\x8c\x05 \x01(\v2\x1d.confirmate.ontology.v1.ValueH\x00R\x05valueB\x06\n" +
-	"\x04type\"}\n" +
-	"\x1cDataConfidentialitySDNPolicy\x12\x1e\n" +
+	"\x04type\"\x91\x01\n" +
+	"\x1cDataConfidentialitySDNPolicy\x12#\n" +
 	"\n" +
-	"is_defined\x18\xaf\t \x01(\bR\tisDefined:=\x82\xa6\x1d\x1cDataConfidentialitySDNPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\xd5\x01\n" +
+	"is_defined\x18\xaf\t \x01(\bH\x00R\tisDefined\x88\x01\x01:=\x82\xa6\x1d\x1cDataConfidentialitySDNPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\r\n" +
+	"\v_is_defined\"\xd5\x01\n" +
 	"\fDataLocation\x12\\\n" +
 	"\x13local_data_location\x18\x99` \x01(\v2).confirmate.ontology.v1.LocalDataLocationH\x00R\x11localDataLocation\x12_\n" +
 	"\x14remote_data_location\x18\xe5i \x01(\v2*.confirmate.ontology.v1.RemoteDataLocationH\x00R\x12remoteDataLocationB\x06\n" +
@@ -33740,30 +33956,31 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x11DatabaseOperation\x12U\n" +
 	"\x10database_connect\x18\xaeT \x01(\v2'.confirmate.ontology.v1.DatabaseConnectH\x00R\x0fdatabaseConnect\x12O\n" +
 	"\x0edatabase_query\x18\x92< \x01(\v2%.confirmate.ontology.v1.DatabaseQueryH\x00R\rdatabaseQueryB\x06\n" +
-	"\x04type\"\xcc\x02\n" +
+	"\x04type\"\xdc\x02\n" +
 	"\rDatabaseQuery\x12\x15\n" +
-	"\x05calls\x18\xdf; \x03(\tR\x05calls\x12\x17\n" +
-	"\x06modify\x18\xb1; \x01(\bR\x06modify\x12D\n" +
+	"\x05calls\x18\xdf; \x03(\tR\x05calls\x12\x1c\n" +
+	"\x06modify\x18\xb1; \x01(\bH\x00R\x06modify\x88\x01\x01\x12D\n" +
 	"\vcode_region\x18\x8b, \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion\x121\n" +
 	"\x14database_service_ids\x18\xd7O \x03(\tR\x12databaseServiceIds\x124\n" +
-	"\x13database_storage_id\x18\xf8| \x01(\tH\x00R\x11databaseStorageId\x88\x01\x01:D\x82\xa6\x1d\rDatabaseQuery\x82\xa6\x1d\x11DatabaseOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x16\n" +
+	"\x13database_storage_id\x18\xf8| \x01(\tH\x01R\x11databaseStorageId\x88\x01\x01:D\x82\xa6\x1d\rDatabaseQuery\x82\xa6\x1d\x11DatabaseOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\t\n" +
+	"\a_modifyB\x16\n" +
 	"\x14_database_storage_id\"\xe8\x03\n" +
 	"\x0fDatabaseService\x12o\n" +
 	"\x19document_database_service\x18\x9e\x8c\x01 \x01(\v2/.confirmate.ontology.v1.DocumentDatabaseServiceH\x00R\x17documentDatabaseService\x12o\n" +
 	"\x1akey_value_database_service\x18\xec\a \x01(\v2/.confirmate.ontology.v1.KeyValueDatabaseServiceH\x00R\x17keyValueDatabaseService\x12u\n" +
 	"\x1cmulti_modal_database_service\x18\xe1\x14 \x01(\v21.confirmate.ontology.v1.MultiModalDatabaseServiceH\x00R\x19multiModalDatabaseService\x12t\n" +
 	"\x1brelational_database_service\x18\xc5a \x01(\v21.confirmate.ontology.v1.RelationalDatabaseServiceH\x00R\x19relationalDatabaseServiceB\x06\n" +
-	"\x04type\"\xa3\v\n" +
-	"\x0fDatabaseStorage\x12@\n" +
-	"\rcreation_time\x18\x91r \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xf9  \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x9e) \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x93O \x01(\bR\x1ainternetAccessibleEndpoint\x12L\n" +
-	"\x06labels\x18\x82x \x03(\v23.confirmate.ontology.v1.DatabaseStorage.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xf0\t \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x92Z \x01(\tR\x03raw\x12\x11\n" +
-	"\x03ttl\x18\x851 \x01(\x01R\x03ttl\x12S\n" +
+	"\x04type\"\xa9\f\n" +
+	"\x0fDatabaseStorage\x12E\n" +
+	"\rcreation_time\x18\x91r \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xf9  \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x9e) \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x93O \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12L\n" +
+	"\x06labels\x18\x82x \x03(\v23.confirmate.ontology.v1.DatabaseStorage.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xf0\t \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x92Z \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x16\n" +
+	"\x03ttl\x18\x851 \x01(\x01H\x06R\x03ttl\x88\x01\x01\x12S\n" +
 	"\x10activity_logging\x18\x92s \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12X\n" +
 	"\x12at_rest_encryption\x18Ƃ\x01 \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionR\x10atRestEncryption\x129\n" +
 	"\abackups\x18\xf93 \x03(\v2\x1e.confirmate.ontology.v1.BackupR\abackups\x12\x88\x01\n" +
@@ -33774,12 +33991,19 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x12malware_protection\x18\x89\n" +
 	" \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xc3, \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xa1\b \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xa1\b \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10resource_logging\x18\xce= \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
 	"\x10usage_statistics\x18\x87Q \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:<\x82\xa6\x1d\x0fDatabaseStorage\x82\xa6\x1d\aStorage\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:<\x82\xa6\x1d\x0fDatabaseStorage\x82\xa6\x1d\aStorage\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x06\n" +
+	"\x04_ttlB\f\n" +
 	"\n" +
 	"_parent_id\"\xc5\x01\n" +
 	"\n" +
@@ -33789,68 +34013,88 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\tmemory_id\x18Ĉ\x01 \x01(\tH\x00R\bmemoryId\x88\x01\x01:?\x82\xa6\x1d\n" +
 	"DeAllocate\x82\xa6\x1d\x0fMemoryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
-	"_memory_id\"\x9c\x02\n" +
+	"_memory_id\"\xaf\x02\n" +
 	"\n" +
-	"Decryption\x12\x1d\n" +
-	"\talgorithm\x18\xc3< \x01(\tR\talgorithm\x127\n" +
+	"Decryption\x12\"\n" +
+	"\talgorithm\x18\xc3< \x01(\tH\x00R\talgorithm\x88\x01\x01\x127\n" +
 	"\x06cipher\x18\xe5O \x01(\v2\x1e.confirmate.ontology.v1.CipherR\x06cipher\x12D\n" +
 	"\vcode_region\x18\xa0; \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion\x12!\n" +
-	"\tsecret_id\x18\xf9\x16 \x01(\tH\x00R\bsecretId\x88\x01\x01:?\x82\xa6\x1d\n" +
+	"\tsecret_id\x18\xf9\x16 \x01(\tH\x01R\bsecretId\x88\x01\x01:?\x82\xa6\x1d\n" +
 	"Decryption\x82\xa6\x1d\x0fCipherOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
-	"_secret_id\"\xa3\b\n" +
-	"\x19DeviceProvisioningService\x12A\n" +
-	"\rcreation_time\x18ҋ\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12\"\n" +
-	"\vdescription\x18\xaf\x8d\x01 \x01(\tR\vdescription\x12\x18\n" +
-	"\x02id\x18\xa3\x92\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xb5u \x01(\bR\x1ainternetAccessibleEndpoint\x12V\n" +
-	"\x06labels\x18\xae. \x03(\v2=.confirmate.ontology.v1.DeviceProvisioningService.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x83L \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xf9s \x01(\tR\x03raw\x12\x89\x01\n" +
+	"_algorithmB\f\n" +
+	"\n" +
+	"_secret_id\"\x9c\t\n" +
+	"\x19DeviceProvisioningService\x12F\n" +
+	"\rcreation_time\x18ҋ\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
+	"\vdescription\x18\xaf\x8d\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18\xa3\x92\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xb5u \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12V\n" +
+	"\x06labels\x18\xae. \x03(\v2=.confirmate.ontology.v1.DeviceProvisioningService.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x83L \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xf9s \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x89\x01\n" +
 	"#change_and_configuration_management\x18\xea\x90\x01 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\xdc\x1b \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xf8\x1d \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\x9dm \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xe5! \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xbb: \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xbb: \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\x8fx \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:B\x82\xa6\x1d\x19DeviceProvisioningService\x82\xa6\x1d\x03IoT\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:B\x82\xa6\x1d\x19DeviceProvisioningService\x82\xa6\x1d\x03IoT\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xed\x02\n" +
-	"\x0eDiskEncryption\x12\x1d\n" +
-	"\talgorithm\x18\xb3\x16 \x01(\tR\talgorithm\x12\x19\n" +
-	"\aenabled\x18\xc5H \x01(\bR\aenabled\x12\x18\n" +
-	"\akey_url\x18\xc6/ \x01(\tR\x06keyUrl\x12>\n" +
+	"_parent_id\"\xa2\x03\n" +
+	"\x0eDiskEncryption\x12\"\n" +
+	"\talgorithm\x18\xb3\x16 \x01(\tH\x00R\talgorithm\x88\x01\x01\x12\x1e\n" +
+	"\aenabled\x18\xc5H \x01(\bH\x01R\aenabled\x88\x01\x01\x12\x1d\n" +
+	"\akey_url\x18\xc6/ \x01(\tH\x02R\x06keyUrl\x88\x01\x01\x12>\n" +
 	"\aused_by\x18\xa0o \x01(\v2$.confirmate.ontology.v1.BlockStorageR\x06usedBy\x12:\n" +
 	"\bbased_on\x18\xe15 \x01(\v2\x1e.confirmate.ontology.v1.CipherR\abasedOn\x12!\n" +
-	"\tsecret_id\x18\x82O \x01(\tH\x00R\bsecretId\x88\x01\x01:Z\x82\xa6\x1d\x0eDiskEncryption\x82\xa6\x1d\x10AtRestEncryption\x82\xa6\x1d\n" +
+	"\tsecret_id\x18\x82O \x01(\tH\x03R\bsecretId\x88\x01\x01:Z\x82\xa6\x1d\x0eDiskEncryption\x82\xa6\x1d\x10AtRestEncryption\x82\xa6\x1d\n" +
 	"Encryption\x82\xa6\x1d\x0fConfidentiality\x82\xa6\x1d\x0fSecurityFeatureB\f\n" +
+	"\n" +
+	"_algorithmB\n" +
+	"\n" +
+	"\b_enabledB\n" +
+	"\n" +
+	"\b_key_urlB\f\n" +
 	"\n" +
 	"_secret_id\"\xea\x01\n" +
 	"\x17DiskEncryptionOperation\x12b\n" +
 	"\x15create_encrypted_disk\x18\xf2\x11 \x01(\v2+.confirmate.ontology.v1.CreateEncryptedDiskH\x00R\x13createEncryptedDisk\x12c\n" +
 	"\x15unlock_encrypted_disk\x18\xb0\x94\x01 \x01(\v2+.confirmate.ontology.v1.UnlockEncryptedDiskH\x00R\x13unlockEncryptedDiskB\x06\n" +
-	"\x04type\"\xa3\a\n" +
-	"\x1dDistributionOfUpdatesDocument\x12@\n" +
-	"\rcreation_time\x18\xec\x14 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xaaA \x01(\tR\vdescription\x12\x1b\n" +
-	"\bfiletype\x18\xd84 \x01(\tR\bfiletype\x12\x17\n" +
-	"\x02id\x18\x93\x19 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12Z\n" +
-	"\x06labels\x18\x8dW \x03(\v2A.confirmate.ontology.v1.DistributionOfUpdatesDocument.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xd8J \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xca\x1b \x01(\tR\x03raw\x12[\n" +
+	"\x04type\"\x88\b\n" +
+	"\x1dDistributionOfUpdatesDocument\x12E\n" +
+	"\rcreation_time\x18\xec\x14 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xaaA \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
+	"\bfiletype\x18\xd84 \x01(\tH\x02R\bfiletype\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x93\x19 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12Z\n" +
+	"\x06labels\x18\x8dW \x03(\v2A.confirmate.ontology.v1.DistributionOfUpdatesDocument.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xd8J \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xca\x1b \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
 	"\x13cryptographic_hashs\x18\x9dT \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12K\n" +
 	"\rdata_location\x18\xf3\x8f\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xf7_ \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12\"\n" +
-	"\tparent_id\x18\x8e\x89\x01 \x01(\tH\x00R\bparentId\x88\x01\x01\x12M\n" +
+	"\tparent_id\x18\x8e\x89\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x12M\n" +
 	"\fvalidated_by\x18\x80\x91\x01 \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xb4m \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:A\x82\xa6\x1d\x1dDistributionOfUpdatesDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:A\x82\xa6\x1d\x1dDistributionOfUpdatesDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\v\n" +
+	"\t_filetypeB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xeb\n" +
 	"\n" +
@@ -33867,17 +34111,17 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1asecurity_advisory_document\x18\xfdr \x01(\v20.confirmate.ontology.v1.SecurityAdvisoryDocumentH\x00R\x18securityAdvisoryDocument\x12n\n" +
 	"\x19service_metadata_document\x18\x90\x02 \x01(\v2/.confirmate.ontology.v1.ServiceMetadataDocumentH\x00R\x17serviceMetadataDocument\x12\x97\x01\n" +
 	"(user_information_and_intruction_document\x18\x8d\x17 \x01(\v2<.confirmate.ontology.v1.UserInformationAndIntructionDocumentH\x00R$userInformationAndIntructionDocumentB\x06\n" +
-	"\x04type\"\x8a\r\n" +
-	"\x17DocumentDatabaseService\x12@\n" +
-	"\rcreation_time\x18\xee[ \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xcek \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x84; \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xffL \x01(\bR\x1ainternetAccessibleEndpoint\x12\x11\n" +
+	"\x04type\"\x83\x0e\n" +
+	"\x17DocumentDatabaseService\x12E\n" +
+	"\rcreation_time\x18\xee[ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xcek \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x84; \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xffL \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12\x11\n" +
 	"\x03ips\x18\x8b7 \x03(\tR\x03ips\x12T\n" +
-	"\x06labels\x18\xe9\x18 \x03(\v2;.confirmate.ontology.v1.DocumentDatabaseService.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xb6c \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x15\n" +
-	"\x05ports\x18\xf1O \x03(\rR\x05ports\x12\x11\n" +
-	"\x03raw\x18\x959 \x01(\tR\x03raw\x12S\n" +
+	"\x06labels\x18\xe9\x18 \x03(\v2;.confirmate.ontology.v1.DocumentDatabaseService.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xb6c \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
+	"\x05ports\x18\xf1O \x03(\rR\x05ports\x12\x16\n" +
+	"\x03raw\x18\x959 \x01(\tH\x05R\x03raw\x88\x01\x01\x12S\n" +
 	"\x10activity_logging\x18\xd51 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12X\n" +
 	"\x12anomaly_detections\x18\x93\x18 \x03(\v2(.confirmate.ontology.v1.AnomalyDetectionR\x11anomalyDetections\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xc5^ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
@@ -33888,8 +34132,8 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\xa0\x15 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xf9# \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\x9b0 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12\"\n" +
-	"\tparent_id\x18\xf9\x88\x01 \x01(\tH\x00R\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xf5I \x01(\tH\x01R\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\xf9\x88\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xf5I \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xfe\x1d \x03(\tR\n" +
 	"storageIds\x12_\n" +
 	"\x14transport_encryption\x18\xcd\x11 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
@@ -33897,7 +34141,13 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:~\x82\xa6\x1d\x17DocumentDatabaseService\x82\xa6\x1d\x0fDatabaseService\x82\xa6\x1d\x0eStorageService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
 	"\x1d_service_metadata_document_id\"5\n" +
@@ -33906,24 +34156,30 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\fload_library\x18\x98\x03 \x01(\v2#.confirmate.ontology.v1.LoadLibraryH\x00R\vloadLibrary\x12F\n" +
 	"\vload_symbol\x18\x9bw \x01(\v2\".confirmate.ontology.v1.LoadSymbolH\x00R\n" +
 	"loadSymbolB\x06\n" +
-	"\x04type\"\x97\a\n" +
-	"\x19EUDeclarationOfConformity\x12@\n" +
-	"\rcreation_time\x18\xd9\x1f \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xc02 \x01(\tR\vdescription\x12\x1b\n" +
-	"\bfiletype\x18\x90\x0f \x01(\tR\bfiletype\x12\x17\n" +
-	"\x02id\x18\xa73 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12W\n" +
-	"\x06labels\x18\u0089\x01 \x03(\v2=.confirmate.ontology.v1.EUDeclarationOfConformity.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xc8Q \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xc3\x1a \x01(\tR\x03raw\x12\\\n" +
+	"\x04type\"\xfc\a\n" +
+	"\x19EUDeclarationOfConformity\x12E\n" +
+	"\rcreation_time\x18\xd9\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xc02 \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
+	"\bfiletype\x18\x90\x0f \x01(\tH\x02R\bfiletype\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xa73 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12W\n" +
+	"\x06labels\x18\u0089\x01 \x03(\v2=.confirmate.ontology.v1.EUDeclarationOfConformity.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xc8Q \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xc3\x1a \x01(\tH\x05R\x03raw\x88\x01\x01\x12\\\n" +
 	"\x13cryptographic_hashs\x18\u0380\x01 \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
 	"\rdata_location\x18\xb6' \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12\\\n" +
 	"\x13document_signatures\x18\x93\x8e\x01 \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xd7N \x01(\tH\x00R\bparentId\x88\x01\x01\x12L\n" +
+	"\tparent_id\x18\xd7N \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
 	"\fvalidated_by\x18\xe8N \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xa3L \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:=\x82\xa6\x1d\x19EUDeclarationOfConformity\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:=\x82\xa6\x1d\x19EUDeclarationOfConformity\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\v\n" +
+	"\t_filetypeB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\x9c\x03\n" +
 	"\n" +
@@ -33932,17 +34188,21 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x0fdisk_encryption\x18\x8cF \x01(\v2&.confirmate.ontology.v1.DiskEncryptionH\x00R\x0ediskEncryption\x12e\n" +
 	"\x16managed_key_encryption\x18\x80Z \x01(\v2,.confirmate.ontology.v1.ManagedKeyEncryptionH\x00R\x14managedKeyEncryption\x12a\n" +
 	"\x14transport_encryption\x18\xb3n \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\x00R\x13transportEncryptionB\x06\n" +
-	"\x04type\"g\n" +
-	"\x0fEncryptionInUse\x12\x19\n" +
-	"\aenabled\x18\xdeB \x01(\bR\aenabled:9\x82\xa6\x1d\x0fEncryptionInUse\x82\xa6\x1d\x0fConfidentiality\x82\xa6\x1d\x0fSecurityFeature\"\xa7\x02\n" +
-	"\x13EncryptionOperation\x12\x1d\n" +
-	"\talgorithm\x18\xf4u \x01(\tR\talgorithm\x12D\n" +
+	"\x04type\"x\n" +
+	"\x0fEncryptionInUse\x12\x1e\n" +
+	"\aenabled\x18\xdeB \x01(\bH\x00R\aenabled\x88\x01\x01:9\x82\xa6\x1d\x0fEncryptionInUse\x82\xa6\x1d\x0fConfidentiality\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabled\"\xba\x02\n" +
+	"\x13EncryptionOperation\x12\"\n" +
+	"\talgorithm\x18\xf4u \x01(\tH\x00R\talgorithm\x88\x01\x01\x12D\n" +
 	"\vcode_region\x18\xdes \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion\x12C\n" +
 	"\n" +
 	"encryption\x18\xa3G \x01(\v2\".confirmate.ontology.v1.EncryptionR\n" +
 	"encryption\x12!\n" +
-	"\tsecret_id\x18\xee; \x01(\tH\x00R\bsecretId\x88\x01\x01:5\x82\xa6\x1d\x13EncryptionOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
+	"\tsecret_id\x18\xee; \x01(\tH\x01R\bsecretId\x88\x01\x01:5\x82\xa6\x1d\x13EncryptionOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
+	"\n" +
+	"_algorithmB\f\n" +
 	"\n" +
 	"_secret_id\"\xf5\x01\n" +
 	"\n" +
@@ -33958,42 +34218,54 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x0eleft_principal\x18\xa3w \x01(\v2!.confirmate.ontology.v1.PrincipalR\rleftPrincipal\x12K\n" +
 	"\x0fright_principal\x18\xc2I \x01(\v2!.confirmate.ontology.v1.PrincipalR\x0erightPrincipal:B\x82\xa6\x1d\rEqualityCheck\x82\xa6\x1d\x0fPolicyOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
-	"_policy_id\">\n" +
-	"\x05Error\x12\x19\n" +
-	"\amessage\x18\xa9\x1b \x01(\tR\amessage:\x1a\x82\xa6\x1d\x05Error\x82\xa6\x1d\rFunctionality\"\xd5\x01\n" +
+	"_policy_id\"O\n" +
+	"\x05Error\x12\x1e\n" +
+	"\amessage\x18\xa9\x1b \x01(\tH\x00R\amessage\x88\x01\x01:\x1a\x82\xa6\x1d\x05Error\x82\xa6\x1d\rFunctionalityB\n" +
+	"\n" +
+	"\b_message\"\xd5\x01\n" +
 	"\x15ExitBoundaryOperation\x12=\n" +
 	"\bboundary\x18\xd8< \x01(\v2 .confirmate.ontology.v1.BoundaryR\bboundary\x12D\n" +
 	"\vcode_region\x18\xcc\x1b \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion:7\x82\xa6\x1d\x15ExitBoundaryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"N\n" +
-	"\x12ExplainableResults:8\x82\xa6\x1d\x12ExplainableResults\x82\xa6\x1d\vReliability\x82\xa6\x1d\x0fSecurityFeature\"\xe1\x03\n" +
-	"\x04File\x12@\n" +
-	"\rcreation_time\x18\xb4\\ \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xc8m \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x800 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x06labels\x18\x8a5 \x03(\v2(.confirmate.ontology.v1.File.LabelsEntryR\x06labels\x12\x1c\n" +
-	"\x04name\x18܄\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x12\n" +
-	"\x03raw\x18\xe2\x85\x01 \x01(\tR\x03raw\x12J\n" +
+	"\x12ExplainableResults:8\x82\xa6\x1d\x12ExplainableResults\x82\xa6\x1d\vReliability\x82\xa6\x1d\x0fSecurityFeature\"\xb4\x04\n" +
+	"\x04File\x12E\n" +
+	"\rcreation_time\x18\xb4\\ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xc8m \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x800 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12A\n" +
+	"\x06labels\x18\x8a5 \x03(\v2(.confirmate.ontology.v1.File.LabelsEntryR\x06labels\x12!\n" +
+	"\x04name\x18܄\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x17\n" +
+	"\x03raw\x18\xe2\x85\x01 \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
 	"\rdata_location\x18\x89G \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
-	"\tparent_id\x18\xa7C \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xa7C \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:.\x82\xa6\x1d\x04File\x82\xa6\x1d\x0eFileLikeObject\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:.\x82\xa6\x1d\x04File\x82\xa6\x1d\x0eFileLikeObject\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xf1\x03\n" +
+	"_parent_id\"\xc4\x04\n" +
 	"\n" +
-	"FileHandle\x12@\n" +
-	"\rcreation_time\x18\xe0\r \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xe8V \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x9ca \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12G\n" +
-	"\x06labels\x18\xbb~ \x03(\v2..confirmate.ontology.v1.FileHandle.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xe8\b \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xd9j \x01(\tR\x03raw\x12J\n" +
+	"FileHandle\x12E\n" +
+	"\rcreation_time\x18\xe0\r \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xe8V \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x9ca \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12G\n" +
+	"\x06labels\x18\xbb~ \x03(\v2..confirmate.ontology.v1.FileHandle.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xe8\b \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xd9j \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
 	"\rdata_location\x18\xce8 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
-	"\tparent_id\x18\xddB \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xddB \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:4\x82\xa6\x1d\n" +
-	"FileHandle\x82\xa6\x1d\x0eFileLikeObject\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"FileHandle\x82\xa6\x1d\x0eFileLikeObject\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\x96\x01\n" +
 	"\x0eFileLikeObject\x123\n" +
@@ -34006,16 +34278,16 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"codeRegion\x12\x1d\n" +
 	"\afile_id\x18\x95\x1c \x01(\tH\x00R\x06fileId\x88\x01\x01:/\x82\xa6\x1d\rFileOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\n" +
 	"\n" +
-	"\b_file_id\"\xa7\v\n" +
-	"\vFileStorage\x12@\n" +
-	"\rcreation_time\x18\xca\x1d \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x8a0 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xd9# \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xfe\x1b \x01(\bR\x1ainternetAccessibleEndpoint\x12H\n" +
-	"\x06labels\x18\xe3\x15 \x03(\v2/.confirmate.ontology.v1.FileStorage.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x84~ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12$\n" +
-	"\rpublic_access\x18\xabR \x01(\bR\fpublicAccess\x12\x11\n" +
-	"\x03raw\x18\x9b\" \x01(\tR\x03raw\x12R\n" +
+	"\b_file_id\"\xb7\f\n" +
+	"\vFileStorage\x12E\n" +
+	"\rcreation_time\x18\xca\x1d \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x8a0 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xd9# \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xfe\x1b \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12H\n" +
+	"\x06labels\x18\xe3\x15 \x03(\v2/.confirmate.ontology.v1.FileStorage.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x84~ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12)\n" +
+	"\rpublic_access\x18\xabR \x01(\bH\x05R\fpublicAccess\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x9b\" \x01(\tH\x06R\x03raw\x88\x01\x01\x12R\n" +
 	"\x10activity_logging\x18l \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12W\n" +
 	"\x12at_rest_encryption\x18\xd3^ \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionR\x10atRestEncryption\x129\n" +
 	"\abackups\x18\xcb\x1f \x03(\v2\x1e.confirmate.ontology.v1.BackupR\abackups\x12\x88\x01\n" +
@@ -34025,24 +34297,31 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\xcdG \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xa4\x7f \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xe4\t \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xd0l \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xd0l \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10resource_logging\x18\xda^ \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
 	"\x10usage_statistics\x18\xbe\x1e \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:8\x82\xa6\x1d\vFileStorage\x82\xa6\x1d\aStorage\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:8\x82\xa6\x1d\vFileStorage\x82\xa6\x1d\aStorage\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x10\n" +
+	"\x0e_public_accessB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\x91\f\n" +
-	"\x12FileStorageService\x12A\n" +
-	"\rcreation_time\x18\xb7\x91\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xd4M \x01(\tR\vdescription\x12\x18\n" +
-	"\x02id\x18\x8f\x87\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xa4} \x01(\bR\x1ainternetAccessibleEndpoint\x12\x11\n" +
+	"_parent_id\"\x8a\r\n" +
+	"\x12FileStorageService\x12F\n" +
+	"\rcreation_time\x18\xb7\x91\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xd4M \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18\x8f\x87\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xa4} \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12\x11\n" +
 	"\x03ips\x18\x8f3 \x03(\tR\x03ips\x12O\n" +
-	"\x06labels\x18\x83I \x03(\v26.confirmate.ontology.v1.FileStorageService.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xcd\x18 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x15\n" +
-	"\x05ports\x18\xdda \x03(\rR\x05ports\x12\x11\n" +
-	"\x03raw\x18\xfcl \x01(\tR\x03raw\x12T\n" +
+	"\x06labels\x18\x83I \x03(\v26.confirmate.ontology.v1.FileStorageService.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xcd\x18 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
+	"\x05ports\x18\xdda \x03(\rR\x05ports\x12\x16\n" +
+	"\x03raw\x18\xfcl \x01(\tH\x05R\x03raw\x88\x01\x01\x12T\n" +
 	"\x10activity_logging\x18̃\x01 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\x85M \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
 	"\vcompute_ids\x18\x82V \x03(\tR\n" +
@@ -34052,8 +34331,8 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\x915 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\x8e8 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\x8cn \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x82C \x01(\tH\x00R\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xcc+ \x01(\tH\x01R\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\x82C \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xcc+ \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xb1L \x03(\tR\n" +
 	"storageIds\x12_\n" +
 	"\x14transport_encryption\x18\xc4U \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
@@ -34061,7 +34340,13 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:f\x82\xa6\x1d\x12FileStorageService\x82\xa6\x1d\x0eStorageService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
 	"\x1d_service_metadata_document_id\"\xc7\x01\n" +
@@ -34076,17 +34361,17 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vhttp_server\x18\x898 \x01(\v2\".confirmate.ontology.v1.HttpServerH\x00R\n" +
 	"httpServer\x129\n" +
 	"\x06logger\x18\x8d: \x01(\v2\x1e.confirmate.ontology.v1.LoggerH\x00R\x06loggerB\x06\n" +
-	"\x04type\"\x83\v\n" +
-	"\bFunction\x12@\n" +
-	"\rcreation_time\x18\xe2\x1f \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12\"\n" +
-	"\vdescription\x18\x9b\x8e\x01 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xc9Y \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xd8  \x01(\bR\x1ainternetAccessibleEndpoint\x12E\n" +
-	"\x06labels\x18\xb6u \x03(\v2,.confirmate.ontology.v1.Function.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xf52 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xfb\v \x01(\tR\x03raw\x12*\n" +
-	"\x10runtime_language\x18\x887 \x01(\tR\x0fruntimeLanguage\x12(\n" +
-	"\x0fruntime_version\x18\x91} \x01(\tR\x0eruntimeVersion\x12\x88\x01\n" +
+	"\x04type\"\xaf\f\n" +
+	"\bFunction\x12E\n" +
+	"\rcreation_time\x18\xe2\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
+	"\vdescription\x18\x9b\x8e\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xc9Y \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xd8  \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12E\n" +
+	"\x06labels\x18\xb6u \x03(\v2,.confirmate.ontology.v1.Function.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xf52 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xfb\v \x01(\tH\x05R\x03raw\x88\x01\x01\x12/\n" +
+	"\x10runtime_language\x18\x887 \x01(\tH\x06R\x0fruntimeLanguage\x88\x01\x01\x12-\n" +
+	"\x0fruntime_version\x18\x91} \x01(\tH\aR\x0eruntimeVersion\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xf9\x0f \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12T\n" +
 	"\x11encryption_in_use\x18\xddL \x01(\v2'.confirmate.ontology.v1.EncryptionInUseR\x0fencryptionInUse\x12G\n" +
 	"\fgeo_location\x18\xda* \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
@@ -34095,25 +34380,32 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x15network_interface_ids\x18\x9c? \x03(\tR\x13networkInterfaceIds\x12G\n" +
 	"\fredundancies\x18\xb9l \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12Y\n" +
 	"\x12remote_attestation\x18\x99\x01 \x01(\v2).confirmate.ontology.v1.RemoteAttestationR\x11remoteAttestation\x12!\n" +
-	"\tparent_id\x18\xc2F \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xc2F \x01(\tH\bR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10resource_logging\x18\xd2; \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
 	"\x10usage_statistics\x18\xf9^ \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:5\x82\xa6\x1d\bFunction\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:5\x82\xa6\x1d\bFunction\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x13\n" +
+	"\x11_runtime_languageB\x12\n" +
+	"\x10_runtime_versionB\f\n" +
 	"\n" +
-	"_parent_id\"\xd8\n" +
-	"\n" +
-	"\x0fFunctionService\x12@\n" +
-	"\rcreation_time\x18\xb0\x1c \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12\"\n" +
-	"\vdescription\x18χ\x01 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xa1\x1c \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xfa( \x01(\bR\x1ainternetAccessibleEndpoint\x12\x11\n" +
+	"_parent_id\"\xd1\v\n" +
+	"\x0fFunctionService\x12E\n" +
+	"\rcreation_time\x18\xb0\x1c \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
+	"\vdescription\x18χ\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xa1\x1c \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xfa( \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12\x11\n" +
 	"\x03ips\x18\xca9 \x03(\tR\x03ips\x12M\n" +
-	"\x06labels\x18\x99\x92\x01 \x03(\v23.confirmate.ontology.v1.FunctionService.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xf3z \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x16\n" +
-	"\x05ports\x18\xb1\x8a\x01 \x03(\rR\x05ports\x12\x11\n" +
-	"\x03raw\x18\xbd& \x01(\tR\x03raw\x12\x88\x01\n" +
+	"\x06labels\x18\x99\x92\x01 \x03(\v23.confirmate.ontology.v1.FunctionService.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xf3z \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x05ports\x18\xb1\x8a\x01 \x03(\rR\x05ports\x12\x16\n" +
+	"\x03raw\x18\xbd& \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xc0\x19 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
 	"\vcompute_ids\x18\xf7N \x03(\tR\n" +
 	"computeIds\x12\"\n" +
@@ -34123,14 +34415,20 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x12malware_protection\x18\xbd\x1e \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xaf\n" +
 	" \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xfa\x15 \x01(\tH\x00R\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\x80\v \x01(\tH\x01R\x19serviceMetadataDocumentId\x88\x01\x01\x12_\n" +
+	"\tparent_id\x18\xfa\x15 \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\x80\v \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12_\n" +
 	"\x14transport_encryption\x18\xbfc \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12T\n" +
 	"\x10usage_statistics\x18\xa0\x83\x01 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:Q\x82\xa6\x1d\x0fFunctionService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
 	"\x1d_service_metadata_document_id\"\xef;\n" +
@@ -34230,18 +34528,17 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04type\"m\n" +
 	"\x0fGenericDocument\x12R\n" +
 	"\x0freport_document\x18\xa1R \x01(\v2&.confirmate.ontology.v1.ReportDocumentH\x00R\x0ereportDocumentB\x06\n" +
-	"\x04type\"\xc3\n" +
-	"\n" +
-	"\x15GenericNetworkService\x12A\n" +
-	"\rcreation_time\x18ށ\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x9bo \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xf0c \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xb8\x15 \x01(\bR\x1ainternetAccessibleEndpoint\x12\x11\n" +
+	"\x04type\"\xbc\v\n" +
+	"\x15GenericNetworkService\x12F\n" +
+	"\rcreation_time\x18ށ\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x9bo \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xf0c \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xb8\x15 \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12\x11\n" +
 	"\x03ips\x18\x92Z \x03(\tR\x03ips\x12R\n" +
-	"\x06labels\x18\x98' \x03(\v29.confirmate.ontology.v1.GenericNetworkService.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x9bi \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x15\n" +
-	"\x05ports\x18\x94\x04 \x03(\rR\x05ports\x12\x11\n" +
-	"\x03raw\x18\xdcT \x01(\tR\x03raw\x12\x88\x01\n" +
+	"\x06labels\x18\x98' \x03(\v29.confirmate.ontology.v1.GenericNetworkService.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x9bi \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
+	"\x05ports\x18\x94\x04 \x03(\rR\x05ports\x12\x16\n" +
+	"\x03raw\x18\xdcT \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xeb\x01 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12!\n" +
 	"\vcompute_ids\x18\xe8\x87\x01 \x03(\tR\n" +
 	"computeIds\x12G\n" +
@@ -34249,19 +34546,26 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\x89\x0e \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xada \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xafm \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xb4m \x01(\tH\x00R\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xe8G \x01(\tH\x01R\x19serviceMetadataDocumentId\x88\x01\x01\x12_\n" +
+	"\tparent_id\x18\xb4m \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xe8G \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12_\n" +
 	"\x14transport_encryption\x18\xeaP \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
 	"\x10usage_statistics\x18\xc7I \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:W\x82\xa6\x1d\x15GenericNetworkService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_id\"Z\n" +
-	"\vGeoLocation\x12\x17\n" +
-	"\x06region\x18\x9c< \x01(\tR\x06region:2\x82\xa6\x1d\vGeoLocation\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeature\"\x9e\x01\n" +
+	"\x1d_service_metadata_document_id\"j\n" +
+	"\vGeoLocation\x12\x1c\n" +
+	"\x06region\x18\x9c< \x01(\tH\x00R\x06region\x88\x01\x01:2\x82\xa6\x1d\vGeoLocation\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeatureB\t\n" +
+	"\a_region\"\x9e\x01\n" +
 	"\rGeoRedundancy\x12I\n" +
 	"\rgeo_locations\x18\xe8Q \x03(\v2#.confirmate.ontology.v1.GeoLocationR\fgeoLocations:B\x82\xa6\x1d\rGeoRedundancy\x82\xa6\x1d\n" +
 	"Redundancy\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeature\"\xcd\x01\n" +
@@ -34284,62 +34588,77 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04type\"M\n" +
 	"\bHardware\x129\n" +
 	"\x06memory\x18\xc7\a \x01(\v2\x1e.confirmate.ontology.v1.MemoryH\x00R\x06memoryB\x06\n" +
-	"\x04type\"\xb2\x02\n" +
-	"\rHashOperation\x12\x1d\n" +
-	"\talgorithm\x18\xa0~ \x01(\tR\talgorithm\x12\x1c\n" +
-	"\tuses_salt\x18\xa1s \x01(\bR\busesSalt\x12D\n" +
+	"\x04type\"\xd8\x02\n" +
+	"\rHashOperation\x12\"\n" +
+	"\talgorithm\x18\xa0~ \x01(\tH\x00R\talgorithm\x88\x01\x01\x12!\n" +
+	"\tuses_salt\x18\xa1s \x01(\bH\x01R\busesSalt\x88\x01\x01\x12D\n" +
 	"\vcode_region\x18\x86T \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion\x12S\n" +
-	"\x10security_feature\x18\xdcP \x01(\v2'.confirmate.ontology.v1.SecurityFeatureR\x0fsecurityFeature:I\x82\xa6\x1d\rHashOperation\x82\xa6\x1d\x16CryptographicOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\x99\x02\n" +
+	"\x10security_feature\x18\xdcP \x01(\v2'.confirmate.ontology.v1.SecurityFeatureR\x0fsecurityFeature:I\x82\xa6\x1d\rHashOperation\x82\xa6\x1d\x16CryptographicOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
+	"\n" +
+	"_algorithmB\f\n" +
+	"\n" +
+	"_uses_salt\"\x99\x02\n" +
 	"\x04Http\x12G\n" +
 	"\vhttp_client\x18ɍ\x01 \x01(\v2\".confirmate.ontology.v1.HttpClientH\x00R\n" +
 	"httpClient\x12_\n" +
 	"\x14http_request_context\x18\xb7! \x01(\v2*.confirmate.ontology.v1.HttpRequestContextH\x00R\x12httpRequestContext\x12_\n" +
 	"\x14http_request_handler\x18\x93\x01 \x01(\v2*.confirmate.ontology.v1.HttpRequestHandlerH\x00R\x12httpRequestHandlerB\x06\n" +
-	"\x04type\"\xdb\x01\n" +
+	"\x04type\"\xeb\x01\n" +
 	"\n" +
-	"HttpClient\x12\x16\n" +
-	"\x06is_tls\x18\xf2\x14 \x01(\bR\x05isTls\x12I\n" +
+	"HttpClient\x12\x1b\n" +
+	"\x06is_tls\x18\xf2\x14 \x01(\bH\x00R\x05isTls\x88\x01\x01\x12I\n" +
 	"\fauthenticity\x18\x89t \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12A\n" +
 	"\x04uses\x18\x8f\x8e\x01 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x04uses:'\x82\xa6\x1d\n" +
-	"HttpClient\x82\xa6\x1d\x04Http\x82\xa6\x1d\rFunctionality\"?\n" +
+	"HttpClient\x82\xa6\x1d\x04Http\x82\xa6\x1d\rFunctionalityB\t\n" +
+	"\a_is_tls\"?\n" +
 	"\x11HttpClientLibrary:*\x82\xa6\x1d\x11HttpClientLibrary\x82\xa6\x1d\tFramework\x82\xa6\x1d\x04Core\"h\n" +
 	"\x13HttpClientOperation\x12I\n" +
 	"\fhttp_request\x18\xcf@ \x01(\v2#.confirmate.ontology.v1.HttpRequestH\x00R\vhttpRequestB\x06\n" +
-	"\x04type\"\xf4\x04\n" +
-	"\fHttpEndpoint\x12\x19\n" +
-	"\ahandler\x18\xfeC \x01(\tR\ahandler\x12\x1e\n" +
+	"\x04type\"\xc4\x05\n" +
+	"\fHttpEndpoint\x12\x1e\n" +
+	"\ahandler\x18\xfeC \x01(\tH\x00R\ahandler\x88\x01\x01\x12#\n" +
 	"\n" +
-	"input_size\x18\xc0i \x01(\x05R\tinputSize\x12\x17\n" +
+	"input_size\x18\xc0i \x01(\x05H\x01R\tinputSize\x88\x01\x01\x12\x1c\n" +
 	"\x06method\x18\xc3\n" +
-	" \x01(\tR\x06method\x12\x13\n" +
-	"\x04path\x18\xf0Y \x01(\tR\x04path\x12\x11\n" +
-	"\x03url\x18\xcc} \x01(\tR\x03url\x12I\n" +
+	" \x01(\tH\x02R\x06method\x88\x01\x01\x12\x18\n" +
+	"\x04path\x18\xf0Y \x01(\tH\x03R\x04path\x88\x01\x01\x12\x16\n" +
+	"\x03url\x18\xcc} \x01(\tH\x04R\x03url\x88\x01\x01\x12I\n" +
 	"\fauthenticity\x18\xdd\x1d \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12L\n" +
 	"\rauthorization\x18\x97\x12 \x01(\v2%.confirmate.ontology.v1.AuthorizationR\rauthorization\x12]\n" +
 	"\x14http_request_context\x18\xfc& \x01(\v2*.confirmate.ontology.v1.HttpRequestContextR\x12httpRequestContext\x12J\n" +
 	"\rrate_limiting\x18\x91= \x01(\v2$.confirmate.ontology.v1.RateLimitingR\frateLimiting\x12_\n" +
 	"\x14transport_encryption\x18\x87j \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption:C\x82\xa6\x1d\fHttpEndpoint\x82\xa6\x1d\x10RemoteEntryPoint\x82\xa6\x1d\n" +
-	"EntryPoint\x82\xa6\x1d\rFunctionality\"\xc9\x01\n" +
+	"EntryPoint\x82\xa6\x1d\rFunctionalityB\n" +
+	"\n" +
+	"\b_handlerB\r\n" +
+	"\v_input_sizeB\t\n" +
+	"\a_methodB\a\n" +
+	"\x05_pathB\x06\n" +
+	"\x04_url\"\xc9\x01\n" +
 	"\x15HttpEndpointOperation\x12D\n" +
 	"\vcode_region\x18\xd3A \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion\x121\n" +
-	"\x04http\x18\x82' \x01(\v2\x1c.confirmate.ontology.v1.HttpR\x04http:7\x82\xa6\x1d\x15HttpEndpointOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xfa\x02\n" +
-	"\vHttpRequest\x12\x14\n" +
-	"\x04call\x18\xbf\x83\x01 \x01(\tR\x04call\x12\x18\n" +
-	"\x06method\x18\xf0\x87\x01 \x01(\tR\x06method\x12\x1a\n" +
-	"\breq_body\x18\x82, \x01(\tR\areqBody\x12D\n" +
+	"\x04http\x18\x82' \x01(\v2\x1c.confirmate.ontology.v1.HttpR\x04http:7\x82\xa6\x1d\x15HttpEndpointOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xaa\x03\n" +
+	"\vHttpRequest\x12\x19\n" +
+	"\x04call\x18\xbf\x83\x01 \x01(\tH\x00R\x04call\x88\x01\x01\x12\x1d\n" +
+	"\x06method\x18\xf0\x87\x01 \x01(\tH\x01R\x06method\x88\x01\x01\x12\x1f\n" +
+	"\breq_body\x18\x82, \x01(\tH\x02R\areqBody\x88\x01\x01\x12D\n" +
 	"\vcode_region\x18\xa9\x05 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion\x12E\n" +
 	"\vhttp_client\x18\xee\x82\x01 \x01(\v2\".confirmate.ontology.v1.HttpClientR\n" +
 	"httpClient\x12L\n" +
 	"\x0ehttp_endpoints\x18\xd0\n" +
-	" \x03(\v2$.confirmate.ontology.v1.HttpEndpointR\rhttpEndpoints:D\x82\xa6\x1d\vHttpRequest\x82\xa6\x1d\x13HttpClientOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"E\n" +
-	"\x12HttpRequestContext:/\x82\xa6\x1d\x12HttpRequestContext\x82\xa6\x1d\x04Http\x82\xa6\x1d\rFunctionality\"\xe9\x01\n" +
-	"\x12HttpRequestHandler\x12\x13\n" +
-	"\x04path\x18\xa82 \x01(\tR\x04path\x12,\n" +
-	"\x0eapplication_id\x18\xe2\x8c\x01 \x01(\tH\x00R\rapplicationId\x88\x01\x01\x12L\n" +
-	"\x0ehttp_endpoints\x18\xdc? \x03(\v2$.confirmate.ontology.v1.HttpEndpointR\rhttpEndpoints:/\x82\xa6\x1d\x12HttpRequestHandler\x82\xa6\x1d\x04Http\x82\xa6\x1d\rFunctionalityB\x11\n" +
+	" \x03(\v2$.confirmate.ontology.v1.HttpEndpointR\rhttpEndpoints:D\x82\xa6\x1d\vHttpRequest\x82\xa6\x1d\x13HttpClientOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05_callB\t\n" +
+	"\a_methodB\v\n" +
+	"\t_req_body\"E\n" +
+	"\x12HttpRequestContext:/\x82\xa6\x1d\x12HttpRequestContext\x82\xa6\x1d\x04Http\x82\xa6\x1d\rFunctionality\"\xf7\x01\n" +
+	"\x12HttpRequestHandler\x12\x18\n" +
+	"\x04path\x18\xa82 \x01(\tH\x00R\x04path\x88\x01\x01\x12,\n" +
+	"\x0eapplication_id\x18\xe2\x8c\x01 \x01(\tH\x01R\rapplicationId\x88\x01\x01\x12L\n" +
+	"\x0ehttp_endpoints\x18\xdc? \x03(\v2$.confirmate.ontology.v1.HttpEndpointR\rhttpEndpoints:/\x82\xa6\x1d\x12HttpRequestHandler\x82\xa6\x1d\x04Http\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05_pathB\x11\n" +
 	"\x0f_application_id\"\x8c\x01\n" +
 	"\x1bHttpRequestHandlerOperation\x12e\n" +
 	"\x16register_http_endpoint\x18\xf0\x1a \x01(\v2,.confirmate.ontology.v1.RegisterHttpEndpointH\x00R\x14registerHttpEndpointB\x06\n" +
@@ -34347,59 +34666,77 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"HttpServer\x12^\n" +
 	"\x14http_request_handler\x18\xaf\x84\x01 \x01(\v2*.confirmate.ontology.v1.HttpRequestHandlerR\x12httpRequestHandler:#\x82\xa6\x1d\n" +
-	"HttpServer\x82\xa6\x1d\tFramework\x82\xa6\x1d\x04Core\"\xc7\x04\n" +
-	"\fHybridCipher\x12\x1e\n" +
+	"HttpServer\x82\xa6\x1d\tFramework\x82\xa6\x1d\x04Core\"\x82\x05\n" +
+	"\fHybridCipher\x12#\n" +
 	"\n" +
-	"block_size\x18\xbd\x1f \x01(\x05R\tblockSize\x12 \n" +
-	"\vcipher_name\x18\xc2& \x01(\tR\n" +
-	"cipherName\x12\x1a\n" +
-	"\bkey_size\x18\xd6* \x01(\x05R\akeySize\x12=\n" +
+	"block_size\x18\xbd\x1f \x01(\x05H\x00R\tblockSize\x88\x01\x01\x12%\n" +
+	"\vcipher_name\x18\xc2& \x01(\tH\x01R\n" +
+	"cipherName\x88\x01\x01\x12\x1f\n" +
+	"\bkey_size\x18\xd6* \x01(\x05H\x02R\akeySize\x88\x01\x01\x12=\n" +
 	"\x04uses\x18\xf0W \x01(\v2(.confirmate.ontology.v1.AsymmetricCipherR\x04uses\x12g\n" +
 	"\x17key_derivation_function\x18߂\x01 \x01(\v2-.confirmate.ontology.v1.KeyDerivationFunctionR\x15keyDerivationFunction\x12r\n" +
 	"\x1bmessage_authentication_code\x18\x8au \x01(\v21.confirmate.ontology.v1.MessageAuthenticationCodeR\x19messageAuthenticationCode\x12;\n" +
 	"\apadding\x18\xa6\x8f\x01 \x01(\v2\x1f.confirmate.ontology.v1.PaddingR\apadding\x12S\n" +
-	"\x10symmetric_cipher\x18\x95' \x01(\v2'.confirmate.ontology.v1.SymmetricCipherR\x0fsymmetricCipher:+\x82\xa6\x1d\fHybridCipher\x82\xa6\x1d\x06Cipher\x82\xa6\x1d\rFunctionality\"\xab\x01\n" +
+	"\x10symmetric_cipher\x18\x95' \x01(\v2'.confirmate.ontology.v1.SymmetricCipherR\x0fsymmetricCipher:+\x82\xa6\x1d\fHybridCipher\x82\xa6\x1d\x06Cipher\x82\xa6\x1d\rFunctionalityB\r\n" +
+	"\v_block_sizeB\x0e\n" +
+	"\f_cipher_nameB\v\n" +
+	"\t_key_size\"\xab\x01\n" +
 	"\fIdentifiable\x12?\n" +
 	"\bidentity\x18\xe5r \x01(\v2 .confirmate.ontology.v1.IdentityH\x00R\bidentity\x12R\n" +
 	"\x0frole_assignment\x18\xb9\x12 \x01(\v2&.confirmate.ontology.v1.RoleAssignmentH\x00R\x0eroleAssignmentB\x06\n" +
-	"\x04type\"\xd8\n" +
+	"\x04type\"\xe5\f\n" +
+	"\bIdentity\x12\"\n" +
+	"\tactivated\x18\x84O \x01(\bH\x00R\tactivated\x88\x01\x01\x12E\n" +
+	"\rcreation_time\x18\x97n \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x82H \x01(\tH\x02R\vdescription\x88\x01\x01\x12<\n" +
+	"\x17disable_password_policy\x18\xd0. \x01(\bH\x03R\x15disablePasswordPolicy\x88\x01\x01\x12%\n" +
+	"\venforce_mfa\x18\x99k \x01(\bH\x04R\n" +
+	"enforceMfa\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xe6) \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x05R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xd4x \x01(\bH\x06R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12E\n" +
+	"\x06labels\x18\xcc\x05 \x03(\v2,.confirmate.ontology.v1.Identity.LabelsEntryR\x06labels\x12E\n" +
+	"\rlast_activity\x18\x9f\x14 \x01(\v2\x1a.google.protobuf.TimestampH\aR\flastActivity\x88\x01\x01\x12;\n" +
+	"\x16login_defender_enabled\x18ȑ\x01 \x01(\bH\bR\x14loginDefenderEnabled\x88\x01\x01\x12 \n" +
+	"\x04name\x18\x92\x14 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\tR\x04name\x88\x01\x01\x12$\n" +
 	"\n" +
-	"\bIdentity\x12\x1d\n" +
-	"\tactivated\x18\x84O \x01(\bR\tactivated\x12@\n" +
-	"\rcreation_time\x18\x97n \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x82H \x01(\tR\vdescription\x127\n" +
-	"\x17disable_password_policy\x18\xd0. \x01(\bR\x15disablePasswordPolicy\x12 \n" +
-	"\venforce_mfa\x18\x99k \x01(\bR\n" +
-	"enforceMfa\x12\x17\n" +
-	"\x02id\x18\xe6) \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xd4x \x01(\bR\x1ainternetAccessibleEndpoint\x12E\n" +
-	"\x06labels\x18\xcc\x05 \x03(\v2,.confirmate.ontology.v1.Identity.LabelsEntryR\x06labels\x12@\n" +
-	"\rlast_activity\x18\x9f\x14 \x01(\v2\x1a.google.protobuf.TimestampR\flastActivity\x126\n" +
-	"\x16login_defender_enabled\x18ȑ\x01 \x01(\bR\x14loginDefenderEnabled\x12\x1b\n" +
-	"\x04name\x18\x92\x14 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x1f\n" +
-	"\n" +
-	"privileged\x18\xfd\x11 \x01(\bR\n" +
-	"privileged\x12\x11\n" +
-	"\x03raw\x18\x97~ \x01(\tR\x03raw\x12L\n" +
+	"privileged\x18\xfd\x11 \x01(\bH\n" +
+	"R\n" +
+	"privileged\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x97~ \x01(\tH\vR\x03raw\x88\x01\x01\x12L\n" +
 	"\rauthorization\x18\xba\x7f \x01(\v2%.confirmate.ontology.v1.AuthorizationR\rauthorization\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xdb+ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\x9eC \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xb2[ \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\x85\f \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xd6} \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xa0f \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xa0f \x01(\tH\fR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xaf= \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01::\x82\xa6\x1d\bIdentity\x82\xa6\x1d\fIdentifiable\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
 	"\n" +
+	"_activatedB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x1a\n" +
+	"\x18_disable_password_policyB\x0e\n" +
+	"\f_enforce_mfaB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\x10\n" +
+	"\x0e_last_activityB\x19\n" +
+	"\x17_login_defender_enabledB\a\n" +
+	"\x05_nameB\r\n" +
+	"\v_privilegedB\x06\n" +
+	"\x04_rawB\f\n" +
+	"\n" +
 	"_parent_id\"\xa4\x01\n" +
 	"\x05Image\x12S\n" +
 	"\x0fcontainer_image\x18ȋ\x01 \x01(\v2&.confirmate.ontology.v1.ContainerImageH\x00R\x0econtainerImage\x12>\n" +
 	"\bvm_image\x18\xa1\x80\x01 \x01(\v2\x1f.confirmate.ontology.v1.VMImageH\x00R\avmImageB\x06\n" +
-	"\x04type\"[\n" +
-	"\fImmutability\x12\x19\n" +
-	"\aenabled\x18\xc3\x0e \x01(\bR\aenabled:0\x82\xa6\x1d\fImmutability\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeature\"A\n" +
+	"\x04type\"l\n" +
+	"\fImmutability\x12\x1e\n" +
+	"\aenabled\x18\xc3\x0e \x01(\bH\x00R\aenabled\x88\x01\x01:0\x82\xa6\x1d\fImmutability\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabled\"A\n" +
 	"\x14InitializationVector:)\x82\xa6\x1d\x14InitializationVector\x82\xa6\x1d\rFunctionality\"#\n" +
 	"\x05Input:\x1a\x82\xa6\x1d\x05Input\x82\xa6\x1d\rFunctionality\"\x8b\x02\n" +
 	"\x18InputValidationOperation\x12D\n" +
@@ -34429,81 +34766,108 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bIssueJwt\x12I\n" +
 	"\fauthenticity\x18\xbc, \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12D\n" +
 	"\vcode_region\x18\x8aK \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
-	"codeRegion:E\x82\xa6\x1d\bIssueJwt\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xe7\a\n" +
-	"\x03Job\x12@\n" +
-	"\rcreation_time\x18\x84\x17 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xbd= \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xbcs \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x9b, \x01(\bR\x1ainternetAccessibleEndpoint\x12A\n" +
-	"\x06labels\x18\xb1\x8c\x01 \x03(\v2'.confirmate.ontology.v1.Job.LabelsEntryR\x06labels\x12\x1c\n" +
-	"\x04name\x18\u0090\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x90- \x01(\tR\x03raw\x12\x88\x01\n" +
+	"codeRegion:E\x82\xa6\x1d\bIssueJwt\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xe0\b\n" +
+	"\x03Job\x12E\n" +
+	"\rcreation_time\x18\x84\x17 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xbd= \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xbcs \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x9b, \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12A\n" +
+	"\x06labels\x18\xb1\x8c\x01 \x03(\v2'.confirmate.ontology.v1.Job.LabelsEntryR\x06labels\x12!\n" +
+	"\x04name\x18\u0090\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x90- \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xadm \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\xcaG \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xfcg \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\x89\x05 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xc3S \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xa1\x01 \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xa1\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\x914 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:4\x82\xa6\x1d\x03Job\x82\xa6\x1d\vCICDService\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:4\x82\xa6\x1d\x03Job\x82\xa6\x1d\vCICDService\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xf4\x02\n" +
-	"\x11JwtAuthentication\x12-\n" +
-	"\x12context_is_checked\x18\xd2\x1b \x01(\bR\x10contextIsChecked\x12\x19\n" +
-	"\aenabled\x18\x8d\x18 \x01(\bR\aenabled\x12\x1b\n" +
-	"\benforced\x18\x96g \x01(\bR\benforced\x12E\n" +
-	"\x1efailed_authentication_attempts\x18\x8b~ \x01(\x05R\x1cfailedAuthenticationAttempts\x12,\n" +
-	"\x11rotation_interval\x18\xb9\x19 \x01(\x05R\x10rotationInterval\x12 \n" +
-	"\btoken_id\x18\xf0\x89\x01 \x01(\tH\x00R\atokenId\x88\x01\x01:T\x82\xa6\x1d\x11JwtAuthentication\x82\xa6\x1d\x18TokenBasedAuthentication\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeatureB\v\n" +
+	"_parent_id\"\xf6\x03\n" +
+	"\x11JwtAuthentication\x122\n" +
+	"\x12context_is_checked\x18\xd2\x1b \x01(\bH\x00R\x10contextIsChecked\x88\x01\x01\x12\x1e\n" +
+	"\aenabled\x18\x8d\x18 \x01(\bH\x01R\aenabled\x88\x01\x01\x12 \n" +
+	"\benforced\x18\x96g \x01(\bH\x02R\benforced\x88\x01\x01\x12J\n" +
+	"\x1efailed_authentication_attempts\x18\x8b~ \x01(\x05H\x03R\x1cfailedAuthenticationAttempts\x88\x01\x01\x121\n" +
+	"\x11rotation_interval\x18\xb9\x19 \x01(\x05H\x04R\x10rotationInterval\x88\x01\x01\x12 \n" +
+	"\btoken_id\x18\xf0\x89\x01 \x01(\tH\x05R\atokenId\x88\x01\x01:T\x82\xa6\x1d\x11JwtAuthentication\x82\xa6\x1d\x18TokenBasedAuthentication\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeatureB\x15\n" +
+	"\x13_context_is_checkedB\n" +
+	"\n" +
+	"\b_enabledB\v\n" +
+	"\t_enforcedB!\n" +
+	"\x1f_failed_authentication_attemptsB\x14\n" +
+	"\x12_rotation_intervalB\v\n" +
 	"\t_token_id\"\x7f\n" +
 	"\x18TokenBasedAuthentication\x12[\n" +
 	"\x12jwt_authentication\x18\xa4\x0f \x01(\v2).confirmate.ontology.v1.JwtAuthenticationH\x00R\x11jwtAuthenticationB\x06\n" +
-	"\x04type\"\xba\n" +
+	"\x04type\"\xaf\f\n" +
+	"\x03Key\x12\"\n" +
+	"\talgorithm\x18\x85\v \x01(\tH\x00R\talgorithm\x88\x01\x01\x12E\n" +
+	"\rcreation_time\x18\xba& \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fcreationTime\x88\x01\x01\x12'\n" +
+	"\vdescription\x18\xfe\x87\x01 \x01(\tH\x02R\vdescription\x88\x01\x01\x12\x1e\n" +
+	"\aenabled\x18\xd3a \x01(\bH\x03R\aenabled\x88\x01\x01\x12I\n" +
+	"\x0fexpiration_date\x18\xfau \x01(\v2\x1a.google.protobuf.TimestampH\x04R\x0eexpirationDate\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xbew \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x05R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xb2\x03 \x01(\bH\x06R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12#\n" +
 	"\n" +
-	"\x03Key\x12\x1d\n" +
-	"\talgorithm\x18\x85\v \x01(\tR\talgorithm\x12@\n" +
-	"\rcreation_time\x18\xba& \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12\"\n" +
-	"\vdescription\x18\xfe\x87\x01 \x01(\tR\vdescription\x12\x19\n" +
-	"\aenabled\x18\xd3a \x01(\bR\aenabled\x12D\n" +
-	"\x0fexpiration_date\x18\xfau \x01(\v2\x1a.google.protobuf.TimestampR\x0eexpirationDate\x12\x17\n" +
-	"\x02id\x18\xbew \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xb2\x03 \x01(\bR\x1ainternetAccessibleEndpoint\x12\x1e\n" +
-	"\n" +
-	"is_managed\x18\xca~ \x01(\bR\tisManaged\x12\x1b\n" +
-	"\bkey_size\x18\x87\x80\x01 \x01(\x05R\akeySize\x12@\n" +
-	"\x06labels\x18\xb1! \x03(\v2'.confirmate.ontology.v1.Key.LabelsEntryR\x06labels\x12\x1c\n" +
-	"\x04name\x18\x91\x94\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12C\n" +
-	"\x0fnot_before_date\x18\xeb\x01 \x01(\v2\x1a.google.protobuf.TimestampR\rnotBeforeDate\x12\x11\n" +
-	"\x03raw\x18\xc6\\ \x01(\tR\x03raw\x12\x88\x01\n" +
+	"is_managed\x18\xca~ \x01(\bH\aR\tisManaged\x88\x01\x01\x12 \n" +
+	"\bkey_size\x18\x87\x80\x01 \x01(\x05H\bR\akeySize\x88\x01\x01\x12@\n" +
+	"\x06labels\x18\xb1! \x03(\v2'.confirmate.ontology.v1.Key.LabelsEntryR\x06labels\x12!\n" +
+	"\x04name\x18\x91\x94\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\tR\x04name\x88\x01\x01\x12H\n" +
+	"\x0fnot_before_date\x18\xeb\x01 \x01(\v2\x1a.google.protobuf.TimestampH\n" +
+	"R\rnotBeforeDate\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xc6\\ \x01(\tH\vR\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xe6{ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\xd7\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12Q\n" +
 	"\x10used_by_multiple\x18\xbe, \x01(\v2&.confirmate.ontology.v1.InfrastructureR\x0eusedByMultiple\x12<\n" +
 	"\bloggings\x18\xf7f \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xb5\x0e \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xbc= \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12 \n" +
-	"\tparent_id\x18_ \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18_ \x01(\tH\fR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\x948 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:3\x82\xa6\x1d\x03Key\x82\xa6\x1d\n" +
 	"Credential\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
 	"\n" +
-	"_parent_id\"\x8e\x01\n" +
-	"\x15KeyDerivationFunction\x12\x13\n" +
-	"\x04type\x18\xe0\x1b \x01(\tR\x04type\x124\n" +
-	"\x05input\x18\xb11 \x01(\v2\x1d.confirmate.ontology.v1.InputR\x05input:*\x82\xa6\x1d\x15KeyDerivationFunction\x82\xa6\x1d\rFunctionality\"\x89\r\n" +
-	"\x17KeyValueDatabaseService\x12@\n" +
-	"\rcreation_time\x18\x90z \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x9c\v \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xd3r \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xf4\x0e \x01(\bR\x1ainternetAccessibleEndpoint\x12\x11\n" +
+	"_algorithmB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\n" +
+	"\n" +
+	"\b_enabledB\x12\n" +
+	"\x10_expiration_dateB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\r\n" +
+	"\v_is_managedB\v\n" +
+	"\t_key_sizeB\a\n" +
+	"\x05_nameB\x12\n" +
+	"\x10_not_before_dateB\x06\n" +
+	"\x04_rawB\f\n" +
+	"\n" +
+	"_parent_id\"\x9c\x01\n" +
+	"\x15KeyDerivationFunction\x12\x18\n" +
+	"\x04type\x18\xe0\x1b \x01(\tH\x00R\x04type\x88\x01\x01\x124\n" +
+	"\x05input\x18\xb11 \x01(\v2\x1d.confirmate.ontology.v1.InputR\x05input:*\x82\xa6\x1d\x15KeyDerivationFunction\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05_type\"\x82\x0e\n" +
+	"\x17KeyValueDatabaseService\x12E\n" +
+	"\rcreation_time\x18\x90z \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x9c\v \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xd3r \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xf4\x0e \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12\x11\n" +
 	"\x03ips\x18\xe7T \x03(\tR\x03ips\x12T\n" +
-	"\x06labels\x18\xa7j \x03(\v2;.confirmate.ontology.v1.KeyValueDatabaseService.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xc7W \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x15\n" +
-	"\x05ports\x18\xb64 \x03(\rR\x05ports\x12\x11\n" +
-	"\x03raw\x18\xadq \x01(\tR\x03raw\x12S\n" +
+	"\x06labels\x18\xa7j \x03(\v2;.confirmate.ontology.v1.KeyValueDatabaseService.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xc7W \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
+	"\x05ports\x18\xb64 \x03(\rR\x05ports\x12\x16\n" +
+	"\x03raw\x18\xadq \x01(\tH\x05R\x03raw\x88\x01\x01\x12S\n" +
 	"\x10activity_logging\x18\xf3\x1f \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12W\n" +
 	"\x12anomaly_detections\x18y \x03(\v2(.confirmate.ontology.v1.AnomalyDetectionR\x11anomalyDetections\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xf6} \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
@@ -34514,8 +34878,8 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\x83J \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Z\n" +
 	"\x12malware_protection\x18\xab\x83\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xd40 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xdeQ \x01(\tH\x00R\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xb0w \x01(\tH\x01R\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\xdeQ \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xb0w \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xbbH \x03(\tR\n" +
 	"storageIds\x12_\n" +
 	"\x14transport_encryption\x18\xffU \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
@@ -34523,76 +34887,98 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:~\x82\xa6\x1d\x17KeyValueDatabaseService\x82\xa6\x1d\x0fDatabaseService\x82\xa6\x1d\x0eStorageService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_id\"\x8e\b\n" +
-	"\bKeyVault\x12@\n" +
-	"\rcreation_time\x18\xbcf \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xbf# \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xa1[ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xd8y \x01(\bR\x1ainternetAccessibleEndpoint\x12E\n" +
-	"\x06labels\x18\xd1\\ \x03(\v2,.confirmate.ontology.v1.KeyVault.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xc9, \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xc7~ \x01(\tR\x03raw\x12\x88\x01\n" +
+	"\x1d_service_metadata_document_id\"\x87\t\n" +
+	"\bKeyVault\x12E\n" +
+	"\rcreation_time\x18\xbcf \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xbf# \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xa1[ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xd8y \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12E\n" +
+	"\x06labels\x18\xd1\\ \x03(\v2,.confirmate.ontology.v1.KeyVault.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xc9, \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xc7~ \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xc3X \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12'\n" +
 	"\x0ecredential_ids\x18ʂ\x01 \x03(\tR\rcredentialIds\x12G\n" +
 	"\fgeo_location\x18\xb6= \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xee\t \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xc6t \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xa0Z \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xa37 \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xa37 \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xc2j \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:*\x82\xa6\x1d\bKeyVault\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:*\x82\xa6\x1d\bKeyVault\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xed\x01\n" +
+	"_parent_id\"\x8f\x02\n" +
 	"\n" +
 	"L3Firewall\x12(\n" +
-	"\x0fallowed_sources\x18\xf6\" \x03(\tR\x0eallowedSources\x12\x19\n" +
-	"\aenabled\x18\x84J \x01(\bR\aenabled\x12\x19\n" +
-	"\ainbound\x18\xe8\a \x01(\bR\ainbound\x12*\n" +
+	"\x0fallowed_sources\x18\xf6\" \x03(\tR\x0eallowedSources\x12\x1e\n" +
+	"\aenabled\x18\x84J \x01(\bH\x00R\aenabled\x88\x01\x01\x12\x1e\n" +
+	"\ainbound\x18\xe8\a \x01(\bH\x01R\ainbound\x88\x01\x01\x12*\n" +
 	"\x10restricted_ports\x18\xad9 \x03(\tR\x0frestrictedPorts:S\x82\xa6\x1d\n" +
-	"L3Firewall\x82\xa6\x1d\bFirewall\x82\xa6\x1d\x11AccessRestriction\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"n\n" +
-	"\x14LeastPrivilegePolicy\x12\x1f\n" +
+	"L3Firewall\x82\xa6\x1d\bFirewall\x82\xa6\x1d\x11AccessRestriction\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeatureB\n" +
 	"\n" +
-	"is_defined\x18\x90\x8d\x01 \x01(\bR\tisDefined:5\x82\xa6\x1d\x14LeastPrivilegePolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\xb9\x06\n" +
-	"\aLibrary\x12@\n" +
-	"\rcreation_time\x18\xd3] \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xc3\x13 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xae[ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12D\n" +
-	"\x06labels\x18\xfa: \x03(\v2+.confirmate.ontology.v1.Library.LabelsEntryR\x06labels\x12\x1c\n" +
-	"\x04name\x18\xa9\x91\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x84N \x01(\tR\x03raw\x12'\n" +
+	"\b_enabledB\n" +
+	"\n" +
+	"\b_inbound\"\x82\x01\n" +
+	"\x14LeastPrivilegePolicy\x12$\n" +
+	"\n" +
+	"is_defined\x18\x90\x8d\x01 \x01(\bH\x00R\tisDefined\x88\x01\x01:5\x82\xa6\x1d\x14LeastPrivilegePolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\r\n" +
+	"\v_is_defined\"\x8c\a\n" +
+	"\aLibrary\x12E\n" +
+	"\rcreation_time\x18\xd3] \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xc3\x13 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xae[ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12D\n" +
+	"\x06labels\x18\xfa: \x03(\v2+.confirmate.ontology.v1.Library.LabelsEntryR\x06labels\x12!\n" +
+	"\x04name\x18\xa9\x91\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x84N \x01(\tH\x04R\x03raw\x88\x01\x01\x12'\n" +
 	"\x0fcode_module_ids\x18\xd3; \x03(\tR\rcodeModuleIds\x123\n" +
-	"\x12code_repository_id\x18\xba\x8a\x01 \x01(\tH\x00R\x10codeRepositoryId\x88\x01\x01\x12P\n" +
+	"\x12code_repository_id\x18\xba\x8a\x01 \x01(\tH\x05R\x10codeRepositoryId\x88\x01\x01\x12P\n" +
 	"\x0ffunctionalities\x18\xde\x7f \x03(\v2%.confirmate.ontology.v1.FunctionalityR\x0ffunctionalities\x12 \n" +
 	"\vlibrary_ids\x18\xdb9 \x03(\tR\n" +
 	"libraryIds\x12\"\n" +
-	"\tparent_id\x18\x9c\x8d\x01 \x01(\tH\x01R\bparentId\x88\x01\x01\x12b\n" +
+	"\tparent_id\x18\x9c\x8d\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x12b\n" +
 	"\x15software_attestations\x18\xbd\x85\x01 \x03(\v2+.confirmate.ontology.v1.SoftwareAttestationR\x14softwareAttestations\x12Q\n" +
 	"\x0fvulnerabilities\x18\xa9\x89\x01 \x03(\v2%.confirmate.ontology.v1.VulnerabilityR\x0fvulnerabilities\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:,\x82\xa6\x1d\aLibrary\x82\xa6\x1d\tComponent\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x15\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:,\x82\xa6\x1d\aLibrary\x82\xa6\x1d\tComponent\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x15\n" +
 	"\x13_code_repository_idB\f\n" +
 	"\n" +
 	"_parent_id\"\xab\x01\n" +
 	"\x11LibraryEntryPoint\x12M\n" +
 	"\aused_by\x18\xd3} \x01(\v23.confirmate.ontology.v1.OperatingSystemArchitectureR\x06usedBy:G\x82\xa6\x1d\x11LibraryEntryPoint\x82\xa6\x1d\x0fLocalEntryPoint\x82\xa6\x1d\n" +
-	"EntryPoint\x82\xa6\x1d\rFunctionality\"\x95\f\n" +
-	"\fLoadBalancer\x12@\n" +
-	"\rcreation_time\x18\x94\x15 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x86\x16 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xd9@ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12B\n" +
-	"\x1cinternet_accessible_endpoint\x18\xe9\x81\x01 \x01(\bR\x1ainternetAccessibleEndpoint\x12\x11\n" +
+	"EntryPoint\x82\xa6\x1d\rFunctionality\"\x9b\r\n" +
+	"\fLoadBalancer\x12E\n" +
+	"\rcreation_time\x18\x94\x15 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x86\x16 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xd9@ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12G\n" +
+	"\x1cinternet_accessible_endpoint\x18\xe9\x81\x01 \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12\x11\n" +
 	"\x03ips\x18\xc9a \x03(\tR\x03ips\x12I\n" +
-	"\x06labels\x18\xe1\b \x03(\v20.confirmate.ontology.v1.LoadBalancer.LabelsEntryR\x06labels\x12\x1c\n" +
-	"\x04name\x18\xa4\x80\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x15\n" +
-	"\x05ports\x18\x8c' \x03(\rR\x05ports\x12\x11\n" +
-	"\x03raw\x18\xfb\x7f \x01(\tR\x03raw\x12\x11\n" +
-	"\x03url\x18\xb3\x12 \x01(\tR\x03url\x12Y\n" +
+	"\x06labels\x18\xe1\b \x03(\v20.confirmate.ontology.v1.LoadBalancer.LabelsEntryR\x06labels\x12!\n" +
+	"\x04name\x18\xa4\x80\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
+	"\x05ports\x18\x8c' \x03(\rR\x05ports\x12\x16\n" +
+	"\x03raw\x18\xfb\x7f \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x16\n" +
+	"\x03url\x18\xb3\x12 \x01(\tH\x06R\x03url\x88\x01\x01\x12Y\n" +
 	"\x12access_restriction\x18\x9cX \x01(\v2).confirmate.ontology.v1.AccessRestrictionR\x11accessRestriction\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\x9f\x06 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
 	"\vcompute_ids\x18\xa1~ \x03(\tR\n" +
@@ -34603,14 +34989,21 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x12malware_protection\x18\xcdc \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12/\n" +
 	"\x13network_service_ids\x18\x86\x0f \x03(\tR\x11networkServiceIds\x12G\n" +
 	"\fredundancies\x18\xdfr \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x9eL \x01(\tH\x00R\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xcaj \x01(\tH\x01R\x19serviceMetadataDocumentId\x88\x01\x01\x12_\n" +
+	"\tparent_id\x18\x9eL \x01(\tH\aR\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xcaj \x01(\tH\bR\x19serviceMetadataDocumentId\x88\x01\x01\x12_\n" +
 	"\x14transport_encryption\x18\x89s \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
 	"\x10usage_statistics\x18\xa7\" \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:N\x82\xa6\x1d\fLoadBalancer\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x06\n" +
+	"\x04_urlB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
 	"\x1d_service_metadata_document_id\"\xee\x01\n" +
@@ -34637,14 +35030,17 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"LoadSymbol\x82\xa6\x1d\x17DynamicLoadingOperation\x82\xa6\x1d\x0fMemoryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
 	"_memory_idB#\n" +
-	"!_operating_system_architecture_id\"r\n" +
-	"\x10LocalAttestation\x12\x19\n" +
-	"\aenabled\x18\xfeb \x01(\bR\aenabled:C\x82\xa6\x1d\x10LocalAttestation\x82\xa6\x1d\vAttestation\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeature\"\xee\x01\n" +
-	"\x11LocalDataLocation\x12\x14\n" +
-	"\x04path\x18\x93\x82\x01 \x01(\tR\x04path\x12W\n" +
+	"!_operating_system_architecture_id\"\x83\x01\n" +
+	"\x10LocalAttestation\x12\x1e\n" +
+	"\aenabled\x18\xfeb \x01(\bH\x00R\aenabled\x88\x01\x01:C\x82\xa6\x1d\x10LocalAttestation\x82\xa6\x1d\vAttestation\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabled\"\xfc\x01\n" +
+	"\x11LocalDataLocation\x12\x19\n" +
+	"\x04path\x18\x93\x82\x01 \x01(\tH\x00R\x04path\x88\x01\x01\x12W\n" +
 	"\x12at_rest_encryption\x18\x816 \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionR\x10atRestEncryption\x12#\n" +
 	"\n" +
-	"storage_id\x18\xe7\x01 \x01(\tH\x00R\tstorageId\x88\x01\x01:6\x82\xa6\x1d\x11LocalDataLocation\x82\xa6\x1d\fDataLocation\x82\xa6\x1d\rFunctionalityB\r\n" +
+	"storage_id\x18\xe7\x01 \x01(\tH\x01R\tstorageId\x88\x01\x01:6\x82\xa6\x1d\x11LocalDataLocation\x82\xa6\x1d\fDataLocation\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05_pathB\r\n" +
 	"\v_storage_id\"\xac\x01\n" +
 	"\x0fLocalEntryPoint\x12\\\n" +
 	"\x13library_entry_point\x18\x87\x02 \x01(\v2).confirmate.ontology.v1.LibraryEntryPointH\x00R\x11libraryEntryPoint\x123\n" +
@@ -34652,24 +35048,30 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04type\"\xa2\x01\n" +
 	"\x0fLocalRedundancy\x12I\n" +
 	"\rgeo_locations\x18\xe0W \x03(\v2#.confirmate.ontology.v1.GeoLocationR\fgeoLocations:D\x82\xa6\x1d\x0fLocalRedundancy\x82\xa6\x1d\n" +
-	"Redundancy\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeature\"\xe9\x06\n" +
-	"\vLogDocument\x12@\n" +
-	"\rcreation_time\x18\x86\x04 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12 \n" +
-	"\vdescription\x18j \x01(\tR\vdescription\x12\x1b\n" +
-	"\bfiletype\x18\x8a) \x01(\tR\bfiletype\x12\x17\n" +
-	"\x02id\x18\x81B \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12H\n" +
-	"\x06labels\x18\x9es \x03(\v2/.confirmate.ontology.v1.LogDocument.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xe7\\ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xa2\x04 \x01(\tR\x03raw\x12[\n" +
+	"Redundancy\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeature\"\xce\a\n" +
+	"\vLogDocument\x12E\n" +
+	"\rcreation_time\x18\x86\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12%\n" +
+	"\vdescription\x18j \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
+	"\bfiletype\x18\x8a) \x01(\tH\x02R\bfiletype\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x81B \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12H\n" +
+	"\x06labels\x18\x9es \x03(\v2/.confirmate.ontology.v1.LogDocument.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xe7\\ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xa2\x04 \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
 	"\x13cryptographic_hashs\x18\xf5F \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
 	"\rdata_location\x18\xbe` \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\x83@ \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xb6\x1f \x01(\tH\x00R\bparentId\x88\x01\x01\x12L\n" +
+	"\tparent_id\x18\xb6\x1f \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
 	"\fvalidated_by\x18\xf5\r \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\x9e3 \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:/\x82\xa6\x1d\vLogDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:/\x82\xa6\x1d\vLogDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\v\n" +
+	"\t_filetypeB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xc4\x01\n" +
 	"\x06LogGet\x12D\n" +
@@ -34679,18 +35081,22 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\fLogOperation\x12:\n" +
 	"\alog_get\x18\xd3] \x01(\v2\x1e.confirmate.ontology.v1.LogGetH\x00R\x06logGet\x12@\n" +
 	"\tlog_write\x18\x8d8 \x01(\v2 .confirmate.ontology.v1.LogWriteH\x00R\blogWriteB\x06\n" +
-	"\x04type\"\xe7\x01\n" +
-	"\tLogOutput\x12\x13\n" +
-	"\x04call\x18\xc51 \x01(\tR\x04call\x12\x16\n" +
-	"\x05value\x18\xa6\x81\x01 \x01(\tR\x05value\x12D\n" +
+	"\x04type\"\x84\x02\n" +
+	"\tLogOutput\x12\x18\n" +
+	"\x04call\x18\xc51 \x01(\tH\x00R\x04call\x88\x01\x01\x12\x1b\n" +
+	"\x05value\x18\xa6\x81\x01 \x01(\tH\x01R\x05value\x88\x01\x01\x12D\n" +
 	"\vcode_region\x18\xdb\x19 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion\x12:\n" +
-	"\alogging\x18\xd8\t \x01(\v2\x1f.confirmate.ontology.v1.LoggingR\alogging:+\x82\xa6\x1d\tLogOutput\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xe6\x01\n" +
-	"\bLogWrite\x12\x1c\n" +
-	"\tlog_level\x18\xc3Z \x01(\tR\blogLevel\x12D\n" +
+	"\alogging\x18\xd8\t \x01(\v2\x1f.confirmate.ontology.v1.LoggingR\alogging:+\x82\xa6\x1d\tLogOutput\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05_callB\b\n" +
+	"\x06_value\"\xf9\x01\n" +
+	"\bLogWrite\x12!\n" +
+	"\tlog_level\x18\xc3Z \x01(\tH\x00R\blogLevel\x88\x01\x01\x12D\n" +
 	"\vcode_region\x18\xb6\x1b \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion\x12:\n" +
-	"\alogging\x18\xb7y \x01(\v2\x1f.confirmate.ontology.v1.LoggingR\alogging::\x82\xa6\x1d\bLogWrite\x82\xa6\x1d\fLogOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\")\n" +
+	"\alogging\x18\xb7y \x01(\v2\x1f.confirmate.ontology.v1.LoggingR\alogging::\x82\xa6\x1d\bLogWrite\x82\xa6\x1d\fLogOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
+	"\n" +
+	"_log_level\")\n" +
 	"\x06Logger:\x1f\x82\xa6\x1d\x06Logger\x82\xa6\x1d\tFramework\x82\xa6\x1d\x04Core\"\xb1\x03\n" +
 	"\aLogging\x12U\n" +
 	"\x10activity_logging\x18\x8c\x17 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\x00R\x0factivityLogging\x12^\n" +
@@ -34699,18 +35105,17 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"os_logging\x18\xee\x16 \x01(\v2!.confirmate.ontology.v1.OSLoggingH\x00R\tosLogging\x12V\n" +
 	"\x10resource_logging\x18\x9b\x89\x01 \x01(\v2'.confirmate.ontology.v1.ResourceLoggingH\x00R\x0fresourceLoggingB\x06\n" +
-	"\x04type\"\xcf\n" +
-	"\n" +
-	"\x0eLoggingService\x12@\n" +
-	"\rcreation_time\x18\x96k \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xe4u \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x88U \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x95\x1c \x01(\bR\x1ainternetAccessibleEndpoint\x12\x11\n" +
+	"\x04type\"\xc8\v\n" +
+	"\x0eLoggingService\x12E\n" +
+	"\rcreation_time\x18\x96k \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xe4u \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x88U \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x95\x1c \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12\x11\n" +
 	"\x03ips\x18\xa6! \x03(\tR\x03ips\x12K\n" +
-	"\x06labels\x18\x81\x06 \x03(\v22.confirmate.ontology.v1.LoggingService.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xfc\x1e \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x15\n" +
-	"\x05ports\x18\xf5\x13 \x03(\rR\x05ports\x12\x11\n" +
-	"\x03raw\x18\xf7\x1c \x01(\tR\x03raw\x12\x88\x01\n" +
+	"\x06labels\x18\x81\x06 \x03(\v22.confirmate.ontology.v1.LoggingService.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xfc\x1e \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
+	"\x05ports\x18\xf5\x13 \x03(\rR\x05ports\x12\x16\n" +
+	"\x03raw\x18\xf7\x1c \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xd5\x06 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12!\n" +
 	"\vcompute_ids\x18\xec\x92\x01 \x03(\tR\n" +
 	"computeIds\x12G\n" +
@@ -34718,8 +35123,8 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\x9e\x11 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\x87\x17 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xfc$ \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x89) \x01(\tH\x00R\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xf3S \x01(\tH\x01R\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\x89) \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xf3S \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\x9d\\ \x03(\tR\n" +
 	"storageIds\x12_\n" +
 	"\x14transport_encryption\x18\xfcT \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
@@ -34727,64 +35132,91 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:P\x82\xa6\x1d\x0eLoggingService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
 	"\x1d_service_metadata_document_id\"\xed\x01\n" +
 	"\x0fMachineLearning\x12k\n" +
 	"\x18machine_learning_dataset\x18\xf8\x0f \x01(\v2..confirmate.ontology.v1.MachineLearningDatasetH\x00R\x16machineLearningDataset\x12e\n" +
 	"\x16machine_learning_model\x18\xa1x \x01(\v2,.confirmate.ontology.v1.MachineLearningModelH\x00R\x14machineLearningModelB\x06\n" +
-	"\x04type\"\xc0\x04\n" +
-	"\x16MachineLearningDataset\x12@\n" +
-	"\rcreation_time\x18\xfdq \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xdd$ \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x8dk \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12S\n" +
-	"\x06labels\x18\x8b\x1a \x03(\v2:.confirmate.ontology.v1.MachineLearningDataset.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xdfp \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xa31 \x01(\tR\x03raw\x12\x13\n" +
-	"\x04size\x18\xdd= \x01(\x05R\x04size\x12\x13\n" +
-	"\x04type\x18\xd4( \x01(\tR\x04type\x12J\n" +
+	"\x04type\"\xaf\x05\n" +
+	"\x16MachineLearningDataset\x12E\n" +
+	"\rcreation_time\x18\xfdq \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xdd$ \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x8dk \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12S\n" +
+	"\x06labels\x18\x8b\x1a \x03(\v2:.confirmate.ontology.v1.MachineLearningDataset.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xdfp \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xa31 \x01(\tH\x04R\x03raw\x88\x01\x01\x12\x18\n" +
+	"\x04size\x18\xdd= \x01(\x05H\x05R\x04size\x88\x01\x01\x12\x18\n" +
+	"\x04type\x18\xd4( \x01(\tH\x06R\x04type\x88\x01\x01\x12J\n" +
 	"\rdata_location\x18\xb8n \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
-	"\tparent_id\x18\x98Z \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\x98Z \x01(\tH\aR\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:A\x82\xa6\x1d\x16MachineLearningDataset\x82\xa6\x1d\x0fMachineLearning\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:A\x82\xa6\x1d\x16MachineLearningDataset\x82\xa6\x1d\x0fMachineLearning\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\a\n" +
+	"\x05_sizeB\a\n" +
+	"\x05_typeB\f\n" +
 	"\n" +
-	"_parent_id\"\xb1\b\n" +
-	"\x14MachineLearningModel\x12A\n" +
-	"\x1cadversarial_robustness_score\x18\x80W \x01(\x02R\x1aadversarialRobustnessScore\x12A\n" +
-	"\rcreation_time\x18Ռ\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x98) \x01(\tR\vdescription\x126\n" +
-	"\x16evasion_efficacy_level\x18؊\x01 \x01(\x02R\x14evasionEfficacyLevel\x12'\n" +
+	"_parent_id\"\x8c\v\n" +
+	"\x14MachineLearningModel\x12F\n" +
+	"\x1cadversarial_robustness_score\x18\x80W \x01(\x02H\x00R\x1aadversarialRobustnessScore\x88\x01\x01\x12F\n" +
+	"\rcreation_time\x18Ռ\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x98) \x01(\tH\x02R\vdescription\x88\x01\x01\x12;\n" +
+	"\x16evasion_efficacy_level\x18؊\x01 \x01(\x02H\x03R\x14evasionEfficacyLevel\x88\x01\x01\x12,\n" +
 	"\x0eexplainability\x18\xe8\n" +
-	" \x01(\x02R\x0eexplainability\x126\n" +
-	"\x16explainability_enabled\x18\xd8p \x01(\bR\x15explainabilityEnabled\x12\x17\n" +
-	"\x02id\x18\x90+ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12Q\n" +
-	"\x06labels\x18\x8c\f \x03(\v28.confirmate.ontology.v1.MachineLearningModel.LabelsEntryR\x06labels\x12G\n" +
-	"\x1fmembership_inference_resilience\x18\x94! \x01(\x02R\x1dmembershipInferenceResilience\x125\n" +
-	"\x16model_steal_resilience\x18\xa3\x0e \x01(\x02R\x14modelStealResilience\x12\x1b\n" +
-	"\x04name\x18\xa7\f \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12/\n" +
-	"\x13poisoned_data_level\x18\xf8k \x01(\x02R\x11poisonedDataLevel\x12>\n" +
-	"\x1apoisoning_resilience_level\x18\x8b\x80\x01 \x01(\x02R\x18poisoningResilienceLevel\x12\x11\n" +
-	"\x03raw\x18\xa6a \x01(\tR\x03raw\x12J\n" +
+	" \x01(\x02H\x04R\x0eexplainability\x88\x01\x01\x12;\n" +
+	"\x16explainability_enabled\x18\xd8p \x01(\bH\x05R\x15explainabilityEnabled\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x90+ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x06R\x02id\x88\x01\x01\x12Q\n" +
+	"\x06labels\x18\x8c\f \x03(\v28.confirmate.ontology.v1.MachineLearningModel.LabelsEntryR\x06labels\x12L\n" +
+	"\x1fmembership_inference_resilience\x18\x94! \x01(\x02H\aR\x1dmembershipInferenceResilience\x88\x01\x01\x12:\n" +
+	"\x16model_steal_resilience\x18\xa3\x0e \x01(\x02H\bR\x14modelStealResilience\x88\x01\x01\x12 \n" +
+	"\x04name\x18\xa7\f \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\tR\x04name\x88\x01\x01\x124\n" +
+	"\x13poisoned_data_level\x18\xf8k \x01(\x02H\n" +
+	"R\x11poisonedDataLevel\x88\x01\x01\x12C\n" +
+	"\x1apoisoning_resilience_level\x18\x8b\x80\x01 \x01(\x02H\vR\x18poisoningResilienceLevel\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xa6a \x01(\tH\fR\x03raw\x88\x01\x01\x12J\n" +
 	"\rdata_location\x18\xfe\a \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12\"\n" +
-	"\tparent_id\x18\xfe\x85\x01 \x01(\tH\x00R\bparentId\x88\x01\x01\x12P\n" +
+	"\tparent_id\x18\xfe\x85\x01 \x01(\tH\rR\bparentId\x88\x01\x01\x12P\n" +
 	"\x0fvulnerabilities\x18\xc6J \x03(\v2%.confirmate.ontology.v1.VulnerabilityR\x0fvulnerabilities\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:?\x82\xa6\x1d\x14MachineLearningModel\x82\xa6\x1d\x0fMachineLearning\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:?\x82\xa6\x1d\x14MachineLearningModel\x82\xa6\x1d\x0fMachineLearning\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x1f\n" +
+	"\x1d_adversarial_robustness_scoreB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x19\n" +
+	"\x17_evasion_efficacy_levelB\x11\n" +
+	"\x0f_explainabilityB\x19\n" +
+	"\x17_explainability_enabledB\x05\n" +
+	"\x03_idB\"\n" +
+	" _membership_inference_resilienceB\x19\n" +
+	"\x17_model_steal_resilienceB\a\n" +
+	"\x05_nameB\x16\n" +
+	"\x14_poisoned_data_levelB\x1d\n" +
+	"\x1b_poisoning_resilience_levelB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\x9c\v\n" +
-	"\x16MachineLearningService\x12A\n" +
-	"\rcreation_time\x18ӎ\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xa0\x10 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xe0n \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xed} \x01(\bR\x1ainternetAccessibleEndpoint\x12\x11\n" +
+	"_parent_id\"\x95\f\n" +
+	"\x16MachineLearningService\x12F\n" +
+	"\rcreation_time\x18ӎ\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xa0\x10 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xe0n \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xed} \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12\x11\n" +
 	"\x03ips\x18\xa6\\ \x03(\tR\x03ips\x12T\n" +
-	"\x06labels\x18\xf7\x93\x01 \x03(\v2:.confirmate.ontology.v1.MachineLearningService.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xad/ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x15\n" +
-	"\x05ports\x18\xa05 \x03(\rR\x05ports\x12\x11\n" +
-	"\x03raw\x18\xdf. \x01(\tR\x03raw\x12\x88\x01\n" +
+	"\x06labels\x18\xf7\x93\x01 \x03(\v2:.confirmate.ontology.v1.MachineLearningService.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xad/ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
+	"\x05ports\x18\xa05 \x03(\rR\x05ports\x12\x16\n" +
+	"\x03raw\x18\xdf. \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xc2: \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12!\n" +
 	"\vcompute_ids\x18\xed\x83\x01 \x03(\tR\n" +
 	"computeIds\x12G\n" +
@@ -34793,8 +35225,8 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x14machine_learning_ids\x18\xc6\x1d \x03(\tR\x12machineLearningIds\x12Y\n" +
 	"\x12malware_protection\x18\xb1\x18 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xa0| \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xc4r \x01(\tH\x00R\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\x97] \x01(\tH\x01R\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\xc4r \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\x97] \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xbc= \x03(\tR\n" +
 	"storageIds\x12_\n" +
 	"\x14transport_encryption\x18\x94h \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
@@ -34802,39 +35234,61 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:X\x82\xa6\x1d\x16MachineLearningService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
 	"\x1d_service_metadata_document_id\"\x92\x01\n" +
 	"\x04Main\x12N\n" +
 	"\aused_by\x18ܓ\x01 \x01(\v23.confirmate.ontology.v1.OperatingSystemArchitectureR\x06usedBy::\x82\xa6\x1d\x04Main\x82\xa6\x1d\x0fLocalEntryPoint\x82\xa6\x1d\n" +
-	"EntryPoint\x82\xa6\x1d\rFunctionality\"\xcc\x02\n" +
-	"\x11MalwareProtection\x12O\n" +
-	"\x15duration_since_active\x18\u0092\x01 \x01(\v2\x19.google.protobuf.DurationR\x13durationSinceActive\x12\x1a\n" +
-	"\aenabled\x18Ԍ\x01 \x01(\bR\aenabled\x126\n" +
-	"\x17number_of_threats_found\x18\xc5] \x01(\x05R\x14numberOfThreatsFound\x12\\\n" +
-	"\x13application_logging\x18\xdc` \x01(\v2*.confirmate.ontology.v1.ApplicationLoggingR\x12applicationLogging:4\x82\xa6\x1d\x11MalwareProtection\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeature\"\xba\x02\n" +
-	"\x14ManagedKeyEncryption\x12\x1d\n" +
-	"\talgorithm\x18\xd6% \x01(\tR\talgorithm\x12\x19\n" +
-	"\aenabled\x18\x91g \x01(\bR\aenabled\x12\x19\n" +
-	"\akey_url\x18ք\x01 \x01(\tR\x06keyUrl\x12:\n" +
+	"EntryPoint\x82\xa6\x1d\rFunctionality\"\x9d\x03\n" +
+	"\x11MalwareProtection\x12T\n" +
+	"\x15duration_since_active\x18\u0092\x01 \x01(\v2\x19.google.protobuf.DurationH\x00R\x13durationSinceActive\x88\x01\x01\x12\x1f\n" +
+	"\aenabled\x18Ԍ\x01 \x01(\bH\x01R\aenabled\x88\x01\x01\x12;\n" +
+	"\x17number_of_threats_found\x18\xc5] \x01(\x05H\x02R\x14numberOfThreatsFound\x88\x01\x01\x12\\\n" +
+	"\x13application_logging\x18\xdc` \x01(\v2*.confirmate.ontology.v1.ApplicationLoggingR\x12applicationLogging:4\x82\xa6\x1d\x11MalwareProtection\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\x18\n" +
+	"\x16_duration_since_activeB\n" +
+	"\n" +
+	"\b_enabledB\x1a\n" +
+	"\x18_number_of_threats_found\"\xef\x02\n" +
+	"\x14ManagedKeyEncryption\x12\"\n" +
+	"\talgorithm\x18\xd6% \x01(\tH\x00R\talgorithm\x88\x01\x01\x12\x1e\n" +
+	"\aenabled\x18\x91g \x01(\bH\x01R\aenabled\x88\x01\x01\x12\x1e\n" +
+	"\akey_url\x18ք\x01 \x01(\tH\x02R\x06keyUrl\x88\x01\x01\x12:\n" +
 	"\bbased_on\x18\x9eK \x01(\v2\x1e.confirmate.ontology.v1.CipherR\abasedOn\x12!\n" +
-	"\tsecret_id\x18\xedk \x01(\tH\x00R\bsecretId\x88\x01\x01:`\x82\xa6\x1d\x14ManagedKeyEncryption\x82\xa6\x1d\x10AtRestEncryption\x82\xa6\x1d\n" +
+	"\tsecret_id\x18\xedk \x01(\tH\x03R\bsecretId\x88\x01\x01:`\x82\xa6\x1d\x14ManagedKeyEncryption\x82\xa6\x1d\x10AtRestEncryption\x82\xa6\x1d\n" +
 	"Encryption\x82\xa6\x1d\x0fConfidentiality\x82\xa6\x1d\x0fSecurityFeatureB\f\n" +
 	"\n" +
-	"_secret_id\"\xa1\x03\n" +
-	"\x06Memory\x12@\n" +
-	"\rcreation_time\x18\xc7l \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xc8\x1a \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xd7( \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12C\n" +
-	"\x06labels\x18\x97p \x03(\v2*.confirmate.ontology.v1.Memory.LabelsEntryR\x06labels\x12\x14\n" +
-	"\x04mode\x18\xac\x84\x01 \x01(\tR\x04mode\x12\x1b\n" +
-	"\x04name\x18\xe1k \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xbak \x01(\tR\x03raw\x12!\n" +
-	"\tparent_id\x18\xeb\x11 \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"_algorithmB\n" +
+	"\n" +
+	"\b_enabledB\n" +
+	"\n" +
+	"\b_key_urlB\f\n" +
+	"\n" +
+	"_secret_id\"\x82\x04\n" +
+	"\x06Memory\x12E\n" +
+	"\rcreation_time\x18\xc7l \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xc8\x1a \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xd7( \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12C\n" +
+	"\x06labels\x18\x97p \x03(\v2*.confirmate.ontology.v1.Memory.LabelsEntryR\x06labels\x12\x19\n" +
+	"\x04mode\x18\xac\x84\x01 \x01(\tH\x03R\x04mode\x88\x01\x01\x12 \n" +
+	"\x04name\x18\xe1k \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xbak \x01(\tH\x05R\x03raw\x88\x01\x01\x12!\n" +
+	"\tparent_id\x18\xeb\x11 \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\"\x82\xa6\x1d\x06Memory\x82\xa6\x1d\bHardware\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\"\x82\xa6\x1d\x06Memory\x82\xa6\x1d\bHardware\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_modeB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xb5\x02\n" +
 	"\x0fMemoryOperation\x12?\n" +
@@ -34844,55 +35298,66 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\fload_library\x18\x98\x03 \x01(\v2#.confirmate.ontology.v1.LoadLibraryH\x00R\vloadLibrary\x12F\n" +
 	"\vload_symbol\x18\x9bw \x01(\v2\".confirmate.ontology.v1.LoadSymbolH\x00R\n" +
 	"loadSymbolB\x06\n" +
-	"\x04type\"\xbf\x01\n" +
-	"\x19MessageAuthenticationCode\x12\x14\n" +
-	"\x04type\x18\x9c\x82\x01 \x01(\tR\x04type\x124\n" +
+	"\x04type\"\xcd\x01\n" +
+	"\x19MessageAuthenticationCode\x12\x19\n" +
+	"\x04type\x18\x9c\x82\x01 \x01(\tH\x00R\x04type\x88\x01\x01\x124\n" +
 	"\x05input\x18\xd7p \x01(\v2\x1d.confirmate.ontology.v1.InputR\x05input\x12\x1b\n" +
-	"\x06key_id\x18\x94\x19 \x01(\tH\x00R\x05keyId\x88\x01\x01:.\x82\xa6\x1d\x19MessageAuthenticationCode\x82\xa6\x1d\rFunctionalityB\t\n" +
-	"\a_key_id\"\xf8\a\n" +
-	"\fMessagingHub\x12@\n" +
-	"\rcreation_time\x18\x86B \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x89] \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xff6 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x8d) \x01(\bR\x1ainternetAccessibleEndpoint\x12I\n" +
-	"\x06labels\x18\xaa$ \x03(\v20.confirmate.ontology.v1.MessagingHub.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xa3  \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xc12 \x01(\tR\x03raw\x12\x88\x01\n" +
+	"\x06key_id\x18\x94\x19 \x01(\tH\x01R\x05keyId\x88\x01\x01:.\x82\xa6\x1d\x19MessageAuthenticationCode\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05_typeB\t\n" +
+	"\a_key_id\"\xf1\b\n" +
+	"\fMessagingHub\x12E\n" +
+	"\rcreation_time\x18\x86B \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x89] \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xff6 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x8d) \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12I\n" +
+	"\x06labels\x18\xaa$ \x03(\v20.confirmate.ontology.v1.MessagingHub.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xa3  \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xc12 \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\x95\b \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\x88\x03 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xa0j \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\x92, \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\x83\x06 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x8a+ \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\x8a+ \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xc6C \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:5\x82\xa6\x1d\fMessagingHub\x82\xa6\x1d\x03IoT\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:5\x82\xa6\x1d\fMessagingHub\x82\xa6\x1d\x03IoT\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xa7\x01\n" +
 	"\n" +
 	"CodeModule\x12<\n" +
 	"\apackage\x18\xe1( \x01(\v2\x1f.confirmate.ontology.v1.PackageH\x00R\apackage\x12S\n" +
 	"\x10source_code_file\x18\xf4\x15 \x01(\v2&.confirmate.ontology.v1.SourceCodeFileH\x00R\x0esourceCodeFileB\x06\n" +
-	"\x04type\"w\n" +
-	"\x13MonitoringProcedure\x12(\n" +
-	"\x0finterval_months\x18\xa2g \x01(\x05R\x0eintervalMonths:6\x82\xa6\x1d\x13MonitoringProcedure\x82\xa6\x1d\n" +
-	"Governance\x82\xa6\x1d\rFunctionality\"\xcf\x02\n" +
-	"\x18MultiFactorAuthentiation\x12.\n" +
-	"\x12context_is_checked\x18\xb7\x87\x01 \x01(\bR\x10contextIsChecked\x12E\n" +
-	"\x1efailed_authentication_attempts\x18\xcay \x01(\x05R\x1cfailedAuthenticationAttempts\x12,\n" +
-	"\x11rotation_interval\x18\xca[ \x01(\x05R\x10rotationInterval\x12M\n" +
-	"\x0eauthenticities\x18\xdep \x03(\v2$.confirmate.ontology.v1.AuthenticityR\x0eauthenticities:?\x82\xa6\x1d\x18MultiFactorAuthentiation\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeature\"\x91\r\n" +
-	"\x19MultiModalDatabaseService\x12@\n" +
-	"\rcreation_time\x18\xe1Q \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x8fz \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xbf* \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x9c~ \x01(\bR\x1ainternetAccessibleEndpoint\x12\x11\n" +
+	"\x04type\"\x90\x01\n" +
+	"\x13MonitoringProcedure\x12-\n" +
+	"\x0finterval_months\x18\xa2g \x01(\x05H\x00R\x0eintervalMonths\x88\x01\x01:6\x82\xa6\x1d\x13MonitoringProcedure\x82\xa6\x1d\n" +
+	"Governance\x82\xa6\x1d\rFunctionalityB\x12\n" +
+	"\x10_interval_months\"\xae\x03\n" +
+	"\x18MultiFactorAuthentiation\x123\n" +
+	"\x12context_is_checked\x18\xb7\x87\x01 \x01(\bH\x00R\x10contextIsChecked\x88\x01\x01\x12J\n" +
+	"\x1efailed_authentication_attempts\x18\xcay \x01(\x05H\x01R\x1cfailedAuthenticationAttempts\x88\x01\x01\x121\n" +
+	"\x11rotation_interval\x18\xca[ \x01(\x05H\x02R\x10rotationInterval\x88\x01\x01\x12M\n" +
+	"\x0eauthenticities\x18\xdep \x03(\v2$.confirmate.ontology.v1.AuthenticityR\x0eauthenticities:?\x82\xa6\x1d\x18MultiFactorAuthentiation\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeatureB\x15\n" +
+	"\x13_context_is_checkedB!\n" +
+	"\x1f_failed_authentication_attemptsB\x14\n" +
+	"\x12_rotation_interval\"\x8a\x0e\n" +
+	"\x19MultiModalDatabaseService\x12E\n" +
+	"\rcreation_time\x18\xe1Q \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x8fz \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xbf* \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x9c~ \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12\x11\n" +
 	"\x03ips\x18\xd8@ \x03(\tR\x03ips\x12V\n" +
-	"\x06labels\x18\xc4: \x03(\v2=.confirmate.ontology.v1.MultiModalDatabaseService.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xddi \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x14\n" +
-	"\x05ports\x18\x05 \x03(\rR\x05ports\x12\x12\n" +
-	"\x03raw\x18\xa9\x88\x01 \x01(\tR\x03raw\x12S\n" +
+	"\x06labels\x18\xc4: \x03(\v2=.confirmate.ontology.v1.MultiModalDatabaseService.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xddi \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x14\n" +
+	"\x05ports\x18\x05 \x03(\rR\x05ports\x12\x17\n" +
+	"\x03raw\x18\xa9\x88\x01 \x01(\tH\x05R\x03raw\x88\x01\x01\x12S\n" +
 	"\x10activity_logging\x18\xdeH \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12X\n" +
 	"\x12anomaly_detections\x18\xeaF \x03(\v2(.confirmate.ontology.v1.AnomalyDetectionR\x11anomalyDetections\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\x95\x1a \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
@@ -34903,8 +35368,8 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\x9c\x0e \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xd9l \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xb2\x19 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x91\f \x01(\tH\x00R\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\x86\x01 \x01(\tH\x01R\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\x91\f \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\x86\x01 \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xd6R \x03(\tR\n" +
 	"storageIds\x12_\n" +
 	"\x14transport_encryption\x18\xf6: \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
@@ -34912,56 +35377,76 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x80\x01\x82\xa6\x1d\x19MultiModalDatabaseService\x82\xa6\x1d\x0fDatabaseService\x82\xa6\x1d\x0eStorageService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_id\"f\n" +
-	"\x10NeedToKnowPolicy\x12\x1f\n" +
+	"\x1d_service_metadata_document_id\"z\n" +
+	"\x10NeedToKnowPolicy\x12$\n" +
 	"\n" +
-	"is_defined\x18\xb3\x89\x01 \x01(\bR\tisDefined:1\x82\xa6\x1d\x10NeedToKnowPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\xb3\t\n" +
-	"\x10NetworkInterface\x12@\n" +
-	"\rcreation_time\x18\xf9* \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x85U \x01(\tR\vdescription\x12\x18\n" +
-	"\x02id\x18\xbd\x8c\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xa2p \x01(\bR\x1ainternetAccessibleEndpoint\x12M\n" +
-	"\x06labels\x18\xf1$ \x03(\v24.confirmate.ontology.v1.NetworkInterface.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xf4` \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xb8( \x01(\tR\x03raw\x12Z\n" +
+	"is_defined\x18\xb3\x89\x01 \x01(\bH\x00R\tisDefined\x88\x01\x01:1\x82\xa6\x1d\x10NeedToKnowPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\r\n" +
+	"\v_is_defined\"\xac\n" +
+	"\n" +
+	"\x10NetworkInterface\x12E\n" +
+	"\rcreation_time\x18\xf9* \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x85U \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18\xbd\x8c\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xa2p \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12M\n" +
+	"\x06labels\x18\xf1$ \x03(\v24.confirmate.ontology.v1.NetworkInterface.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xf4` \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xb8( \x01(\tH\x05R\x03raw\x88\x01\x01\x12Z\n" +
 	"\x12access_restriction\x18Ћ\x01 \x01(\v2).confirmate.ontology.v1.AccessRestrictionR\x11accessRestriction\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xb3[ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\xb6N \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xc3> \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xceF \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x122\n" +
-	"\x12network_service_id\x18\xc3p \x01(\tH\x00R\x10networkServiceId\x88\x01\x01\x12G\n" +
+	"\x12network_service_id\x18\xc3p \x01(\tH\x06R\x10networkServiceId\x88\x01\x01\x12G\n" +
 	"\fredundancies\x18\x9c\x1d \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xf2@ \x01(\tH\x01R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xf2@ \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xd2V \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:@\x82\xa6\x1d\x10NetworkInterface\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x15\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x15\n" +
 	"\x13_network_service_idB\f\n" +
 	"\n" +
-	"_parent_id\"\x97\b\n" +
-	"\x14NetworkSecurityGroup\x12@\n" +
-	"\rcreation_time\x18\xc88 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xc4\x1b \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xf3Z \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xc5u \x01(\bR\x1ainternetAccessibleEndpoint\x12Q\n" +
-	"\x06labels\x18\x91. \x03(\v28.confirmate.ontology.v1.NetworkSecurityGroup.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xb0Y \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xa2W \x01(\tR\x03raw\x12\x88\x01\n" +
+	"_parent_id\"\x90\t\n" +
+	"\x14NetworkSecurityGroup\x12E\n" +
+	"\rcreation_time\x18\xc88 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xc4\x1b \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xf3Z \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xc5u \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12Q\n" +
+	"\x06labels\x18\x91. \x03(\v28.confirmate.ontology.v1.NetworkSecurityGroup.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xb0Y \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xa2W \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xfd{ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\x9fY \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\x89\x03 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xa8E \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xa8p \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xbdw \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xbdw \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xacI \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:D\x82\xa6\x1d\x14NetworkSecurityGroup\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xf1\t\n" +
 	"\x0eNetworkService\x12U\n" +
@@ -35000,32 +35485,47 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x16object_storage_service\x18\xbb2 \x01(\v2,.confirmate.ontology.v1.ObjectStorageServiceH\x00R\x14objectStorageService\x12R\n" +
 	"\x0fvirtual_network\x18\xff\x13 \x01(\v2&.confirmate.ontology.v1.VirtualNetworkH\x00R\x0evirtualNetwork\x12\\\n" +
 	"\x13virtual_sub_network\x18\xb2X \x01(\v2).confirmate.ontology.v1.VirtualSubNetworkH\x00R\x11virtualSubNetworkB\x06\n" +
-	"\x04type\"\xef\x01\n" +
-	"\x10NoAuthentication\x12-\n" +
-	"\x12context_is_checked\x18\xf7] \x01(\bR\x10contextIsChecked\x12E\n" +
-	"\x1efailed_authentication_attempts\x18\xbd% \x01(\x05R\x1cfailedAuthenticationAttempts\x12,\n" +
-	"\x11rotation_interval\x18\xceW \x01(\x05R\x10rotationInterval:7\x82\xa6\x1d\x10NoAuthentication\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeature\"\xee\x02\n" +
-	"\tOSLogging\x12\x19\n" +
-	"\aenabled\x18\xcf\x01 \x01(\bR\aenabled\x12\x1c\n" +
-	"\tlog_level\x18\x90P \x01(\tR\blogLevel\x12>\n" +
-	"\x1bmonitoring_log_data_enabled\x18\x92a \x01(\bR\x18monitoringLogDataEnabled\x12E\n" +
-	"\x10retention_period\x18\xdeX \x01(\v2\x19.google.protobuf.DurationR\x0fretentionPeriod\x127\n" +
-	"\x17security_alerts_enabled\x18\x9d: \x01(\bR\x15securityAlertsEnabled\x12/\n" +
-	"\x13logging_service_ids\x18\xf6t \x03(\tR\x11loggingServiceIds:7\x82\xa6\x1d\tOSLogging\x82\xa6\x1d\aLogging\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeature\"\x9b\x02\n" +
-	"\x16OTPBasedAuthentication\x12\x1d\n" +
-	"\tactivated\x18\xa0: \x01(\bR\tactivated\x12.\n" +
-	"\x12context_is_checked\x18\xe1\x93\x01 \x01(\bR\x10contextIsChecked\x12E\n" +
-	"\x1efailed_authentication_attempts\x18\xe4X \x01(\x05R\x1cfailedAuthenticationAttempts\x12,\n" +
-	"\x11rotation_interval\x18\xcdb \x01(\x05R\x10rotationInterval:=\x82\xa6\x1d\x16OTPBasedAuthentication\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeature\"\xaf\v\n" +
-	"\rObjectStorage\x12@\n" +
-	"\rcreation_time\x18\xbd\x1a \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xdc: \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xbb  \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12B\n" +
-	"\x1cinternet_accessible_endpoint\x18\xa5\x8d\x01 \x01(\bR\x1ainternetAccessibleEndpoint\x12J\n" +
-	"\x06labels\x18\xd4y \x03(\v21.confirmate.ontology.v1.ObjectStorage.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xd1e \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12$\n" +
-	"\rpublic_access\x18\x8d$ \x01(\bR\fpublicAccess\x12\x11\n" +
-	"\x03raw\x18\xe83 \x01(\tR\x03raw\x12S\n" +
+	"\x04type\"\xce\x02\n" +
+	"\x10NoAuthentication\x122\n" +
+	"\x12context_is_checked\x18\xf7] \x01(\bH\x00R\x10contextIsChecked\x88\x01\x01\x12J\n" +
+	"\x1efailed_authentication_attempts\x18\xbd% \x01(\x05H\x01R\x1cfailedAuthenticationAttempts\x88\x01\x01\x121\n" +
+	"\x11rotation_interval\x18\xceW \x01(\x05H\x02R\x10rotationInterval\x88\x01\x01:7\x82\xa6\x1d\x10NoAuthentication\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeatureB\x15\n" +
+	"\x13_context_is_checkedB!\n" +
+	"\x1f_failed_authentication_attemptsB\x14\n" +
+	"\x12_rotation_interval\"\xf2\x03\n" +
+	"\tOSLogging\x12\x1e\n" +
+	"\aenabled\x18\xcf\x01 \x01(\bH\x00R\aenabled\x88\x01\x01\x12!\n" +
+	"\tlog_level\x18\x90P \x01(\tH\x01R\blogLevel\x88\x01\x01\x12C\n" +
+	"\x1bmonitoring_log_data_enabled\x18\x92a \x01(\bH\x02R\x18monitoringLogDataEnabled\x88\x01\x01\x12J\n" +
+	"\x10retention_period\x18\xdeX \x01(\v2\x19.google.protobuf.DurationH\x03R\x0fretentionPeriod\x88\x01\x01\x12<\n" +
+	"\x17security_alerts_enabled\x18\x9d: \x01(\bH\x04R\x15securityAlertsEnabled\x88\x01\x01\x12/\n" +
+	"\x13logging_service_ids\x18\xf6t \x03(\tR\x11loggingServiceIds:7\x82\xa6\x1d\tOSLogging\x82\xa6\x1d\aLogging\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabledB\f\n" +
+	"\n" +
+	"_log_levelB\x1e\n" +
+	"\x1c_monitoring_log_data_enabledB\x13\n" +
+	"\x11_retention_periodB\x1a\n" +
+	"\x18_security_alerts_enabled\"\x8d\x03\n" +
+	"\x16OTPBasedAuthentication\x12\"\n" +
+	"\tactivated\x18\xa0: \x01(\bH\x00R\tactivated\x88\x01\x01\x123\n" +
+	"\x12context_is_checked\x18\xe1\x93\x01 \x01(\bH\x01R\x10contextIsChecked\x88\x01\x01\x12J\n" +
+	"\x1efailed_authentication_attempts\x18\xe4X \x01(\x05H\x02R\x1cfailedAuthenticationAttempts\x88\x01\x01\x121\n" +
+	"\x11rotation_interval\x18\xcdb \x01(\x05H\x03R\x10rotationInterval\x88\x01\x01:=\x82\xa6\x1d\x16OTPBasedAuthentication\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeatureB\f\n" +
+	"\n" +
+	"_activatedB\x15\n" +
+	"\x13_context_is_checkedB!\n" +
+	"\x1f_failed_authentication_attemptsB\x14\n" +
+	"\x12_rotation_interval\"\xbf\f\n" +
+	"\rObjectStorage\x12E\n" +
+	"\rcreation_time\x18\xbd\x1a \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xdc: \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xbb  \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12G\n" +
+	"\x1cinternet_accessible_endpoint\x18\xa5\x8d\x01 \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12J\n" +
+	"\x06labels\x18\xd4y \x03(\v21.confirmate.ontology.v1.ObjectStorage.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xd1e \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12)\n" +
+	"\rpublic_access\x18\x8d$ \x01(\bH\x05R\fpublicAccess\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xe83 \x01(\tH\x06R\x03raw\x88\x01\x01\x12S\n" +
 	"\x10activity_logging\x18\xf1\\ \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12W\n" +
 	"\x12at_rest_encryption\x18\xd92 \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionR\x10atRestEncryption\x129\n" +
 	"\abackups\x18\xa2# \x03(\v2\x1e.confirmate.ontology.v1.BackupR\abackups\x12\x88\x01\n" +
@@ -35035,33 +35535,41 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\xf1V \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xd7r \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xefj \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xc8} \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xc8} \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10resource_logging\x18\xf8) \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
 	"\x10usage_statistics\x18\xd1q \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01::\x82\xa6\x1d\rObjectStorage\x82\xa6\x1d\aStorage\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01::\x82\xa6\x1d\rObjectStorage\x82\xa6\x1d\aStorage\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x10\n" +
+	"\x0e_public_accessB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\x91\x02\n" +
-	"\x14ObjectStorageRequest\x12\x17\n" +
-	"\x06source\x18\xb2\x01 \x01(\tR\x06source\x12D\n" +
+	"_parent_id\"\xa1\x02\n" +
+	"\x14ObjectStorageRequest\x12\x1c\n" +
+	"\x06source\x18\xb2\x01 \x01(\tH\x00R\x06source\x88\x01\x01\x12D\n" +
 	"\vcode_region\x18\xb5W \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion\x12.\n" +
 	"\x12object_storage_ids\x18\xf9\x84\x01 \x03(\tR\x10objectStorageIds\x12#\n" +
 	"\n" +
-	"storage_id\x18\x8d; \x01(\tH\x00R\tstorageId\x88\x01\x01:6\x82\xa6\x1d\x14ObjectStorageRequest\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\r\n" +
-	"\v_storage_id\"\x99\f\n" +
-	"\x14ObjectStorageService\x12@\n" +
-	"\rcreation_time\x18\x93\\ \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xbcW \x01(\tR\vdescription\x12\x18\n" +
-	"\x02id\x18\xfb\x91\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x9c\x7f \x01(\bR\x1ainternetAccessibleEndpoint\x12\x12\n" +
+	"storage_id\x18\x8d; \x01(\tH\x01R\tstorageId\x88\x01\x01:6\x82\xa6\x1d\x14ObjectStorageRequest\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\t\n" +
+	"\a_sourceB\r\n" +
+	"\v_storage_id\"\x92\r\n" +
+	"\x14ObjectStorageService\x12E\n" +
+	"\rcreation_time\x18\x93\\ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xbcW \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18\xfb\x91\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x9c\x7f \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12\x12\n" +
 	"\x03ips\x18\x90\x86\x01 \x03(\tR\x03ips\x12R\n" +
-	"\x06labels\x18\xe4\x8a\x01 \x03(\v28.confirmate.ontology.v1.ObjectStorageService.LabelsEntryR\x06labels\x12\x1b\n" +
+	"\x06labels\x18\xe4\x8a\x01 \x03(\v28.confirmate.ontology.v1.ObjectStorageService.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xd5\n" +
-	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x15\n" +
-	"\x05ports\x18\xe6? \x03(\rR\x05ports\x12\x12\n" +
-	"\x03raw\x18\x8b\x82\x01 \x01(\tR\x03raw\x12T\n" +
+	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
+	"\x05ports\x18\xe6? \x03(\rR\x05ports\x12\x17\n" +
+	"\x03raw\x18\x8b\x82\x01 \x01(\tH\x05R\x03raw\x88\x01\x01\x12T\n" +
 	"\x10activity_logging\x18\x92\x84\x01 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\x89\x06 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
 	"\vcompute_ids\x18\xcfz \x03(\tR\n" +
@@ -35071,8 +35579,8 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\xafc \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\x91\x15 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12H\n" +
 	"\fredundancies\x18ؑ\x01 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xe8Z \x01(\tH\x00R\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\x9f\x0e \x01(\tH\x01R\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\xe8Z \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\x9f\x0e \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xefY \x03(\tR\n" +
 	"storageIds\x12_\n" +
 	"\x14transport_encryption\x18\x9d\f \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
@@ -35080,7 +35588,13 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:h\x82\xa6\x1d\x14ObjectStorageService\x82\xa6\x1d\x0eStorageService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
 	"\x1d_service_metadata_document_id\"\x92\x02\n" +
@@ -35138,70 +35652,92 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"get_secret\x18\xf9\x15 \x01(\v2!.confirmate.ontology.v1.GetSecretH\x00R\tgetSecretB\x06\n" +
 	"\x04type\"%\n" +
-	"\x06Output:\x1b\x82\xa6\x1d\x06Output\x82\xa6\x1d\rFunctionality\"\xcd\x05\n" +
-	"\x05POSIX\x12@\n" +
-	"\rcreation_time\x18\xdbi \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xf0$ \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xda4 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12B\n" +
-	"\x06labels\x18\xa9E \x03(\v2).confirmate.ontology.v1.POSIX.LabelsEntryR\x06labels\x12\x1c\n" +
-	"\x04name\x18\x9c\x8d\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xa03 \x01(\tR\x03raw\x12'\n" +
+	"\x06Output:\x1b\x82\xa6\x1d\x06Output\x82\xa6\x1d\rFunctionality\"\xa0\x06\n" +
+	"\x05POSIX\x12E\n" +
+	"\rcreation_time\x18\xdbi \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xf0$ \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xda4 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12B\n" +
+	"\x06labels\x18\xa9E \x03(\v2).confirmate.ontology.v1.POSIX.LabelsEntryR\x06labels\x12!\n" +
+	"\x04name\x18\x9c\x8d\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xa03 \x01(\tH\x04R\x03raw\x88\x01\x01\x12'\n" +
 	"\x0fcode_module_ids\x18\xe4, \x03(\tR\rcodeModuleIds\x122\n" +
-	"\x12code_repository_id\x18\xabf \x01(\tH\x00R\x10codeRepositoryId\x88\x01\x01\x12P\n" +
+	"\x12code_repository_id\x18\xabf \x01(\tH\x05R\x10codeRepositoryId\x88\x01\x01\x12P\n" +
 	"\x0ffunctionalities\x18\xe2\x12 \x03(\v2%.confirmate.ontology.v1.FunctionalityR\x0ffunctionalities\x12!\n" +
-	"\tparent_id\x18\xb7y \x01(\tH\x01R\bparentId\x88\x01\x01\x12a\n" +
+	"\tparent_id\x18\xb7y \x01(\tH\x06R\bparentId\x88\x01\x01\x12a\n" +
 	"\x15software_attestations\x18\xe2% \x03(\v2+.confirmate.ontology.v1.SoftwareAttestationR\x14softwareAttestations\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:<\x82\xa6\x1d\x05POSIX\x82\xa6\x1d\x1bOperatingSystemArchitecture\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x15\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:<\x82\xa6\x1d\x05POSIX\x82\xa6\x1d\x1bOperatingSystemArchitecture\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x15\n" +
 	"\x13_code_repository_idB\f\n" +
 	"\n" +
-	"_parent_id\"\xc4\x05\n" +
-	"\aPackage\x12A\n" +
-	"\rcreation_time\x18\xe0\x8a\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x8fg \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xc4Y \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12D\n" +
-	"\x06labels\x18\x9e\x19 \x03(\v2+.confirmate.ontology.v1.Package.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xd7Y \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xdb\x04 \x01(\tR\x03raw\x12'\n" +
+	"_parent_id\"\x97\x06\n" +
+	"\aPackage\x12F\n" +
+	"\rcreation_time\x18\xe0\x8a\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x8fg \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xc4Y \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12D\n" +
+	"\x06labels\x18\x9e\x19 \x03(\v2+.confirmate.ontology.v1.Package.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xd7Y \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xdb\x04 \x01(\tH\x04R\x03raw\x88\x01\x01\x12'\n" +
 	"\x0fcode_module_ids\x18\xa0~ \x03(\tR\rcodeModuleIds\x123\n" +
-	"\x12code_repository_id\x18\xb2\x86\x01 \x01(\tH\x00R\x10codeRepositoryId\x88\x01\x01\x12P\n" +
+	"\x12code_repository_id\x18\xb2\x86\x01 \x01(\tH\x05R\x10codeRepositoryId\x88\x01\x01\x12P\n" +
 	"\x0ffunctionalities\x18\xf6> \x03(\v2%.confirmate.ontology.v1.FunctionalityR\x0ffunctionalities\x12\"\n" +
-	"\tparent_id\x18ړ\x01 \x01(\tH\x01R\bparentId\x88\x01\x01\x12a\n" +
+	"\tparent_id\x18ړ\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x12a\n" +
 	"\x15software_attestations\x18\xd0Q \x03(\v2+.confirmate.ontology.v1.SoftwareAttestationR\x14softwareAttestations\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:-\x82\xa6\x1d\aPackage\x82\xa6\x1d\n" +
-	"CodeModule\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x15\n" +
+	"CodeModule\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x15\n" +
 	"\x13_code_repository_idB\f\n" +
 	"\n" +
-	"_parent_id\"@\n" +
-	"\aPadding\x12\x17\n" +
-	"\x06scheme\x18\xc4| \x01(\tR\x06scheme:\x1c\x82\xa6\x1d\aPadding\x82\xa6\x1d\rFunctionality\"\xa4\x02\n" +
-	"\x1bPasswordBasedAuthentication\x12\x1d\n" +
-	"\tactivated\x18\x96\\ \x01(\bR\tactivated\x12-\n" +
+	"_parent_id\"P\n" +
+	"\aPadding\x12\x1c\n" +
+	"\x06scheme\x18\xc4| \x01(\tH\x00R\x06scheme\x88\x01\x01:\x1c\x82\xa6\x1d\aPadding\x82\xa6\x1d\rFunctionalityB\t\n" +
+	"\a_scheme\"\x96\x03\n" +
+	"\x1bPasswordBasedAuthentication\x12\"\n" +
+	"\tactivated\x18\x96\\ \x01(\bH\x00R\tactivated\x88\x01\x01\x122\n" +
 	"\x12context_is_checked\x18\xd2\n" +
-	" \x01(\bR\x10contextIsChecked\x12E\n" +
-	"\x1efailed_authentication_attempts\x18\xb6p \x01(\x05R\x1cfailedAuthenticationAttempts\x12,\n" +
-	"\x11rotation_interval\x18\xd8F \x01(\x05R\x10rotationInterval:B\x82\xa6\x1d\x1bPasswordBasedAuthentication\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeature\"\xf8\a\n" +
-	"\x0ePasswordPolicy\x12@\n" +
-	"\rcreation_time\x18\x9a\f \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12\"\n" +
-	"\vdescription\x18\x95\x82\x01 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xed\x0f \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xa5t \x01(\bR\x1ainternetAccessibleEndpoint\x12K\n" +
-	"\x06labels\x18\xcc\x05 \x03(\v22.confirmate.ontology.v1.PasswordPolicy.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x86F \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x98P \x01(\tR\x03raw\x12\x88\x01\n" +
+	" \x01(\bH\x01R\x10contextIsChecked\x88\x01\x01\x12J\n" +
+	"\x1efailed_authentication_attempts\x18\xb6p \x01(\x05H\x02R\x1cfailedAuthenticationAttempts\x88\x01\x01\x121\n" +
+	"\x11rotation_interval\x18\xd8F \x01(\x05H\x03R\x10rotationInterval\x88\x01\x01:B\x82\xa6\x1d\x1bPasswordBasedAuthentication\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeatureB\f\n" +
+	"\n" +
+	"_activatedB\x15\n" +
+	"\x13_context_is_checkedB!\n" +
+	"\x1f_failed_authentication_attemptsB\x14\n" +
+	"\x12_rotation_interval\"\xf1\b\n" +
+	"\x0ePasswordPolicy\x12E\n" +
+	"\rcreation_time\x18\x9a\f \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
+	"\vdescription\x18\x95\x82\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xed\x0f \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xa5t \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12K\n" +
+	"\x06labels\x18\xcc\x05 \x03(\v22.confirmate.ontology.v1.PasswordPolicy.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x86F \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x98P \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\x87> \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\x98A \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xc1/ \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xa7w \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xdf& \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xedb \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xedb \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xdf\x06 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x0ePasswordPolicy\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x0ePasswordPolicy\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xbc\b\n" +
 	"\bPolicies\x12o\n" +
@@ -35217,15 +35753,15 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04type\"\xb6\x01\n" +
 	"\x06Policy\x12\xa3\x01\n" +
 	"+coordinated_vulnerability_disclosure_policy\x18Ҍ\x01 \x01(\v2@.confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicyH\x00R(coordinatedVulnerabilityDisclosurePolicyB\x06\n" +
-	"\x04type\"\x9c\x10\n" +
-	"\x0ePolicyDocument\x12@\n" +
-	"\rcreation_time\x18\xe1B \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x8f\v \x01(\tR\vdescription\x12\x1b\n" +
-	"\bfiletype\x18\xbe\\ \x01(\tR\bfiletype\x12\x17\n" +
-	"\x02id\x18\x963 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12K\n" +
-	"\x06labels\x18\xad, \x03(\v22.confirmate.ontology.v1.PolicyDocument.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x84\x10 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xae' \x01(\tR\x03raw\x12m\n" +
+	"\x04type\"\x81\x11\n" +
+	"\x0ePolicyDocument\x12E\n" +
+	"\rcreation_time\x18\xe1B \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x8f\v \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
+	"\bfiletype\x18\xbe\\ \x01(\tH\x02R\bfiletype\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x963 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12K\n" +
+	"\x06labels\x18\xad, \x03(\v22.confirmate.ontology.v1.PolicyDocument.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x84\x10 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xae' \x01(\tH\x05R\x03raw\x88\x01\x01\x12m\n" +
 	"\x1aaccess_control_type_policy\x18\xccG \x01(\v2/.confirmate.ontology.v1.AccessControlTypePolicyR\x17accessControlTypePolicy\x12Q\n" +
 	"\x0fasset_inventory\x18\xf0\x80\x01 \x01(\v2&.confirmate.ontology.v1.AssetInventoryR\x0eassetInventory\x128\n" +
 	"\x06backup\x18\x92\x80\x01 \x01(\v2\x1e.confirmate.ontology.v1.BackupR\x06backup\x12[\n" +
@@ -35238,7 +35774,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x14monitoring_procedure\x18\xddX \x01(\v2+.confirmate.ontology.v1.MonitoringProcedureR\x13monitoringProcedure\x12X\n" +
 	"\x13need_to_know_policy\x18\x81\x1c \x01(\v2(.confirmate.ontology.v1.NeedToKnowPolicyR\x10needToKnowPolicy\x12\x7f\n" +
 	" network_threat_mitigation_policy\x18\xbfI \x01(\v25.confirmate.ontology.v1.NetworkThreatMitigationPolicyR\x1dnetworkThreatMitigationPolicy\x12\"\n" +
-	"\tparent_id\x18\xa0\x8e\x01 \x01(\tH\x00R\bparentId\x88\x01\x01\x12y\n" +
+	"\tparent_id\x18\xa0\x8e\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x12y\n" +
 	"\x1esdn_function_validation_policy\x18\xa3? \x01(\v23.confirmate.ontology.v1.SDNFunctionValidationPolicyR\x1bsdnFunctionValidationPolicy\x12L\n" +
 	"\fvalidated_by\x18\xf4+ \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xc8l \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x12W\n" +
@@ -35246,7 +35782,13 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1bseparation_of_duties_policy\x18\xa22 \x01(\v20.confirmate.ontology.v1.SeparationOfDutiesPolicyR\x18separationOfDutiesPolicy\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:2\x82\xa6\x1d\x0ePolicyDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:2\x82\xa6\x1d\x0ePolicyDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\v\n" +
+	"\t_filetypeB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"j\n" +
 	"\x0fPolicyOperation\x12O\n" +
@@ -35260,48 +35802,66 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x0eProtectedAsset\x12\x1e\n" +
 	"\n" +
 	"policy_ids\x18\xc9k \x03(\tR\tpolicyIds\x12=\n" +
-	"\bprotects\x18\xcb} \x01(\v2 .confirmate.ontology.v1.ResourceR\bprotects:#\x82\xa6\x1d\x0eProtectedAsset\x82\xa6\x1d\rFunctionality\"\xf1\x06\n" +
-	"\aProduct\x12&\n" +
-	"\x0econtext_of_use\x18\xa0\x8d\x01 \x01(\tR\fcontextOfUse\x12A\n" +
-	"\rcreation_time\x18\xea\x8b\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x83H \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xe2& \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12D\n" +
-	"\x06labels\x18\x96m \x03(\v2+.confirmate.ontology.v1.Product.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xbb\b \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x121\n" +
-	"\x13programming_version\x18\xbd\x89\x01 \x01(\tR\x12programmingVersion\x12\x19\n" +
-	"\apurpose\x18\x8fD \x01(\tR\apurpose\x12\x11\n" +
-	"\x03raw\x18\x85\x7f \x01(\tR\x03raw\x12>\n" +
-	"\fsupport_ends\x18\xado \x01(\v2\x1a.google.protobuf.TimestampR\vsupportEnds\x12\x13\n" +
-	"\x04type\x18\xc32 \x01(\tR\x04type\x12\x1a\n" +
+	"\bprotects\x18\xcb} \x01(\v2 .confirmate.ontology.v1.ResourceR\bprotects:#\x82\xa6\x1d\x0eProtectedAsset\x82\xa6\x1d\rFunctionality\"\xae\b\n" +
+	"\aProduct\x12+\n" +
+	"\x0econtext_of_use\x18\xa0\x8d\x01 \x01(\tH\x00R\fcontextOfUse\x88\x01\x01\x12F\n" +
+	"\rcreation_time\x18\xea\x8b\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x83H \x01(\tH\x02R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xe2& \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12D\n" +
+	"\x06labels\x18\x96m \x03(\v2+.confirmate.ontology.v1.Product.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xbb\b \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x126\n" +
+	"\x13programming_version\x18\xbd\x89\x01 \x01(\tH\x05R\x12programmingVersion\x88\x01\x01\x12\x1e\n" +
+	"\apurpose\x18\x8fD \x01(\tH\x06R\apurpose\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x85\x7f \x01(\tH\aR\x03raw\x88\x01\x01\x12C\n" +
+	"\fsupport_ends\x18\xado \x01(\v2\x1a.google.protobuf.TimestampH\bR\vsupportEnds\x88\x01\x01\x12\x18\n" +
+	"\x04type\x18\xc32 \x01(\tH\tR\x04type\x88\x01\x01\x12\x1a\n" +
 	"\bcode_ids\x18\xacR \x03(\tR\acodeIds\x12M\n" +
 	"\x0econtact_person\x18\xc1C \x01(\v2%.confirmate.ontology.v1.ContactPersonR\rcontactPerson\x12\x1a\n" +
 	"\bdata_ids\x18\xc6Y \x03(\tR\adataIds\x12F\n" +
 	"\vgovernances\x18\xad\x82\x01 \x03(\v2\".confirmate.ontology.v1.GovernanceR\vgovernances\x12\"\n" +
 	"\fhardware_ids\x18\xa2; \x03(\tR\vhardwareIds\x12.\n" +
 	"\x12infrastructure_ids\x18\xa1\x17 \x03(\tR\x11infrastructureIds\x12!\n" +
-	"\tparent_id\x18\xcb\x05 \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xcb\x05 \x01(\tH\n" +
+	"R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x17\x82\xa6\x1d\aProduct\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x17\x82\xa6\x1d\aProduct\x82\xa6\x1d\bResourceB\x11\n" +
+	"\x0f_context_of_useB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x16\n" +
+	"\x14_programming_versionB\n" +
 	"\n" +
-	"_parent_id\"\xbc\a\n" +
-	"&ProductionAndMonitoringProcessDocument\x12@\n" +
-	"\rcreation_time\x18\xa1\x05 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12\"\n" +
-	"\vdescription\x18ل\x01 \x01(\tR\vdescription\x12\x1b\n" +
-	"\bfiletype\x18\xf4z \x01(\tR\bfiletype\x12\x17\n" +
-	"\x02id\x18\xde\x17 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12c\n" +
-	"\x06labels\x18\xd2] \x03(\v2J.confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xdaS \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xf1a \x01(\tR\x03raw\x12[\n" +
+	"\b_purposeB\x06\n" +
+	"\x04_rawB\x0f\n" +
+	"\r_support_endsB\a\n" +
+	"\x05_typeB\f\n" +
+	"\n" +
+	"_parent_id\"\xa1\b\n" +
+	"&ProductionAndMonitoringProcessDocument\x12E\n" +
+	"\rcreation_time\x18\xa1\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
+	"\vdescription\x18ل\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
+	"\bfiletype\x18\xf4z \x01(\tH\x02R\bfiletype\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xde\x17 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12c\n" +
+	"\x06labels\x18\xd2] \x03(\v2J.confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xdaS \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xf1a \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
 	"\x13cryptographic_hashs\x18\x93[ \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
 	"\rdata_location\x18\xb3\x1c \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xe1l \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xdaD \x01(\tH\x00R\bparentId\x88\x01\x01\x12L\n" +
+	"\tparent_id\x18\xdaD \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
 	"\fvalidated_by\x18\xdab \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xb5\x18 \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:J\x82\xa6\x1d&ProductionAndMonitoringProcessDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:J\x82\xa6\x1d&ProductionAndMonitoringProcessDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\v\n" +
+	"\t_filetypeB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"l\n" +
 	"\x17ProtectedAssetOperation\x12I\n" +
@@ -35332,22 +35892,23 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1econfiguration_option_source_id\x18\xf1y \x01(\tH\x02R\x1bconfigurationOptionSourceId\x88\x01\x01:V\x82\xa6\x1d\x1aProvideConfigurationOption\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
 	"\x11_configuration_idB\x1a\n" +
 	"\x18_configuration_option_idB!\n" +
-	"\x1f_configuration_option_source_id\"\xfd\f\n" +
-	"\x03QPU\x120\n" +
-	"\x14one_qubit_error_rate\x18\xfe\x1d \x01(\x02R\x11oneQubitErrorRate\x12'\n" +
-	"\x0fspam_error_rate\x18\x90\x17 \x01(\x02R\rspamErrorRate\x12+\n" +
-	"\x11t1_coherence_time\x18\xceQ \x01(\x02R\x0ft1CoherenceTime\x12,\n" +
-	"\x11t2_coherence_time\x18\x8d\x84\x01 \x01(\x02R\x0ft2CoherenceTime\x120\n" +
-	"\x14two_qubit_error_rate\x18\xf11 \x01(\x02R\x11twoQubitErrorRate\x12<\n" +
-	"\x1auniversal_gate_set_enabled\x18\xb1u \x01(\bR\x17universalGateSetEnabled\x12@\n" +
-	"\rcreation_time\x18\xf6\x1a \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x98\" \x01(\tR\vdescription\x129\n" +
-	"\x18error_correction_enabled\x18\xb7e \x01(\bR\x16errorCorrectionEnabled\x12\x17\n" +
-	"\x02id\x18\xc3p \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xd4K \x01(\bR\x1ainternetAccessibleEndpoint\x12@\n" +
-	"\x06labels\x18\x98Z \x03(\v2'.confirmate.ontology.v1.QPU.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x82\f \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x8eB \x01(\tR\x03raw\x12\x88\x01\n" +
+	"\x1f_configuration_option_source_id\"\xc7\x0f\n" +
+	"\x03QPU\x125\n" +
+	"\x14one_qubit_error_rate\x18\xfe\x1d \x01(\x02H\x00R\x11oneQubitErrorRate\x88\x01\x01\x12,\n" +
+	"\x0fspam_error_rate\x18\x90\x17 \x01(\x02H\x01R\rspamErrorRate\x88\x01\x01\x120\n" +
+	"\x11t1_coherence_time\x18\xceQ \x01(\x02H\x02R\x0ft1CoherenceTime\x88\x01\x01\x121\n" +
+	"\x11t2_coherence_time\x18\x8d\x84\x01 \x01(\x02H\x03R\x0ft2CoherenceTime\x88\x01\x01\x125\n" +
+	"\x14two_qubit_error_rate\x18\xf11 \x01(\x02H\x04R\x11twoQubitErrorRate\x88\x01\x01\x12A\n" +
+	"\x1auniversal_gate_set_enabled\x18\xb1u \x01(\bH\x05R\x17universalGateSetEnabled\x88\x01\x01\x12E\n" +
+	"\rcreation_time\x18\xf6\x1a \x01(\v2\x1a.google.protobuf.TimestampH\x06R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x98\" \x01(\tH\aR\vdescription\x88\x01\x01\x12>\n" +
+	"\x18error_correction_enabled\x18\xb7e \x01(\bH\bR\x16errorCorrectionEnabled\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xc3p \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\tR\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xd4K \x01(\bH\n" +
+	"R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12@\n" +
+	"\x06labels\x18\x98Z \x03(\v2'.confirmate.ontology.v1.QPU.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x82\f \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\vR\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x8eB \x01(\tH\fR\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xb7\x15 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12T\n" +
 	"\x11encryption_in_use\x18\xf98 \x01(\v2'.confirmate.ontology.v1.EncryptionInUseR\x0fencryptionInUse\x12G\n" +
 	"\fgeo_location\x18\x88\x7f \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
@@ -35356,21 +35917,40 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x15network_interface_ids\x18\xbf\x14 \x03(\tR\x13networkInterfaceIds\x12G\n" +
 	"\fredundancies\x18\x99_ \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12Y\n" +
 	"\x12remote_attestation\x18\x94\b \x01(\v2).confirmate.ontology.v1.RemoteAttestationR\x11remoteAttestation\x12!\n" +
-	"\tparent_id\x18\xfa\x19 \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xfa\x19 \x01(\tH\rR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10resource_logging\x18\xfc, \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
 	"\x10usage_statistics\x18\xb0I \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x03QPU\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x03QPU\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x17\n" +
+	"\x15_one_qubit_error_rateB\x12\n" +
+	"\x10_spam_error_rateB\x14\n" +
+	"\x12_t1_coherence_timeB\x14\n" +
+	"\x12_t2_coherence_timeB\x17\n" +
+	"\x15_two_qubit_error_rateB\x1d\n" +
+	"\x1b_universal_gate_set_enabledB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x1b\n" +
+	"\x19_error_correction_enabledB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\x86\x01\n" +
-	"\x04RBAC\x12,\n" +
-	"\x11broad_assignments\x18\xae, \x01(\x02R\x10broadAssignments\x12\"\n" +
-	"\fmixed_duties\x18\xeep \x01(\x02R\vmixedDuties:,\x82\xa6\x1d\x04RBAC\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"\xc9\x01\n" +
-	"\fRateLimiting\x12\x19\n" +
-	"\aenabled\x18\x86] \x01(\bR\aenabled\x12\"\n" +
-	"\fmax_requests\x18\x82F \x01(\x05R\vmaxRequests\x12/\n" +
-	"\x13time_window_seconds\x18\x814 \x01(\x05R\x11timeWindowSeconds:I\x82\xa6\x1d\fRateLimiting\x82\xa6\x1d\x11AccessRestriction\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"\xcf\x02\n" +
+	"_parent_id\"\xb7\x01\n" +
+	"\x04RBAC\x121\n" +
+	"\x11broad_assignments\x18\xae, \x01(\x02H\x00R\x10broadAssignments\x88\x01\x01\x12'\n" +
+	"\fmixed_duties\x18\xeep \x01(\x02H\x01R\vmixedDuties\x88\x01\x01:,\x82\xa6\x1d\x04RBAC\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeatureB\x14\n" +
+	"\x12_broad_assignmentsB\x0f\n" +
+	"\r_mixed_duties\"\x8d\x02\n" +
+	"\fRateLimiting\x12\x1e\n" +
+	"\aenabled\x18\x86] \x01(\bH\x00R\aenabled\x88\x01\x01\x12'\n" +
+	"\fmax_requests\x18\x82F \x01(\x05H\x01R\vmaxRequests\x88\x01\x01\x124\n" +
+	"\x13time_window_seconds\x18\x814 \x01(\x05H\x02R\x11timeWindowSeconds\x88\x01\x01:I\x82\xa6\x1d\fRateLimiting\x82\xa6\x1d\x11AccessRestriction\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabledB\x0f\n" +
+	"\r_max_requestsB\x16\n" +
+	"\x14_time_window_seconds\"\xcf\x02\n" +
 	"\x16ReadConfigurationGroup\x12D\n" +
 	"\vcode_region\x18\xf7t \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion\x12/\n" +
@@ -35409,17 +35989,17 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vcode_region\x18֑\x01 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion\x12J\n" +
 	"\rhttp_endpoint\x18\xefs \x01(\v2$.confirmate.ontology.v1.HttpEndpointR\fhttpEndpoint\x12]\n" +
-	"\x14http_request_handler\x18\x8ev \x01(\v2*.confirmate.ontology.v1.HttpRequestHandlerR\x12httpRequestHandler:U\x82\xa6\x1d\x14RegisterHttpEndpoint\x82\xa6\x1d\x1bHttpRequestHandlerOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\x93\r\n" +
-	"\x19RelationalDatabaseService\x12@\n" +
-	"\rcreation_time\x18\x9fT \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xe8c \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xdbf \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xdab \x01(\bR\x1ainternetAccessibleEndpoint\x12\x11\n" +
+	"\x14http_request_handler\x18\x8ev \x01(\v2*.confirmate.ontology.v1.HttpRequestHandlerR\x12httpRequestHandler:U\x82\xa6\x1d\x14RegisterHttpEndpoint\x82\xa6\x1d\x1bHttpRequestHandlerOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\x8c\x0e\n" +
+	"\x19RelationalDatabaseService\x12E\n" +
+	"\rcreation_time\x18\x9fT \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xe8c \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xdbf \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xdab \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12\x11\n" +
 	"\x03ips\x18\xd3l \x03(\tR\x03ips\x12V\n" +
-	"\x06labels\x18\xc5( \x03(\v2=.confirmate.ontology.v1.RelationalDatabaseService.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xd6S \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x15\n" +
-	"\x05ports\x18\x9d\x02 \x03(\rR\x05ports\x12\x11\n" +
-	"\x03raw\x18\xb4\x02 \x01(\tR\x03raw\x12T\n" +
+	"\x06labels\x18\xc5( \x03(\v2=.confirmate.ontology.v1.RelationalDatabaseService.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xd6S \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
+	"\x05ports\x18\x9d\x02 \x03(\rR\x05ports\x12\x16\n" +
+	"\x03raw\x18\xb4\x02 \x01(\tH\x05R\x03raw\x88\x01\x01\x12T\n" +
 	"\x10activity_logging\x18\x8f\x8c\x01 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12Y\n" +
 	"\x12anomaly_detections\x18\xee\x90\x01 \x03(\v2(.confirmate.ontology.v1.AnomalyDetectionR\x11anomalyDetections\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xb1X \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
@@ -35430,8 +36010,8 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\xb0r \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xafx \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12H\n" +
 	"\fredundancies\x18\x89\x8f\x01 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x88\x0e \x01(\tH\x00R\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xcd@ \x01(\tH\x01R\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\x88\x0e \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xcd@ \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xdbr \x03(\tR\n" +
 	"storageIds\x12_\n" +
 	"\x14transport_encryption\x18\x895 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
@@ -35439,49 +36019,67 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x80\x01\x82\xa6\x1d\x19RelationalDatabaseService\x82\xa6\x1d\x0fDatabaseService\x82\xa6\x1d\x0eStorageService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
 	"\x1d_service_metadata_document_id\"\xcc\x01\n" +
 	"\vReliability\x12^\n" +
 	"\x13explainable_results\x18\xc90 \x01(\v2*.confirmate.ontology.v1.ExplainableResultsH\x00R\x12explainableResults\x12U\n" +
 	"\x10robustness_score\x18\xbce \x01(\v2'.confirmate.ontology.v1.RobustnessScoreH\x00R\x0frobustnessScoreB\x06\n" +
-	"\x04type\"\xcf\x01\n" +
-	"\x11RemoteAttestation\x12@\n" +
-	"\rcreation_time\x18\xcd: \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12\x19\n" +
-	"\aenabled\x18\xd6\t \x01(\bR\aenabled\x12\x17\n" +
-	"\x06status\x18\xfdH \x01(\bR\x06status:D\x82\xa6\x1d\x11RemoteAttestation\x82\xa6\x1d\vAttestation\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeature\"\xc2\x02\n" +
-	"\x12RemoteDataLocation\x12\x13\n" +
-	"\x04path\x18\xeb' \x01(\tR\x04path\x12I\n" +
+	"\x04type\"\x87\x02\n" +
+	"\x11RemoteAttestation\x12E\n" +
+	"\rcreation_time\x18\xcd: \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12\x1e\n" +
+	"\aenabled\x18\xd6\t \x01(\bH\x01R\aenabled\x88\x01\x01\x12\x1c\n" +
+	"\x06status\x18\xfdH \x01(\bH\x02R\x06status\x88\x01\x01:D\x82\xa6\x1d\x11RemoteAttestation\x82\xa6\x1d\vAttestation\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeatureB\x10\n" +
+	"\x0e_creation_timeB\n" +
+	"\n" +
+	"\b_enabledB\t\n" +
+	"\a_status\"\xd0\x02\n" +
+	"\x12RemoteDataLocation\x12\x18\n" +
+	"\x04path\x18\xeb' \x01(\tH\x00R\x04path\x88\x01\x01\x12I\n" +
 	"\fauthenticity\x18\xb7\r \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12#\n" +
 	"\n" +
-	"storage_id\x18\xc4G \x01(\tH\x00R\tstorageId\x88\x01\x01\x12_\n" +
-	"\x14transport_encryption\x18\xf0\a \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption:7\x82\xa6\x1d\x12RemoteDataLocation\x82\xa6\x1d\fDataLocation\x82\xa6\x1d\rFunctionalityB\r\n" +
+	"storage_id\x18\xc4G \x01(\tH\x01R\tstorageId\x88\x01\x01\x12_\n" +
+	"\x14transport_encryption\x18\xf0\a \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption:7\x82\xa6\x1d\x12RemoteDataLocation\x82\xa6\x1d\fDataLocation\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05_pathB\r\n" +
 	"\v_storage_id\"h\n" +
 	"\x10RemoteEntryPoint\x12L\n" +
 	"\rhttp_endpoint\x18\xa3F \x01(\v2$.confirmate.ontology.v1.HttpEndpointH\x00R\fhttpEndpointB\x06\n" +
-	"\x04type\"\x8a\a\n" +
-	"\x0eReportDocument\x12@\n" +
-	"\rcreation_time\x18\xa3F \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12\"\n" +
-	"\vdescription\x18\xa9\x88\x01 \x01(\tR\vdescription\x12\x1b\n" +
-	"\bfiletype\x18\xb6@ \x01(\tR\bfiletype\x12\x18\n" +
-	"\x02id\x18\xb5\x8c\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12K\n" +
-	"\x06labels\x18\x99# \x03(\v22.confirmate.ontology.v1.ReportDocument.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xe0t \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xad\x14 \x01(\tR\x03raw\x12\\\n" +
+	"\x04type\"\xef\a\n" +
+	"\x0eReportDocument\x12E\n" +
+	"\rcreation_time\x18\xa3F \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
+	"\vdescription\x18\xa9\x88\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
+	"\bfiletype\x18\xb6@ \x01(\tH\x02R\bfiletype\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18\xb5\x8c\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12K\n" +
+	"\x06labels\x18\x99# \x03(\v22.confirmate.ontology.v1.ReportDocument.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xe0t \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xad\x14 \x01(\tH\x05R\x03raw\x88\x01\x01\x12\\\n" +
 	"\x13cryptographic_hashs\x18\xa8\x88\x01 \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12K\n" +
 	"\rdata_location\x18\x97\x91\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xef\x02 \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xb0} \x01(\tH\x00R\bparentId\x88\x01\x01\x12L\n" +
+	"\tparent_id\x18\xb0} \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
 	"\fvalidated_by\x18\x96L \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xb3Q \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:E\x82\xa6\x1d\x0eReportDocument\x82\xa6\x1d\x0fGenericDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:E\x82\xa6\x1d\x0eReportDocument\x82\xa6\x1d\x0fGenericDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\v\n" +
+	"\t_filetypeB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"y\n" +
-	"\x10RequestForChange\x12>\n" +
-	"\x1aapproved_before_deployment\x18\xad\x83\x01 \x01(\bR\x18approvedBeforeDeployment:%\x82\xa6\x1d\x10RequestForChange\x82\xa6\x1d\rFunctionality\"\xa76\n" +
+	"_parent_id\"\x9d\x01\n" +
+	"\x10RequestForChange\x12C\n" +
+	"\x1aapproved_before_deployment\x18\xad\x83\x01 \x01(\bH\x00R\x18approvedBeforeDeployment\x88\x01\x01:%\x82\xa6\x1d\x10RequestForChange\x82\xa6\x1d\rFunctionalityB\x1d\n" +
+	"\x1b_approved_before_deployment\"\xa76\n" +
 	"\bResource\x12<\n" +
 	"\aaccount\x18\xc0Y \x01(\v2\x1f.confirmate.ontology.v1.AccountH\x00R\aaccount\x120\n" +
 	"\x03job\x18\x9f\x1f \x01(\v2\x1b.confirmate.ontology.v1.JobH\x00R\x03job\x12?\n" +
@@ -35564,100 +36162,131 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06darwin\x18֑\x01 \x01(\v2\x1e.confirmate.ontology.v1.DarwinH\x00R\x06darwin\x126\n" +
 	"\x05posix\x18\xa7? \x01(\v2\x1d.confirmate.ontology.v1.POSIXH\x00R\x05posix\x126\n" +
 	"\x05win32\x18\xb62 \x01(\v2\x1d.confirmate.ontology.v1.Win32H\x00R\x05win32B\x06\n" +
-	"\x04type\"\xfa\a\n" +
-	"\rResourceGroup\x12A\n" +
-	"\rcreation_time\x18ԃ\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xcb^ \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xd0W \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xe5s \x01(\bR\x1ainternetAccessibleEndpoint\x12K\n" +
-	"\x06labels\x18\xed\x88\x01 \x03(\v21.confirmate.ontology.v1.ResourceGroup.LabelsEntryR\x06labels\x12\x1c\n" +
-	"\x04name\x18\x86\x94\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x12\n" +
-	"\x03raw\x18\x87\x84\x01 \x01(\tR\x03raw\x12\x88\x01\n" +
+	"\x04type\"\xf3\b\n" +
+	"\rResourceGroup\x12F\n" +
+	"\rcreation_time\x18ԃ\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xcb^ \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xd0W \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xe5s \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12K\n" +
+	"\x06labels\x18\xed\x88\x01 \x03(\v21.confirmate.ontology.v1.ResourceGroup.LabelsEntryR\x06labels\x12!\n" +
+	"\x04name\x18\x86\x94\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x17\n" +
+	"\x03raw\x18\x87\x84\x01 \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\x89/ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\x9bO \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12=\n" +
 	"\bloggings\x18Έ\x01 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\x88T \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\x8dX \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x99K \x01(\tH\x00R\bparentId\x88\x01\x01\x12T\n" +
+	"\tparent_id\x18\x99K \x01(\tH\x06R\bparentId\x88\x01\x01\x12T\n" +
 	"\x10usage_statistics\x18\u0383\x01 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:/\x82\xa6\x1d\rResourceGroup\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:/\x82\xa6\x1d\rResourceGroup\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xfa\x02\n" +
-	"\x0fResourceLogging\x12\x19\n" +
-	"\aenabled\x18\xe5\v \x01(\bR\aenabled\x12\x1c\n" +
-	"\tlog_level\x18\xd1. \x01(\tR\blogLevel\x12>\n" +
-	"\x1bmonitoring_log_data_enabled\x18\x945 \x01(\bR\x18monitoringLogDataEnabled\x12E\n" +
-	"\x10retention_period\x18\xf84 \x01(\v2\x19.google.protobuf.DurationR\x0fretentionPeriod\x127\n" +
-	"\x17security_alerts_enabled\x18\xd3/ \x01(\bR\x15securityAlertsEnabled\x12/\n" +
-	"\x13logging_service_ids\x18\xdf\x19 \x03(\tR\x11loggingServiceIds:=\x82\xa6\x1d\x0fResourceLogging\x82\xa6\x1d\aLogging\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeature\"(\n" +
+	"_parent_id\"\xfe\x03\n" +
+	"\x0fResourceLogging\x12\x1e\n" +
+	"\aenabled\x18\xe5\v \x01(\bH\x00R\aenabled\x88\x01\x01\x12!\n" +
+	"\tlog_level\x18\xd1. \x01(\tH\x01R\blogLevel\x88\x01\x01\x12C\n" +
+	"\x1bmonitoring_log_data_enabled\x18\x945 \x01(\bH\x02R\x18monitoringLogDataEnabled\x88\x01\x01\x12J\n" +
+	"\x10retention_period\x18\xf84 \x01(\v2\x19.google.protobuf.DurationH\x03R\x0fretentionPeriod\x88\x01\x01\x12<\n" +
+	"\x17security_alerts_enabled\x18\xd3/ \x01(\bH\x04R\x15securityAlertsEnabled\x88\x01\x01\x12/\n" +
+	"\x13logging_service_ids\x18\xdf\x19 \x03(\tR\x11loggingServiceIds:=\x82\xa6\x1d\x0fResourceLogging\x82\xa6\x1d\aLogging\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabledB\f\n" +
+	"\n" +
+	"_log_levelB\x1e\n" +
+	"\x1c_monitoring_log_data_enabledB\x13\n" +
+	"\x11_retention_periodB\x1a\n" +
+	"\x18_security_alerts_enabled\"(\n" +
 	"\fResourceType:\x18\x82\xa6\x1d\fResourceType\x82\xa6\x1d\x04Core\"H\n" +
-	"\x0fRobustnessScore:5\x82\xa6\x1d\x0fRobustnessScore\x82\xa6\x1d\vReliability\x82\xa6\x1d\x0fSecurityFeature\"\xfb\b\n" +
-	"\x0eRoleAssignment\x12\x1d\n" +
-	"\tactivated\x18\xf0W \x01(\bR\tactivated\x12@\n" +
-	"\rcreation_time\x18\x99m \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x80F \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xa61 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12B\n" +
-	"\x1cinternet_accessible_endpoint\x18\x95\x83\x01 \x01(\bR\x1ainternetAccessibleEndpoint\x12L\n" +
-	"\x06labels\x18\xaa\x8f\x01 \x03(\v22.confirmate.ontology.v1.RoleAssignment.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x93\x17 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xeeT \x01(\tR\x03raw\x12M\n" +
+	"\x0fRobustnessScore:5\x82\xa6\x1d\x0fRobustnessScore\x82\xa6\x1d\vReliability\x82\xa6\x1d\x0fSecurityFeature\"\x87\n" +
+	"\n" +
+	"\x0eRoleAssignment\x12\"\n" +
+	"\tactivated\x18\xf0W \x01(\bH\x00R\tactivated\x88\x01\x01\x12E\n" +
+	"\rcreation_time\x18\x99m \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x80F \x01(\tH\x02R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xa61 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12G\n" +
+	"\x1cinternet_accessible_endpoint\x18\x95\x83\x01 \x01(\bH\x04R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12L\n" +
+	"\x06labels\x18\xaa\x8f\x01 \x03(\v22.confirmate.ontology.v1.RoleAssignment.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x93\x17 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x05R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xeeT \x01(\tH\x06R\x03raw\x88\x01\x01\x12M\n" +
 	"\rauthorization\x18Ő\x01 \x01(\v2%.confirmate.ontology.v1.AuthorizationR\rauthorization\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\x8ba \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\xecN \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12=\n" +
 	"\bloggings\x18\xa7\x92\x01 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Z\n" +
 	"\x12malware_protection\x18\xff\x89\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12H\n" +
 	"\fredundancies\x18\xe4\x93\x01 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xcaA \x01(\tH\x00R\bparentId\x88\x01\x01\x12T\n" +
+	"\tparent_id\x18\xcaA \x01(\tH\aR\bparentId\x88\x01\x01\x12T\n" +
 	"\x10usage_statistics\x18\xe0\x8f\x01 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:@\x82\xa6\x1d\x0eRoleAssignment\x82\xa6\x1d\fIdentifiable\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
 	"\n" +
-	"_parent_id\"\xef\x06\n" +
-	"\fSBOMDocument\x12A\n" +
-	"\rcreation_time\x18\xb7\x93\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xccb \x01(\tR\vdescription\x12\x1b\n" +
-	"\bfiletype\x18\xbaV \x01(\tR\bfiletype\x12\x17\n" +
-	"\x02id\x18\xc2_ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12I\n" +
-	"\x06labels\x18\x89L \x03(\v20.confirmate.ontology.v1.SBOMDocument.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x85\x1d \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xb0~ \x01(\tR\x03raw\x12[\n" +
+	"_activatedB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
+	"\n" +
+	"_parent_id\"\xd4\a\n" +
+	"\fSBOMDocument\x12F\n" +
+	"\rcreation_time\x18\xb7\x93\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xccb \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
+	"\bfiletype\x18\xbaV \x01(\tH\x02R\bfiletype\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xc2_ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12I\n" +
+	"\x06labels\x18\x89L \x03(\v20.confirmate.ontology.v1.SBOMDocument.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x85\x1d \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xb0~ \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
 	"\x13cryptographic_hashs\x18\xcb\f \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
 	"\rdata_location\x18\xff\x13 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\x95\x13 \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\x86` \x01(\tH\x00R\bparentId\x88\x01\x01\x12M\n" +
+	"\tparent_id\x18\x86` \x01(\tH\x06R\bparentId\x88\x01\x01\x12M\n" +
 	"\fvalidated_by\x18\x9c\x87\x01 \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xbd# \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\fSBOMDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\fSBOMDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\v\n" +
+	"\t_filetypeB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"{\n" +
-	"\x1bSDNFunctionValidationPolicy\x12\x1e\n" +
+	"_parent_id\"\x8f\x01\n" +
+	"\x1bSDNFunctionValidationPolicy\x12#\n" +
 	"\n" +
-	"is_defined\x18\x89P \x01(\bR\tisDefined:<\x82\xa6\x1d\x1bSDNFunctionValidationPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\xab\x01\n" +
-	"\x10SchemaValidation\x12\x17\n" +
-	"\x06format\x18\x86\r \x01(\tR\x06format\x12\x1e\n" +
+	"is_defined\x18\x89P \x01(\bH\x00R\tisDefined\x88\x01\x01:<\x82\xa6\x1d\x1bSDNFunctionValidationPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\r\n" +
+	"\v_is_defined\"\xcf\x01\n" +
+	"\x10SchemaValidation\x12\x1c\n" +
+	"\x06format\x18\x86\r \x01(\tH\x00R\x06format\x88\x01\x01\x12#\n" +
 	"\n" +
-	"schema_url\x18\xaeh \x01(\tR\tschemaUrl\x127\n" +
-	"\x06errors\x18Ā\x01 \x03(\v2\x1d.confirmate.ontology.v1.ErrorR\x06errors:%\x82\xa6\x1d\x10SchemaValidation\x82\xa6\x1d\rFunctionality\"\xdf\n" +
+	"schema_url\x18\xaeh \x01(\tH\x01R\tschemaUrl\x88\x01\x01\x127\n" +
+	"\x06errors\x18Ā\x01 \x03(\v2\x1d.confirmate.ontology.v1.ErrorR\x06errors:%\x82\xa6\x1d\x10SchemaValidation\x82\xa6\x1d\rFunctionalityB\t\n" +
+	"\a_formatB\r\n" +
+	"\v_schema_url\"\xc1\f\n" +
+	"\x06Secret\x12F\n" +
+	"\rcreation_time\x18\xe5\x88\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x9bY \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1e\n" +
+	"\aenabled\x18\xbd* \x01(\bH\x02R\aenabled\x88\x01\x01\x12I\n" +
+	"\x0fexpiration_date\x18\xb6\x12 \x01(\v2\x1a.google.protobuf.TimestampH\x03R\x0eexpirationDate\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xcfi \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xb2\x17 \x01(\bH\x05R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12#\n" +
 	"\n" +
-	"\x06Secret\x12A\n" +
-	"\rcreation_time\x18\xe5\x88\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x9bY \x01(\tR\vdescription\x12\x19\n" +
-	"\aenabled\x18\xbd* \x01(\bR\aenabled\x12D\n" +
-	"\x0fexpiration_date\x18\xb6\x12 \x01(\v2\x1a.google.protobuf.TimestampR\x0eexpirationDate\x12\x17\n" +
-	"\x02id\x18\xcfi \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xb2\x17 \x01(\bR\x1ainternetAccessibleEndpoint\x12\x1e\n" +
-	"\n" +
-	"is_managed\x18\xbb\x1e \x01(\bR\tisManaged\x12\x1a\n" +
-	"\bkey_size\x18\xf3s \x01(\x05R\akeySize\x12C\n" +
-	"\x06labels\x18\x8c\r \x03(\v2*.confirmate.ontology.v1.Secret.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xc4\a \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12C\n" +
-	"\x0fnot_before_date\x18\x97h \x01(\v2\x1a.google.protobuf.TimestampR\rnotBeforeDate\x12\x11\n" +
-	"\x03raw\x18\xee. \x01(\tR\x03raw\x12\x88\x01\n" +
+	"is_managed\x18\xbb\x1e \x01(\bH\x06R\tisManaged\x88\x01\x01\x12\x1f\n" +
+	"\bkey_size\x18\xf3s \x01(\x05H\aR\akeySize\x88\x01\x01\x12C\n" +
+	"\x06labels\x18\x8c\r \x03(\v2*.confirmate.ontology.v1.Secret.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xc4\a \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\bR\x04name\x88\x01\x01\x12H\n" +
+	"\x0fnot_before_date\x18\x97h \x01(\v2\x1a.google.protobuf.TimestampH\tR\rnotBeforeDate\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xee. \x01(\tH\n" +
+	"R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xd18 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12:\n" +
 	"\bbased_on\x18\xba= \x01(\v2\x1e.confirmate.ontology.v1.CipherR\abasedOn\x12G\n" +
 	"\fgeo_location\x18\xb8  \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12Q\n" +
@@ -35665,51 +36294,69 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\xd5} \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xdf4 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xa7n \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xa8j \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xa8j \x01(\tH\vR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xea) \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:6\x82\xa6\x1d\x06Secret\x82\xa6\x1d\n" +
-	"Credential\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Credential\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\n" +
+	"\n" +
+	"\b_enabledB\x12\n" +
+	"\x10_expiration_dateB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\r\n" +
+	"\v_is_managedB\v\n" +
+	"\t_key_sizeB\a\n" +
+	"\x05_nameB\x12\n" +
+	"\x10_not_before_dateB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xac\x01\n" +
 	"\x0fSecretOperation\x12L\n" +
 	"\rcreate_secret\x18\xcd\x1d \x01(\v2$.confirmate.ontology.v1.CreateSecretH\x00R\fcreateSecret\x12C\n" +
 	"\n" +
 	"get_secret\x18\xf9\x15 \x01(\v2!.confirmate.ontology.v1.GetSecretH\x00R\tgetSecretB\x06\n" +
-	"\x04type\"\xe6\a\n" +
-	"\x18SecurityAdvisoryDocument\x12@\n" +
-	"\rcreation_time\x18\xc8U \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x8f\x1c \x01(\tR\vdescription\x12\x1c\n" +
-	"\bfiletype\x18\xf2\x86\x01 \x01(\tR\bfiletype\x12\x17\n" +
-	"\x02id\x18\xbc{ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12V\n" +
-	"\x06labels\x18Ђ\x01 \x03(\v2<.confirmate.ontology.v1.SecurityAdvisoryDocument.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xb9v \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xd8\x1b \x01(\tR\x03raw\x12[\n" +
+	"\x04type\"\xcb\b\n" +
+	"\x18SecurityAdvisoryDocument\x12E\n" +
+	"\rcreation_time\x18\xc8U \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x8f\x1c \x01(\tH\x01R\vdescription\x88\x01\x01\x12!\n" +
+	"\bfiletype\x18\xf2\x86\x01 \x01(\tH\x02R\bfiletype\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xbc{ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12V\n" +
+	"\x06labels\x18Ђ\x01 \x03(\v2<.confirmate.ontology.v1.SecurityAdvisoryDocument.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xb9v \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xd8\x1b \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
 	"\x13cryptographic_hashs\x18\xd8% \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
 	"\rdata_location\x18\xdba \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12\\\n" +
 	"\x13document_signatures\x18\xf8\x83\x01 \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xb8% \x01(\tH\x00R\bparentId\x88\x01\x01\x12L\n" +
+	"\tparent_id\x18\xb8% \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
 	"\fvalidated_by\x18\x9eU \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\x95\f \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x12P\n" +
 	"\x0fvulnerabilities\x18\xf0\x7f \x03(\v2%.confirmate.ontology.v1.VulnerabilityR\x0fvulnerabilities\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:<\x82\xa6\x1d\x18SecurityAdvisoryDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:<\x82\xa6\x1d\x18SecurityAdvisoryDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\v\n" +
+	"\t_filetypeB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\x88\x01\n" +
 	"\x14SecurityAdvisoryFeed\x12E\n" +
-	"\x1esecurity_advisory_document_ids\x18\xbb\x81\x01 \x03(\tR\x1bsecurityAdvisoryDocumentIds:)\x82\xa6\x1d\x14SecurityAdvisoryFeed\x82\xa6\x1d\rFunctionality\"\xca\v\n" +
-	"\x17SecurityAdvisoryService\x12@\n" +
-	"\rcreation_time\x18\xd1\x17 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x90\x12 \x01(\tR\vdescription\x12\x18\n" +
-	"\x02id\x18\xfb\x91\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xae& \x01(\bR\x1ainternetAccessibleEndpoint\x12\x11\n" +
+	"\x1esecurity_advisory_document_ids\x18\xbb\x81\x01 \x03(\tR\x1bsecurityAdvisoryDocumentIds:)\x82\xa6\x1d\x14SecurityAdvisoryFeed\x82\xa6\x1d\rFunctionality\"\xc3\f\n" +
+	"\x17SecurityAdvisoryService\x12E\n" +
+	"\rcreation_time\x18\xd1\x17 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x90\x12 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18\xfb\x91\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xae& \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12\x11\n" +
 	"\x03ips\x18\xe5\x14 \x03(\tR\x03ips\x12T\n" +
-	"\x06labels\x18\xc5\x06 \x03(\v2;.confirmate.ontology.v1.SecurityAdvisoryService.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xb6\x10 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x15\n" +
-	"\x05ports\x18\xcb# \x03(\rR\x05ports\x12\x11\n" +
-	"\x03raw\x18\xe3Q \x01(\tR\x03raw\x12\x88\x01\n" +
+	"\x06labels\x18\xc5\x06 \x03(\v2;.confirmate.ontology.v1.SecurityAdvisoryService.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xb6\x10 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
+	"\x05ports\x18\xcb# \x03(\rR\x05ports\x12\x16\n" +
+	"\x03raw\x18\xe3Q \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xc8\x17 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12!\n" +
 	"\vcompute_ids\x18\x91\x8d\x01 \x03(\tR\n" +
 	"computeIds\x12G\n" +
@@ -35718,15 +36365,21 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\bloggings\x18\x1c \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\x8b9 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xdbr \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xf3W \x01(\tH\x00R\bparentId\x88\x01\x01\x12e\n" +
+	"\tparent_id\x18\xf3W \x01(\tH\x06R\bparentId\x88\x01\x01\x12e\n" +
 	"\x17security_advisory_feeds\x18\xec& \x03(\v2,.confirmate.ontology.v1.SecurityAdvisoryFeedR\x15securityAdvisoryFeeds\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\x8b\x1e \x01(\tH\x01R\x19serviceMetadataDocumentId\x88\x01\x01\x12`\n" +
+	"\x1cservice_metadata_document_id\x18\x8b\x1e \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12`\n" +
 	"\x14transport_encryption\x18\xef\x8a\x01 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
 	"\x10usage_statistics\x18\xcdo \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:Y\x82\xa6\x1d\x17SecurityAdvisoryService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
 	"\x1d_service_metadata_document_id\"\xd5\x1e\n" +
@@ -35779,51 +36432,74 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x10robustness_score\x18\xbce \x01(\v2'.confirmate.ontology.v1.RobustnessScoreH\x00R\x0frobustnessScoreB\x06\n" +
 	"\x04type\"N\n" +
 	"\x10SecurityIncident\x12\x13\n" +
-	"\x04team\x18\x90\x1a \x03(\tR\x04team:%\x82\xa6\x1d\x10SecurityIncident\x82\xa6\x1d\rFunctionality\"\xda\x01\n" +
-	"\x10SecurityTraining\x127\n" +
-	"\x17annual_update_completed\x18\x8aU \x01(\bR\x15annualUpdateCompleted\x12L\n" +
-	"!successfully_completed_percentage\x18\xfa\x93\x01 \x01(\bR\x1fsuccessfullyCompletedPercentage:?\x82\xa6\x1d\x10SecurityTraining\x82\xa6\x1d\bTraining\x82\xa6\x1d\n" +
-	"Governance\x82\xa6\x1d\rFunctionality\"u\n" +
-	"\x18SeparationOfDutiesPolicy\x12\x1e\n" +
+	"\x04team\x18\x90\x1a \x03(\tR\x04team:%\x82\xa6\x1d\x10SecurityIncident\x82\xa6\x1d\rFunctionality\"\xa6\x02\n" +
+	"\x10SecurityTraining\x12<\n" +
+	"\x17annual_update_completed\x18\x8aU \x01(\bH\x00R\x15annualUpdateCompleted\x88\x01\x01\x12Q\n" +
+	"!successfully_completed_percentage\x18\xfa\x93\x01 \x01(\bH\x01R\x1fsuccessfullyCompletedPercentage\x88\x01\x01:?\x82\xa6\x1d\x10SecurityTraining\x82\xa6\x1d\bTraining\x82\xa6\x1d\n" +
+	"Governance\x82\xa6\x1d\rFunctionalityB\x1a\n" +
+	"\x18_annual_update_completedB$\n" +
+	"\"_successfully_completed_percentage\"\x89\x01\n" +
+	"\x18SeparationOfDutiesPolicy\x12#\n" +
 	"\n" +
-	"is_defined\x18\xc9o \x01(\bR\tisDefined:9\x82\xa6\x1d\x18SeparationOfDutiesPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\x8e\a\n" +
-	"\x17ServiceMetadataDocument\x12@\n" +
-	"\rcreation_time\x18\xa5- \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xb5\x1d \x01(\tR\vdescription\x12\x1b\n" +
-	"\bfiletype\x18\xc3# \x01(\tR\bfiletype\x12\x17\n" +
-	"\x02id\x18\xc3@ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12T\n" +
-	"\x06labels\x18\x88\r \x03(\v2;.confirmate.ontology.v1.ServiceMetadataDocument.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xa0U \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x80? \x01(\tR\x03raw\x12[\n" +
+	"is_defined\x18\xc9o \x01(\bH\x00R\tisDefined\x88\x01\x01:9\x82\xa6\x1d\x18SeparationOfDutiesPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\r\n" +
+	"\v_is_defined\"\xf3\a\n" +
+	"\x17ServiceMetadataDocument\x12E\n" +
+	"\rcreation_time\x18\xa5- \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xb5\x1d \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
+	"\bfiletype\x18\xc3# \x01(\tH\x02R\bfiletype\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xc3@ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12T\n" +
+	"\x06labels\x18\x88\r \x03(\v2;.confirmate.ontology.v1.ServiceMetadataDocument.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xa0U \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x80? \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
 	"\x13cryptographic_hashs\x18\x98_ \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
 	"\rdata_location\x18\x9an \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xe0\" \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xfd@ \x01(\tH\x00R\bparentId\x88\x01\x01\x12L\n" +
+	"\tparent_id\x18\xfd@ \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
 	"\fvalidated_by\x18\xc8- \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\x91J \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:;\x82\xa6\x1d\x17ServiceMetadataDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:;\x82\xa6\x1d\x17ServiceMetadataDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\v\n" +
+	"\t_filetypeB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xa1\x01\n" +
-	"\x11DocumentSignature\x12\x1d\n" +
-	"\talgorithm\x18\xbf\x1f \x01(\tR\talgorithm\x126\n" +
-	"\x06errors\x18\xe1p \x03(\v2\x1d.confirmate.ontology.v1.ErrorR\x06errors:5\x82\xa6\x1d\x11DocumentSignature\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeature\"\xb5\x01\n" +
-	"\rSignedCommits\x12\x1b\n" +
-	"\benforced\x18\xa7\x19 \x01(\bR\benforced\x12\x1f\n" +
+	"_parent_id\"\xb4\x01\n" +
+	"\x11DocumentSignature\x12\"\n" +
+	"\talgorithm\x18\xbf\x1f \x01(\tH\x00R\talgorithm\x88\x01\x01\x126\n" +
+	"\x06errors\x18\xe1p \x03(\v2\x1d.confirmate.ontology.v1.ErrorR\x06errors:5\x82\xa6\x1d\x11DocumentSignature\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeatureB\f\n" +
 	"\n" +
-	"percentage\x18\xcb[ \x01(\x02R\n" +
-	"percentage\x123\n" +
-	"\x15percentage_last_month\x18\xcc\x1d \x01(\x02R\x13percentageLastMonth:1\x82\xa6\x1d\rSignedCommits\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeature\"\x82\x02\n" +
-	"\fSingleSignOn\x12-\n" +
-	"\x12context_is_checked\x18\x98q \x01(\bR\x10contextIsChecked\x12\x19\n" +
-	"\aenabled\x18\xc9R \x01(\bR\aenabled\x12E\n" +
-	"\x1efailed_authentication_attempts\x18\x87O \x01(\x05R\x1cfailedAuthenticationAttempts\x12,\n" +
-	"\x11rotation_interval\x18\xe1G \x01(\x05R\x10rotationInterval:3\x82\xa6\x1d\fSingleSignOn\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeature\"\xb2\x01\n" +
-	"\x13SoftwareAttestation\x12\x19\n" +
-	"\aenabled\x18\x89( \x01(\bR\aenabled\x12\x1d\n" +
-	"\tpredicate\x18\xbd2 \x01(\tR\tpredicate\x12\x19\n" +
-	"\asubject\x18\xddf \x03(\tR\asubject:F\x82\xa6\x1d\x13SoftwareAttestation\x82\xa6\x1d\vAttestation\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeature\"\x97\x04\n" +
+	"_algorithm\"\xfa\x01\n" +
+	"\rSignedCommits\x12 \n" +
+	"\benforced\x18\xa7\x19 \x01(\bH\x00R\benforced\x88\x01\x01\x12$\n" +
+	"\n" +
+	"percentage\x18\xcb[ \x01(\x02H\x01R\n" +
+	"percentage\x88\x01\x01\x128\n" +
+	"\x15percentage_last_month\x18\xcc\x1d \x01(\x02H\x02R\x13percentageLastMonth\x88\x01\x01:1\x82\xa6\x1d\rSignedCommits\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeatureB\v\n" +
+	"\t_enforcedB\r\n" +
+	"\v_percentageB\x18\n" +
+	"\x16_percentage_last_month\"\xf2\x02\n" +
+	"\fSingleSignOn\x122\n" +
+	"\x12context_is_checked\x18\x98q \x01(\bH\x00R\x10contextIsChecked\x88\x01\x01\x12\x1e\n" +
+	"\aenabled\x18\xc9R \x01(\bH\x01R\aenabled\x88\x01\x01\x12J\n" +
+	"\x1efailed_authentication_attempts\x18\x87O \x01(\x05H\x02R\x1cfailedAuthenticationAttempts\x88\x01\x01\x121\n" +
+	"\x11rotation_interval\x18\xe1G \x01(\x05H\x03R\x10rotationInterval\x88\x01\x01:3\x82\xa6\x1d\fSingleSignOn\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeatureB\x15\n" +
+	"\x13_context_is_checkedB\n" +
+	"\n" +
+	"\b_enabledB!\n" +
+	"\x1f_failed_authentication_attemptsB\x14\n" +
+	"\x12_rotation_interval\"\xd6\x01\n" +
+	"\x13SoftwareAttestation\x12\x1e\n" +
+	"\aenabled\x18\x89( \x01(\bH\x00R\aenabled\x88\x01\x01\x12\"\n" +
+	"\tpredicate\x18\xbd2 \x01(\tH\x01R\tpredicate\x88\x01\x01\x12\x19\n" +
+	"\asubject\x18\xddf \x03(\tR\asubject:F\x82\xa6\x1d\x13SoftwareAttestation\x82\xa6\x1d\vAttestation\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabledB\f\n" +
+	"\n" +
+	"_predicate\"\x97\x04\n" +
 	"\x04Code\x12I\n" +
 	"\vapplication\x18\xfa\x90\x01 \x01(\v2#.confirmate.ontology.v1.ApplicationH\x00R\vapplication\x12<\n" +
 	"\alibrary\x18\xb9o \x01(\v2\x1f.confirmate.ontology.v1.LibraryH\x00R\alibrary\x12<\n" +
@@ -35833,23 +36509,28 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06darwin\x18֑\x01 \x01(\v2\x1e.confirmate.ontology.v1.DarwinH\x00R\x06darwin\x126\n" +
 	"\x05posix\x18\xa7? \x01(\v2\x1d.confirmate.ontology.v1.POSIXH\x00R\x05posix\x126\n" +
 	"\x05win32\x18\xb62 \x01(\v2\x1d.confirmate.ontology.v1.Win32H\x00R\x05win32B\x06\n" +
-	"\x04type\"\xd7\x05\n" +
-	"\x0eSourceCodeFile\x12@\n" +
-	"\rcreation_time\x18\xdc8 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xe0t \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x97R \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12K\n" +
-	"\x06labels\x18\xb19 \x03(\v22.confirmate.ontology.v1.SourceCodeFile.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x97r \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x12\n" +
-	"\x03raw\x18\xf1\x81\x01 \x01(\tR\x03raw\x12'\n" +
+	"\x04type\"\xaa\x06\n" +
+	"\x0eSourceCodeFile\x12E\n" +
+	"\rcreation_time\x18\xdc8 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xe0t \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x97R \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12K\n" +
+	"\x06labels\x18\xb19 \x03(\v22.confirmate.ontology.v1.SourceCodeFile.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x97r \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x17\n" +
+	"\x03raw\x18\xf1\x81\x01 \x01(\tH\x04R\x03raw\x88\x01\x01\x12'\n" +
 	"\x0fcode_module_ids\x18\x95n \x03(\tR\rcodeModuleIds\x122\n" +
-	"\x12code_repository_id\x18\xe6@ \x01(\tH\x00R\x10codeRepositoryId\x88\x01\x01\x12P\n" +
+	"\x12code_repository_id\x18\xe6@ \x01(\tH\x05R\x10codeRepositoryId\x88\x01\x01\x12P\n" +
 	"\x0ffunctionalities\x18\xc3\x19 \x03(\v2%.confirmate.ontology.v1.FunctionalityR\x0ffunctionalities\x12!\n" +
-	"\tparent_id\x18\x88` \x01(\tH\x01R\bparentId\x88\x01\x01\x12a\n" +
+	"\tparent_id\x18\x88` \x01(\tH\x06R\bparentId\x88\x01\x01\x12a\n" +
 	"\x15software_attestations\x18\xb6W \x03(\v2+.confirmate.ontology.v1.SoftwareAttestationR\x14softwareAttestations\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:4\x82\xa6\x1d\x0eSourceCodeFile\x82\xa6\x1d\n" +
-	"CodeModule\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x15\n" +
+	"CodeModule\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x15\n" +
 	"\x13_code_repository_idB\f\n" +
 	"\n" +
 	"_parent_id\"\xd2\x02\n" +
@@ -35866,126 +36547,162 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1brelational_database_service\x18\xc5a \x01(\v21.confirmate.ontology.v1.RelationalDatabaseServiceH\x00R\x19relationalDatabaseService\x12`\n" +
 	"\x14file_storage_service\x18\xae\x83\x01 \x01(\v2*.confirmate.ontology.v1.FileStorageServiceH\x00R\x12fileStorageService\x12e\n" +
 	"\x16object_storage_service\x18\xbb2 \x01(\v2,.confirmate.ontology.v1.ObjectStorageServiceH\x00R\x14objectStorageServiceB\x06\n" +
-	"\x04type\"\xfb\x02\n" +
-	"\x0fSymmetricCipher\x12#\n" +
-	"\rauth_tag_size\x18\xb8; \x01(\x05R\vauthTagSize\x12\x1e\n" +
+	"\x04type\"\xdc\x03\n" +
+	"\x0fSymmetricCipher\x12(\n" +
+	"\rauth_tag_size\x18\xb8; \x01(\x05H\x00R\vauthTagSize\x88\x01\x01\x12#\n" +
 	"\n" +
-	"block_size\x18\xd8V \x01(\x05R\tblockSize\x12 \n" +
-	"\vcipher_name\x18\x8a\x0f \x01(\tR\n" +
-	"cipherName\x12\x1a\n" +
-	"\bkey_size\x18\xe8\x03 \x01(\x05R\akeySize\x12\x15\n" +
-	"\x05modus\x18\xb4P \x01(\tR\x05modus\x12b\n" +
+	"block_size\x18\xd8V \x01(\x05H\x01R\tblockSize\x88\x01\x01\x12%\n" +
+	"\vcipher_name\x18\x8a\x0f \x01(\tH\x02R\n" +
+	"cipherName\x88\x01\x01\x12\x1f\n" +
+	"\bkey_size\x18\xe8\x03 \x01(\x05H\x03R\akeySize\x88\x01\x01\x12\x1a\n" +
+	"\x05modus\x18\xb4P \x01(\tH\x04R\x05modus\x88\x01\x01\x12b\n" +
 	"\x15initialization_vector\x18\xbdX \x01(\v2,.confirmate.ontology.v1.InitializationVectorR\x14initializationVector\x12:\n" +
-	"\apadding\x18\xee\x14 \x01(\v2\x1f.confirmate.ontology.v1.PaddingR\apadding:.\x82\xa6\x1d\x0fSymmetricCipher\x82\xa6\x1d\x06Cipher\x82\xa6\x1d\rFunctionality\"!\n" +
-	"\x04Time:\x19\x82\xa6\x1d\x04Time\x82\xa6\x1d\rFunctionality\"\xd2\x03\n" +
-	"\x05Token\x12@\n" +
-	"\rcreation_time\x18\xf8G \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xf1\x1f \x01(\tR\vdescription\x12\x18\n" +
-	"\x02id\x18\x99\x82\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12B\n" +
-	"\x06labels\x18\xaaz \x03(\v2).confirmate.ontology.v1.Token.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xc0{ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x12\n" +
-	"\x03raw\x18\xec\x82\x01 \x01(\tR\x03raw\x12J\n" +
+	"\apadding\x18\xee\x14 \x01(\v2\x1f.confirmate.ontology.v1.PaddingR\apadding:.\x82\xa6\x1d\x0fSymmetricCipher\x82\xa6\x1d\x06Cipher\x82\xa6\x1d\rFunctionalityB\x10\n" +
+	"\x0e_auth_tag_sizeB\r\n" +
+	"\v_block_sizeB\x0e\n" +
+	"\f_cipher_nameB\v\n" +
+	"\t_key_sizeB\b\n" +
+	"\x06_modus\"!\n" +
+	"\x04Time:\x19\x82\xa6\x1d\x04Time\x82\xa6\x1d\rFunctionality\"\xa5\x04\n" +
+	"\x05Token\x12E\n" +
+	"\rcreation_time\x18\xf8G \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xf1\x1f \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18\x99\x82\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12B\n" +
+	"\x06labels\x18\xaaz \x03(\v2).confirmate.ontology.v1.Token.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xc0{ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x17\n" +
+	"\x03raw\x18\xec\x82\x01 \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
 	"\rdata_location\x18\x87k \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
-	"\tparent_id\x18\xcdS \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xcdS \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x1d\x82\xa6\x1d\x05Token\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x1d\x82\xa6\x1d\x05Token\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xc9\x01\n" +
 	"\bTraining\x12[\n" +
 	"\x12awareness_training\x18\xa3@ \x01(\v2).confirmate.ontology.v1.AwarenessTrainingH\x00R\x11awarenessTraining\x12X\n" +
 	"\x11security_training\x18\xdfB \x01(\v2(.confirmate.ontology.v1.SecurityTrainingH\x00R\x10securityTrainingB\x06\n" +
-	"\x04type\"\xd5\x03\n" +
-	"\x13TransportEncryption\x12\x19\n" +
-	"\aenabled\x18\xb5q \x01(\bR\aenabled\x12\x1b\n" +
-	"\benforced\x18\xe3K \x01(\bR\benforced\x12\x1b\n" +
-	"\bprotocol\x18\xcb6 \x01(\tR\bprotocol\x12*\n" +
-	"\x10protocol_version\x18\x81V \x01(\x02R\x0fprotocolVersion\x127\n" +
-	"\x17tls_signature_algorithm\x18\x94u \x01(\tR\x15tlsSignatureAlgorithm\x12;\n" +
+	"\x04type\"\xc5\x04\n" +
+	"\x13TransportEncryption\x12\x1e\n" +
+	"\aenabled\x18\xb5q \x01(\bH\x00R\aenabled\x88\x01\x01\x12 \n" +
+	"\benforced\x18\xe3K \x01(\bH\x01R\benforced\x88\x01\x01\x12 \n" +
+	"\bprotocol\x18\xcb6 \x01(\tH\x02R\bprotocol\x88\x01\x01\x12/\n" +
+	"\x10protocol_version\x18\x81V \x01(\x02H\x03R\x0fprotocolVersion\x88\x01\x01\x12<\n" +
+	"\x17tls_signature_algorithm\x18\x94u \x01(\tH\x04R\x15tlsSignatureAlgorithm\x88\x01\x01\x12;\n" +
 	"\bbased_on\x18Ň\x01 \x01(\v2\x1e.confirmate.ontology.v1.CipherR\abasedOn\x12I\n" +
 	"\rcipher_suites\x18\xa8, \x03(\v2#.confirmate.ontology.v1.CipherSuiteR\fcipherSuites\x12!\n" +
-	"\tsecret_id\x18\xebI \x01(\tH\x00R\bsecretId\x88\x01\x01:K\x82\xa6\x1d\x13TransportEncryption\x82\xa6\x1d\n" +
-	"Encryption\x82\xa6\x1d\x0fConfidentiality\x82\xa6\x1d\x0fSecurityFeatureB\f\n" +
+	"\tsecret_id\x18\xebI \x01(\tH\x05R\bsecretId\x88\x01\x01:K\x82\xa6\x1d\x13TransportEncryption\x82\xa6\x1d\n" +
+	"Encryption\x82\xa6\x1d\x0fConfidentiality\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabledB\v\n" +
+	"\t_enforcedB\v\n" +
+	"\t_protocolB\x13\n" +
+	"\x11_protocol_versionB\x1a\n" +
+	"\x18_tls_signature_algorithmB\f\n" +
 	"\n" +
 	"_secret_id\"\xff\x01\n" +
 	"\x13UnlockEncryptedDisk\x12D\n" +
 	"\vcode_region\x18\x8ci \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
 	"codeRegion\x12P\n" +
-	"\x0fdisk_encryption\x18\xab\x0f \x01(\v2&.confirmate.ontology.v1.DiskEncryptionR\x0ediskEncryption:P\x82\xa6\x1d\x13UnlockEncryptedDisk\x82\xa6\x1d\x17DiskEncryptionOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"s\n" +
-	"\x0fUsageStatistics\x12,\n" +
-	"\x12api_hits_per_month\x18\xc9; \x01(\x05R\x0fapiHitsPerMonth:2\x82\xa6\x1d\x0fUsageStatistics\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeature\"\xb5\a\n" +
-	"$UserInformationAndIntructionDocument\x12@\n" +
-	"\rcreation_time\x18\xf8\" \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xc2> \x01(\tR\vdescription\x12\x1b\n" +
-	"\bfiletype\x18\xd8G \x01(\tR\bfiletype\x12\x17\n" +
-	"\x02id\x18\x9a< \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12a\n" +
-	"\x06labels\x18\x9e& \x03(\v2H.confirmate.ontology.v1.UserInformationAndIntructionDocument.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xb0f \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xd2l \x01(\tR\x03raw\x12[\n" +
+	"\x0fdisk_encryption\x18\xab\x0f \x01(\v2&.confirmate.ontology.v1.DiskEncryptionR\x0ediskEncryption:P\x82\xa6\x1d\x13UnlockEncryptedDisk\x82\xa6\x1d\x17DiskEncryptionOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\x8f\x01\n" +
+	"\x0fUsageStatistics\x121\n" +
+	"\x12api_hits_per_month\x18\xc9; \x01(\x05H\x00R\x0fapiHitsPerMonth\x88\x01\x01:2\x82\xa6\x1d\x0fUsageStatistics\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\x15\n" +
+	"\x13_api_hits_per_month\"\x9a\b\n" +
+	"$UserInformationAndIntructionDocument\x12E\n" +
+	"\rcreation_time\x18\xf8\" \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xc2> \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
+	"\bfiletype\x18\xd8G \x01(\tH\x02R\bfiletype\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x9a< \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12a\n" +
+	"\x06labels\x18\x9e& \x03(\v2H.confirmate.ontology.v1.UserInformationAndIntructionDocument.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xb0f \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xd2l \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
 	"\x13cryptographic_hashs\x18\xa6' \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
 	"\rdata_location\x18\xcdN \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xacA \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xa1\f \x01(\tH\x00R\bparentId\x88\x01\x01\x12L\n" +
+	"\tparent_id\x18\xa1\f \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
 	"\fvalidated_by\x18\x89l \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xedb \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:H\x82\xa6\x1d$UserInformationAndIntructionDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:H\x82\xa6\x1d$UserInformationAndIntructionDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\v\n" +
+	"\t_filetypeB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xae\b\n" +
-	"\aVMImage\x12@\n" +
-	"\rcreation_time\x18\xd7@ \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x98% \x01(\tR\vdescription\x12\x18\n" +
-	"\x02id\x18ˋ\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x89u \x01(\bR\x1ainternetAccessibleEndpoint\x12E\n" +
-	"\x06labels\x18͆\x01 \x03(\v2+.confirmate.ontology.v1.VMImage.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xe40 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x83\x1b \x01(\tR\x03raw\x12+\n" +
-	"\x0eapplication_id\x18\xbd( \x01(\tH\x00R\rapplicationId\x88\x01\x01\x12\x88\x01\n" +
+	"_parent_id\"\xa7\t\n" +
+	"\aVMImage\x12E\n" +
+	"\rcreation_time\x18\xd7@ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x98% \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18ˋ\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x89u \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12E\n" +
+	"\x06labels\x18͆\x01 \x03(\v2+.confirmate.ontology.v1.VMImage.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xe40 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x83\x1b \x01(\tH\x05R\x03raw\x88\x01\x01\x12+\n" +
+	"\x0eapplication_id\x18\xbd( \x01(\tH\x06R\rapplicationId\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xd7\x1e \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12H\n" +
 	"\fgeo_location\x18\xe1\x8f\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xcdr \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xe5? \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xe7\v \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xb62 \x01(\tH\x01R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xb62 \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\x8c\x1b \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:2\x82\xa6\x1d\aVMImage\x82\xa6\x1d\x05Image\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x11\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:2\x82\xa6\x1d\aVMImage\x82\xa6\x1d\x05Image\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x11\n" +
 	"\x0f_application_idB\f\n" +
 	"\n" +
 	"_parent_id\"\xe8\x01\n" +
 	"\vValidateJwt\x12I\n" +
 	"\fauthenticity\x18\xf8[ \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12D\n" +
 	"\vcode_region\x18\xefu \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
-	"codeRegion:H\x82\xa6\x1d\vValidateJwt\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xd2\x03\n" +
-	"\x05Value\x12@\n" +
-	"\rcreation_time\x18\xa0\x13 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x89M \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xc7\x1f \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12B\n" +
-	"\x06labels\x18\xb15 \x03(\v2).confirmate.ontology.v1.Value.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xa4\x1e \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xeb; \x01(\tR\x03raw\x12K\n" +
+	"codeRegion:H\x82\xa6\x1d\vValidateJwt\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xa5\x04\n" +
+	"\x05Value\x12E\n" +
+	"\rcreation_time\x18\xa0\x13 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x89M \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xc7\x1f \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12B\n" +
+	"\x06labels\x18\xb15 \x03(\v2).confirmate.ontology.v1.Value.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xa4\x1e \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xeb; \x01(\tH\x04R\x03raw\x88\x01\x01\x12K\n" +
 	"\rdata_location\x18\xba\x90\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12\"\n" +
-	"\tparent_id\x18\x8f\x8d\x01 \x01(\tH\x00R\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\x8f\x8d\x01 \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x1d\x82\xa6\x1d\x05Value\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x1d\x82\xa6\x1d\x05Value\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\x9c\x01\n" +
-	"\x0fVerifiedCommits\x12\x1f\n" +
+	"_parent_id\"\xcf\x01\n" +
+	"\x0fVerifiedCommits\x12$\n" +
 	"\n" +
-	"percentage\x18\x89t \x01(\x02R\n" +
-	"percentage\x123\n" +
-	"\x15percentage_last_month\x18\x9f2 \x01(\x02R\x13percentageLastMonth:3\x82\xa6\x1d\x0fVerifiedCommits\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeature\"\xa3\r\n" +
-	"\x0eVirtualMachine\x12@\n" +
-	"\rcreation_time\x18\xe93 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xb1q \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xa8? \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\x96\x10 \x01(\bR\x1ainternetAccessibleEndpoint\x12K\n" +
-	"\x06labels\x18\xf0\x12 \x03(\v22.confirmate.ontology.v1.VirtualMachine.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xe1Z \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xf9m \x01(\tR\x03raw\x12S\n" +
+	"percentage\x18\x89t \x01(\x02H\x00R\n" +
+	"percentage\x88\x01\x01\x128\n" +
+	"\x15percentage_last_month\x18\x9f2 \x01(\x02H\x01R\x13percentageLastMonth\x88\x01\x01:3\x82\xa6\x1d\x0fVerifiedCommits\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeatureB\r\n" +
+	"\v_percentageB\x18\n" +
+	"\x16_percentage_last_month\"\x9c\x0e\n" +
+	"\x0eVirtualMachine\x12E\n" +
+	"\rcreation_time\x18\xe93 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xb1q \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xa8? \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\x96\x10 \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12K\n" +
+	"\x06labels\x18\xf0\x12 \x03(\v22.confirmate.ontology.v1.VirtualMachine.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xe1Z \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xf9m \x01(\tH\x05R\x03raw\x88\x01\x01\x12S\n" +
 	"\x10activity_logging\x18\x82M \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12V\n" +
 	"\x11automatic_updates\x18\xe5q \x01(\v2(.confirmate.ontology.v1.AutomaticUpdatesR\x10automaticUpdates\x12,\n" +
 	"\x11block_storage_ids\x18ڋ\x01 \x03(\tR\x0fblockStorageIds\x12G\n" +
@@ -36000,101 +36717,137 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"os_logging\x18\xceq \x01(\v2!.confirmate.ontology.v1.OSLoggingR\tosLogging\x12G\n" +
 	"\fredundancies\x18\x87\x1c \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12Y\n" +
 	"\x12remote_attestation\x18\xd1A \x01(\v2).confirmate.ontology.v1.RemoteAttestationR\x11remoteAttestation\x12 \n" +
-	"\tparent_id\x18V \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18V \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10resource_logging\x18\xde{ \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
 	"\x10usage_statistics\x18\xf3\x1d \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:;\x82\xa6\x1d\x0eVirtualMachine\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:;\x82\xa6\x1d\x0eVirtualMachine\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\x86\b\n" +
-	"\x0eVirtualNetwork\x12@\n" +
-	"\rcreation_time\x18\xdd\x0e \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xcaM \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xf7\x1f \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xbf= \x01(\bR\x1ainternetAccessibleEndpoint\x12K\n" +
-	"\x06labels\x18\xa25 \x03(\v22.confirmate.ontology.v1.VirtualNetwork.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xb2\x06 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x88o \x01(\tR\x03raw\x12\x88\x01\n" +
+	"_parent_id\"\xff\b\n" +
+	"\x0eVirtualNetwork\x12E\n" +
+	"\rcreation_time\x18\xdd\x0e \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xcaM \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xf7\x1f \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xbf= \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12K\n" +
+	"\x06labels\x18\xa25 \x03(\v22.confirmate.ontology.v1.VirtualNetwork.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xb2\x06 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\x88o \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\x9d\x01 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\xbc\x17 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12=\n" +
 	"\bloggings\x18\xa3\x93\x01 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xb0\x1b \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xbbH \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xbb; \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xbb; \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xad\x11 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:>\x82\xa6\x1d\x0eVirtualNetwork\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\x8f\b\n" +
-	"\x11VirtualSubNetwork\x12@\n" +
-	"\rcreation_time\x18\xbd\x02 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xb0q \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xf2O \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xc5p \x01(\bR\x1ainternetAccessibleEndpoint\x12N\n" +
-	"\x06labels\x18\xdc  \x03(\v25.confirmate.ontology.v1.VirtualSubNetwork.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x9b\f \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xbdv \x01(\tR\x03raw\x12\x88\x01\n" +
+	"_parent_id\"\x88\t\n" +
+	"\x11VirtualSubNetwork\x12E\n" +
+	"\rcreation_time\x18\xbd\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xb0q \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xf2O \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xc5p \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12N\n" +
+	"\x06labels\x18\xdc  \x03(\v25.confirmate.ontology.v1.VirtualSubNetwork.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x9b\f \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xbdv \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xaeG \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
 	"\fgeo_location\x18\x86\x04 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xeeH \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xfdI \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12H\n" +
 	"\fredundancies\x18\x81\x84\x01 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xd5{ \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\xd5{ \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xbbj \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:A\x82\xa6\x1d\x11VirtualSubNetwork\x82\xa6\x1d\n" +
-	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xd6\x01\n" +
-	"\rVulnerability\x12!\n" +
-	"\vcriticality\x18\xf2M \x01(\tR\vcriticality\x12\x11\n" +
-	"\x03cve\x18\xcd\x01 \x01(\tR\x03cve\x12\x12\n" +
-	"\x03cwe\x18\x95\x8f\x01 \x03(\tR\x03cwe\x12!\n" +
-	"\vdescription\x18\xc2S \x01(\tR\vdescription\x12!\n" +
-	"\vexploitable\x18\xde| \x01(\bR\vexploitable\x12\x11\n" +
-	"\x03url\x18\x95] \x01(\tR\x03url:\"\x82\xa6\x1d\rVulnerability\x82\xa6\x1d\rFunctionality\"\x94\x01\n" +
-	"\x16WebApplicationFirewall\x12\x19\n" +
-	"\aenabled\x18\x81F \x01(\bR\aenabled:_\x82\xa6\x1d\x16WebApplicationFirewall\x82\xa6\x1d\bFirewall\x82\xa6\x1d\x11AccessRestriction\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"\xce\x05\n" +
-	"\x05Win32\x12@\n" +
-	"\rcreation_time\x18\x96G \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x94\x10 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xa1D \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12B\n" +
-	"\x06labels\x18\xb3_ \x03(\v2).confirmate.ontology.v1.Win32.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x9c@ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x12\n" +
-	"\x03raw\x18\x96\x87\x01 \x01(\tR\x03raw\x12'\n" +
+	"_parent_id\"\xaf\x02\n" +
+	"\rVulnerability\x12&\n" +
+	"\vcriticality\x18\xf2M \x01(\tH\x00R\vcriticality\x88\x01\x01\x12\x16\n" +
+	"\x03cve\x18\xcd\x01 \x01(\tH\x01R\x03cve\x88\x01\x01\x12\x12\n" +
+	"\x03cwe\x18\x95\x8f\x01 \x03(\tR\x03cwe\x12&\n" +
+	"\vdescription\x18\xc2S \x01(\tH\x02R\vdescription\x88\x01\x01\x12&\n" +
+	"\vexploitable\x18\xde| \x01(\bH\x03R\vexploitable\x88\x01\x01\x12\x16\n" +
+	"\x03url\x18\x95] \x01(\tH\x04R\x03url\x88\x01\x01:\"\x82\xa6\x1d\rVulnerability\x82\xa6\x1d\rFunctionalityB\x0e\n" +
+	"\f_criticalityB\x06\n" +
+	"\x04_cveB\x0e\n" +
+	"\f_descriptionB\x0e\n" +
+	"\f_exploitableB\x06\n" +
+	"\x04_url\"\xa5\x01\n" +
+	"\x16WebApplicationFirewall\x12\x1e\n" +
+	"\aenabled\x18\x81F \x01(\bH\x00R\aenabled\x88\x01\x01:_\x82\xa6\x1d\x16WebApplicationFirewall\x82\xa6\x1d\bFirewall\x82\xa6\x1d\x11AccessRestriction\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\n" +
+	"\b_enabled\"\xa1\x06\n" +
+	"\x05Win32\x12E\n" +
+	"\rcreation_time\x18\x96G \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\x94\x10 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\xa1D \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12B\n" +
+	"\x06labels\x18\xb3_ \x03(\v2).confirmate.ontology.v1.Win32.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\x9c@ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x17\n" +
+	"\x03raw\x18\x96\x87\x01 \x01(\tH\x04R\x03raw\x88\x01\x01\x12'\n" +
 	"\x0fcode_module_ids\x18\xb6\x06 \x03(\tR\rcodeModuleIds\x122\n" +
-	"\x12code_repository_id\x18\xda} \x01(\tH\x00R\x10codeRepositoryId\x88\x01\x01\x12Q\n" +
+	"\x12code_repository_id\x18\xda} \x01(\tH\x05R\x10codeRepositoryId\x88\x01\x01\x12Q\n" +
 	"\x0ffunctionalities\x18\x81\x92\x01 \x03(\v2%.confirmate.ontology.v1.FunctionalityR\x0ffunctionalities\x12!\n" +
-	"\tparent_id\x18\xa4N \x01(\tH\x01R\bparentId\x88\x01\x01\x12a\n" +
+	"\tparent_id\x18\xa4N \x01(\tH\x06R\bparentId\x88\x01\x01\x12a\n" +
 	"\x15software_attestations\x18\xe3S \x03(\v2+.confirmate.ontology.v1.SoftwareAttestationR\x14softwareAttestations\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:<\x82\xa6\x1d\x05Win32\x82\xa6\x1d\x1bOperatingSystemArchitecture\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x15\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:<\x82\xa6\x1d\x05Win32\x82\xa6\x1d\x1bOperatingSystemArchitecture\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\x15\n" +
 	"\x13_code_repository_idB\f\n" +
 	"\n" +
-	"_parent_id\"\xf5\a\n" +
-	"\bWorkflow\x12@\n" +
-	"\rcreation_time\x18\xdc+ \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xcf\x16 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x980 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12A\n" +
-	"\x1cinternet_accessible_endpoint\x18\xd0' \x01(\bR\x1ainternetAccessibleEndpoint\x12E\n" +
-	"\x06labels\x18\xe6H \x03(\v2,.confirmate.ontology.v1.Workflow.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xfe` \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xc8I \x01(\tR\x03raw\x12\x88\x01\n" +
+	"_parent_id\"\xee\b\n" +
+	"\bWorkflow\x12E\n" +
+	"\rcreation_time\x18\xdc+ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
+	"\vdescription\x18\xcf\x16 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
+	"\x02id\x18\x980 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12F\n" +
+	"\x1cinternet_accessible_endpoint\x18\xd0' \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12E\n" +
+	"\x06labels\x18\xe6H \x03(\v2,.confirmate.ontology.v1.Workflow.LabelsEntryR\x06labels\x12 \n" +
+	"\x04name\x18\xfe` \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
+	"\x03raw\x18\xc8I \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
 	"#change_and_configuration_management\x18\xe9< \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12H\n" +
 	"\fgeo_location\x18\xe0\x8e\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\xd5\" \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\xebV \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xec< \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x90p \x01(\tH\x00R\bparentId\x88\x01\x01\x12S\n" +
+	"\tparent_id\x18\x90p \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
 	"\x10usage_statistics\x18\xd6/ \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:9\x82\xa6\x1d\bWorkflow\x82\xa6\x1d\vCICDService\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:9\x82\xa6\x1d\bWorkflow\x82\xa6\x1d\vCICDService\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
+	"\x0e_creation_timeB\x0e\n" +
+	"\f_descriptionB\x05\n" +
+	"\x03_idB\x1f\n" +
+	"\x1d_internet_accessible_endpointB\a\n" +
+	"\x05_nameB\x06\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xa0\x01\n" +
 	"\x0eZoneRedundancy\x12I\n" +
@@ -37765,16 +38518,22 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	if File_policies_security_metrics_ontology_v1_ontology_proto != nil {
 		return
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[1].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[2].OneofWrappers = []any{
 		(*AccessRestriction_L3Firewall)(nil),
 		(*AccessRestriction_WebApplicationFirewall)(nil),
 		(*AccessRestriction_RateLimiting)(nil),
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[3].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[4].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[5].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[6].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[7].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[8].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[9].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[10].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[11].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[12].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[13].OneofWrappers = []any{
 		(*AtRestEncryption_CustomerKeyEncryption)(nil),
 		(*AtRestEncryption_DiskEncryption)(nil),
@@ -37820,6 +38579,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Authorization_RateLimiting)(nil),
 		(*Authorization_Rbac)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[21].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[22].OneofWrappers = []any{
 		(*Availability_Backup)(nil),
 		(*Availability_DDoSProtection)(nil),
@@ -37828,14 +38588,17 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Availability_LocalRedundancy)(nil),
 		(*Availability_ZoneRedundancy)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[23].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[24].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[25].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[26].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[27].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[29].OneofWrappers = []any{
 		(*CICDService_Job)(nil),
 		(*CICDService_Workflow)(nil),
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[30].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[31].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[34].OneofWrappers = []any{
 		(*Cipher_AsymmetricCipher)(nil),
 		(*Cipher_HybridCipher)(nil),
@@ -37844,6 +38607,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[35].OneofWrappers = []any{
 		(*CipherOperation_Decryption)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[36].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[37].OneofWrappers = []any{
 		(*Infrastructure_Account)(nil),
 		(*Infrastructure_Job)(nil),
@@ -37888,7 +38652,11 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Infrastructure_FileStorage)(nil),
 		(*Infrastructure_ObjectStorage)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[39].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[40].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[41].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[42].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[43].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[44].OneofWrappers = []any{
 		(*Component_Application)(nil),
 		(*Component_Library)(nil),
@@ -37923,6 +38691,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[52].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[53].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[54].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[55].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[56].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[57].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[58].OneofWrappers = []any{}
@@ -37942,6 +38711,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Credential_Key)(nil),
 		(*Credential_Secret)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[66].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[67].OneofWrappers = []any{
 		(*CryptographicOperation_HashOperation)(nil),
 	}
@@ -37977,6 +38747,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Data_Token)(nil),
 		(*Data_Value)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[73].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[74].OneofWrappers = []any{
 		(*DataLocation_LocalDataLocation)(nil),
 		(*DataLocation_RemoteDataLocation)(nil),
@@ -38029,6 +38800,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Encryption_ManagedKeyEncryption)(nil),
 		(*Encryption_TransportEncryption)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[92].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[93].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[94].OneofWrappers = []any{
 		(*EntryPoint_LibraryEntryPoint)(nil),
@@ -38036,6 +38808,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*EntryPoint_HttpEndpoint)(nil),
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[95].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[96].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[99].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[100].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[101].OneofWrappers = []any{
@@ -38147,6 +38920,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*GenericDocument_ReportDocument)(nil),
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[111].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[112].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[115].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[116].OneofWrappers = []any{
 		(*Governance_ContactPerson)(nil),
@@ -38157,18 +38931,23 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[117].OneofWrappers = []any{
 		(*Hardware_Memory)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[118].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[119].OneofWrappers = []any{
 		(*Http_HttpClient)(nil),
 		(*Http_HttpRequestContext)(nil),
 		(*Http_HttpRequestHandler)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[120].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[122].OneofWrappers = []any{
 		(*HttpClientOperation_HttpRequest)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[123].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[125].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[127].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[128].OneofWrappers = []any{
 		(*HttpRequestHandlerOperation_RegisterHttpEndpoint)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[130].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[131].OneofWrappers = []any{
 		(*Identifiable_Identity)(nil),
 		(*Identifiable_RoleAssignment)(nil),
@@ -38178,6 +38957,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Image_ContainerImage)(nil),
 		(*Image_VmImage)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[134].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[139].OneofWrappers = []any{
 		(*Integrity_LocalAttestation)(nil),
 		(*Integrity_RemoteAttestation)(nil),
@@ -38199,13 +38979,17 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*TokenBasedAuthentication_JwtAuthentication)(nil),
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[145].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[146].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[147].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[148].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[149].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[150].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[151].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[153].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[154].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[155].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[156].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[157].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[158].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[159].OneofWrappers = []any{
 		(*LocalEntryPoint_LibraryEntryPoint)(nil),
@@ -38216,6 +39000,8 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*LogOperation_LogGet)(nil),
 		(*LogOperation_LogWrite)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[164].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[165].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[167].OneofWrappers = []any{
 		(*Logging_ActivityLogging)(nil),
 		(*Logging_ApplicationLogging)(nil),
@@ -38231,6 +39017,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[170].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[171].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[172].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[174].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[175].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[176].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[177].OneofWrappers = []any{
@@ -38245,7 +39032,10 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*CodeModule_Package)(nil),
 		(*CodeModule_SourceCodeFile)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[181].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[182].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[183].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[184].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[185].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[186].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[187].OneofWrappers = []any{
@@ -38280,6 +39070,9 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Networking_VirtualNetwork)(nil),
 		(*Networking_VirtualSubNetwork)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[190].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[191].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[192].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[193].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[194].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[195].OneofWrappers = []any{}
@@ -38333,6 +39126,8 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[199].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[200].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[201].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[202].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[203].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[204].OneofWrappers = []any{
 		(*Policies_AccessControlTypePolicy)(nil),
@@ -38364,6 +39159,8 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[215].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[216].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[217].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[218].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[219].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[220].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[221].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[222].OneofWrappers = []any{
@@ -38378,11 +39175,13 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Reliability_ExplainableResults)(nil),
 		(*Reliability_RobustnessScore)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[228].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[229].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[230].OneofWrappers = []any{
 		(*RemoteEntryPoint_HttpEndpoint)(nil),
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[231].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[232].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[233].OneofWrappers = []any{
 		(*Resource_Account)(nil),
 		(*Resource_Job)(nil),
@@ -38465,8 +39264,11 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Resource_Win32)(nil),
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[234].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[235].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[238].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[239].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[240].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[241].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[242].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[243].OneofWrappers = []any{
 		(*SecretOperation_CreateSecret)(nil),
@@ -38520,7 +39322,13 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*SecurityFeature_ExplainableResults)(nil),
 		(*SecurityFeature_RobustnessScore)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[249].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[250].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[251].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[252].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[253].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[254].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[255].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[256].OneofWrappers = []any{
 		(*Code_Application)(nil),
 		(*Code_Library)(nil),
@@ -38546,18 +39354,23 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*StorageService_FileStorageService)(nil),
 		(*StorageService_ObjectStorageService)(nil),
 	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[260].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[262].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[263].OneofWrappers = []any{
 		(*Training_AwarenessTraining)(nil),
 		(*Training_SecurityTraining)(nil),
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[264].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[266].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[267].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[268].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[270].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[271].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[272].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[273].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[274].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[275].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[276].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[277].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[278].OneofWrappers = []any{}
 	type x struct{}

@@ -305,8 +305,8 @@ func TestService_StartCollector(t *testing.T) {
 					id:                   "successful-collector-id",
 					targetOfEvaluationID: testdata.MockTargetOfEvaluationID1,
 					resources: []ontology.IsResource{
-						&ontology.VirtualMachine{Id: "vm-1"},
-						&ontology.ObjectStorage{Id: "storage-1"},
+						&ontology.VirtualMachine{Id: new("vm-1")},
+						&ontology.ObjectStorage{Id: new("storage-1")},
 					},
 				},
 			},
@@ -328,8 +328,8 @@ func TestService_StartCollector(t *testing.T) {
 					id:                   "rejected-collector-id",
 					targetOfEvaluationID: testdata.MockTargetOfEvaluationID1,
 					resources: []ontology.IsResource{
-						&ontology.VirtualMachine{Id: "vm-1"},
-						&ontology.ObjectStorage{Id: "storage-1"},
+						&ontology.VirtualMachine{Id: new("vm-1")},
+						&ontology.ObjectStorage{Id: new("storage-1")},
 					},
 				},
 			},

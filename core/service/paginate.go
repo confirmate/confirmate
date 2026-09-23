@@ -76,6 +76,8 @@ func PaginateSlice[T any](req api.PaginatedRequest, values []T, less func(a T, b
 	})
 }
 
+// PaginateRaw is a helper function that helps to paginate the results of a raw SQL query (e.g. one using DISTINCT ON,
+// which persistence.DB.List cannot express). The list function is expected to apply the given LIMIT/OFFSET itself.
 func PaginateRaw[T any](
 	req api.PaginatedRequest,
 	opts PaginationOpts,

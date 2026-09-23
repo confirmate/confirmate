@@ -28,16 +28,16 @@ import (
 // handleNetworkInterfaces creates a network interface resource based on the CSC Hub Ontology
 func (d *openstackCollector) handleNetworkInterfaces(network *networks.Network) (ontology.IsResource, error) {
 	r := &ontology.NetworkInterface{
-		Id:           network.ID,
-		Name:         network.Name,
-		Description:  network.Description,
+		Id:           new(network.ID),
+		Name:         new(network.Name),
+		Description:  new(network.Description),
 		CreationTime: timestamppb.New(network.CreatedAt),
 		GeoLocation: &ontology.GeoLocation{
-			Region: d.region,
+			Region: new(d.region),
 		},
 		Labels:   labels(new(network.Tags)),
 		ParentId: new(network.ProjectID),
-		Raw:      collector.Raw(network),
+		Raw:      new(collector.Raw(network)),
 	}
 
 	log.Info("Adding network interface", slog.String("name", network.Name))
