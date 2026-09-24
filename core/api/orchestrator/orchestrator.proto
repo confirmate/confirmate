@@ -325,6 +325,13 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/audit_scopes/{audit_scope_id}"};
   }
 
+  // Retrieves aggregated statistics for an audit scope: the number of top-level controls in
+  // scope grouped by workflow (implementation) state, and the number of controls grouped by
+  // their latest compliance (evaluation) status.
+  rpc GetAuditScopeStatistics(GetAuditScopeStatisticsRequest) returns (GetAuditScopeStatisticsResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/audit_scopes/{audit_scope_id}/statistics"};
+  }
+
   // Lists all Audit Scopes
   rpc ListAuditScopes(ListAuditScopesRequest) returns (ListAuditScopesResponse) {
     option (google.api.http) = {get: "/v1/orchestrator/audit_scopes"};
@@ -1198,6 +1205,28 @@ message GetAuditScopeRequest {
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
+}
+
+message GetAuditScopeStatisticsRequest {
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetAuditScopeStatisticsResponse {
+  // Number of top-level controls in scope, keyed by the name of their ControlInScopeState (e.g.
+  // "CONTROL_IN_SCOPE_STATE_OPEN"). Only counts controls without a parent control:
+  // ControlInScope records exist for every control including sub-controls, so counting all of
+  // them would inflate the numbers beyond what a single row in the UI represents.
+  map<string, int64> counts_by_control_state = 1;
+
+  // Number of controls, keyed by the name of their latest confirmate.evaluation.v1.EvaluationStatus
+  // (e.g. "EVALUATION_STATUS_COMPLIANT"), for controls that have at least one evaluation result.
+  // Unlike counts_by_control_state, this counts controls at whatever depth they were actually
+  // evaluated at, since metrics are typically attached to sub-controls rather than their
+  // top-level parent.
+  map<string, int64> counts_by_compliance_status = 2;
 }
 
 message ListAuditScopesRequest {

@@ -217,8 +217,8 @@ func TestService_AssessEvidence(t *testing.T) {
 						ToolId:               evidencetest.MockEvidenceToolID1,
 						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id:   evidencetest.MockVirtualMachineID1,
-							Name: evidencetest.MockVirtualMachineName1,
+							Id:   new(evidencetest.MockVirtualMachineID1),
+							Name: new(evidencetest.MockVirtualMachineName1),
 						}),
 					},
 				},
@@ -242,8 +242,8 @@ func TestService_AssessEvidence(t *testing.T) {
 						ToolId:    evidencetest.MockEvidenceToolID1,
 						Timestamp: timestamppb.Now(),
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id:   evidencetest.MockVirtualMachineID1,
-							Name: evidencetest.MockVirtualMachineName1,
+							Id:   new(evidencetest.MockVirtualMachineID1),
+							Name: new(evidencetest.MockVirtualMachineName1),
 						}),
 						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 					},
@@ -307,7 +307,7 @@ func TestService_AssessEvidence(t *testing.T) {
 					"my-other-resource-id": {
 						Id: evidencetest.MockEvidenceID2,
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id: evidencetest.MockVirtualMachineID2,
+							Id: new(evidencetest.MockVirtualMachineID2),
 						}),
 					},
 				},
@@ -320,8 +320,8 @@ func TestService_AssessEvidence(t *testing.T) {
 						Timestamp:            timestamppb.Now(),
 						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id:   evidencetest.MockVirtualMachineID1,
-							Name: evidencetest.MockVirtualMachineName1,
+							Id:   new(evidencetest.MockVirtualMachineID1),
+							Name: new(evidencetest.MockVirtualMachineName1),
 						}),
 						ExperimentalRelatedResourceIds: []string{"my-other-resource-id"},
 					},
@@ -347,8 +347,8 @@ func TestService_AssessEvidence(t *testing.T) {
 						Timestamp:            timestamppb.Now(),
 						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id:   evidencetest.MockVirtualMachineID1,
-							Name: evidencetest.MockVirtualMachineName1,
+							Id:   new(evidencetest.MockVirtualMachineID1),
+							Name: new(evidencetest.MockVirtualMachineName1),
 						}),
 						ExperimentalRelatedResourceIds: []string{"my-other-resource-id"},
 					},
@@ -416,7 +416,7 @@ func TestService_AssessEvidences(t *testing.T) {
 				Id:                   evidencetest.MockEvidenceID1,
 				Timestamp:            timestamppb.Now(),
 				TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
-				Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: evidencetest.MockVirtualMachineID1}),
+				Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: new(evidencetest.MockVirtualMachineID1)}),
 			}},
 			wantStatuses: []assessment.AssessmentStatus{assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED},
 			wantErr:      assert.NoError,
@@ -428,8 +428,8 @@ func TestService_AssessEvidences(t *testing.T) {
 				ToolId:               evidencetest.MockEvidenceToolID1,
 				TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 				Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-					Id:   evidencetest.MockVirtualMachineID1,
-					Name: evidencetest.MockVirtualMachineName1,
+					Id:   new(evidencetest.MockVirtualMachineID1),
+					Name: new(evidencetest.MockVirtualMachineName1),
 				}),
 			}},
 			wantStatuses: []assessment.AssessmentStatus{assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED},
@@ -445,11 +445,11 @@ func TestService_AssessEvidences(t *testing.T) {
 					ToolId:               evidencetest.MockEvidenceToolID1,
 					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   evidencetest.MockVirtualMachineID1,
-						Name: evidencetest.MockVirtualMachineName1,
+						Id:   new(evidencetest.MockVirtualMachineID1),
+						Name: new(evidencetest.MockVirtualMachineName1),
 						BootLogging: &ontology.BootLogging{
 							LoggingServiceIds: nil,
-							Enabled:           true,
+							Enabled:           new(true),
 						},
 					}),
 				},
@@ -459,11 +459,11 @@ func TestService_AssessEvidences(t *testing.T) {
 					ToolId:               evidencetest.MockEvidenceToolID2,
 					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   evidencetest.MockVirtualMachineID2,
-						Name: evidencetest.MockVirtualMachineName2,
+						Id:   new(evidencetest.MockVirtualMachineID2),
+						Name: new(evidencetest.MockVirtualMachineName2),
 						BootLogging: &ontology.BootLogging{
 							LoggingServiceIds: nil,
-							Enabled:           false,
+							Enabled:           new(false),
 						},
 					}),
 				},
@@ -594,20 +594,20 @@ func TestService_handleEvidence(t *testing.T) {
 					Timestamp:            timestamppb.Now(),
 					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   evidencetest.MockVirtualMachineID1,
-						Name: evidencetest.MockVirtualMachineName1,
+						Id:   new(evidencetest.MockVirtualMachineID1),
+						Name: new(evidencetest.MockVirtualMachineName1),
 						BootLogging: &ontology.BootLogging{
 							LoggingServiceIds: nil,
-							Enabled:           true,
+							Enabled:           new(true),
 						},
 					}),
 				},
 				resource: &ontology.VirtualMachine{
-					Id:   evidencetest.MockVirtualMachineID1,
-					Name: evidencetest.MockVirtualMachineName1,
+					Id:   new(evidencetest.MockVirtualMachineID1),
+					Name: new(evidencetest.MockVirtualMachineName1),
 					BootLogging: &ontology.BootLogging{
 						LoggingServiceIds: nil,
-						Enabled:           true,
+						Enabled:           new(true),
 					},
 				},
 				metric: &assessment.Metric{
@@ -645,20 +645,20 @@ func TestService_handleEvidence(t *testing.T) {
 					Timestamp:            timestamppb.Now(),
 					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   evidencetest.MockVirtualMachineID1,
-						Name: evidencetest.MockVirtualMachineName1,
+						Id:   new(evidencetest.MockVirtualMachineID1),
+						Name: new(evidencetest.MockVirtualMachineName1),
 						BootLogging: &ontology.BootLogging{
 							LoggingServiceIds: nil,
-							Enabled:           true,
+							Enabled:           new(true),
 						},
 					}),
 				},
 				resource: &ontology.VirtualMachine{
-					Id:   evidencetest.MockVirtualMachineID1,
-					Name: evidencetest.MockVirtualMachineName1,
+					Id:   new(evidencetest.MockVirtualMachineID1),
+					Name: new(evidencetest.MockVirtualMachineName1),
 					BootLogging: &ontology.BootLogging{
 						LoggingServiceIds: nil,
-						Enabled:           true,
+						Enabled:           new(true),
 					},
 				},
 				metric: &assessment.Metric{
@@ -814,14 +814,14 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 		Timestamp:            timestamppb.Now(),
 		TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 		Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-			Id:   evidencetest.MockVirtualMachineID1,
-			Name: evidencetest.MockVirtualMachineName1,
+			Id:   new(evidencetest.MockVirtualMachineID1),
+			Name: new(evidencetest.MockVirtualMachineName1),
 		}),
 		ExperimentalRelatedResourceIds: []string{"my-other-resource-id"},
 	}
 	e.Resource = prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-		Id:   evidencetest.MockVirtualMachineID1,
-		Name: evidencetest.MockVirtualMachineName1,
+		Id:   new(evidencetest.MockVirtualMachineID1),
+		Name: new(evidencetest.MockVirtualMachineName1),
 	})
 	_, err = s.AssessEvidence(context.Background(), connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: e}))
 	assert.NoError(t, err)
@@ -829,8 +829,8 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 	// Assess a new evidence which has not a valid format other than the resource type and tool id is set correctly
 	// Prepare resource. Make sure both evidences have the same type (for caching key)
 	a := prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-		Id:   uuid.NewString(),
-		Name: "Some other name",
+		Id:   new(uuid.NewString()),
+		Name: new("Some other name"),
 	})
 
 	assert.NoError(t, err)
@@ -890,24 +890,24 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 						Timestamp:            timestamppb.Now(),
 						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id:   evidencetest.MockVirtualMachineID1,
-							Name: evidencetest.MockVirtualMachineName1,
+							Id:   new(evidencetest.MockVirtualMachineID1),
+							Name: new(evidencetest.MockVirtualMachineName1),
 							BootLogging: &ontology.BootLogging{
 								LoggingServiceIds: []string{"SomeResourceId2"},
-								Enabled:           true,
+								Enabled:           new(true),
 								RetentionPeriod:   durationpb.New(time.Hour * 24 * 36),
 							},
 							OsLogging: &ontology.OSLogging{
 								LoggingServiceIds: []string{"SomeResourceId2"},
-								Enabled:           true,
+								Enabled:           new(true),
 								RetentionPeriod:   durationpb.New(time.Hour * 24 * 36),
 							},
 							MalwareProtection: &ontology.MalwareProtection{
-								Enabled:              true,
-								NumberOfThreatsFound: 5,
+								Enabled:              new(true),
+								NumberOfThreatsFound: new(int32(5)),
 								DurationSinceActive:  durationpb.New(time.Hour * 24 * 20),
 								ApplicationLogging: &ontology.ApplicationLogging{
-									Enabled:           true,
+									Enabled:           new(true),
 									LoggingServiceIds: []string{"SomeAnalyticsService?"},
 								},
 							},

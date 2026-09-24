@@ -47,8 +47,17 @@ type Evidence struct {
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// time of evidence creation
 	Timestamp *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
-	// Reference to a target of evaluation (e.g., service, organization) this evidence was gathered from
-	TargetOfEvaluationId string `protobuf:"bytes,3,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
+	// Reference to a target of evaluation (e.g., service, organization) this evidence was gathered from.
+	//
+	// NOTE: this index is picked up by GORM's AutoMigrate on service startup
+	// (see persistence.NewDB). Evidence is append-only and can grow very
+	// large; on an already-populated table, the first startup after this
+	// index is introduced will run a blocking CREATE INDEX and may stall
+	// writes for a while. Consider pre-creating it out-of-band with
+	// `CREATE INDEX CONCURRENTLY idx_evidences_target_of_evaluation_id ON
+	// evidences (target_of_evaluation_id);` before rolling this out;
+	// AutoMigrate detects the existing index by name and skips it.
+	TargetOfEvaluationId string `protobuf:"bytes,3,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty" gorm:"index"`
 	// Reference to the tool which provided the evidence
 	ToolId string `protobuf:"bytes,4,opt,name=tool_id,json=toolId,proto3" json:"tool_id,omitempty"`
 	// Semantic representation of the Cloud resource according to our defined ontology
@@ -148,7 +157,16 @@ type ResourceSnapshot struct {
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// TargetOfEvaluationId is the UUID for the target of evaluation to which this resource
 	// belongs to.
-	TargetOfEvaluationId string `protobuf:"bytes,2,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
+	//
+	// NOTE: this index is picked up by GORM's AutoMigrate on service startup
+	// (see persistence.NewDB). On an already-populated table, the first
+	// startup after this index is introduced will run a blocking CREATE INDEX
+	// and may stall writes for a while. Consider pre-creating it out-of-band
+	// with `CREATE INDEX CONCURRENTLY
+	// idx_resource_snapshots_target_of_evaluation_id ON resource_snapshots
+	// (target_of_evaluation_id);` before rolling this out; AutoMigrate
+	// detects the existing index by name and skips it.
+	TargetOfEvaluationId string `protobuf:"bytes,2,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty" gorm:"index"`
 	// ResourceType contains a comma separated string of resource types according
 	// to our ontology.
 	ResourceType string `protobuf:"bytes,3,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
@@ -461,18 +479,18 @@ var File_api_evidence_evidence_proto protoreflect.FileDescriptor
 
 const file_api_evidence_evidence_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/evidence/evidence.proto\x12\x16confirmate.evidence.v1\x1a4policies/security-metrics/ontology/v1/ontology.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xbe\x03\n" +
+	"\x1bapi/evidence/evidence.proto\x12\x16confirmate.evidence.v1\x1a4policies/security-metrics/ontology/v1/ontology.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xcf\x03\n" +
 	"\bEvidence\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12q\n" +
-	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB7\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\ttimestamp\x12?\n" +
-	"\x17target_of_evaluation_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12 \n" +
+	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB7\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\ttimestamp\x12P\n" +
+	"\x17target_of_evaluation_id\x18\x03 \x01(\tB\x19\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\fgorm:\"index\"R\x14targetOfEvaluationId\x12 \n" +
 	"\atool_id\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06toolId\x12Y\n" +
 	"\bresource\x18\x06 \x01(\v2 .confirmate.ontology.v1.ResourceB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\bresource\x12g\n" +
-	"!experimental_related_resource_ids\x18\xe7\a \x03(\tB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x1eexperimentalRelatedResourceIds\"\xa3\x02\n" +
+	"!experimental_related_resource_ids\x18\xe7\a \x03(\tB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x1eexperimentalRelatedResourceIds\"\xb4\x02\n" +
 	"\x10ResourceSnapshot\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12B\n" +
-	"\x17target_of_evaluation_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12/\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12S\n" +
+	"\x17target_of_evaluation_id\x18\x02 \x01(\tB\x1c\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\fgorm:\"index\"R\x14targetOfEvaluationId\x12/\n" +
 	"\rresource_type\x18\x03 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12#\n" +
 	"\atool_id\x18\x04 \x01(\tB\n" +

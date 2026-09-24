@@ -135,11 +135,11 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 				assert.NotEmpty(t, got)
 
 				want := &ontology.VirtualMachine{
-					Id:           "ef079b0c-e610-4dfb-b1aa-b49f07ac48e5",
-					Name:         "herp",
+					Id:           new("ef079b0c-e610-4dfb-b1aa-b49f07ac48e5"),
+					Name:         new("herp"),
 					CreationTime: timestamppb.New(t1),
 					GeoLocation: &ontology.GeoLocation{
-						Region: "test region",
+						Region: new("test region"),
 					},
 					Labels:              map[string]string{},
 					ParentId:            new("fcad67a6189847c4aecfa3c81a05783b"),
@@ -147,13 +147,14 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 					NetworkInterfaceIds: []string{"8a5fe506-7e9f-4091-899b-96336909d93c"},
 					MalwareProtection:   &ontology.MalwareProtection{},
 					AutomaticUpdates:    &ontology.AutomaticUpdates{},
-					BootLogging:         &ontology.BootLogging{Enabled: true},
+					BootLogging:         &ontology.BootLogging{Enabled: new(true)},
+					Raw:                 new(""),
 				}
 
 				gotNew := got.(*ontology.VirtualMachine)
 
 				assert.NotEmpty(t, gotNew.GetRaw())
-				gotNew.Raw = ""
+				gotNew.Raw = new("")
 				return assert.Equal(t, want, gotNew)
 			},
 			wantErr: assert.NoError,

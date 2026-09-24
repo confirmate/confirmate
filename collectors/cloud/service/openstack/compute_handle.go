@@ -40,26 +40,26 @@ func (d *openstackCollector) handleServer(server *servers.Server) (ontology.IsRe
 	consoleOutput := servers.ShowConsoleOutput(context.Background(), d.clients.computeClient, server.ID, servers.ShowConsoleOutputOpts{})
 	if consoleOutput.Result.Err == nil {
 		bootLogging = &ontology.BootLogging{
-			Enabled: true,
+			Enabled: new(true),
 		}
 	} else {
 		log.Error("Error getting boot logging", tint.Err(consoleOutput.Err))
 		// When an error occurs, we assume that boot logging is disabled.
 		bootLogging = &ontology.BootLogging{
-			Enabled: false,
+			Enabled: new(false),
 		}
 	}
 
 	r := &ontology.VirtualMachine{
-		Id:           server.ID,
-		Name:         server.Name,
+		Id:           new(server.ID),
+		Name:         new(server.Name),
 		CreationTime: timestamppb.New(server.Created),
 		GeoLocation: &ontology.GeoLocation{
-			Region: d.region,
+			Region: new(d.region),
 		},
 		Labels:            labels(server.Tags),
 		ParentId:          new(server.TenantID),
-		Raw:               collector.Raw(server),
+		Raw:               new(collector.Raw(server)),
 		MalwareProtection: &ontology.MalwareProtection{},
 		BootLogging:       bootLogging,
 		AutomaticUpdates:  &ontology.AutomaticUpdates{},

@@ -87,11 +87,11 @@ func Test_openstackCollector_collectServer(t *testing.T) {
 
 				// We check two VMs, the first one (want) has bootLoggingOutput enabled and the second one (want2) not
 				want := &ontology.VirtualMachine{
-					Id:           "ef079b0c-e610-4dfb-b1aa-b49f07ac48e5",
-					Name:         "herp",
+					Id:           new("ef079b0c-e610-4dfb-b1aa-b49f07ac48e5"),
+					Name:         new("herp"),
 					CreationTime: timestamppb.New(t1),
 					GeoLocation: &ontology.GeoLocation{
-						Region: "test region",
+						Region: new("test region"),
 					},
 					Labels:              map[string]string{},
 					ParentId:            new("fcad67a6189847c4aecfa3c81a05783b"),
@@ -99,15 +99,16 @@ func Test_openstackCollector_collectServer(t *testing.T) {
 					NetworkInterfaceIds: []string{"8a5fe506-7e9f-4091-899b-96336909d93c"},
 					MalwareProtection:   &ontology.MalwareProtection{},
 					AutomaticUpdates:    &ontology.AutomaticUpdates{},
-					BootLogging:         &ontology.BootLogging{Enabled: true},
+					BootLogging:         &ontology.BootLogging{Enabled: new(true)},
+					Raw:                 new(""),
 				}
 
 				want2 := &ontology.VirtualMachine{
-					Id:           "9e5476bd-a4ec-4653-93d6-72c93aa682ba",
-					Name:         "derp",
+					Id:           new("9e5476bd-a4ec-4653-93d6-72c93aa682ba"),
+					Name:         new("derp"),
 					CreationTime: timestamppb.New(t2),
 					GeoLocation: &ontology.GeoLocation{
-						Region: "test region",
+						Region: new("test region"),
 					},
 					Labels:              map[string]string{},
 					ParentId:            new("fcad67a6189847c4aecfa3c81a05783b"),
@@ -115,17 +116,18 @@ func Test_openstackCollector_collectServer(t *testing.T) {
 					NetworkInterfaceIds: []string{"8a5fe506-7e9f-4091-899b-96336909d93c"},
 					MalwareProtection:   &ontology.MalwareProtection{},
 					AutomaticUpdates:    &ontology.AutomaticUpdates{},
-					BootLogging:         &ontology.BootLogging{Enabled: false},
+					BootLogging:         &ontology.BootLogging{Enabled: new(false)},
+					Raw:                 new(""),
 				}
 
 				got0 := got[0].(*ontology.VirtualMachine)
 				assert.NotEmpty(t, got0.GetRaw())
-				got0.Raw = ""
+				got0.Raw = new("")
 				assert.Equal(t, want, got0)
 
 				got1 := got[1].(*ontology.VirtualMachine)
 				assert.NotEmpty(t, got1.GetRaw())
-				got1.Raw = ""
+				got1.Raw = new("")
 
 				return assert.Equal(t, want2, got1)
 			},

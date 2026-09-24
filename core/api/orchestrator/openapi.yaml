@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.17-62-g1c789afa
+    version: core/v0.2.17-67-gb9e711c1
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -453,6 +453,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ExportAuditScopeReportResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/audit_scopes/{auditScopeId}/statistics:
+        get:
+            tags:
+                - Orchestrator
+            description: |-
+                Retrieves aggregated statistics for an audit scope: the number of top-level controls in
+                 scope grouped by workflow (implementation) state, and the number of controls grouped by
+                 their latest compliance (evaluation) status.
+            operationId: Orchestrator_GetAuditScopeStatistics
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetAuditScopeStatisticsResponse'
                 default:
                     description: Default error response
                     content:
@@ -2359,7 +2387,18 @@ components:
                     description: ComplianceDetails contains machine-readable details about which comparisons lead to a (non)-compliance.
                 targetOfEvaluationId:
                     type: string
-                    description: The target of evaluation which this assessment result belongs to
+                    description: |-
+                        The target of evaluation which this assessment result belongs to.
+
+                         NOTE: idx_assessment_results_target_of_evaluation_id is picked up by
+                         GORM's AutoMigrate on service startup (see persistence.NewDB). On a
+                         large, already-populated assessment_results table, the first startup
+                         after this index is introduced will run a blocking CREATE INDEX and may
+                         stall writes for a while. Consider pre-creating the index out-of-band
+                         with `CREATE INDEX CONCURRENTLY
+                         idx_assessment_results_target_of_evaluation_id ON assessment_results
+                         (target_of_evaluation_id);` before rolling this out; AutoMigrate detects
+                         the existing index by name and skips it.
                 toolId:
                     type: string
                     description: Reference to the tool which provided the assessment result
@@ -2757,13 +2796,32 @@ components:
                     description: Evaluation result id
                 targetOfEvaluationId:
                     type: string
-                    description: The Target of Evaluation ID the evaluation belongs to
+                    description: |-
+                        The Target of Evaluation ID the evaluation belongs to.
+
+                         NOTE: idx_evaluation_results_toe_control_timestamp is picked up by
+                         GORM's AutoMigrate on service startup (see persistence.NewDB). See the
+                         note on control_id below regarding a safe production rollout.
                 auditScopeId:
                     type: string
                     description: The Audit Scope ID the evaluation belongs to
                 controlId:
                     type: string
-                    description: The control id the evaluation was based on
+                    description: |-
+                        The control id the evaluation was based on.
+
+                         NOTE: idx_evaluation_results_control_timestamp and
+                         idx_evaluation_results_toe_control_timestamp are picked up by GORM's
+                         AutoMigrate on service startup (see persistence.NewDB). On a large,
+                         already-populated evaluation_results table, the first startup after
+                         these indexes are introduced will run blocking CREATE INDEX statements
+                         and may stall writes for a while. Consider pre-creating them out-of-band
+                         with `CREATE INDEX CONCURRENTLY idx_evaluation_results_control_timestamp
+                         ON evaluation_results (control_id, timestamp);` and `CREATE INDEX
+                         CONCURRENTLY idx_evaluation_results_toe_control_timestamp ON
+                         evaluation_results (target_of_evaluation_id, control_id, timestamp);`
+                         before rolling this out; AutoMigrate detects existing indexes by name
+                         and skips them.
                 controlCatalogId:
                     type: string
                     description: The catalog the evaluated control belongs to
@@ -2821,6 +2879,28 @@ components:
                     readOnly: true
                     type: string
                     description: Filename is the suggested filename for the download, e.g. "audit-scope-report-my-scope.xlsx".
+        GetAuditScopeStatisticsResponse:
+            type: object
+            properties:
+                countsByControlState:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: |-
+                        Number of top-level controls in scope, keyed by the name of their ControlInScopeState (e.g.
+                         "CONTROL_IN_SCOPE_STATE_OPEN"). Only counts controls without a parent control:
+                         ControlInScope records exist for every control including sub-controls, so counting all of
+                         them would inflate the numbers beyond what a single row in the UI represents.
+                countsByComplianceStatus:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: |-
+                        Number of controls, keyed by the name of their latest confirmate.evaluation.v1.EvaluationStatus
+                         (e.g. "EVALUATION_STATUS_COMPLIANT"), for controls that have at least one evaluation result.
+                         Unlike counts_by_control_state, this counts controls at whatever depth they were actually
+                         evaluated at, since metrics are typically attached to sub-controls rather than their
+                         top-level parent.
         GetTargetOfEvaluationStatisticsResponse:
             type: object
             properties:

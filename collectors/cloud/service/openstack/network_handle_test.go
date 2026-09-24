@@ -63,19 +63,21 @@ func Test_openstackCollector_handleNetworkInterfaces(t *testing.T) {
 			},
 			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				want := &ontology.NetworkInterface{
-					Id:           testdata.MockOpenstackNetworkID1,
-					Name:         testdata.MockOpenstackNetworkName1,
+					Id:           new(testdata.MockOpenstackNetworkID1),
+					Name:         new(testdata.MockOpenstackNetworkName1),
 					CreationTime: timestamppb.New(testTime),
 					GeoLocation: &ontology.GeoLocation{
-						Region: "test region",
+						Region: new("test region"),
 					},
-					ParentId: new(testdata.MockOpenstackServerTenantID),
+					ParentId:    new(testdata.MockOpenstackServerTenantID),
+					Description: new(""),
+					Raw:         new(""),
 				}
 
 				gotNew := got.(*ontology.NetworkInterface)
 
 				assert.NotEmpty(t, gotNew.GetRaw())
-				gotNew.Raw = ""
+				gotNew.Raw = new("")
 				return assert.Equal(t, want, gotNew)
 			},
 			wantErr: assert.NoError,
