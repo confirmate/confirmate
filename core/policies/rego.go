@@ -28,8 +28,8 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util"
-
 	"connectrpc.com/connect"
+
 	"github.com/open-policy-agent/opa/v1/rego"
 	"github.com/open-policy-agent/opa/v1/storage"
 	"github.com/open-policy-agent/opa/v1/storage/inmem"
@@ -206,93 +206,130 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 	types = ontology.ResourceTypes(r)
 	key := createKey(evidence, types)
 
-	re.mrtc.RLock()
-	cached := re.mrtc.m[key]
-	re.mrtc.RUnlock()
+	// re.mrtc.RLock()
+	// cached := re.mrtc.m[key]
+	// re.mrtc.RUnlock()
 
-	// TODO(lebogg): Try to optimize duplicated code
-	if cached == nil {
-		metrics, err := src.Metrics(ctx)
+	metrics, err := src.Metrics(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("could not retrieve metric definitions: %w", err)
+	}
+	slog.Info("Resource type has the applicable metric(s)", slog.Any("key", key), slog.Any("len", len(metrics)), slog.Any("names", namesOf(metrics)))
+
+	for _, metric := range metrics {
+		runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
 		if err != nil {
-			return nil, fmt.Errorf("could not retrieve metric definitions: %w", err)
-		}
-
-		// Lock until we looped through all files
-		re.mrtc.Lock()
-
-		// Start with an empty list, otherwise we might copy metrics into the list that are added by
-		// a parallel execution - which might occur if both goroutines start at the exactly same
-		// time.
-		cached = []*assessment.Metric{}
-		for _, metric := range metrics {
-			// Try to evaluate it and check if the metric is applicable (in which case we are
-			// getting a result). We need to differentiate here between an execution error (which
-			// might be temporary) and an error if the metric configuration or implementation is not
-			// found. The latter case happens if the metric is not assessed within the toolset but
-			// we need to know that the metric exists, e.g., because it is evaluated by an external
-			// tool. In this case, we can just pretend that the metric is not applicable for us and
-			// continue.
-			runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
-			if err != nil {
-				// Try to check if the metric implementation just does not exist.
-				if connect.CodeOf(err) == connect.CodeNotFound && (strings.Contains(err.Error(), "implementation for metric not found") ||
-					strings.Contains(err.Error(), "metric configuration not found")) {
-					slog.Error("Metric implementation or configuration not found. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
-					continue
-				}
-
-				if re.skipMetricOnError {
-					// We intentionally do NOT mark the whole cache as invalid here so other metrics can still be evaluated.
-					slog.Error("Error while evaluating metric. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
-					continue
-				} else {
-					// Otherwise, we are not really in a state where our cache is valid, so we mark it
-					// as not cached at all.
-					re.mrtc.m[key] = nil
-
-					// Unlock, to avoid deadlock and return from here with the error
-					re.mrtc.Unlock()
-					return nil, err
-				}
+			// Try to check if the metric implementation just does not exist.
+			if connect.CodeOf(err) == connect.CodeNotFound && (strings.Contains(err.Error(), "implementation for metric not found") ||
+				strings.Contains(err.Error(), "metric configuration not found")) {
+				slog.Error("Metric implementation or configuration not found. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+				continue
 			}
 
-			if runMap != nil {
-				cached = append(cached, metric)
-
-				data = append(data, runMap)
+			if re.skipMetricOnError {
+				// We intentionally do NOT mark the whole cache as invalid here so other metrics can still be evaluated.
+				slog.Error("Error while evaluating metric. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+				continue
 			}
 		}
-
-		// Only persist a non-empty result. If discovery found zero applicable metrics -- which can
-		// legitimately happen transiently, e.g. if this is called before the metric source has
-		// finished loading its catalog on startup -- leave the cache entry unset (nil) so the next
-		// evidence for this key retries discovery instead of being permanently stuck with an empty
-		// result. There is no other code path that invalidates this cache (HandleMetricEvent only
-		// evicts the separate query cache), so caching an empty result here would otherwise silently
-		// suppress evaluation for every future evidence with the same key.
-		if len(cached) > 0 {
-			re.mrtc.m[key] = cached
+		// Add runMap to data only if metric was applicable. runMap=nil and err=nil means the metric was not
+		// applicable.
+		// This shouldn't happen in theory since it was tested above when the metric cache got initialized. But when
+		// there is new evidence which has set the resource types and tool id correctly (their combination builds
+		// the key for the cache), all metrics are applied due to the cache - even when all corresponding resource
+		// fields are not set properly.
+		if runMap != nil {
+			data = append(data, runMap)
 		}
-		slog.Info("Resource type has the applicable metric(s)", slog.Any("key", key), slog.Any("len", len(cached)), slog.Any("names", namesOf(cached)))
 
-		re.mrtc.Unlock()
-	} else {
-		for _, metric := range cached {
-			runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
-			if err != nil {
-				return nil, err
-			}
-			// Add runMap to data only if metric was applicable. runMap=nil and err=nil means the metric was not
-			// applicable.
-			// This shouldn't happen in theory since it was tested above when the metric cache got initialized. But when
-			// there is new evidence which has set the resource types and tool id correctly (their combination builds
-			// the key for the cache), all metrics are applied due to the cache - even when all corresponding resource
-			// fields are not set properly.
-			if runMap != nil {
-				data = append(data, runMap)
-			}
+		if runMap == nil {
+			slog.Debug("Metric is not applicable for this evidence. That should not happen.", slog.Any("metric_name", metric.GetName()), slog.Any("metric_id", metric.GetId()), slog.String("evidence_id", evidence.GetId()))
 		}
 	}
+
+	// // TODO(lebogg): Try to optimize duplicated code
+	// if cached == nil {
+	// 	metrics, err := src.Metrics(ctx)
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("could not retrieve metric definitions: %w", err)
+	// 	}
+
+	// 	// Lock until we looped through all files
+	// 	re.mrtc.Lock()
+
+	// 	// Start with an empty list, otherwise we might copy metrics into the list that are added by
+	// 	// a parallel execution - which might occur if both goroutines start at the exactly same
+	// 	// time.
+	// 	cached = []*assessment.Metric{}
+	// 	for _, metric := range metrics {
+	// 		// Try to evaluate it and check if the metric is applicable (in which case we are
+	// 		// getting a result). We need to differentiate here between an execution error (which
+	// 		// might be temporary) and an error if the metric configuration or implementation is not
+	// 		// found. The latter case happens if the metric is not assessed within the toolset but
+	// 		// we need to know that the metric exists, e.g., because it is evaluated by an external
+	// 		// tool. In this case, we can just pretend that the metric is not applicable for us and
+	// 		// continue.
+	// 		runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
+	// 		if err != nil {
+	// 			// Try to check if the metric implementation just does not exist.
+	// 			if connect.CodeOf(err) == connect.CodeNotFound && (strings.Contains(err.Error(), "implementation for metric not found") ||
+	// 				strings.Contains(err.Error(), "metric configuration not found")) {
+	// 				slog.Error("Metric implementation or configuration not found. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+	// 				continue
+	// 			}
+
+	// 			if re.skipMetricOnError {
+	// 				// We intentionally do NOT mark the whole cache as invalid here so other metrics can still be evaluated.
+	// 				slog.Error("Error while evaluating metric. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+	// 				continue
+	// 			} else {
+	// 				// Otherwise, we are not really in a state where our cache is valid, so we mark it
+	// 				// as not cached at all.
+	// 				re.mrtc.m[key] = nil
+
+	// 				// Unlock, to avoid deadlock and return from here with the error
+	// 				re.mrtc.Unlock()
+	// 				return nil, err
+	// 			}
+	// 		}
+
+	// 		if runMap != nil {
+	// 			cached = append(cached, metric)
+
+	// 			data = append(data, runMap)
+	// 		}
+	// 	}
+
+	// 	// Only persist a non-empty result. If discovery found zero applicable metrics -- which can
+	// 	// legitimately happen transiently, e.g. if this is called before the metric source has
+	// 	// finished loading its catalog on startup -- leave the cache entry unset (nil) so the next
+	// 	// evidence for this key retries discovery instead of being permanently stuck with an empty
+	// 	// result. There is no other code path that invalidates this cache (HandleMetricEvent only
+	// 	// evicts the separate query cache), so caching an empty result here would otherwise silently
+	// 	// suppress evaluation for every future evidence with the same key.
+	// 	if len(cached) > 0 {
+	// 		re.mrtc.m[key] = cached
+	// 	}
+	// 	slog.Info("Resource type has the applicable metric(s)", slog.Any("key", key), slog.Any("len", len(cached)), slog.Any("names", namesOf(cached)))
+
+	// 	re.mrtc.Unlock()
+	// } else {
+	// 	for _, metric := range cached {
+	// 		runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	// 		// Add runMap to data only if metric was applicable. runMap=nil and err=nil means the metric was not
+	// 		// applicable.
+	// 		// This shouldn't happen in theory since it was tested above when the metric cache got initialized. But when
+	// 		// there is new evidence which has set the resource types and tool id correctly (their combination builds
+	// 		// the key for the cache), all metrics are applied due to the cache - even when all corresponding resource
+	// 		// fields are not set properly.
+	// 		if runMap != nil {
+	// 			data = append(data, runMap)
+	// 		}
+	// 	}
+	// }
 
 	return data, nil
 }
