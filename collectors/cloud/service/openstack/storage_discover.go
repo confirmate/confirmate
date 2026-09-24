@@ -19,12 +19,38 @@ import (
 	"confirmate.io/core/api/ontology"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
+	"github.com/gophercloud/gophercloud/v2/openstack/objectstorage/v1/containers"
 )
 
 // collectBlockStorage collects block storages
 func (d *openstackCollector) collectBlockStorage() (list []ontology.IsResource, err error) {
 	var opts volumes.ListOptsBuilder = &volumes.ListOpts{}
-	list, err = genericList(d, d.storageClient, volumes.List, d.handleBlockStorage, volumes.ExtractVolumes, opts)
+	list, err = genericList(d, d.blockStorageClient, volumes.List, d.handleBlockStorage, volumes.ExtractVolumes, opts)
+
+	return
+}
+
+// collectObjectStorage collects object storages
+func (d *openstackCollector) collectObjectStorage() (list []ontology.IsResource, err error) {
+	var opts containers.ListOptsBuilder = &containers.ListOpts{}
+	list, err = genericList(d, d.storageClient, containers.List, d.handleObjectStorage, containers.ExtractInfo, opts)
+
+	return
+}
+
+// collectObjectStorageService collects the object storage service resource. It is a no-op if the object storage
+// client could not be initialized, e.g. because the deployment does not offer an object storage service.
+func (d *openstackCollector) collectObjectStorageService() (list []ontology.IsResource, err error) {
+	if d.clients.storageClient == nil {
+		return nil, nil
+	}
+
+	resource, err := d.handleObjectStorageService()
+	if err != nil {
+		return nil, err
+	}
+
+	list = append(list, resource)
 
 	return
 }

@@ -87,6 +87,13 @@ func Test_openstackCollector_collectNetworkInterfaces(t *testing.T) {
 					ParentId:    new("4fd44f30292945e481c7b8a0c8908869"),
 					Description: new(""),
 					Raw:         new(""),
+					AccessRestriction: &ontology.AccessRestriction{
+						Type: &ontology.AccessRestriction_L3Firewall{
+							L3Firewall: &ontology.L3Firewall{
+								Enabled: new(false),
+							},
+						},
+					},
 				}
 
 				got0 := got[0].(*ontology.NetworkInterface)

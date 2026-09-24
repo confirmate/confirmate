@@ -436,7 +436,7 @@ func Test_openstackCollector_List(t *testing.T) {
 				domain:  &domain{},
 			},
 			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
-				return assert.Equal(t, 0, len(got))
+				return assert.Equal(t, 1, len(got))
 			},
 			wantErr: assert.NoError,
 		},
@@ -454,7 +454,7 @@ func Test_openstackCollector_List(t *testing.T) {
 				domain:  &domain{},
 			},
 			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
-				return assert.Equal(t, 4, len(got))
+				return assert.Equal(t, 5, len(got))
 			},
 			wantErr: assert.NoError,
 		},
@@ -472,7 +472,7 @@ func Test_openstackCollector_List(t *testing.T) {
 				domain:  &domain{},
 			},
 			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
-				return assert.Equal(t, 6, len(got))
+				return assert.Equal(t, 7, len(got))
 			},
 			wantErr: assert.NoError,
 		},
@@ -490,7 +490,7 @@ func Test_openstackCollector_List(t *testing.T) {
 				domain:  &domain{},
 			},
 			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
-				return assert.Equal(t, 8, len(got))
+				return assert.Equal(t, 9, len(got))
 			},
 			wantErr: assert.NoError,
 		},
@@ -517,7 +517,7 @@ func Test_openstackCollector_List(t *testing.T) {
 					Raw:      new(""),
 				}
 
-				got0 := got[9].(*ontology.ResourceGroup)
+				got0 := got[10].(*ontology.ResourceGroup)
 				assert.NotEmpty(t, got0.GetRaw())
 				got0.Raw = new("")
 				return assert.Equal(t, want, got0)
@@ -538,7 +538,7 @@ func Test_openstackCollector_List(t *testing.T) {
 				domain:  &domain{},
 			},
 			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
-				return assert.Equal(t, 10, len(got))
+				return assert.Equal(t, 11, len(got))
 			},
 			wantErr: assert.NoError,
 		},
@@ -558,7 +558,7 @@ func Test_openstackCollector_List(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
-				return assert.Equal(t, 11, len(got))
+				return assert.Equal(t, 12, len(got))
 			},
 			wantErr: assert.NoError,
 		},

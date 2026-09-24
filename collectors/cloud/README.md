@@ -9,6 +9,7 @@ The cloud collector service currently supports:
 - `aws`
 - `azure`
 - `openstack`
+- `ionos`
 - `k8s`
 - `csaf`
 
@@ -73,7 +74,7 @@ If your evidence service is exposed on another address, set it explicitly:
 ## Runtime Flags
 
 ```text
---collector-provider string, -p string                Cloud provider (aws, azure, openstack, k8s, csaf)
+--collector-provider string, -p string                Cloud provider (aws, azure, openstack, ionos, k8s, csaf)
 --collector-tool-id string, -t string                 Collector Tool ID to identify the collector instance
 --collector-resource-group string, -r string          Limit the scope of the collector to a specific resource group
 --collector-csaf-domain string, -d string             CSAF domain to fetch the CSAF documents from
@@ -91,6 +92,7 @@ The collector uses provider SDK authentication and expects credentials to be con
 - AWS: Standard AWS SDK credential chain (for example env vars, shared credentials file, or role)
 - Kubernetes: kubeconfig / in-cluster configuration
 - OpenStack: OpenStack auth environment variables (see `collectors/cloud/service/openstack/README.md`)
+- IONOS Cloud: IONOS Cloud SDK environment variables (`IONOS_USERNAME`/`IONOS_PASSWORD` or `IONOS_TOKEN`; see `collectors/cloud/service/ionos/README.md`)
 - CSAF: network access to the configured provider domain
 
 ## Verify It Works

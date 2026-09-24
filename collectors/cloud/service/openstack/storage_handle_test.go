@@ -16,6 +16,7 @@
 package openstack
 
 import (
+	"net/http"
 	"testing"
 	"time"
 
@@ -24,6 +25,9 @@ import (
 	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
+	"github.com/gophercloud/gophercloud/v2/openstack/objectstorage/v1/containers"
+	"github.com/gophercloud/gophercloud/v2/testhelper"
+	"github.com/gophercloud/gophercloud/v2/testhelper/client"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -119,6 +123,11 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			fakeServer := testhelper.SetupHTTP()
+			t.Cleanup(fakeServer.Teardown)
+
+			tt.fields.clients.blockStorageClient = client.ServiceClient(fakeServer)
+
 			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
@@ -133,4 +142,64 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 			tt.wantErr(t, err)
 		})
 	}
+}
+
+func Test_openstackCollector_handleObjectStorage(t *testing.T) {
+	fakeServer := testhelper.SetupHTTP()
+	defer fakeServer.Teardown()
+
+	fakeServer.Mux.HandleFunc("/mycontainer", func(w http.ResponseWriter, r *http.Request) {
+		testhelper.TestMethod(t, r, "HEAD")
+
+		w.Header().Add("X-Container-Read", ".r:*")
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	d := &openstackCollector{
+		clients: clients{
+			storageClient: client.ServiceClient(fakeServer),
+		},
+	}
+
+	got, err := d.handleObjectStorage(&containers.Container{Name: "mycontainer"})
+
+	assert.NoError(t, err)
+
+	want := &ontology.ObjectStorage{
+		Id:           new("mycontainer"),
+		Name:         new("mycontainer"),
+		ParentId:     new(client.ServiceClient(fakeServer).Endpoint),
+		PublicAccess: new(true),
+	}
+	assert.Equal(t, want, got.(*ontology.ObjectStorage))
+}
+
+func Test_openstackCollector_handleObjectStorageService(t *testing.T) {
+	fakeServer := testhelper.SetupHTTP()
+	defer fakeServer.Teardown()
+
+	d := &openstackCollector{
+		clients: clients{
+			storageClient: client.ServiceClient(fakeServer),
+		},
+		region:  "test region",
+		project: &project{projectID: "test-project-id"},
+	}
+
+	got, err := d.handleObjectStorageService()
+
+	assert.NoError(t, err)
+
+	want := &ontology.ObjectStorageService{
+		Id:   new(client.ServiceClient(fakeServer).Endpoint),
+		Name: new("Swift Object Storage Service"),
+		GeoLocation: &ontology.GeoLocation{
+			Region: new("test region"),
+		},
+		ParentId: new("test-project-id"),
+		HttpEndpoint: &ontology.HttpEndpoint{
+			Url: new(client.ServiceClient(fakeServer).Endpoint),
+		},
+	}
+	assert.Equal(t, want, got.(*ontology.ObjectStorageService))
 }

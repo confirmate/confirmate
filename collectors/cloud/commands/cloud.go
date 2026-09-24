@@ -30,7 +30,7 @@ var cloudCollectorFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:     "collector-provider",
 		Aliases:  []string{"p"},
-		Usage:    "Cloud provider (aws, azure, openstack, k8s, csaf)",
+		Usage:    "Cloud provider (aws, azure, openstack, ionos, k8s, csaf)",
 		Required: true,
 	},
 	&cli.StringFlag{
