@@ -149,6 +149,7 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 					AutomaticUpdates:    &ontology.AutomaticUpdates{},
 					BootLogging:         &ontology.BootLogging{Enabled: new(true)},
 					Raw:                 new(""),
+					ActivityLogging:     &ontology.ActivityLogging{Enabled: new(true)},
 				}
 
 				gotNew := got.(*ontology.VirtualMachine)

@@ -23,6 +23,7 @@ import (
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/lmittmann/tint"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -31,8 +32,9 @@ import (
 // handleServer creates a virtual machine resource based on the CSC Hub Ontology
 func (d *openstackCollector) handleServer(server *servers.Server) (ontology.IsResource, error) {
 	var (
-		err         error
-		bootLogging *ontology.BootLogging
+		err                error
+		bootLogging        *ontology.BootLogging
+		activityLogEnabled bool
 	)
 
 	// we cannot directly retrieve OS logging information
@@ -50,6 +52,19 @@ func (d *openstackCollector) handleServer(server *servers.Server) (ontology.IsRe
 		}
 	}
 
+	// OpenStack does not provide a direct way to check if activity logging is enabled for a server. As a
+	// heuristic, we treat activity logging as enabled if the Telemetry service (event or metering endpoints)
+	// is available.
+	eventEndpoint, errEvent := d.clients.provider.EndpointLocator(gophercloud.EndpointOpts{
+		Type:   "event",
+		Region: d.region,
+	})
+	meteringEndpoint, errMetering := d.clients.provider.EndpointLocator(gophercloud.EndpointOpts{
+		Type:   "metering",
+		Region: d.region,
+	})
+	activityLogEnabled = (errEvent == nil && eventEndpoint != "") || (errMetering == nil && meteringEndpoint != "")
+
 	r := &ontology.VirtualMachine{
 		Id:           new(server.ID),
 		Name:         new(server.Name),
@@ -63,6 +78,9 @@ func (d *openstackCollector) handleServer(server *servers.Server) (ontology.IsRe
 		MalwareProtection: &ontology.MalwareProtection{},
 		BootLogging:       bootLogging,
 		AutomaticUpdates:  &ontology.AutomaticUpdates{},
+		ActivityLogging: &ontology.ActivityLogging{
+			Enabled: new(activityLogEnabled),
+		},
 	}
 
 	// Get attached block storage IDs

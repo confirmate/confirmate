@@ -70,12 +70,13 @@ type project struct {
 }
 
 type clients struct {
-	provider       *gophercloud.ProviderClient
-	identityClient *gophercloud.ServiceClient
-	computeClient  *gophercloud.ServiceClient
-	networkClient  *gophercloud.ServiceClient
-	storageClient  *gophercloud.ServiceClient
-	clusterClient  *gophercloud.ServiceClient
+	provider           *gophercloud.ProviderClient
+	identityClient     *gophercloud.ServiceClient
+	computeClient      *gophercloud.ServiceClient
+	blockStorageClient *gophercloud.ServiceClient
+	networkClient      *gophercloud.ServiceClient
+	storageClient      *gophercloud.ServiceClient
+	clusterClient      *gophercloud.ServiceClient
 }
 
 func (*openstackCollector) Name() string {
@@ -175,13 +176,23 @@ func (d *openstackCollector) authorize() (err error) {
 		}
 	}
 
-	// Storage client
-	if d.clients.storageClient == nil {
-		d.clients.storageClient, err = openstack.NewBlockStorageV3(d.clients.provider, gophercloud.EndpointOpts{
+	// Block storage client
+	if d.clients.blockStorageClient == nil {
+		d.clients.blockStorageClient, err = openstack.NewBlockStorageV3(d.clients.provider, gophercloud.EndpointOpts{
 			Region: d.region,
 		})
 		if err != nil {
 			return fmt.Errorf("could not create block storage client: %w", err)
+		}
+	}
+
+	// Object storage client
+	if d.clients.storageClient == nil {
+		d.clients.storageClient, err = openstack.NewObjectStorageV1(d.clients.provider, gophercloud.EndpointOpts{
+			Region: d.region,
+		})
+		if err != nil {
+			return fmt.Errorf("could not create object storage client: %w", err)
 		}
 	}
 
@@ -223,16 +234,21 @@ func NewAuthorizer() (gophercloud.AuthOptions, error) {
 // * Servers
 // * Network interfaces
 // * Block storages
+// * Object storages
+// * Identities
 // * Domains
 // * Projects
 func (d *openstackCollector) List() (list []ontology.IsResource, err error) {
 	var (
-		servers  []ontology.IsResource
-		networks []ontology.IsResource
-		storages []ontology.IsResource
-		projects []ontology.IsResource
-		domains  []ontology.IsResource
-		clusters []ontology.IsResource
+		servers              []ontology.IsResource
+		networks             []ontology.IsResource
+		storages             []ontology.IsResource
+		objectStorageService []ontology.IsResource
+		objectStorages       []ontology.IsResource
+		identities           []ontology.IsResource
+		projects             []ontology.IsResource
+		domains              []ontology.IsResource
+		clusters             []ontology.IsResource
 	)
 
 	if err = d.authorize(); err != nil {
@@ -260,6 +276,27 @@ func (d *openstackCollector) List() (list []ontology.IsResource, err error) {
 		log.Error("could not collect block storage", tint.Err(err))
 	}
 	list = append(list, storages...)
+
+	// Collect object storage service
+	objectStorageService, err = d.collectObjectStorageService()
+	if err != nil {
+		log.Error("could not collect object storage service", tint.Err(err))
+	}
+	list = append(list, objectStorageService...)
+
+	// Collect object storage
+	objectStorages, err = d.collectObjectStorage()
+	if err != nil {
+		log.Error("could not collect object storage", tint.Err(err))
+	}
+	list = append(list, objectStorages...)
+
+	// Collect identities
+	identities, err = d.collectIdentity()
+	if err != nil {
+		log.Error("could not collect identities", tint.Err(err))
+	}
+	list = append(list, identities...)
 
 	// Collect clusters
 	clusters, err = d.collectCluster()

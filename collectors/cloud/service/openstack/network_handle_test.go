@@ -24,6 +24,8 @@ import (
 	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
+	"github.com/gophercloud/gophercloud/v2/testhelper"
+	"github.com/gophercloud/gophercloud/v2/testhelper/client"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -72,6 +74,13 @@ func Test_openstackCollector_handleNetworkInterfaces(t *testing.T) {
 					ParentId:    new(testdata.MockOpenstackServerTenantID),
 					Description: new(""),
 					Raw:         new(""),
+					AccessRestriction: &ontology.AccessRestriction{
+						Type: &ontology.AccessRestriction_L3Firewall{
+							L3Firewall: &ontology.L3Firewall{
+								Enabled: new(false),
+							},
+						},
+					},
 				}
 
 				gotNew := got.(*ontology.NetworkInterface)
@@ -85,6 +94,11 @@ func Test_openstackCollector_handleNetworkInterfaces(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			fakeServer := testhelper.SetupHTTP()
+			t.Cleanup(fakeServer.Teardown)
+
+			tt.fields.clients.networkClient = client.ServiceClient(fakeServer)
+
 			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
