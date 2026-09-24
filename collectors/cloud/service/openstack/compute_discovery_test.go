@@ -101,6 +101,7 @@ func Test_openstackCollector_collectServer(t *testing.T) {
 					AutomaticUpdates:    &ontology.AutomaticUpdates{},
 					BootLogging:         &ontology.BootLogging{Enabled: new(true)},
 					Raw:                 new(""),
+					ActivityLogging:     &ontology.ActivityLogging{Enabled: new(true)},
 				}
 
 				want2 := &ontology.VirtualMachine{
@@ -118,6 +119,7 @@ func Test_openstackCollector_collectServer(t *testing.T) {
 					AutomaticUpdates:    &ontology.AutomaticUpdates{},
 					BootLogging:         &ontology.BootLogging{Enabled: new(false)},
 					Raw:                 new(""),
+					ActivityLogging:     &ontology.ActivityLogging{Enabled: new(true)},
 				}
 
 				got0 := got[0].(*ontology.VirtualMachine)
