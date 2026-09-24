@@ -186,13 +186,15 @@ func (d *openstackCollector) authorize() (err error) {
 		}
 	}
 
-	// Object storage client
+	// Object storage client. Object storage (Swift) is not available in every OpenStack deployment, so we treat
+	// its absence as non-fatal and simply skip object storage discovery instead of aborting authorization.
 	if d.clients.storageClient == nil {
 		d.clients.storageClient, err = openstack.NewObjectStorageV1(d.clients.provider, gophercloud.EndpointOpts{
 			Region: d.region,
 		})
 		if err != nil {
-			return fmt.Errorf("could not create object storage client: %w", err)
+			log.Error("could not create object storage client, object storage discovery will be skipped", tint.Err(err))
+			err = nil
 		}
 	}
 

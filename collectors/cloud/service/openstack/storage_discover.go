@@ -38,8 +38,13 @@ func (d *openstackCollector) collectObjectStorage() (list []ontology.IsResource,
 	return
 }
 
-// collectObjectStorageService collects the object storage service resource
+// collectObjectStorageService collects the object storage service resource. It is a no-op if the object storage
+// client could not be initialized, e.g. because the deployment does not offer an object storage service.
 func (d *openstackCollector) collectObjectStorageService() (list []ontology.IsResource, err error) {
+	if d.clients.storageClient == nil {
+		return nil, nil
+	}
+
 	resource, err := d.handleObjectStorageService()
 	if err != nil {
 		return nil, err

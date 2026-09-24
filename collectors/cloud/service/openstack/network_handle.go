@@ -50,7 +50,6 @@ func (d *openstackCollector) handleNetworkInterfaces(network *networks.Network) 
 			if len(port.SecurityGroups) > 0 {
 				l3FirewallEnabled = true
 				restrictedPortsList = append(restrictedPortsList, d.getRestrictedPorts(port.SecurityGroups)...)
-				return true, nil
 			}
 		}
 
