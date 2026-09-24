@@ -826,6 +826,41 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/orchestrator/audit_scopes/{auditScopeId}/report:
+        get:
+            tags:
+                - Orchestrator
+            description: Exports a compliance report for an Audit Scope as an XLSX spreadsheet
+            operationId: Orchestrator_ExportAuditScopeReport
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: format
+                  in: query
+                  description: Format selects the file format of the report. Defaults to XLSX if unspecified.
+                  schema:
+                    enum:
+                        - REPORT_FORMAT_UNSPECIFIED
+                        - REPORT_FORMAT_XLSX
+                        - REPORT_FORMAT_PDF
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ExportAuditScopeReportResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/audit_scopes/{auditScopeId}/statistics:
         get:
             tags:
@@ -5023,6 +5058,18 @@ components:
             type: object
             properties: {}
             description: ExplainableResults is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        ExportAuditScopeReportResponse:
+            type: object
+            properties:
+                content:
+                    readOnly: true
+                    type: string
+                    description: Content is the raw file content, in the format requested.
+                    format: bytes
+                filename:
+                    readOnly: true
+                    type: string
+                    description: Filename is the suggested filename for the download, e.g. "audit-scope-report-my-scope.xlsx".
         File:
             type: object
             properties:
