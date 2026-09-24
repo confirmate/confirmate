@@ -194,6 +194,9 @@ const (
 	// OrchestratorRemoveAuditScopeProcedure is the fully-qualified name of the Orchestrator's
 	// RemoveAuditScope RPC.
 	OrchestratorRemoveAuditScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveAuditScope"
+	// OrchestratorExportAuditScopeReportProcedure is the fully-qualified name of the Orchestrator's
+	// ExportAuditScopeReport RPC.
+	OrchestratorExportAuditScopeReportProcedure = "/confirmate.orchestrator.v1.Orchestrator/ExportAuditScopeReport"
 	// OrchestratorGetRuntimeInfoProcedure is the fully-qualified name of the Orchestrator's
 	// GetRuntimeInfo RPC.
 	OrchestratorGetRuntimeInfoProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetRuntimeInfo"
@@ -361,6 +364,8 @@ type OrchestratorClient interface {
 	UpdateAuditScope(context.Context, *connect.Request[orchestrator.UpdateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
 	// Removes an Audit Scope
 	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
+	// Exports a compliance report for an Audit Scope as an XLSX spreadsheet
+	ExportAuditScopeReport(context.Context, *connect.Request[orchestrator.ExportAuditScopeReportRequest]) (*connect.Response[orchestrator.ExportAuditScopeReportResponse], error)
 	// Get Runtime Information
 	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
 	// Upserts a specific user permission identified by object and user.
@@ -703,6 +708,12 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("RemoveAuditScope")),
 			connect.WithClientOptions(opts...),
 		),
+		exportAuditScopeReport: connect.NewClient[orchestrator.ExportAuditScopeReportRequest, orchestrator.ExportAuditScopeReportResponse](
+			httpClient,
+			baseURL+OrchestratorExportAuditScopeReportProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("ExportAuditScopeReport")),
+			connect.WithClientOptions(opts...),
+		),
 		getRuntimeInfo: connect.NewClient[common.GetRuntimeInfoRequest, common.Runtime](
 			httpClient,
 			baseURL+OrchestratorGetRuntimeInfoProcedure,
@@ -853,6 +864,7 @@ type orchestratorClient struct {
 	listAuditScopes                 *connect.Client[orchestrator.ListAuditScopesRequest, orchestrator.ListAuditScopesResponse]
 	updateAuditScope                *connect.Client[orchestrator.UpdateAuditScopeRequest, orchestrator.AuditScope]
 	removeAuditScope                *connect.Client[orchestrator.RemoveAuditScopeRequest, emptypb.Empty]
+	exportAuditScopeReport          *connect.Client[orchestrator.ExportAuditScopeReportRequest, orchestrator.ExportAuditScopeReportResponse]
 	getRuntimeInfo                  *connect.Client[common.GetRuntimeInfoRequest, common.Runtime]
 	upsertUserPermission            *connect.Client[orchestrator.UpsertUserPermissionRequest, orchestrator.UpsertUserPermissionResponse]
 	removeUserPermission            *connect.Client[orchestrator.RemoveUserPermissionRequest, emptypb.Empty]
@@ -1120,6 +1132,11 @@ func (c *orchestratorClient) RemoveAuditScope(ctx context.Context, req *connect.
 	return c.removeAuditScope.CallUnary(ctx, req)
 }
 
+// ExportAuditScopeReport calls confirmate.orchestrator.v1.Orchestrator.ExportAuditScopeReport.
+func (c *orchestratorClient) ExportAuditScopeReport(ctx context.Context, req *connect.Request[orchestrator.ExportAuditScopeReportRequest]) (*connect.Response[orchestrator.ExportAuditScopeReportResponse], error) {
+	return c.exportAuditScopeReport.CallUnary(ctx, req)
+}
+
 // GetRuntimeInfo calls confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo.
 func (c *orchestratorClient) GetRuntimeInfo(ctx context.Context, req *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error) {
 	return c.getRuntimeInfo.CallUnary(ctx, req)
@@ -1321,6 +1338,8 @@ type OrchestratorHandler interface {
 	UpdateAuditScope(context.Context, *connect.Request[orchestrator.UpdateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
 	// Removes an Audit Scope
 	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
+	// Exports a compliance report for an Audit Scope as an XLSX spreadsheet
+	ExportAuditScopeReport(context.Context, *connect.Request[orchestrator.ExportAuditScopeReportRequest]) (*connect.Response[orchestrator.ExportAuditScopeReportResponse], error)
 	// Get Runtime Information
 	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
 	// Upserts a specific user permission identified by object and user.
@@ -1659,6 +1678,12 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("RemoveAuditScope")),
 		connect.WithHandlerOptions(opts...),
 	)
+	orchestratorExportAuditScopeReportHandler := connect.NewUnaryHandler(
+		OrchestratorExportAuditScopeReportProcedure,
+		svc.ExportAuditScopeReport,
+		connect.WithSchema(orchestratorMethods.ByName("ExportAuditScopeReport")),
+		connect.WithHandlerOptions(opts...),
+	)
 	orchestratorGetRuntimeInfoHandler := connect.NewUnaryHandler(
 		OrchestratorGetRuntimeInfoProcedure,
 		svc.GetRuntimeInfo,
@@ -1855,6 +1880,8 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorUpdateAuditScopeHandler.ServeHTTP(w, r)
 		case OrchestratorRemoveAuditScopeProcedure:
 			orchestratorRemoveAuditScopeHandler.ServeHTTP(w, r)
+		case OrchestratorExportAuditScopeReportProcedure:
+			orchestratorExportAuditScopeReportHandler.ServeHTTP(w, r)
 		case OrchestratorGetRuntimeInfoProcedure:
 			orchestratorGetRuntimeInfoHandler.ServeHTTP(w, r)
 		case OrchestratorUpsertUserPermissionProcedure:
@@ -2090,6 +2117,10 @@ func (UnimplementedOrchestratorHandler) UpdateAuditScope(context.Context, *conne
 
 func (UnimplementedOrchestratorHandler) RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) ExportAuditScopeReport(context.Context, *connect.Request[orchestrator.ExportAuditScopeReportRequest]) (*connect.Response[orchestrator.ExportAuditScopeReportResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ExportAuditScopeReport is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error) {
