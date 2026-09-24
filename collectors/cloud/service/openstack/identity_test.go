@@ -73,9 +73,10 @@ func Test_openstackCollector_collectIdentity(t *testing.T) {
 		GeoLocation: &ontology.GeoLocation{
 			Region: new("test region"),
 		},
-		ParentId:  new("test-project-id"),
-		Activated: new(true),
-		Raw:       new(""),
+		ParentId:              new("test-project-id"),
+		Activated:             new(true),
+		Raw:                   new(""),
+		DisablePasswordPolicy: new(true),
 	}
 	assert.Equal(t, want, got0)
 }
