@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
     title: Evidence Store API
-    version: core/v0.2.17-67-gb9e711c1
+    version: core/v0.2.17-143-gf9bd84d4
 paths:
     /v1/evidence_store/evidence:
         post:
@@ -278,7 +278,9 @@ components:
             type: object
             properties:
                 authorizationTypes:
-                    type: string
+                    type: array
+                    items:
+                        type: string
             description: AccessControlTypePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         AccessRestriction:
             type: object
@@ -586,6 +588,14 @@ components:
                 managedKeyEncryption:
                     $ref: '#/components/schemas/ManagedKeyEncryption'
             description: AtRestEncryption is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
+        AuditLogMonitoringPolicy:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+            description: |-
+                AuditLogMonitoringPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                 Represents a policy section within a [PolicyDocument] defining requirements for the periodic monitoring and review of audit logs, including the identification of anomalies, security events, and unusual activity.
         Authenticate:
             type: object
             properties:
@@ -677,6 +687,9 @@ components:
                 recoveryFrequency:
                     type: integer
                     format: int32
+                redundant:
+                    type: boolean
+                    description: Indicates whether the resource is stored redundantly.
                 retentionPeriod:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
@@ -875,6 +888,10 @@ components:
                 authenticationMechanism:
                     type: string
                     description: 'for example: RSA, ECDSA'
+                dhGroup:
+                    type: array
+                    items:
+                        type: string
                 keyExchangeAlgorithm:
                     type: string
                 macAlgorithm:
@@ -988,12 +1005,18 @@ components:
                     type: integer
                     description: The time needed for an audit.
                     format: int32
+                daysSinceLastAudit:
+                    type: integer
+                    description: The number of days elapsed since the last completed external/supervisory audit.
+                    format: int32
             description: ComplianceAuditIntervalPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         ComplianceMethodologyPolicy:
             type: object
             properties:
                 methodology:
-                    type: string
+                    type: array
+                    items:
+                        type: string
             description: ComplianceMethodologyPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         Configuration:
             type: object
@@ -1596,6 +1619,12 @@ components:
             properties:
                 isDefined:
                     type: boolean
+                restrictsDownloadAndExtraction:
+                    type: boolean
+                    description: Indicates whether the policy restricts downloading or extracting information from the organization's systems.
+                thirdPartyExchangeRulesDefined:
+                    type: boolean
+                    description: Indicates whether the policy specifically defines rules for information exchange with third parties.
             description: |-
                 DataConfidentialitySDNPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a policy section within a [PolicyDocument] describing data confidentiality requirements for Software Defined Networking (SDN). isDefined: whether this policy section is present and defined.
@@ -2391,6 +2420,8 @@ components:
                     $ref: '#/components/schemas/ContactPerson'
                 monitoringProcedure:
                     $ref: '#/components/schemas/MonitoringProcedure'
+                securityPolicyReview:
+                    $ref: '#/components/schemas/SecurityPolicyReview'
                 awarenessTraining:
                     $ref: '#/components/schemas/AwarenessTraining'
                 securityTraining:
@@ -2495,6 +2526,8 @@ components:
                     $ref: '#/components/schemas/Padding'
                 accessControlTypePolicy:
                     $ref: '#/components/schemas/AccessControlTypePolicy'
+                auditLogMonitoringPolicy:
+                    $ref: '#/components/schemas/AuditLogMonitoringPolicy'
                 complianceAuditIntervalPolicy:
                     $ref: '#/components/schemas/ComplianceAuditIntervalPolicy'
                 complianceMethodologyPolicy:
@@ -2634,6 +2667,8 @@ components:
                     $ref: '#/components/schemas/ContactPerson'
                 monitoringProcedure:
                     $ref: '#/components/schemas/MonitoringProcedure'
+                securityPolicyReview:
+                    $ref: '#/components/schemas/SecurityPolicyReview'
                 awarenessTraining:
                     $ref: '#/components/schemas/AwarenessTraining'
                 securityTraining:
@@ -4426,10 +4461,16 @@ components:
         NetworkThreatMitigationPolicy:
             type: object
             properties:
+                antispoofingRequired:
+                    type: boolean
+                    description: Indicates whether the policy explicitly requires antispoofing mechanisms on internet-facing routers.
                 coveredAttackTypes:
                     type: array
                     items:
                         type: string
+                filteringRequired:
+                    type: boolean
+                    description: Indicates whether the policy explicitly requires network filtering mechanisms on internet-facing routers.
             description: |-
                 NetworkThreatMitigationPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a policy section within a [PolicyDocument] describing network threat mitigation mechanisms and attack coverage. coveredAttackTypes: the types of network-level attacks mitigated by implemented controls (e.g., DoS, DDoS).
@@ -4799,8 +4840,12 @@ components:
                     $ref: '#/components/schemas/AccessControlTypePolicy'
                 assetInventory:
                     $ref: '#/components/schemas/AssetInventory'
+                auditLogMonitoringPolicy:
+                    $ref: '#/components/schemas/AuditLogMonitoringPolicy'
                 backup:
                     $ref: '#/components/schemas/Backup'
+                complianceAuditIntervalPolicy:
+                    $ref: '#/components/schemas/ComplianceAuditIntervalPolicy'
                 cryptographicHashs:
                     type: array
                     items:
@@ -4837,6 +4882,8 @@ components:
                         $ref: '#/components/schemas/SecurityFeature'
                 securityIncident:
                     $ref: '#/components/schemas/SecurityIncident'
+                securityPolicyReview:
+                    $ref: '#/components/schemas/SecurityPolicyReview'
                 separationOfDutiesPolicy:
                     $ref: '#/components/schemas/SeparationOfDutiesPolicy'
             description: PolicyDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -4995,7 +5042,7 @@ components:
         QPU:
             type: object
             properties:
-                oneQubitErrorRate:
+                oneQubitGateErrorRate:
                     type: number
                     format: float
                 spamErrorRate:
@@ -5009,7 +5056,7 @@ components:
                     type: number
                     description: Coherence times are a standard measure for the reliability of executing quantum circuits. T1 is the qubits's energy dephasing time (in seconds).
                     format: float
-                twoQubitErrorRate:
+                twoQubitGateErrorRate:
                     type: number
                     format: float
                 universalGateSetEnabled:
@@ -5949,6 +5996,16 @@ components:
                     items:
                         type: string
             description: SecurityIncident is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        SecurityPolicyReview:
+            type: object
+            properties:
+                intervalMonths:
+                    type: integer
+                    description: The interval refers to the interval in months.
+                    format: int32
+            description: |-
+                SecurityPolicyReview is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                 Represents the review cadence of the organization's Information Security Policy. intervalMonths: how often the policy must be reviewed, in months.
         SecurityTraining:
             type: object
             properties:
