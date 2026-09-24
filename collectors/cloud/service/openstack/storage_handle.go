@@ -57,9 +57,11 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 		if err != nil {
 			log.Error("error getting encryption information for volume", slog.String("name", volume.Name), tint.Err(err))
 		} else if enc.EncryptionID != "" {
+			// Cinder only tells us that the volume type is encrypted, not whether the key is customer-managed.
+			// Report it as generic disk encryption rather than assuming customer-key ownership.
 			are = &ontology.AtRestEncryption{
-				Type: &ontology.AtRestEncryption_CustomerKeyEncryption{
-					CustomerKeyEncryption: &ontology.CustomerKeyEncryption{
+				Type: &ontology.AtRestEncryption_DiskEncryption{
+					DiskEncryption: &ontology.DiskEncryption{
 						Enabled:   new(true),
 						Algorithm: new(enc.Cipher),
 					},
