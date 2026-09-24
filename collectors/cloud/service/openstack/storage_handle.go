@@ -49,7 +49,7 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 	}
 
 	// Get encryption information. Unfortunately, this requires a second lookup of the volume type.
-	vType, err := volumetypes.Get(context.Background(), d.clients.blockStorageClient, volume.ID).Extract()
+	vType, err := volumetypes.Get(context.Background(), d.clients.blockStorageClient, volume.VolumeType).Extract()
 	if err != nil {
 		log.Error("error getting volume type information for volume", slog.String("name", volume.Name), tint.Err(err))
 	} else {

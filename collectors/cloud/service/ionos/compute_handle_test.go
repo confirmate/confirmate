@@ -156,7 +156,6 @@ func Test_ionosCollector_handleLoadBalancer(t *testing.T) {
 		GeoLocation: &ontology.GeoLocation{
 			Region: new(testdata.MockIonosDatacenterLocation1),
 		},
-		Labels:   map[string]string{"label1": "value1"},
 		ParentId: new(testdata.MockIonosDatacenterID1),
 		Raw:      new(""),
 	}

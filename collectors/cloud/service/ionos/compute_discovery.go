@@ -45,7 +45,7 @@ func (d *ionosCollector) collectServers(dc ionoscloud.Datacenter) (list []ontolo
 
 		list = append(list, r)
 
-		for _, nic := range pointer.Deref(server.Entities.Nics.Items) {
+		for _, nic := range pointer.Deref(server.Entities.GetNics().GetItems()) {
 			networkInterface, err := d.handleNetworkInterface(nic, dc)
 			if err != nil {
 				return nil, fmt.Errorf("could not handle network interfaces: %w", err)
@@ -101,7 +101,7 @@ func (d *ionosCollector) collectLoadBalancers(dc ionoscloud.Datacenter) (list []
 
 		list = append(list, r)
 
-		for _, nic := range pointer.Deref(loadBalancer.Entities.Balancednics.Items) {
+		for _, nic := range pointer.Deref(loadBalancer.Entities.GetBalancednics().GetItems()) {
 			networkInterface, err := d.handleNetworkInterface(nic, dc)
 			if err != nil {
 				return nil, fmt.Errorf("could not handle network interfaces: %w", err)

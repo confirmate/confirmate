@@ -23,7 +23,7 @@ import (
 
 // getBlockStorageIds lists the block storage IDs attached to the given server
 func getBlockStorageIds(server ionoscloud.Server) (blockStorageIds []string) {
-	for _, volume := range pointer.Deref(server.Entities.Volumes.Items) {
+	for _, volume := range pointer.Deref(server.Entities.GetVolumes().GetItems()) {
 		blockStorageIds = append(blockStorageIds, pointer.Deref(volume.GetId()))
 	}
 
@@ -32,7 +32,7 @@ func getBlockStorageIds(server ionoscloud.Server) (blockStorageIds []string) {
 
 // getNetworkInterfaceIds lists the network interface IDs attached to the given server
 func getNetworkInterfaceIds(server ionoscloud.Server) (networkInterfaceIds []string) {
-	for _, nic := range pointer.Deref(server.Entities.Nics.Items) {
+	for _, nic := range pointer.Deref(server.Entities.GetNics().GetItems()) {
 		networkInterfaceIds = append(networkInterfaceIds, pointer.Deref(nic.GetId()))
 	}
 

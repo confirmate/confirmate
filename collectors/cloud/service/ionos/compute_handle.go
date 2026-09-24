@@ -58,7 +58,7 @@ func (d *ionosCollector) handleServer(server ionoscloud.Server, dc ionoscloud.Da
 // handleBlockStorage creates a block storage resource based on the CSC Hub Ontology
 func (d *ionosCollector) handleBlockStorage(blockStorage ionoscloud.Volume, dc ionoscloud.Datacenter) (ontology.IsResource, error) {
 	l, _, err := d.client.LabelsApi.
-		DatacentersServersLabelsGet(context.Background(), pointer.Deref(dc.GetId()), pointer.Deref(blockStorage.GetId())).
+		DatacentersVolumesLabelsGet(context.Background(), pointer.Deref(dc.GetId()), pointer.Deref(blockStorage.GetId())).
 		Execute()
 	if err != nil {
 		log.Error("error getting labels for block storage", slog.String("id", pointer.Deref(blockStorage.Id)), tint.Err(err))
@@ -79,19 +79,13 @@ func (d *ionosCollector) handleBlockStorage(blockStorage ionoscloud.Volume, dc i
 
 // handleLoadBalancer creates a load balancer resource based on the CSC Hub Ontology
 func (d *ionosCollector) handleLoadBalancer(loadBalancer ionoscloud.Loadbalancer, dc ionoscloud.Datacenter) (ontology.IsResource, error) {
-	l, _, err := d.client.LabelsApi.
-		DatacentersServersLabelsGet(context.Background(), pointer.Deref(dc.GetId()), pointer.Deref(loadBalancer.GetId())).
-		Execute()
-	if err != nil {
-		log.Error("error getting labels for load balancer", slog.String("id", pointer.Deref(loadBalancer.Id)), tint.Err(err))
-	}
-
+	// The IONOS Cloud API does not expose a labels endpoint for load balancers, unlike datacenters, servers, and
+	// volumes.
 	r := &ontology.LoadBalancer{
 		Id:           loadBalancer.Id,
 		Name:         loadBalancer.Properties.Name,
 		CreationTime: timestamppb.New(pointer.Deref(loadBalancer.Metadata.GetCreatedDate())),
 		GeoLocation:  &ontology.GeoLocation{Region: dc.Properties.Location},
-		Labels:       labels(l),
 		ParentId:     dc.GetId(),
 		Raw:          new(collector.Raw(loadBalancer, dc)),
 	}
