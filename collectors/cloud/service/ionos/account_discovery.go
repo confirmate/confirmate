@@ -30,12 +30,18 @@ import (
 func (d *ionosCollector) collectDatacenters() (*ionoscloud.Datacenters, []ontology.IsResource, error) {
 	var list []ontology.IsResource
 
-	dc, _, err := d.client.DataCentersApi.DatacentersGet(context.Background()).Depth(1).Execute()
+	items, err := paginate(func(offset int32) ([]ionoscloud.Datacenter, error) {
+		dc, _, err := d.client.DataCentersApi.DatacentersGet(context.Background()).Depth(1).Offset(offset).Limit(pageLimit).Execute()
+		if err != nil {
+			return nil, err
+		}
+		return pointer.Deref(dc.Items), nil
+	})
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not list datacenters: %w", err)
 	}
 
-	for _, datacenter := range pointer.Deref(dc.Items) {
+	for _, datacenter := range items {
 		r, err := d.handleDatacenter(datacenter)
 		if err != nil {
 			return nil, nil, fmt.Errorf("could not handle datacenter %s: %w", pointer.Deref(datacenter.Id), err)
@@ -46,5 +52,5 @@ func (d *ionosCollector) collectDatacenters() (*ionoscloud.Datacenters, []ontolo
 		list = append(list, r)
 	}
 
-	return &dc, list, nil
+	return &ionoscloud.Datacenters{Items: &items}, list, nil
 }

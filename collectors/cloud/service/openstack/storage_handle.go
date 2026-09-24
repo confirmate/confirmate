@@ -19,7 +19,6 @@ import (
 	"context"
 	"log/slog"
 	"strings"
-	"time"
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/constants"
@@ -31,7 +30,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/objectstorage/v1/containers"
 	"github.com/gophercloud/gophercloud/v2/pagination"
 	"github.com/lmittmann/tint"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -40,6 +38,7 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 	var (
 		are    *ontology.AtRestEncryption
 		backup []*ontology.Backup
+		err    error
 	)
 
 	// Get Name, if exits, otherwise take the ID
@@ -48,26 +47,36 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 		name = volume.ID
 	}
 
-	// Get encryption information. Unfortunately, this requires a second lookup of the volume type.
-	vType, err := volumetypes.Get(context.Background(), d.clients.blockStorageClient, volume.VolumeType).Extract()
-	if err != nil {
-		log.Error("error getting volume type information for volume", slog.String("name", volume.Name), tint.Err(err))
+	// Get encryption information. Unfortunately, this requires a second lookup of the volume type. Many volumes
+	// share the same volume type, so we cache the result to avoid repeating the lookup for every volume.
+	if cached, ok := d.volumeTypeEncryption[volume.VolumeType]; ok {
+		are = cached
 	} else {
-		enc, err := volumetypes.GetEncryption(context.Background(), d.clients.blockStorageClient, vType.ID).Extract()
+		vType, err := volumetypes.Get(context.Background(), d.clients.blockStorageClient, volume.VolumeType).Extract()
 		if err != nil {
-			log.Error("error getting encryption information for volume", slog.String("name", volume.Name), tint.Err(err))
-		} else if enc.EncryptionID != "" {
-			// Cinder only tells us that the volume type is encrypted, not whether the key is customer-managed.
-			// Report it as generic disk encryption rather than assuming customer-key ownership.
-			are = &ontology.AtRestEncryption{
-				Type: &ontology.AtRestEncryption_DiskEncryption{
-					DiskEncryption: &ontology.DiskEncryption{
-						Enabled:   new(true),
-						Algorithm: new(enc.Cipher),
+			log.Error("error getting volume type information for volume", slog.String("name", volume.Name), tint.Err(err))
+		} else {
+			enc, err := volumetypes.GetEncryption(context.Background(), d.clients.blockStorageClient, vType.ID).Extract()
+			if err != nil {
+				log.Error("error getting encryption information for volume", slog.String("name", volume.Name), tint.Err(err))
+			} else if enc.EncryptionID != "" {
+				// Cinder only tells us that the volume type is encrypted, not whether the key is customer-managed.
+				// Report it as generic disk encryption rather than assuming customer-key ownership.
+				are = &ontology.AtRestEncryption{
+					Type: &ontology.AtRestEncryption_DiskEncryption{
+						DiskEncryption: &ontology.DiskEncryption{
+							Enabled:   new(true),
+							Algorithm: new(enc.Cipher),
+						},
 					},
-				},
+				}
 			}
 		}
+
+		if d.volumeTypeEncryption == nil {
+			d.volumeTypeEncryption = make(map[string]*ontology.AtRestEncryption)
+		}
+		d.volumeTypeEncryption[volume.VolumeType] = are
 	}
 
 	// Get backup information. OpenStack does not provide a direct way to check if backups are enabled for a
@@ -82,9 +91,10 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 
 		for _, b := range backupList {
 			backup = append(backup, &ontology.Backup{
-				StorageId:       new(b.ID),
-				RetentionPeriod: durationpb.New(0 * time.Second), // retention period is unlimited
-				Enabled:         new(true),
+				StorageId: new(b.ID),
+				// Cinder does not expose a retention policy for backups, so we leave RetentionPeriod unset
+				// rather than reporting a zero duration, which would mean "no retention" instead of "unknown".
+				Enabled: new(true),
 			})
 
 			log.Info("Adding block storage backup", slog.String("name", b.Name))
