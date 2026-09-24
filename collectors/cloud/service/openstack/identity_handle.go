@@ -33,6 +33,8 @@ func (d *openstackCollector) handleIdentity(identity *users.User) (ontology.IsRe
 		ParentId:  new(identity.DefaultProjectID),
 		Raw:       new(collector.Raw(identity)),
 		Activated: new(identity.Enabled),
+		// A zero PasswordExpiresAt means Keystone has no password expiration policy configured for this user.
+		DisablePasswordPolicy: new(identity.PasswordExpiresAt.IsZero()),
 	}
 
 	return r, nil

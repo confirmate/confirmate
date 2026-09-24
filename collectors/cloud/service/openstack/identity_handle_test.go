@@ -17,6 +17,7 @@ package openstack
 
 import (
 	"testing"
+	"time"
 
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
@@ -28,30 +29,64 @@ func Test_openstackCollector_handleIdentity(t *testing.T) {
 		region: "test region",
 	}
 
-	identity := &users.User{
-		ID:               "test-user-id",
-		Name:             "test-user",
-		DefaultProjectID: "test-project-id",
-		Enabled:          true,
-	}
-
-	got, err := d.handleIdentity(identity)
-
-	assert.NoError(t, err)
-
-	gotNew := got.(*ontology.Identity)
-	assert.NotEmpty(t, gotNew.GetRaw())
-	gotNew.Raw = new("")
-
-	want := &ontology.Identity{
-		Id:   new("test-user-id"),
-		Name: new("test-user"),
-		GeoLocation: &ontology.GeoLocation{
-			Region: new("test region"),
+	tests := []struct {
+		name     string
+		identity *users.User
+		want     *ontology.Identity
+	}{
+		{
+			name: "no password expiration configured",
+			identity: &users.User{
+				ID:               "test-user-id",
+				Name:             "test-user",
+				DefaultProjectID: "test-project-id",
+				Enabled:          true,
+			},
+			want: &ontology.Identity{
+				Id:   new("test-user-id"),
+				Name: new("test-user"),
+				GeoLocation: &ontology.GeoLocation{
+					Region: new("test region"),
+				},
+				ParentId:              new("test-project-id"),
+				Activated:             new(true),
+				Raw:                   new(""),
+				DisablePasswordPolicy: new(true),
+			},
 		},
-		ParentId:  new("test-project-id"),
-		Activated: new(true),
-		Raw:       new(""),
+		{
+			name: "password expiration configured",
+			identity: &users.User{
+				ID:                "test-user-id",
+				Name:              "test-user",
+				DefaultProjectID:  "test-project-id",
+				Enabled:           true,
+				PasswordExpiresAt: time.Date(2027, 1, 1, 0, 0, 0, 0, time.UTC),
+			},
+			want: &ontology.Identity{
+				Id:   new("test-user-id"),
+				Name: new("test-user"),
+				GeoLocation: &ontology.GeoLocation{
+					Region: new("test region"),
+				},
+				ParentId:              new("test-project-id"),
+				Activated:             new(true),
+				Raw:                   new(""),
+				DisablePasswordPolicy: new(false),
+			},
+		},
 	}
-	assert.Equal(t, want, gotNew)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := d.handleIdentity(tt.identity)
+
+			assert.NoError(t, err)
+
+			gotNew := got.(*ontology.Identity)
+			assert.NotEmpty(t, gotNew.GetRaw())
+			gotNew.Raw = new("")
+
+			assert.Equal(t, tt.want, gotNew)
+		})
+	}
 }
