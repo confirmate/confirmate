@@ -25046,14 +25046,14 @@ func (x *ProvideConfigurationOption) GetConfigurationOptionSourceId() string {
 
 // QPU is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type QPU struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	OneQubitErrorRate *float32               `protobuf:"fixed32,3838,opt,name=one_qubit_error_rate,json=oneQubitErrorRate,proto3,oneof" json:"one_qubit_error_rate,omitempty"`
-	SpamErrorRate     *float32               `protobuf:"fixed32,2960,opt,name=spam_error_rate,json=spamErrorRate,proto3,oneof" json:"spam_error_rate,omitempty"`
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	OneQubitGateErrorRate *float32               `protobuf:"fixed32,11747,opt,name=one_qubit_gate_error_rate,json=oneQubitGateErrorRate,proto3,oneof" json:"one_qubit_gate_error_rate,omitempty"`
+	SpamErrorRate         *float32               `protobuf:"fixed32,2960,opt,name=spam_error_rate,json=spamErrorRate,proto3,oneof" json:"spam_error_rate,omitempty"`
 	// Coherence times are a standard measure for the reliability of executing quantum circuits. T1 is the qubits's energy relaxation time (in seconds).
 	T1CoherenceTime *float32 `protobuf:"fixed32,10446,opt,name=t1_coherence_time,json=t1CoherenceTime,proto3,oneof" json:"t1_coherence_time,omitempty"`
 	// Coherence times are a standard measure for the reliability of executing quantum circuits. T1 is the qubits's energy dephasing time (in seconds).
-	T2CoherenceTime   *float32 `protobuf:"fixed32,16909,opt,name=t2_coherence_time,json=t2CoherenceTime,proto3,oneof" json:"t2_coherence_time,omitempty"`
-	TwoQubitErrorRate *float32 `protobuf:"fixed32,6385,opt,name=two_qubit_error_rate,json=twoQubitErrorRate,proto3,oneof" json:"two_qubit_error_rate,omitempty"`
+	T2CoherenceTime       *float32 `protobuf:"fixed32,16909,opt,name=t2_coherence_time,json=t2CoherenceTime,proto3,oneof" json:"t2_coherence_time,omitempty"`
+	TwoQubitGateErrorRate *float32 `protobuf:"fixed32,12282,opt,name=two_qubit_gate_error_rate,json=twoQubitGateErrorRate,proto3,oneof" json:"two_qubit_gate_error_rate,omitempty"`
 	// The physical operations shall include a finite set of gates capable of approximating any unitary operation on qubits. This is typically achieved through combinations of one-qubit gates and a two-qubit entangling gate, such as CNOT, enabling the execution of a broad range of quantum algorithms.
 	UniversalGateSetEnabled    *bool                  `protobuf:"varint,15025,opt,name=universal_gate_set_enabled,json=universalGateSetEnabled,proto3,oneof" json:"universal_gate_set_enabled,omitempty"`
 	CreationTime               *timestamppb.Timestamp `protobuf:"bytes,3446,opt,name=creation_time,json=creationTime,proto3,oneof" json:"creation_time,omitempty"`
@@ -25110,9 +25110,9 @@ func (*QPU) Descriptor() ([]byte, []int) {
 	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{218}
 }
 
-func (x *QPU) GetOneQubitErrorRate() float32 {
-	if x != nil && x.OneQubitErrorRate != nil {
-		return *x.OneQubitErrorRate
+func (x *QPU) GetOneQubitGateErrorRate() float32 {
+	if x != nil && x.OneQubitGateErrorRate != nil {
+		return *x.OneQubitGateErrorRate
 	}
 	return 0
 }
@@ -25138,9 +25138,9 @@ func (x *QPU) GetT2CoherenceTime() float32 {
 	return 0
 }
 
-func (x *QPU) GetTwoQubitErrorRate() float32 {
-	if x != nil && x.TwoQubitErrorRate != nil {
-		return *x.TwoQubitErrorRate
+func (x *QPU) GetTwoQubitGateErrorRate() float32 {
+	if x != nil && x.TwoQubitGateErrorRate != nil {
+		return *x.TwoQubitGateErrorRate
 	}
 	return 0
 }
@@ -36158,13 +36158,13 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1econfiguration_option_source_id\x18\xf1y \x01(\tH\x02R\x1bconfigurationOptionSourceId\x88\x01\x01:V\x82\xa6\x1d\x1aProvideConfigurationOption\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
 	"\x11_configuration_idB\x1a\n" +
 	"\x18_configuration_option_idB!\n" +
-	"\x1f_configuration_option_source_id\"\xc7\x0f\n" +
-	"\x03QPU\x125\n" +
-	"\x14one_qubit_error_rate\x18\xfe\x1d \x01(\x02H\x00R\x11oneQubitErrorRate\x88\x01\x01\x12,\n" +
+	"\x1f_configuration_option_source_id\"\xe3\x0f\n" +
+	"\x03QPU\x12>\n" +
+	"\x19one_qubit_gate_error_rate\x18\xe3[ \x01(\x02H\x00R\x15oneQubitGateErrorRate\x88\x01\x01\x12,\n" +
 	"\x0fspam_error_rate\x18\x90\x17 \x01(\x02H\x01R\rspamErrorRate\x88\x01\x01\x120\n" +
 	"\x11t1_coherence_time\x18\xceQ \x01(\x02H\x02R\x0ft1CoherenceTime\x88\x01\x01\x121\n" +
-	"\x11t2_coherence_time\x18\x8d\x84\x01 \x01(\x02H\x03R\x0ft2CoherenceTime\x88\x01\x01\x125\n" +
-	"\x14two_qubit_error_rate\x18\xf11 \x01(\x02H\x04R\x11twoQubitErrorRate\x88\x01\x01\x12A\n" +
+	"\x11t2_coherence_time\x18\x8d\x84\x01 \x01(\x02H\x03R\x0ft2CoherenceTime\x88\x01\x01\x12>\n" +
+	"\x19two_qubit_gate_error_rate\x18\xfa_ \x01(\x02H\x04R\x15twoQubitGateErrorRate\x88\x01\x01\x12A\n" +
 	"\x1auniversal_gate_set_enabled\x18\xb1u \x01(\bH\x05R\x17universalGateSetEnabled\x88\x01\x01\x12E\n" +
 	"\rcreation_time\x18\xf6\x1a \x01(\v2\x1a.google.protobuf.TimestampH\x06R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x98\" \x01(\tH\aR\vdescription\x88\x01\x01\x12>\n" +
@@ -36188,12 +36188,12 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x10usage_statistics\x18\xb0I \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x03QPU\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x17\n" +
-	"\x15_one_qubit_error_rateB\x12\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x03QPU\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x1c\n" +
+	"\x1a_one_qubit_gate_error_rateB\x12\n" +
 	"\x10_spam_error_rateB\x14\n" +
 	"\x12_t1_coherence_timeB\x14\n" +
-	"\x12_t2_coherence_timeB\x17\n" +
-	"\x15_two_qubit_error_rateB\x1d\n" +
+	"\x12_t2_coherence_timeB\x1c\n" +
+	"\x1a_two_qubit_gate_error_rateB\x1d\n" +
 	"\x1b_universal_gate_set_enabledB\x10\n" +
 	"\x0e_creation_timeB\x0e\n" +
 	"\f_descriptionB\x1b\n" +

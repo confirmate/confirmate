@@ -8319,7 +8319,7 @@ components:
         QPU:
             type: object
             properties:
-                oneQubitErrorRate:
+                oneQubitGateErrorRate:
                     type: number
                     format: float
                 spamErrorRate:
@@ -8333,7 +8333,7 @@ components:
                     type: number
                     description: Coherence times are a standard measure for the reliability of executing quantum circuits. T1 is the qubits's energy dephasing time (in seconds).
                     format: float
-                twoQubitErrorRate:
+                twoQubitGateErrorRate:
                     type: number
                     format: float
                 universalGateSetEnabled:
