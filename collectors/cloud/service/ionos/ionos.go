@@ -33,6 +33,26 @@ import (
 
 var log *slog.Logger
 
+// pageLimit is the page size used when paginating through IONOS Cloud list responses.
+const pageLimit int32 = 100
+
+// paginate repeatedly calls fetch with increasing offsets until a page returns fewer than pageLimit items, and
+// returns the concatenation of all pages.
+func paginate[T any](fetch func(offset int32) ([]T, error)) (all []T, err error) {
+	for offset := int32(0); ; offset += pageLimit {
+		items, err := fetch(offset)
+		if err != nil {
+			return nil, err
+		}
+
+		all = append(all, items...)
+
+		if int32(len(items)) < pageLimit {
+			return all, nil
+		}
+	}
+}
+
 func (*ionosCollector) Name() string {
 	return "IONOS Cloud"
 }

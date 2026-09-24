@@ -56,6 +56,10 @@ type openstackCollector struct {
 	region   string
 	domain   *domain
 	project  *project
+
+	// volumeTypeEncryption caches at-rest encryption info by volume type ID, since many volumes typically share
+	// the same volume type and the lookup requires two extra API calls.
+	volumeTypeEncryption map[string]*ontology.AtRestEncryption
 }
 
 type domain struct {

@@ -30,12 +30,18 @@ import (
 // returns them as a list of ontology resources.
 func (d *ionosCollector) collectServers(dc ionoscloud.Datacenter) (list []ontology.IsResource, err error) {
 	// Depth(5) returns all available properties, including nested entities such as NICs and volumes.
-	servers, _, err := d.client.ServersApi.DatacentersServersGet(context.Background(), pointer.Deref(dc.Id)).Depth(5).Execute()
+	servers, err := paginate(func(offset int32) ([]ionoscloud.Server, error) {
+		res, _, err := d.client.ServersApi.DatacentersServersGet(context.Background(), pointer.Deref(dc.Id)).Depth(5).Offset(offset).Limit(pageLimit).Execute()
+		if err != nil {
+			return nil, err
+		}
+		return pointer.Deref(res.Items), nil
+	})
 	if err != nil {
 		return nil, fmt.Errorf("could not list servers for datacenter %s: %w", pointer.Deref(dc.Id), err)
 	}
 
-	for _, server := range pointer.Deref(servers.Items) {
+	for _, server := range servers {
 		r, err := d.handleServer(server, dc)
 		if err != nil {
 			return nil, fmt.Errorf("could not handle server %s: %w", pointer.Deref(server.Id), err)
@@ -63,12 +69,18 @@ func (d *ionosCollector) collectServers(dc ionoscloud.Datacenter) (list []ontolo
 // collectBlockStorages lists all block storages in the given datacenter and returns them as a list of ontology
 // resources.
 func (d *ionosCollector) collectBlockStorages(dc ionoscloud.Datacenter) (list []ontology.IsResource, err error) {
-	blockStorages, _, err := d.client.VolumesApi.DatacentersVolumesGet(context.Background(), pointer.Deref(dc.Id)).Depth(1).Execute()
+	blockStorages, err := paginate(func(offset int32) ([]ionoscloud.Volume, error) {
+		res, _, err := d.client.VolumesApi.DatacentersVolumesGet(context.Background(), pointer.Deref(dc.Id)).Depth(1).Offset(offset).Limit(pageLimit).Execute()
+		if err != nil {
+			return nil, err
+		}
+		return pointer.Deref(res.Items), nil
+	})
 	if err != nil {
 		return nil, fmt.Errorf("could not list block storages for datacenter %s: %w", pointer.Deref(dc.Id), err)
 	}
 
-	for _, blockStorage := range pointer.Deref(blockStorages.Items) {
+	for _, blockStorage := range blockStorages {
 		r, err := d.handleBlockStorage(blockStorage, dc)
 		if err != nil {
 			return nil, fmt.Errorf("could not handle block storage %s: %w", pointer.Deref(blockStorage.Id), err)
@@ -86,12 +98,18 @@ func (d *ionosCollector) collectBlockStorages(dc ionoscloud.Datacenter) (list []
 // returns them as a list of ontology resources.
 func (d *ionosCollector) collectLoadBalancers(dc ionoscloud.Datacenter) (list []ontology.IsResource, err error) {
 	// Depth(5) returns all available properties, including nested entities such as balanced NICs.
-	loadBalancers, _, err := d.client.LoadBalancersApi.DatacentersLoadbalancersGet(context.Background(), pointer.Deref(dc.Id)).Depth(5).Execute()
+	loadBalancers, err := paginate(func(offset int32) ([]ionoscloud.Loadbalancer, error) {
+		res, _, err := d.client.LoadBalancersApi.DatacentersLoadbalancersGet(context.Background(), pointer.Deref(dc.Id)).Depth(5).Offset(offset).Limit(pageLimit).Execute()
+		if err != nil {
+			return nil, err
+		}
+		return pointer.Deref(res.Items), nil
+	})
 	if err != nil {
 		return nil, fmt.Errorf("could not list load balancers for datacenter %s: %w", pointer.Deref(dc.Id), err)
 	}
 
-	for _, loadBalancer := range pointer.Deref(loadBalancers.Items) {
+	for _, loadBalancer := range loadBalancers {
 		r, err := d.handleLoadBalancer(loadBalancer, dc)
 		if err != nil {
 			return nil, fmt.Errorf("could not handle load balancer %s: %w", pointer.Deref(loadBalancer.Id), err)

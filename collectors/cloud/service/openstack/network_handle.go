@@ -31,13 +31,12 @@ import (
 
 // handleNetworkInterfaces creates a network interface resource based on the CSC Hub Ontology
 func (d *openstackCollector) handleNetworkInterfaces(network *networks.Network) (ontology.IsResource, error) {
-	var (
-		l3FirewallEnabled   bool
-		restrictedPortsList []string
-	)
+	var l3FirewallEnabled bool
 
 	// Check if any port associated with the network has security groups enabled. If at least one port has
-	// security groups, we consider the L3 firewall to be enabled for the entire network.
+	// security groups, we consider the L3 firewall to be enabled for the entire network. Note that Neutron
+	// security groups only express allow rules (with an implicit deny for everything else), so we cannot derive
+	// a meaningful set of restricted ports from them.
 	err := ports.List(d.clients.networkClient, ports.ListOpts{
 		NetworkID: network.ID,
 	}).EachPage(context.Background(), func(_ context.Context, page pagination.Page) (bool, error) {
@@ -49,7 +48,7 @@ func (d *openstackCollector) handleNetworkInterfaces(network *networks.Network) 
 		for _, port := range portList {
 			if len(port.SecurityGroups) > 0 {
 				l3FirewallEnabled = true
-				restrictedPortsList = append(restrictedPortsList, d.getRestrictedPorts(port.SecurityGroups)...)
+				return false, nil
 			}
 		}
 
@@ -73,8 +72,7 @@ func (d *openstackCollector) handleNetworkInterfaces(network *networks.Network) 
 		AccessRestriction: &ontology.AccessRestriction{
 			Type: &ontology.AccessRestriction_L3Firewall{
 				L3Firewall: &ontology.L3Firewall{
-					Enabled:         new(l3FirewallEnabled),
-					RestrictedPorts: restrictedPortsList,
+					Enabled: new(l3FirewallEnabled),
 				},
 			},
 		},
