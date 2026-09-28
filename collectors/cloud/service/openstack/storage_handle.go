@@ -142,6 +142,7 @@ func (d *openstackCollector) handleObjectStorage(container *containers.Container
 	if err != nil {
 		slog.Error("error extracting container details for container", slog.String("name", container.Name), tint.Err(err))
 	} else {
+		isPublic = false
 		// A container is public if its "X-Container-Read" ACL grants read access to everyone (".r:*").
 		for _, acl := range header.Read {
 			if strings.Contains(acl, ".r:*") {
