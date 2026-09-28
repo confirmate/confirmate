@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"net/http"
 	"net/http/httptest"
 	"sync"
 	"sync/atomic"
@@ -36,6 +37,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 type mockEvidenceStoreHandler struct {
@@ -88,6 +90,44 @@ func (h *mockEvidenceStoreHandler) Requests() (requests []*evidence.StoreEvidenc
 
 	requests = append([]*evidence.StoreEvidenceRequest(nil), h.requests...)
 	return requests
+}
+
+// requireBearerInterceptor rejects every streaming request that does not carry the expected
+// "Authorization: Bearer <token>" header, mimicking [server.AuthInterceptor]'s behavior for
+// unauthenticated requests without needing a real JWT/JWKS setup in tests.
+type requireBearerInterceptor struct {
+	token string
+}
+
+func (i *requireBearerInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
+	return next
+}
+
+func (i *requireBearerInterceptor) WrapStreamingClient(next connect.StreamingClientFunc) connect.StreamingClientFunc {
+	return next
+}
+
+func (i *requireBearerInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
+	return func(ctx context.Context, conn connect.StreamingHandlerConn) error {
+		if conn.RequestHeader().Get("Authorization") != "Bearer "+i.token {
+			return connect.NewError(connect.CodeUnauthenticated, errors.New("invalid auth token"))
+		}
+		return next(ctx, conn)
+	}
+}
+
+// newTestTokenServer spins up a minimal OAuth 2.0 client credentials token endpoint that always
+// issues the given access token, regardless of the presented client credentials.
+func newTestTokenServer(t *testing.T, accessToken string) *httptest.Server {
+	t.Helper()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"access_token":"` + accessToken + `","token_type":"bearer","expires_in":3600}`))
+	}))
+	t.Cleanup(srv.Close)
+
+	return srv
 }
 
 func TestRunOnce_CollectsIndividualErrors(t *testing.T) {
@@ -299,6 +339,102 @@ func TestRunOnce_ReturnsError_WhenEvidenceStoreReturnsErrorStatus(t *testing.T) 
 
 	assert.Equal(t, 1, len(res.CollectorResults))
 	assert.ErrorContains(t, res.CollectorResults[0].Err, "evidence-store rejected evidence")
+}
+
+func TestRunOnce_ReturnsAuthError_WhenServiceOAuth2ConfigMissing(t *testing.T) {
+	var (
+		targetOfEvaluationID string
+		handler              *mockEvidenceStoreHandler
+		testHTTPServer       *httptest.Server
+		svc                  *collection.Service
+		err                  error
+		res                  collection.CollectionResult
+	)
+
+	handler = &mockEvidenceStoreHandler{}
+	_, testHTTPServer = servertest.NewTestConnectServer(t,
+		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(handler,
+			connect.WithInterceptors(&requireBearerInterceptor{token: "test-access-token"}))),
+	)
+	defer testHTTPServer.Close()
+
+	targetOfEvaluationID = uuid.NewString()
+
+	svc, err = collection.NewService(
+		collection.WithConfig(collection.Config{
+			Collectors: []collection.Collector{
+				collectiontest.NewFunctionCollector("collector-ok", func() ([]ontology.IsResource, error) {
+					return []ontology.IsResource{&ontology.VirtualMachine{Id: new("vm-1")}}, nil
+				}),
+			},
+			TargetOfEvaluationID:    targetOfEvaluationID,
+			EvidenceStoreAddress:    testHTTPServer.URL,
+			EvidenceStoreHTTPClient: testHTTPServer.Client(),
+			// No ServiceOAuth2Config: the request reaches the evidence store without an
+			// Authorization header and must be rejected.
+		}),
+	)
+	assert.NoError(t, err)
+	defer func() {
+		assert.NoError(t, svc.Close())
+	}()
+
+	res = svc.RunOnce()
+
+	assert.Equal(t, 1, len(res.CollectorResults))
+	assert.ErrorContains(t, res.CollectorResults[0].Err, "missing or invalid authentication credentials")
+	assert.Equal(t, 0, len(handler.Requests()))
+}
+
+func TestRunOnce_Succeeds_WhenServiceOAuth2ConfigMatchesRequiredAuth(t *testing.T) {
+	var (
+		targetOfEvaluationID string
+		handler              *mockEvidenceStoreHandler
+		testHTTPServer       *httptest.Server
+		tokenServer          *httptest.Server
+		svc                  *collection.Service
+		err                  error
+		res                  collection.CollectionResult
+	)
+
+	handler = &mockEvidenceStoreHandler{}
+	_, testHTTPServer = servertest.NewTestConnectServer(t,
+		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(handler,
+			connect.WithInterceptors(&requireBearerInterceptor{token: "test-access-token"}))),
+	)
+	defer testHTTPServer.Close()
+
+	tokenServer = newTestTokenServer(t, "test-access-token")
+
+	targetOfEvaluationID = uuid.NewString()
+
+	svc, err = collection.NewService(
+		collection.WithConfig(collection.Config{
+			Collectors: []collection.Collector{
+				collectiontest.NewFunctionCollector("collector-ok", func() ([]ontology.IsResource, error) {
+					return []ontology.IsResource{&ontology.VirtualMachine{Id: new("vm-1")}}, nil
+				}),
+			},
+			TargetOfEvaluationID:    targetOfEvaluationID,
+			EvidenceStoreAddress:    testHTTPServer.URL,
+			EvidenceStoreHTTPClient: testHTTPServer.Client(),
+			ServiceOAuth2Config: &clientcredentials.Config{
+				ClientID:     "test-client",
+				ClientSecret: "test-secret",
+				TokenURL:     tokenServer.URL,
+			},
+		}),
+	)
+	assert.NoError(t, err)
+	defer func() {
+		assert.NoError(t, svc.Close())
+	}()
+
+	res = svc.RunOnce()
+
+	assert.Equal(t, 1, len(res.CollectorResults))
+	assert.Nil(t, res.CollectorResults[0].Err)
+	assert.Equal(t, 1, len(handler.Requests()))
 }
 
 func TestNewService_ReturnsError_WhenEvidenceForwardingEnabledWithoutTargetOfEvaluationID(t *testing.T) {

@@ -34,6 +34,7 @@ import (
 	"confirmate.io/collectors/cloud/service/extra/csaf"
 	"confirmate.io/collectors/cloud/service/k8s"
 	"confirmate.io/collectors/cloud/service/openstack"
+	"confirmate.io/core/api"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/ontology"
@@ -45,6 +46,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/lmittmann/tint"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/oauth2/clientcredentials"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -88,6 +90,11 @@ type CloudCollectorConfig struct {
 
 	//evStreamConfig holds the configuration for the evidence store stream.
 	evStreamConfig EvidenceStoreStreamConfig
+
+	// serviceOAuth2Config is the OAuth 2.0 client credentials configuration used for
+	// service-to-service authentication with the evidence store. When set, all outgoing
+	// evidence store calls authenticate using this token.
+	serviceOAuth2Config *clientcredentials.Config
 }
 
 // EvidenceStoreStreamConfig holds the configuration for the evidence store stream.
@@ -192,6 +199,17 @@ func WithCollectorInterval(interval time.Duration) service.Option[Service] {
 	}
 }
 
+// WithServiceOAuth2Config is an option to configure OAuth 2.0 client credentials used to
+// authenticate against the evidence store service. When set, all outgoing evidence store calls
+// authenticate using this token.
+func WithServiceOAuth2Config(cfg *clientcredentials.Config) service.Option[Service] {
+	return func(svc *Service) {
+		log.Info("Service-to-service OAuth2 authentication is enabled for the evidence store connection")
+
+		svc.cloudConfig.serviceOAuth2Config = cfg
+	}
+}
+
 func NewService(opts ...service.Option[Service]) *Service {
 	var s *Service
 
@@ -224,6 +242,16 @@ func newService(opts ...service.Option[Service]) *Service {
 	// Apply any options
 	for _, o := range opts {
 		o(s)
+	}
+
+	// If service OAuth2 credentials are configured, wrap the HTTP client so all outgoing evidence
+	// store calls authenticate using the client credentials flow. Auth is handled at the transport
+	// level rather than via the original request context.
+	if s.cloudConfig.serviceOAuth2Config != nil {
+		s.cloudConfig.evStreamConfig.client = api.NewOAuthHTTPClient(
+			s.cloudConfig.evStreamConfig.client,
+			api.NewOAuthAuthorizerFromClientCredentials(s.cloudConfig.serviceOAuth2Config),
+		)
 	}
 
 	return s
@@ -504,18 +532,30 @@ func (svc *Service) GetStream() *connect.BidiStreamForClient[evidence.StoreEvide
 
 // checkStreamError checks whether the current evidence store stream can no longer be reused. If so, it marks the stream as dead.
 func (svc *Service) checkStreamError(err error) {
-	if err != nil {
-		if errors.Is(err, io.EOF) {
-			log.Info("Stream to Evidence Store closed with EOF", "address", svc.cloudConfig.evStreamConfig.targetAddress)
-		} else {
-			// Some other error than EOF occurred
-			log.Error("Error in Evidence Store stream", "address", svc.cloudConfig.evStreamConfig.targetAddress, tint.Err(err))
-
-			// Close the stream gracefully. We can ignore any error resulting from the close here
-			if svc.evidenceStoreStream != nil {
-				_ = svc.evidenceStoreStream.CloseRequest()
-			}
-		}
-		svc.dead = true
+	if err == nil {
+		return
 	}
+
+	if errors.Is(err, io.EOF) {
+		log.Info("Stream to Evidence Store closed with EOF", "address", svc.cloudConfig.evStreamConfig.targetAddress)
+		svc.dead = true
+		return
+	}
+
+	if code := connect.CodeOf(err); code == connect.CodeUnauthenticated || code == connect.CodePermissionDenied {
+		// Call out authentication/authorization failures distinctly, so they are not mistaken for a
+		// plain connectivity issue: this means the evidence store rejected our request because we
+		// either sent no credentials or invalid ones.
+		log.Error("Evidence Store rejected the connection due to missing or invalid authentication credentials; configure --collector-service-oauth2-* flags",
+			"address", svc.cloudConfig.evStreamConfig.targetAddress, "code", code.String(), tint.Err(err))
+	} else {
+		// Some other error than EOF occurred
+		log.Error("Error in Evidence Store stream", "address", svc.cloudConfig.evStreamConfig.targetAddress, tint.Err(err))
+	}
+
+	// Close the stream gracefully. We can ignore any error resulting from the close here
+	if svc.evidenceStoreStream != nil {
+		_ = svc.evidenceStoreStream.CloseRequest()
+	}
+	svc.dead = true
 }
