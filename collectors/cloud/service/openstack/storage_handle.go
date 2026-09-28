@@ -54,11 +54,11 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 	} else {
 		vType, err := volumetypes.Get(context.Background(), d.clients.blockStorageClient, volume.VolumeType).Extract()
 		if err != nil {
-			log.Error("error getting volume type information for volume", slog.String("name", volume.Name), tint.Err(err))
+			slog.Error("error getting volume type information for volume", slog.String("name", volume.Name), tint.Err(err))
 		} else {
 			enc, err := volumetypes.GetEncryption(context.Background(), d.clients.blockStorageClient, vType.ID).Extract()
 			if err != nil {
-				log.Error("error getting encryption information for volume", slog.String("name", volume.Name), tint.Err(err))
+				slog.Error("error getting encryption information for volume", slog.String("name", volume.Name), tint.Err(err))
 			} else if enc.EncryptionID != "" {
 				// Cinder only tells us that the volume type is encrypted, not whether the key is customer-managed.
 				// Report it as generic disk encryption rather than assuming customer-key ownership.
@@ -70,7 +70,14 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 						},
 					},
 				}
-			}
+			} else {
+				are = &ontology.AtRestEncryption{
+					Type: &ontology.AtRestEncryption_DiskEncryption{
+						DiskEncryption: &ontology.DiskEncryption{
+							Enabled: new(false),
+						},
+					},
+				}
 		}
 
 		if d.volumeTypeEncryption == nil {
@@ -97,13 +104,13 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 				Enabled: new(true),
 			})
 
-			log.Info("Adding block storage backup", slog.String("name", b.Name))
+			slog.Info("Adding block storage backup", slog.String("name", b.Name))
 		}
 
 		return true, nil
 	})
 	if err != nil {
-		log.Error("error listing backups for block storage", slog.String("name", volume.Name), tint.Err(err))
+		slog.Error("error listing backups for block storage", slog.String("name", volume.Name), tint.Err(err))
 	}
 
 	r := &ontology.BlockStorage{
@@ -121,7 +128,7 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 		Backups:          backup,
 	}
 
-	log.Info("Adding block storage", slog.String("name", volume.Name))
+	slog.Info("Adding block storage", slog.String("name", volume.Name))
 
 	return r, nil
 }
@@ -132,7 +139,7 @@ func (d *openstackCollector) handleObjectStorage(container *containers.Container
 
 	header, err := containers.Get(context.Background(), d.clients.storageClient, container.Name, containers.GetOpts{}).Extract()
 	if err != nil {
-		log.Error("error extracting container details for container", slog.String("name", container.Name), tint.Err(err))
+		slog.Error("error extracting container details for container", slog.String("name", container.Name), tint.Err(err))
 	} else {
 		// A container is public if its "X-Container-Read" ACL grants read access to everyone (".r:*").
 		for _, acl := range header.Read {
@@ -150,7 +157,7 @@ func (d *openstackCollector) handleObjectStorage(container *containers.Container
 		PublicAccess: new(isPublic),
 	}
 
-	log.Info("Adding object storage", slog.String("name", container.Name))
+	slog.Info("Adding object storage", slog.String("name", container.Name))
 
 	return r, nil
 }
