@@ -22,11 +22,13 @@ import (
 	"net/http"
 	"time"
 
+	"confirmate.io/core/api"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
+	"golang.org/x/oauth2/clientcredentials"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -88,6 +90,11 @@ type Config struct {
 	// ToolID overrides the collector ID when creating evidence records. If empty, the collector's
 	// own ID is used.
 	ToolID string
+
+	// ServiceOAuth2Config is the OAuth2 client credentials configuration used for
+	// service-to-service authentication with the evidence store. When set, all outgoing
+	// evidence store calls use this token.
+	ServiceOAuth2Config *clientcredentials.Config
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
@@ -142,6 +149,16 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 			httpClient = service.DefaultHTTPClient
 		}
 
+		// If service OAuth2 credentials are configured, wrap the HTTP client so all outgoing
+		// evidence store calls authenticate using the client credentials flow. Auth is handled at
+		// the transport level rather than via the original request context.
+		if cfg.ServiceOAuth2Config != nil {
+			httpClient = api.NewOAuthHTTPClient(
+				httpClient,
+				api.NewOAuthAuthorizerFromClientCredentials(cfg.ServiceOAuth2Config),
+			)
+		}
+
 		svc.evidenceStoreClient = evidenceconnect.NewEvidenceStoreClient(httpClient, cfg.EvidenceStoreAddress)
 	}
 
@@ -186,6 +203,16 @@ func (svc *Service) Close() (err error) {
 	return nil
 }
 
+// annotateAuthError prefixes err with a clear message if the evidence store rejected the request
+// due to missing or invalid authentication credentials, so this isn't mistaken for a plain
+// connectivity issue.
+func annotateAuthError(err error) error {
+	if code := connect.CodeOf(err); code == connect.CodeUnauthenticated || code == connect.CodePermissionDenied {
+		return fmt.Errorf("evidence store rejected the connection due to missing or invalid authentication credentials (code %s): %w", code, err)
+	}
+	return err
+}
+
 // sendResourcesToEvidenceStore sends the given resources to the evidence store, associating them
 // with the configured target of evaluation ID and the collector as the tool ID.
 func (svc *Service) sendResourcesToEvidenceStore(ctx context.Context, collector Collector, resources []ontology.IsResource) (err error) {
@@ -225,7 +252,7 @@ func (svc *Service) sendResourcesToEvidenceStore(ctx context.Context, collector 
 		storeErr = svc.evidenceStoreStream.Send(req)
 		if storeErr != nil {
 			err = fmt.Errorf("failed to send evidence for collector %q: %w", collector.Name(), storeErr)
-			return err
+			return annotateAuthError(err)
 		}
 
 		res, storeErr = svc.evidenceStoreStream.Receive()
@@ -236,7 +263,7 @@ func (svc *Service) sendResourcesToEvidenceStore(ctx context.Context, collector 
 			}
 
 			err = fmt.Errorf("failed to receive evidence-store status for collector %q: %w", collector.Name(), storeErr)
-			return err
+			return annotateAuthError(err)
 		}
 
 		if res.GetStatus() != evidence.EvidenceStatus_EVIDENCE_STATUS_OK {

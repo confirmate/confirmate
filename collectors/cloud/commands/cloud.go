@@ -24,6 +24,17 @@ import (
 	cloud "confirmate.io/collectors/cloud/service"
 	"confirmate.io/core/service"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/oauth2/clientcredentials"
+)
+
+const (
+	// DefaultServiceOAuth2TokenEndpoint is the default OAuth 2.0 token URL for service-to-service
+	// auth with the evidence store, matching the default confirmate auth server.
+	DefaultServiceOAuth2TokenEndpoint = "http://localhost:8080/v1/auth/token"
+	// DefaultServiceOAuth2ClientID is the default OAuth 2.0 client ID for service-to-service auth.
+	DefaultServiceOAuth2ClientID = "confirmate"
+	// DefaultServiceOAuth2ClientSecret is the default OAuth 2.0 client secret for service-to-service auth.
+	DefaultServiceOAuth2ClientSecret = "confirmate"
 )
 
 var cloudCollectorFlags = []cli.Flag{
@@ -84,6 +95,29 @@ var cloudStandaloneFlags = []cli.Flag{
 		Usage:    "Address of the evidence store to send collected evidence to. (default: localhost:9092)",
 		Required: false,
 	},
+	&cli.BoolFlag{
+		Name:     "collector-service-oauth2-enabled",
+		Usage:    "Authenticate the connection to the evidence store using OAuth 2.0 client credentials. (Default: false)",
+		Required: false,
+	},
+	&cli.StringFlag{
+		Name:     "collector-service-oauth2-token-endpoint",
+		Usage:    "OAuth 2.0 token URL for service-to-service auth with the evidence store",
+		Value:    DefaultServiceOAuth2TokenEndpoint,
+		Required: false,
+	},
+	&cli.StringFlag{
+		Name:     "collector-service-oauth2-client-id",
+		Usage:    "OAuth 2.0 client ID for service-to-service auth with the evidence store",
+		Value:    DefaultServiceOAuth2ClientID,
+		Required: false,
+	},
+	&cli.StringFlag{
+		Name:     "collector-service-oauth2-client-secret",
+		Usage:    "OAuth 2.0 client secret for service-to-service auth with the evidence store",
+		Value:    DefaultServiceOAuth2ClientSecret,
+		Required: false,
+	},
 }
 
 func cloudServiceOptionsFromCommand(cmd *cli.Command, targetOfEvaluationID string) (opts []service.Option[cloud.Service]) {
@@ -101,6 +135,13 @@ func cloudServiceOptionsFromCommand(cmd *cli.Command, targetOfEvaluationID strin
 	}
 	if cmd.String("collector-evidence-store-address") != "" {
 		opts = append(opts, cloud.WithEvidenceStoreAddress(cmd.String("collector-evidence-store-address"), service.DefaultHTTPClient))
+	}
+	if cmd.Bool("collector-service-oauth2-enabled") {
+		opts = append(opts, cloud.WithServiceOAuth2Config(&clientcredentials.Config{
+			ClientID:     cmd.String("collector-service-oauth2-client-id"),
+			ClientSecret: cmd.String("collector-service-oauth2-client-secret"),
+			TokenURL:     cmd.String("collector-service-oauth2-token-endpoint"),
+		}))
 	}
 
 	return opts
