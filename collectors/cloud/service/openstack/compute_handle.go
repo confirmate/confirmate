@@ -72,12 +72,12 @@ func (d *openstackCollector) handleServer(server *servers.Server) (ontology.IsRe
 		GeoLocation: &ontology.GeoLocation{
 			Region: new(d.region),
 		},
-		Labels:            labels(server.Tags),
-		ParentId:          new(server.TenantID),
-		Raw:               new(collector.Raw(server)),
-		MalwareProtection: &ontology.MalwareProtection{},
-		BootLogging:       bootLogging,
-		AutomaticUpdates:  &ontology.AutomaticUpdates{},
+		Labels:   labels(server.Tags),
+		ParentId: new(server.TenantID),
+		Raw:      new(collector.Raw(server)),
+		// MalwareProtection: &ontology.MalwareProtection{},
+		BootLogging: bootLogging,
+		// AutomaticUpdates:  &ontology.AutomaticUpdates{}, // Information not available in OpenStack, so we leave it empty
 		ActivityLogging: &ontology.ActivityLogging{
 			Enabled: new(activityLogEnabled),
 		},
