@@ -145,8 +145,6 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 					ParentId:            new("fcad67a6189847c4aecfa3c81a05783b"),
 					BlockStorageIds:     []string{"2bdbc40f-a277-45d4-94ac-d9881c777d33"},
 					NetworkInterfaceIds: []string{"8a5fe506-7e9f-4091-899b-96336909d93c"},
-					MalwareProtection:   &ontology.MalwareProtection{},
-					AutomaticUpdates:    &ontology.AutomaticUpdates{},
 					BootLogging:         &ontology.BootLogging{Enabled: new(true)},
 					Raw:                 new(""),
 					ActivityLogging:     &ontology.ActivityLogging{Enabled: new(true)},
