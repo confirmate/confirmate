@@ -78,6 +78,7 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 						},
 					},
 				}
+			}
 		}
 
 		if d.volumeTypeEncryption == nil {
