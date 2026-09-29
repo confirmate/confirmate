@@ -28,6 +28,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 type noOpCollector struct {
@@ -78,6 +79,12 @@ var collectionFlags = []cli.Flag{
 		Value:   "",
 		Sources: envVarSources("target-of-evaluation-id"),
 	},
+	&cli.BoolFlag{
+		Name:    "evidence-store-oauth2-enabled",
+		Usage:   "Authenticate the connection to the evidence store using OAuth 2.0 client credentials",
+		Value:   false,
+		Sources: envVarSources("evidence-store-oauth2-enabled"),
+	},
 }
 
 // CollectionCommand is the command to start the collection service.
@@ -99,22 +106,35 @@ var CollectionCommand = &cli.Command{
 			return err
 		}
 
-		svc, err = collection.NewService(
-			collection.WithConfig(collection.Config{
-				Interval:             cmd.Duration("collection-interval"),
-				EvidenceStoreAddress: cmd.String("evidence-store-address"),
-				TargetOfEvaluationID: cmd.String("target-of-evaluation-id"),
-				Collectors: []collection.Collector{
-					newNoOpCollector("cli-no-op-collector"),
-				},
-			}),
-		)
+		cfg := collection.Config{
+			Interval:             cmd.Duration("collection-interval"),
+			EvidenceStoreAddress: cmd.String("evidence-store-address"),
+			TargetOfEvaluationID: cmd.String("target-of-evaluation-id"),
+			Collectors: []collection.Collector{
+				newNoOpCollector("cli-no-op-collector"),
+			},
+		}
+
+		if cmd.Bool("evidence-store-oauth2-enabled") {
+			cfg.ServiceOAuth2Config = &clientcredentials.Config{
+				ClientID:     cmd.String("service-oauth2-client-id"),
+				ClientSecret: cmd.String("service-oauth2-client-secret"),
+				TokenURL:     cmd.String("service-oauth2-token-endpoint"),
+			}
+		}
+
+		svc, err = collection.NewService(collection.WithConfig(cfg))
 		if err != nil {
 			return err
 		}
 
 		resultCh = svc.Start(runCtx)
-		for range resultCh {
+		for result := range resultCh {
+			for _, cr := range result.CollectorResults {
+				if cr.Err != nil {
+					slog.Error("Collector run failed", "collector", cr.CollectorName, log.Err(cr.Err))
+				}
+			}
 			slog.Debug("Collection cycle finished")
 		}
 
@@ -123,5 +143,6 @@ var CollectionCommand = &cli.Command{
 	Flags: joinFlagSlices(
 		logFlags,
 		collectionFlags,
+		serviceAuthFlags,
 	),
 }

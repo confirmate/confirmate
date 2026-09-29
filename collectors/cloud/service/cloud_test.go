@@ -23,6 +23,9 @@ import (
 	"testing"
 	"time"
 
+	"net/http"
+	"net/http/httptest"
+
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/collectortest"
 	"confirmate.io/collectors/cloud/internal/config"
@@ -38,6 +41,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 func TestNewService(t *testing.T) {
@@ -139,6 +143,24 @@ func TestNewService(t *testing.T) {
 				return assert.NotNil(t, got.evidenceStoreClient)
 			},
 		},
+		{
+			name: "Create service with option 'WithServiceOAuth2Config'",
+			args: args{
+				opts: []service.Option[Service]{
+					WithServiceOAuth2Config(&clientcredentials.Config{
+						ClientID:     "test-client",
+						ClientSecret: "test-secret",
+						TokenURL:     "http://localhost:8080/v1/auth/token",
+					}),
+				},
+			},
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				assert.NotNil(t, got.cloudConfig.serviceOAuth2Config)
+				// The default HTTP client must have been wrapped with an OAuth2-authenticating
+				// transport rather than left untouched.
+				return assert.True(t, got.cloudConfig.evStreamConfig.client != service.DefaultHTTPClient)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -229,6 +251,44 @@ func (h *mockEvidenceStoreHandler) Requests() (requests []*evidence.StoreEvidenc
 
 	requests = append([]*evidence.StoreEvidenceRequest(nil), h.requests...)
 	return requests
+}
+
+// requireBearerInterceptor rejects every streaming request that does not carry the expected
+// "Authorization: Bearer <token>" header, mimicking [server.AuthInterceptor]'s behavior for
+// unauthenticated requests without needing a real JWT/JWKS setup in tests.
+type requireBearerInterceptor struct {
+	token string
+}
+
+func (i *requireBearerInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
+	return next
+}
+
+func (i *requireBearerInterceptor) WrapStreamingClient(next connect.StreamingClientFunc) connect.StreamingClientFunc {
+	return next
+}
+
+func (i *requireBearerInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
+	return func(ctx context.Context, conn connect.StreamingHandlerConn) error {
+		if conn.RequestHeader().Get("Authorization") != "Bearer "+i.token {
+			return connect.NewError(connect.CodeUnauthenticated, errors.New("invalid auth token"))
+		}
+		return next(ctx, conn)
+	}
+}
+
+// newTestTokenServer spins up a minimal OAuth 2.0 client credentials token endpoint that always
+// issues the given access token, regardless of the presented client credentials.
+func newTestTokenServer(t *testing.T, accessToken string) *httptest.Server {
+	t.Helper()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"access_token":"` + accessToken + `","token_type":"bearer","expires_in":3600}`))
+	}))
+	t.Cleanup(srv.Close)
+
+	return srv
 }
 
 type startCollectorTestCollector struct {
@@ -422,6 +482,67 @@ func waitForStoredRequests(t *testing.T, handler *mockEvidenceStoreHandler, want
 			return requests
 		case <-ticker.C:
 		}
+	}
+}
+
+func TestService_StartCollector_AuthRequiredByEvidenceStore(t *testing.T) {
+	tests := []struct {
+		name           string
+		withOAuth2     bool
+		wantDead       bool
+		wantStoredReqs int
+	}{
+		{
+			name:           "no ServiceOAuth2Config: evidence store rejects the connection",
+			withOAuth2:     false,
+			wantDead:       true,
+			wantStoredReqs: 0,
+		},
+		{
+			name:           "matching ServiceOAuth2Config: evidence store accepts the connection",
+			withOAuth2:     true,
+			wantDead:       false,
+			wantStoredReqs: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			handler := &mockEvidenceStoreHandler{}
+			_, testSrv := servertest.NewTestConnectServer(t,
+				server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(handler,
+					connect.WithInterceptors(&requireBearerInterceptor{token: "test-access-token"}))),
+			)
+			defer testSrv.Close()
+
+			opts := []service.Option[Service]{
+				WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID1),
+				WithCollectorToolID(testdata.MockEvidenceToolID1),
+				WithEvidenceStoreAddress(testSrv.URL, testSrv.Client()),
+			}
+			if tt.withOAuth2 {
+				tokenServer := newTestTokenServer(t, "test-access-token")
+				opts = append(opts, WithServiceOAuth2Config(&clientcredentials.Config{
+					ClientID:     "test-client",
+					ClientSecret: "test-secret",
+					TokenURL:     tokenServer.URL,
+				}))
+			}
+
+			svc := NewService(opts...)
+			defer svc.Shutdown()
+
+			svc.StartCollector(&startCollectorTestCollector{
+				name:                 "collector",
+				id:                   "collector-id",
+				targetOfEvaluationID: testdata.MockTargetOfEvaluationID1,
+				resources:            []ontology.IsResource{&ontology.VirtualMachine{Id: new("vm-1")}},
+			})
+
+			requests := waitForStoredRequests(t, handler, tt.wantStoredReqs)
+			assert.Equal(t, tt.wantStoredReqs, len(requests))
+			assert.Equal(t, tt.wantDead, svc.dead)
+		})
 	}
 }
 
