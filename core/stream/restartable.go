@@ -275,11 +275,11 @@ func (rs *RestartableBidiStream[Req, Res]) Receive() (msg *Res, err error) {
 		if restartErr := rs.restart(err); restartErr != nil {
 			return nil, fmt.Errorf("failed to receive and restart: %w", restartErr)
 		}
-		// Retry receiving on the new stream - get it under lock to avoid race
-		rs.mu.RLock()
-		stream = rs.stream
-		rs.mu.RUnlock()
-		return stream.Receive()
+		// The restarted stream is brand new: nothing has been sent on it yet, so calling
+		// Receive() on it here would block forever waiting for a response to a request that
+		// was never made. Report the original error instead so the caller can resend and
+		// retry the full Send/Receive cycle.
+		return nil, fmt.Errorf("stream restarted after receive error, resend required: %w", err)
 	}
 
 	return msg, nil
