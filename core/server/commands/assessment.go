@@ -49,6 +49,15 @@ var assessmentFlags = []cli.Flag{
 		Value:   assessment.DefaultConfig.SkipMetricsOnError,
 		Sources: envVarSources("assessment-skip-metrics-on-error"),
 	},
+	&cli.BoolFlag{
+		Name: "assessment-cache-applicable-metrics",
+		Usage: "Cache, per tool ID and resource type, which metrics were found applicable, instead of " +
+			"re-discovering applicability for every piece of evidence. This is an unsound optimization when " +
+			"metric applicability can depend on which fields are populated on a specific resource, not just its " +
+			"type; only enable it if you know your metric set doesn't have that property",
+		Value:   assessment.DefaultConfig.CacheApplicableMetrics,
+		Sources: envVarSources("assessment-cache-applicable-metrics"),
+	},
 }
 
 // AssessmentCommand is the command to start the assessment server.
@@ -67,6 +76,7 @@ var AssessmentCommand = &cli.Command{
 			OrchestratorHTTPClient: service.NewHTTPClient(),
 			RegoPackage:            cmd.String("assessment-rego-package"),
 			SkipMetricsOnError:     cmd.Bool("assessment-skip-metrics-on-error"),
+			CacheApplicableMetrics: cmd.Bool("assessment-cache-applicable-metrics"),
 		}
 
 		if cmd.Bool("auth-enabled") {

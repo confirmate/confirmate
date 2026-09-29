@@ -226,6 +226,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 			OrchestratorHTTPClient: orchestratorClient,
 			RegoPackage:            cmd.String("assessment-rego-package"),
 			SkipMetricsOnError:     cmd.Bool("assessment-skip-metrics-on-error"),
+			CacheApplicableMetrics: cmd.Bool("assessment-cache-applicable-metrics"),
 		}),
 	}, assessmentOptions...)
 
