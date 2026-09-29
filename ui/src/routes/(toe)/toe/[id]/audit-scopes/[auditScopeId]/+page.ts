@@ -76,17 +76,27 @@ export const load = (async ({ params, fetch, depends, url }) => {
 		}
 	});
 
+	// Fetch top-level-only evaluation results (latest by control ID), for the compliance summary
+	// donut. Filtering evaluationResults client-side after fetching would undercount: with a mixed
+	// page of top-level and sub-control results capped at pageSize, sub-controls can fill the page
+	// before every top-level result is returned. filter.parentsOnly applies the filter server-side,
+	// before pagination, so the count is complete.
+	const evalResTopLevel = await client.GET('/v1/orchestrator/evaluation_results', {
+		params: {
+			query: {
+				'filter.targetOfEvaluationId': params.id,
+				'filter.auditScopeId': params.auditScopeId,
+				'filter.parentsOnly': true,
+				latestByControlId: true,
+				pageSize: 1000
+			}
+		}
+	});
+
 	const evaluationResults = evalRes.data?.results ?? [];
 	const allEvaluationResults = evalResAll.data?.results ?? [];
+	const evaluationResultsTopLevel = evalResTopLevel.data?.results ?? [];
 	const evaluationByControl = indexEvaluationsByControl(evaluationResults);
-
-	// Top-level-only subset of evaluationResults, for the compliance summary donut: summing
-	// evaluationResults directly would count both a top-level control and its sub-controls, since
-	// metrics are typically attached to sub-controls rather than their top-level parent.
-	const topLevelControlIds = new Set(topLevelControls.map((c) => c.id));
-	const evaluationResultsTopLevel = evaluationResults.filter((r) =>
-		topLevelControlIds.has(r.controlId ?? '')
-	);
 
 	// Fetch assessment results and count by metric ID
 	const assessmentRes = await client.GET('/v1/orchestrator/assessment_results', {
