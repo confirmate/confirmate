@@ -80,7 +80,8 @@ func (d *openstackCollector) handleNetworkInterfaces(network *networks.Network) 
 		AccessRestriction: &ontology.AccessRestriction{
 			Type: &ontology.AccessRestriction_L3Firewall{
 				L3Firewall: &ontology.L3Firewall{
-					Enabled: new(l3FirewallEnabled),
+					Enabled:         new(l3FirewallEnabled),
+					RestrictedPorts: restrictedPortsList,
 				},
 			},
 		},
