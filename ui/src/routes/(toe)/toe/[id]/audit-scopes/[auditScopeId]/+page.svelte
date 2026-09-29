@@ -290,7 +290,7 @@
 	<!-- Compliance tab -->
 	{#if tab === 'compliance'}
 		<div class="mt-6">
-			<EvaluationSummary results={data.evaluationResults} />
+			<EvaluationSummary results={data.evaluationResultsTopLevel} />
 
 			<div class="mt-6 space-y-3">
 				{#if data.catalog?.categories?.length}
