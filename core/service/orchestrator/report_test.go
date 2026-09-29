@@ -198,11 +198,12 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		if !assert.NotNil(t, res) {
 			return
 		}
-		assert.NotEmpty(t, res.Msg.GetContent())
-		assert.Equal(t, "audit-scope-report-Mock-Audit-Scope-1-"+time.Now().Format("20060102")+".xlsx",
-			res.Msg.GetFilename())
+		assert.NotEmpty(t, res.Msg.GetData())
+		assert.Equal(t, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", res.Msg.GetContentType())
+		assert.Equal(t, `attachment; filename="audit-scope-report-Mock-Audit-Scope-1-`+time.Now().Format("20060102")+`.xlsx"`,
+			res.Header().Get("Content-Disposition"))
 
-		f, err := excelize.OpenReader(bytes.NewReader(res.Msg.GetContent()))
+		f, err := excelize.OpenReader(bytes.NewReader(res.Msg.GetData()))
 		if !assert.NoError(t, err) {
 			return
 		}
@@ -274,11 +275,12 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		if !assert.NotNil(t, res) {
 			return
 		}
-		assert.NotEmpty(t, res.Msg.GetContent())
-		assert.Equal(t, "audit-scope-report-Mock-Audit-Scope-1-"+time.Now().Format("20060102")+".pdf",
-			res.Msg.GetFilename())
+		assert.NotEmpty(t, res.Msg.GetData())
+		assert.Equal(t, "application/pdf", res.Msg.GetContentType())
+		assert.Equal(t, `attachment; filename="audit-scope-report-Mock-Audit-Scope-1-`+time.Now().Format("20060102")+`.pdf"`,
+			res.Header().Get("Content-Disposition"))
 
-		content := res.Msg.GetContent()
+		content := res.Msg.GetData()
 		assert.True(t, bytes.HasPrefix(content, []byte("%PDF-")), "content does not start with a PDF header")
 
 		r := bytes.NewReader(content)
