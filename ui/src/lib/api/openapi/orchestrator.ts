@@ -162,7 +162,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Exports a compliance report for an Audit Scope as an XLSX spreadsheet */
+        /**
+         * @description Exports a compliance report for an Audit Scope as an XLSX spreadsheet or PDF, returned as a
+         *      raw HTTP response (correct Content-Type, Content-Disposition with the suggested filename)
+         *      rather than wrapped in a JSON envelope, so any HTTP client can download it by simply saving
+         *      the response body.
+         */
         get: operations["Orchestrator_ExportAuditScopeReport"];
         put?: never;
         post?: never;
@@ -1199,15 +1204,6 @@ export interface components {
              */
             data?: string;
         };
-        ExportAuditScopeReportResponse: {
-            /**
-             * Format: bytes
-             * @description Content is the raw file content, in the format requested.
-             */
-            readonly content?: string;
-            /** @description Filename is the suggested filename for the download, e.g. "audit-scope-report-my-scope.xlsx". */
-            readonly filename?: string;
-        };
         GetTargetOfEvaluationStatisticsResponse: {
             /** @description number of discovered resources per target of evaluation */
             numberOfDiscoveredResources?: string;
@@ -1550,7 +1546,6 @@ export type SchemaControlInScope = components['schemas']['ControlInScope'];
 export type SchemaCreateControlInScopeRequest = components['schemas']['CreateControlInScopeRequest'];
 export type SchemaDependency = components['schemas']['Dependency'];
 export type SchemaEvaluationResult = components['schemas']['EvaluationResult'];
-export type SchemaExportAuditScopeReportResponse = components['schemas']['ExportAuditScopeReportResponse'];
 export type SchemaGetTargetOfEvaluationStatisticsResponse = components['schemas']['GetTargetOfEvaluationStatisticsResponse'];
 export type SchemaGoogleProtobufAny = components['schemas']['GoogleProtobufAny'];
 export type SchemaGoogleProtobufValue = components['schemas']['GoogleProtobufValue'];
@@ -2047,7 +2042,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ExportAuditScopeReportResponse"];
+                    "*/*": unknown;
                 };
             };
             /** @description Default error response */

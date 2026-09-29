@@ -49,6 +49,13 @@ func (srv *Server) handleCORS(h http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Add("Vary", "Origin")
 
+			// Expose additional response headers to browser JS beyond the default safelist (e.g.
+			// Content-Disposition for file downloads). Unlike Allow-Headers/Allow-Methods, this
+			// applies to the actual response, not just the preflight.
+			if len(srv.cfg.CORS.ExposedHeaders) > 0 {
+				w.Header().Set("Access-Control-Expose-Headers", strings.Join(srv.cfg.CORS.ExposedHeaders, ","))
+			}
+
 			// Additionally, we need to handle preflight (OPTIONS) requests to specify allowed
 			// headers and methods
 			if r.Method == "OPTIONS" && r.Header.Get("Access-Control-Request-Method") != "" {

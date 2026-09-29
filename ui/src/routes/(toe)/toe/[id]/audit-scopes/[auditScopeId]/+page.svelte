@@ -10,8 +10,8 @@
 	import CategorySection from '$lib/components/toe/CategorySection.svelte';
 	import ImplementationCategory from '$lib/components/toe/ImplementationCategory.svelte';
 	import AuditTrail from '$lib/components/ui/AuditTrail.svelte';
-	import { evaluationClient, orchestratorClient } from '$lib/api/client';
-	import { downloadBase64File } from '$lib/download';
+	import { authHeaders, evaluationClient } from '$lib/api/client';
+	import { downloadFile } from '$lib/download';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -103,30 +103,16 @@
 		}
 	}
 
-	const reportMimeTypes = {
-		PDF: 'application/pdf',
-		XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-	} as const;
-
 	async function downloadReport(format: 'PDF' | 'XLSX') {
 		reportBusy = true;
 		reportError = null;
 		try {
-			const { data: report, error } = await orchestratorClient().GET(
-				'/v1/orchestrator/audit_scopes/{auditScopeId}/report',
-				{
-					params: {
-						path: { auditScopeId: data.auditScope.id },
-						query: { format: `REPORT_FORMAT_${format}` }
-					}
-				}
-			);
-			if (error) throw error;
-			if (!report?.content) throw new Error('empty report');
-			downloadBase64File(
-				report.content,
-				report.filename ?? `audit-scope-report.${format.toLowerCase()}`,
-				reportMimeTypes[format]
+			// This endpoint returns the file itself (correct Content-Type and Content-Disposition
+			// headers), not a JSON envelope, so it can't go through the typed openapi client.
+			await downloadFile(
+				`/v1/orchestrator/audit_scopes/${data.auditScope.id}/report?format=REPORT_FORMAT_${format}`,
+				authHeaders(),
+				`audit-scope-report.${format.toLowerCase()}`
 			);
 		} catch {
 			reportError = 'Failed to download report';

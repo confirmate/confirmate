@@ -4,7 +4,10 @@ import type { paths as AssessmentPaths } from './openapi/assessment';
 import type { paths as EvidencePaths } from './openapi/evidence';
 import type { paths as EvaluationPaths } from './openapi/evaluation';
 
-function authHeaders(): HeadersInit {
+/** The `Authorization: Bearer <token>` header for the current user, if logged in. Exported so
+ * callers that need a raw `fetch` outside the generated openapi clients (e.g. file downloads,
+ * which can't go through a client that always parses the response as JSON) can still authenticate. */
+export function authHeaders(): HeadersInit {
 	if (typeof globalThis.localStorage === 'undefined') return {};
 	const token = globalThis.localStorage.getItem('token');
 	return token ? { Authorization: `Bearer ${token}` } : {};
