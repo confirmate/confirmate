@@ -80,6 +80,14 @@ export const load = (async ({ params, fetch, depends, url }) => {
 	const allEvaluationResults = evalResAll.data?.results ?? [];
 	const evaluationByControl = indexEvaluationsByControl(evaluationResults);
 
+	// Top-level-only subset of evaluationResults, for the compliance summary donut: summing
+	// evaluationResults directly would count both a top-level control and its sub-controls, since
+	// metrics are typically attached to sub-controls rather than their top-level parent.
+	const topLevelControlIds = new Set(topLevelControls.map((c) => c.id));
+	const evaluationResultsTopLevel = evaluationResults.filter((r) =>
+		topLevelControlIds.has(r.controlId ?? '')
+	);
+
 	// Fetch assessment results and count by metric ID
 	const assessmentRes = await client.GET('/v1/orchestrator/assessment_results', {
 		params: {
@@ -140,6 +148,7 @@ export const load = (async ({ params, fetch, depends, url }) => {
 		controlsByCategory,
 		controlById,
 		evaluationResults,
+		evaluationResultsTopLevel,
 		allEvaluationResults,
 		evaluationByControl,
 		assessmentCountByMetric,
