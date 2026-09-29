@@ -32,6 +32,7 @@ import (
 	"confirmate.io/collectors/cloud/service/aws"
 	"confirmate.io/collectors/cloud/service/azure"
 	"confirmate.io/collectors/cloud/service/extra/csaf"
+	"confirmate.io/collectors/cloud/service/ionos"
 	"confirmate.io/collectors/cloud/service/k8s"
 	"confirmate.io/collectors/cloud/service/openstack"
 	"confirmate.io/core/api"
@@ -55,6 +56,7 @@ const (
 	ProviderK8S       = "k8s"
 	ProviderAzure     = "azure"
 	ProviderOpenstack = "openstack"
+	ProviderIonos     = "ionos"
 	ProviderCSAF      = "csaf"
 
 	// CloudCollectorStart is emitted at the start of a collector run.
@@ -72,6 +74,7 @@ var (
 	ErrOpenstackAuth = errors.New("could not authenticate to OpenStack")
 	ErrAWSAuth       = errors.New("could not authenticate to AWS")
 	ErrAzureAuth     = errors.New("could not authenticate to Azure")
+	ErrIonosAuth     = errors.New("could not authenticate to IONOS Cloud")
 )
 
 // CloudCollectorConfig holds the configuration for the cloud collector.
@@ -302,6 +305,7 @@ func (svc *Service) buildCollectors(cmd *cli.Command) (collectors []collector.Co
 		provider      string
 		optsAzure     = []azure.CollectorOption{}
 		optsOpenstack = []openstack.CollectorOption{}
+		optsIonos     = []ionos.CollectorOption{}
 	)
 
 	collectors = append(collectors, svc.collectors...)
@@ -355,6 +359,16 @@ func (svc *Service) buildCollectors(cmd *cli.Command) (collectors []collector.Co
 
 		optsOpenstack = append(optsOpenstack, openstack.WithAuthorizer(authorizer), openstack.WithTargetOfEvaluationID(svc.cloudConfig.targetOfEvaluationID))
 		collectors = append(collectors, openstack.NewOpenstackCollector(optsOpenstack...))
+	case provider == ProviderIonos:
+		authorizer, authErr := ionos.NewAuthorizer()
+		if authErr != nil {
+			err = fmt.Errorf("%v: %v", ErrIonosAuth, authErr)
+			log.Error("authorization error", tint.Err(err))
+			return nil, err
+		}
+
+		optsIonos = append(optsIonos, ionos.WithAuthorizer(authorizer), ionos.WithTargetOfEvaluationID(svc.cloudConfig.targetOfEvaluationID))
+		collectors = append(collectors, ionos.NewIonosCollector(optsIonos...))
 	case provider == ProviderCSAF:
 		var (
 			domain string
