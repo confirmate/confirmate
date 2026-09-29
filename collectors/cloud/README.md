@@ -36,7 +36,7 @@ Then start the cloud collector in a second terminal:
   --collector-provider azure \
   --collector-auto-start \
   --target-of-evaluation-id <target-of-evaluation-uuid> \
-  --collector-evidence-store-address http://localhost:8080
+  --evidence-store-address http://localhost:8080
 ```
 
 Notes:
@@ -44,7 +44,7 @@ Notes:
 - `--collector-provider` is required.
 - `--collector-auto-start` starts periodic collection immediately.
 - `--target-of-evaluation-id` should be the UUID of the target to associate evidence with.
-- `--collector-evidence-store-address` should point to the Confirmate API base URL.
+- `--evidence-store-address` should point to the Confirmate API base URL.
 
 ## Alternative: Run Against Another Evidence Store Address
 
@@ -55,7 +55,7 @@ If your evidence service is exposed on another address, set it explicitly:
   --collector-provider aws \
   --collector-auto-start \
   --target-of-evaluation-id <target-of-evaluation-uuid> \
-  --collector-evidence-store-address http://<host>:<port>
+  --evidence-store-address http://<host>:<port>
 ```
 
 ## Common Provider Example: Azure
@@ -66,7 +66,7 @@ If your evidence service is exposed on another address, set it explicitly:
   --collector-auto-start \
   --collector-resource-group <resource-group> \
   --target-of-evaluation-id 00000000-0000-0000-0000-000000000000 \
-  --collector-evidence-store-address http://localhost:8080
+  --evidence-store-address http://localhost:8080
 ```
 
 
@@ -80,7 +80,26 @@ If your evidence service is exposed on another address, set it explicitly:
 --target-of-evaluation-id string, -e string           Target of evaluation ID for which to collect cloud evidence
 --collector-interval int, -i int                      Interval in minutes for periodic collection
 --collector-auto-start, -a                            Start collector automatically after launch
---collector-evidence-store-address string, -s string  Address of the evidence store service
+--evidence-store-address string, -s string  Address of the evidence store service
+--evidence-store-oauth2-enabled                    Authenticate the connection to the evidence store using OAuth 2.0 client credentials (default: false)
+--service-oauth2-token-endpoint string      OAuth 2.0 token URL for service-to-service auth with the evidence store
+--service-oauth2-client-id string           OAuth 2.0 client ID for service-to-service auth with the evidence store
+--service-oauth2-client-secret string       OAuth 2.0 client secret for service-to-service auth with the evidence store
+```
+
+## Authenticating Against The Evidence Store
+
+If the evidence store enforces authentication (`--auth-enabled`), enable OAuth 2.0 client credentials on the collector:
+
+```bash
+./bin/cloud-collector \
+  --collector-provider azure \
+  --collector-auto-start \
+  --target-of-evaluation-id <target-of-evaluation-uuid> \
+  --evidence-store-address http://localhost:8080 \
+  --evidence-store-oauth2-enabled \
+  --service-oauth2-client-id <client-id> \
+  --service-oauth2-client-secret <client-secret>
 ```
 
 ## Credentials And Access
