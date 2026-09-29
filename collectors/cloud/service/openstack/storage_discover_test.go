@@ -16,6 +16,8 @@
 package openstack
 
 import (
+	"fmt"
+	"net/http"
 	"testing"
 	"time"
 
@@ -65,7 +67,7 @@ func Test_openstackCollector_collectBlockStorage(t *testing.T) {
 							return fakeServer.Endpoint(), nil
 						},
 					},
-					storageClient: client.ServiceClient(fakeServer),
+					blockStorageClient: client.ServiceClient(fakeServer),
 				},
 				region:  "test region",
 				domain:  &domain{},
@@ -115,4 +117,72 @@ func Test_openstackCollector_collectBlockStorage(t *testing.T) {
 			tt.wantErr(t, err)
 		})
 	}
+}
+
+func Test_openstackCollector_collectObjectStorage(t *testing.T) {
+	fakeServer := testhelper.SetupHTTP()
+	defer fakeServer.Teardown()
+
+	fakeServer.Mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		testhelper.TestMethod(t, r, "GET")
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		if r.URL.Query().Get("marker") == "" {
+			fmt.Fprint(w, `[{"name": "mycontainer", "count": 0, "bytes": 0}]`)
+		} else {
+			fmt.Fprint(w, `[]`)
+		}
+	})
+	fakeServer.Mux.HandleFunc("/mycontainer", func(w http.ResponseWriter, r *http.Request) {
+		testhelper.TestMethod(t, r, "HEAD")
+
+		w.Header().Add("X-Container-Read", ".r:*")
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	d := &openstackCollector{
+		clients: clients{
+			storageClient: client.ServiceClient(fakeServer),
+		},
+		project: &project{},
+	}
+
+	gotList, err := d.collectObjectStorage()
+
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(gotList))
+
+	got0 := gotList[0].(*ontology.ObjectStorage)
+	want := &ontology.ObjectStorage{
+		Id:           new("mycontainer"),
+		Name:         new("mycontainer"),
+		ParentId:     new(client.ServiceClient(fakeServer).Endpoint),
+		PublicAccess: new(true),
+	}
+	assert.Equal(t, want, got0)
+}
+
+func Test_openstackCollector_collectObjectStorageService(t *testing.T) {
+	fakeServer := testhelper.SetupHTTP()
+	defer fakeServer.Teardown()
+
+	d := &openstackCollector{
+		clients: clients{
+			storageClient: client.ServiceClient(fakeServer),
+		},
+		region:  "test region",
+		project: &project{projectID: "test-project-id"},
+	}
+
+	gotList, err := d.collectObjectStorageService()
+
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(gotList))
+
+	got0 := gotList[0].(*ontology.ObjectStorageService)
+	assert.Equal(t, "Swift Object Storage Service", *got0.Name)
+	assert.Equal(t, "test region", *got0.GeoLocation.Region)
+	assert.Equal(t, new("test-project-id"), got0.ParentId)
 }
