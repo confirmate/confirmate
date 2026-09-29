@@ -204,13 +204,17 @@ func (svc *Service) Close() (err error) {
 }
 
 // annotateAuthError prefixes err with a clear message if the evidence store rejected the request
-// due to missing or invalid authentication credentials, so this isn't mistaken for a plain
+// due to an authentication or authorization failure, so this isn't mistaken for a plain
 // connectivity issue.
 func annotateAuthError(err error) error {
-	if code := connect.CodeOf(err); code == connect.CodeUnauthenticated || code == connect.CodePermissionDenied {
-		return fmt.Errorf("evidence store rejected the connection due to missing or invalid authentication credentials (code %s): %w", code, err)
+	switch connect.CodeOf(err) {
+	case connect.CodeUnauthenticated:
+		return fmt.Errorf("evidence store rejected the connection because no or invalid authentication credentials were supplied; configure --evidence-store-oauth2-enabled and --service-oauth2-* flags (code %s): %w", connect.CodeUnauthenticated, err)
+	case connect.CodePermissionDenied:
+		return fmt.Errorf("evidence store rejected the connection because the authenticated identity is not authorized to store evidences; grant it the required permission (code %s): %w", connect.CodePermissionDenied, err)
+	default:
+		return err
 	}
-	return err
 }
 
 // sendResourcesToEvidenceStore sends the given resources to the evidence store, associating them

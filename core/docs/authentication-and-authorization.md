@@ -112,6 +112,34 @@ permission lookups), they use OAuth 2.0 client credentials flow:
 
 This is wired up in `NewService` when `Config.ServiceOAuth2Config` is non-nil.
 
+### Collector to evidence-store authentication
+
+Collectors (the generic `core/service/collection` service and the cloud collector in
+`collectors/cloud`) send evidence to the evidence store over a connect-RPC stream. This connection
+is opt-in-authenticated the same way as other service-to-service calls: client credentials are
+wrapped around the HTTP client via `api.NewOAuthHTTPClient` /
+`api.NewOAuthAuthorizerFromClientCredentials`, so every outgoing request on that stream carries a
+bearer token, without the evidence needing to flow through a per-request context.
+
+Both the `collection` command (core) and the `cloud-collector` command (collectors/cloud) use the
+same flag names for this, `--evidence-store-oauth2-enabled` and `--service-oauth2-*` (token
+endpoint, client ID, client secret), even though the underlying flag definitions are maintained
+separately per binary (`core/server/commands` and `collectors/cloud/commands`). In the
+`collection` command, `--service-oauth2-*` is shared with other service-to-service auth (see
+above); in `cloud-collector`, it is only ever used for the evidence-store connection.
+
+If the evidence store requires authentication (`--auth-enabled`) and the collector does not send
+credentials, or sends invalid ones, the evidence store rejects the request with
+`connect.CodeUnauthenticated`. If the credentials are valid but the identity lacks permission to
+store evidences, it is rejected with `connect.CodePermissionDenied`. Both collectors detect these
+codes explicitly and log/return a message that distinguishes the two cases, instead of surfacing a
+generic connectivity error:
+
+- `core/service/collection/service.go` (`annotateAuthError`) wraps the error returned from
+  `sendResourcesToEvidenceStore` with a message naming which of the two occurred.
+- `collectors/cloud/service/cloud.go` (`checkStreamError`) logs a distinct message for each code
+  when the evidence store stream fails.
+
 ## Where authorization is enforced
 
 Each service defines a package-local `checkAccess` helper that extracts the user ID from context
@@ -197,10 +225,21 @@ Command flags involved:
   parsed, startup fails with an error rather than silently falling back to
   the built-in default users (alice/bob/charlie).
 
+Collector → evidence-store flags (same names on both the `collection` command in `core` and the
+`cloud-collector` command in `collectors/cloud`, defined separately per binary):
+
+- `evidence-store-address` — evidence store base URL
+- `evidence-store-oauth2-enabled` — enable OAuth 2.0 client credentials for this connection
+- `service-oauth2-token-endpoint` / `service-oauth2-client-id` / `service-oauth2-client-secret` —
+  the credentials used when `evidence-store-oauth2-enabled` is set
+
 ## Error semantics
 
 - Invalid/missing token → `connect.CodeUnauthenticated`
 - Valid token but insufficient permissions → `connect.CodePermissionDenied`
+- Collector → evidence-store calls surface both codes distinctly rather than a single generic
+  "authentication failed" message — see [Collector to evidence-store
+  authentication](#collector-to-evidence-store-authentication).
 
 ## Notes for contributors
 

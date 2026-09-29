@@ -542,13 +542,19 @@ func (svc *Service) checkStreamError(err error) {
 		return
 	}
 
-	if code := connect.CodeOf(err); code == connect.CodeUnauthenticated || code == connect.CodePermissionDenied {
-		// Call out authentication/authorization failures distinctly, so they are not mistaken for a
-		// plain connectivity issue: this means the evidence store rejected our request because we
+	switch code := connect.CodeOf(err); code {
+	case connect.CodeUnauthenticated:
+		// Call out authentication failures distinctly, so they are not mistaken for a plain
+		// connectivity issue: this means the evidence store rejected our request because we
 		// either sent no credentials or invalid ones.
-		log.Error("Evidence Store rejected the connection due to missing or invalid authentication credentials; configure --collector-service-oauth2-* flags",
+		log.Error("Evidence Store rejected the connection because no or invalid authentication credentials were supplied; configure --evidence-store-oauth2-enabled and --service-oauth2-* flags",
 			"address", svc.cloudConfig.evStreamConfig.targetAddress, "code", code.String(), tint.Err(err))
-	} else {
+	case connect.CodePermissionDenied:
+		// The identity was authenticated but lacks the required permission; this is not fixed by
+		// (re-)configuring OAuth2 credentials, but by granting the identity the required permission.
+		log.Error("Evidence Store rejected the connection because the authenticated identity is not authorized to store evidences",
+			"address", svc.cloudConfig.evStreamConfig.targetAddress, "code", code.String(), tint.Err(err))
+	default:
 		// Some other error than EOF occurred
 		log.Error("Error in Evidence Store stream", "address", svc.cloudConfig.evStreamConfig.targetAddress, tint.Err(err))
 	}

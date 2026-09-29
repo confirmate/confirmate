@@ -116,6 +116,24 @@ func (i *requireBearerInterceptor) WrapStreamingHandler(next connect.StreamingHa
 	}
 }
 
+// denyAllInterceptor rejects every streaming request with [connect.CodePermissionDenied],
+// mimicking an authenticated caller that lacks the permission to store evidences.
+type denyAllInterceptor struct{}
+
+func (denyAllInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
+	return next
+}
+
+func (denyAllInterceptor) WrapStreamingClient(next connect.StreamingClientFunc) connect.StreamingClientFunc {
+	return next
+}
+
+func (denyAllInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
+	return func(ctx context.Context, conn connect.StreamingHandlerConn) error {
+		return connect.NewError(connect.CodePermissionDenied, errors.New("caller is not authorized to store evidences"))
+	}
+}
+
 // newTestTokenServer spins up a minimal OAuth 2.0 client credentials token endpoint that always
 // issues the given access token, regardless of the presented client credentials.
 func newTestTokenServer(t *testing.T, accessToken string) *httptest.Server {
@@ -382,8 +400,58 @@ func TestRunOnce_ReturnsAuthError_WhenServiceOAuth2ConfigMissing(t *testing.T) {
 	res = svc.RunOnce()
 
 	assert.Equal(t, 1, len(res.CollectorResults))
-	assert.ErrorContains(t, res.CollectorResults[0].Err, "missing or invalid authentication credentials")
+	assert.ErrorContains(t, res.CollectorResults[0].Err, "no or invalid authentication credentials were supplied")
 	assert.Equal(t, 0, len(handler.Requests()))
+}
+
+func TestRunOnce_ReturnsAuthError_WhenPermissionDenied(t *testing.T) {
+	var (
+		targetOfEvaluationID string
+		testHTTPServer       *httptest.Server
+		tokenServer          *httptest.Server
+		svc                  *collection.Service
+		err                  error
+		res                  collection.CollectionResult
+	)
+
+	_, testHTTPServer = servertest.NewTestConnectServer(t,
+		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(&mockEvidenceStoreHandler{},
+			connect.WithInterceptors(denyAllInterceptor{}))),
+	)
+	defer testHTTPServer.Close()
+
+	tokenServer = newTestTokenServer(t, "test-access-token")
+
+	targetOfEvaluationID = uuid.NewString()
+
+	svc, err = collection.NewService(
+		collection.WithConfig(collection.Config{
+			Collectors: []collection.Collector{
+				collectiontest.NewFunctionCollector("collector-ok", func() ([]ontology.IsResource, error) {
+					return []ontology.IsResource{&ontology.VirtualMachine{Id: new("vm-1")}}, nil
+				}),
+			},
+			TargetOfEvaluationID:    targetOfEvaluationID,
+			EvidenceStoreAddress:    testHTTPServer.URL,
+			EvidenceStoreHTTPClient: testHTTPServer.Client(),
+			// A valid token is presented, but the evidence store denies the request anyway: this
+			// must be reported as a permission error, not as missing/invalid credentials.
+			ServiceOAuth2Config: &clientcredentials.Config{
+				ClientID:     "test-client",
+				ClientSecret: "test-secret",
+				TokenURL:     tokenServer.URL,
+			},
+		}),
+	)
+	assert.NoError(t, err)
+	defer func() {
+		assert.NoError(t, svc.Close())
+	}()
+
+	res = svc.RunOnce()
+
+	assert.Equal(t, 1, len(res.CollectorResults))
+	assert.ErrorContains(t, res.CollectorResults[0].Err, "not authorized to store evidences")
 }
 
 func TestRunOnce_Succeeds_WhenServiceOAuth2ConfigMatchesRequiredAuth(t *testing.T) {

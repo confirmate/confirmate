@@ -18,6 +18,7 @@ package commands
 import (
 	"context"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -36,6 +37,16 @@ const (
 	// DefaultServiceOAuth2ClientSecret is the default OAuth 2.0 client secret for service-to-service auth.
 	DefaultServiceOAuth2ClientSecret = "confirmate"
 )
+
+// envVarSources constructs a [cli.ValueSourceChain] that looks up the given flag name in
+// environment variables with the prefix "CONFIRMATE_" and "CLOUDITOR_", matching the behavior of
+// the equivalent helper in core/server/commands so that the same flag is configurable via the
+// same environment variable regardless of which binary defines it.
+func envVarSources(flagName string) cli.ValueSourceChain {
+	suffix := strings.ToUpper(strings.ReplaceAll(flagName, "-", "_"))
+
+	return cli.EnvVars("CONFIRMATE_"+suffix, "CLOUDITOR_"+suffix)
+}
 
 var cloudCollectorFlags = []cli.Flag{
 	&cli.StringFlag{
@@ -90,33 +101,38 @@ var cloudStandaloneFlags = []cli.Flag{
 		Required: false,
 	},
 	&cli.StringFlag{
-		Name:     "collector-evidence-store-address",
+		Name:     "evidence-store-address",
 		Aliases:  []string{"s"},
 		Usage:    "Address of the evidence store to send collected evidence to. (default: localhost:9092)",
 		Required: false,
+		Sources:  envVarSources("evidence-store-address"),
 	},
 	&cli.BoolFlag{
-		Name:     "collector-service-oauth2-enabled",
+		Name:     "evidence-store-oauth2-enabled",
 		Usage:    "Authenticate the connection to the evidence store using OAuth 2.0 client credentials. (Default: false)",
 		Required: false,
+		Sources:  envVarSources("evidence-store-oauth2-enabled"),
 	},
 	&cli.StringFlag{
-		Name:     "collector-service-oauth2-token-endpoint",
+		Name:     "service-oauth2-token-endpoint",
 		Usage:    "OAuth 2.0 token URL for service-to-service auth with the evidence store",
 		Value:    DefaultServiceOAuth2TokenEndpoint,
 		Required: false,
+		Sources:  envVarSources("service-oauth2-token-endpoint"),
 	},
 	&cli.StringFlag{
-		Name:     "collector-service-oauth2-client-id",
+		Name:     "service-oauth2-client-id",
 		Usage:    "OAuth 2.0 client ID for service-to-service auth with the evidence store",
 		Value:    DefaultServiceOAuth2ClientID,
 		Required: false,
+		Sources:  envVarSources("service-oauth2-client-id"),
 	},
 	&cli.StringFlag{
-		Name:     "collector-service-oauth2-client-secret",
+		Name:     "service-oauth2-client-secret",
 		Usage:    "OAuth 2.0 client secret for service-to-service auth with the evidence store",
 		Value:    DefaultServiceOAuth2ClientSecret,
 		Required: false,
+		Sources:  envVarSources("service-oauth2-client-secret"),
 	},
 }
 
@@ -133,14 +149,14 @@ func cloudServiceOptionsFromCommand(cmd *cli.Command, targetOfEvaluationID strin
 	if cmd.Int("collector-interval") != 0 {
 		opts = append(opts, cloud.WithCollectorInterval(time.Duration(cmd.Int("collector-interval"))*time.Minute))
 	}
-	if cmd.String("collector-evidence-store-address") != "" {
-		opts = append(opts, cloud.WithEvidenceStoreAddress(cmd.String("collector-evidence-store-address"), service.DefaultHTTPClient))
+	if cmd.String("evidence-store-address") != "" {
+		opts = append(opts, cloud.WithEvidenceStoreAddress(cmd.String("evidence-store-address"), service.DefaultHTTPClient))
 	}
-	if cmd.Bool("collector-service-oauth2-enabled") {
+	if cmd.Bool("evidence-store-oauth2-enabled") {
 		opts = append(opts, cloud.WithServiceOAuth2Config(&clientcredentials.Config{
-			ClientID:     cmd.String("collector-service-oauth2-client-id"),
-			ClientSecret: cmd.String("collector-service-oauth2-client-secret"),
-			TokenURL:     cmd.String("collector-service-oauth2-token-endpoint"),
+			ClientID:     cmd.String("service-oauth2-client-id"),
+			ClientSecret: cmd.String("service-oauth2-client-secret"),
+			TokenURL:     cmd.String("service-oauth2-token-endpoint"),
 		}))
 	}
 
