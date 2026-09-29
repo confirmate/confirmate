@@ -93,9 +93,11 @@ func (svc *Service) GetAuditScopeStatistics(
 		}
 	}
 
-	// Compliance status: latest evaluation result per control (regardless of depth: metrics are
-	// typically attached to sub-controls rather than their top-level parent), grouped by status.
-	// Uses PostgreSQL's DISTINCT ON, mirroring ListEvaluationResults' latest_by_control_id path.
+	// Compliance status: latest evaluation result per control, grouped by status. Unless the
+	// caller requested top_level_controls_only, this counts controls at whatever depth they were
+	// actually evaluated at (regardless of depth: metrics are typically attached to sub-controls
+	// rather than their top-level parent). Uses PostgreSQL's DISTINCT ON, mirroring
+	// ListEvaluationResults' latest_by_control_id path.
 	err = svc.db.Raw(&latestResults, `
 		SELECT DISTINCT ON (control_id) *
 		FROM evaluation_results
@@ -106,6 +108,9 @@ func (svc *Service) GetAuditScopeStatistics(
 		return nil, err
 	}
 	for _, r := range latestResults {
+		if req.Msg.GetTopLevelControlsOnly() && !topLevelControlIds[r.GetControlId()] {
+			continue
+		}
 		res.Msg.CountsByComplianceStatus[r.GetStatus().String()]++
 	}
 
