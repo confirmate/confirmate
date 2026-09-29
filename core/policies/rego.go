@@ -72,6 +72,17 @@ type regoEval struct {
 
 	// skipMetricsOnError indicates whether to skip metrics that produce an error during assessment
 	skipMetricOnError bool
+
+	// cacheApplicableMetrics indicates whether to cache, per tool ID and resource type, the list of
+	// metrics found applicable to the first piece of evidence seen for that combination, and reuse
+	// it for later evidence with the same tool ID and resource type instead of re-discovering
+	// applicability every time.
+	//
+	// This is an unsound optimization: applicability can depend on which fields are actually
+	// populated on a specific resource, not just its type, so evidence of the same type can
+	// legitimately differ in which metrics apply to it. Disabled by default; enable only if the
+	// discovery overhead matters more than that risk for your metric set.
+	cacheApplicableMetrics bool
 }
 
 type queryCache struct {
@@ -104,16 +115,27 @@ func WithSkipMetricOnError(skip bool) RegoEvalOption {
 	}
 }
 
+// WithApplicableMetricsCache is an option to enable caching, per tool ID and resource type, of
+// which metrics were found applicable, reused for later evidence with the same tool ID and
+// resource type instead of re-discovering applicability every time. See the [regoEval.cacheApplicableMetrics]
+// field doc for why this trades correctness for throughput and is disabled by default.
+func WithApplicableMetricsCache(enabled bool) RegoEvalOption {
+	return func(re *regoEval) {
+		re.cacheApplicableMetrics = enabled
+	}
+}
+
 func NewRegoEval(opts ...RegoEvalOption) PolicyEval {
 	ctx, cancel := context.WithCancel(context.Background())
 	re := regoEval{
-		mrtc:              &metricsCache{m: make(map[string][]*assessment.Metric)},
-		qc:                newQueryCache(),
-		pkg:               DefaultRegoPackage,
-		eventCtx:          ctx,
-		eventCancel:       cancel,
-		subscriberID:      -1,
-		skipMetricOnError: false,
+		mrtc:                   &metricsCache{m: make(map[string][]*assessment.Metric)},
+		qc:                     newQueryCache(),
+		pkg:                    DefaultRegoPackage,
+		eventCtx:               ctx,
+		eventCancel:            cancel,
+		subscriberID:           -1,
+		skipMetricOnError:      false,
+		cacheApplicableMetrics: false,
 	}
 
 	for _, o := range opts {
@@ -263,14 +285,15 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 			}
 		}
 
-		// Only persist a non-empty result. If discovery found zero applicable metrics -- which can
-		// legitimately happen transiently, e.g. if this is called before the metric source has
-		// finished loading its catalog on startup -- leave the cache entry unset (nil) so the next
-		// evidence for this key retries discovery instead of being permanently stuck with an empty
-		// result. There is no other code path that invalidates this cache (HandleMetricEvent only
-		// evicts the separate query cache), so caching an empty result here would otherwise silently
-		// suppress evaluation for every future evidence with the same key.
-		if len(cached) > 0 {
+		// Only persist a non-empty result, and only if the applicable-metrics cache is enabled. If
+		// discovery found zero applicable metrics -- which can legitimately happen transiently,
+		// e.g. if this is called before the metric source has finished loading its catalog on
+		// startup -- leave the cache entry unset (nil) so the next evidence for this key retries
+		// discovery instead of being permanently stuck with an empty result. There is no other code
+		// path that invalidates this cache (HandleMetricEvent only evicts the separate query
+		// cache), so caching an empty result here would otherwise silently suppress evaluation for
+		// every future evidence with the same key.
+		if re.cacheApplicableMetrics && len(cached) > 0 {
 			re.mrtc.m[key] = cached
 		}
 		slog.Info("Resource type has the applicable metric(s)", slog.Any("key", key), slog.Any("len", len(cached)), slog.Any("names", namesOf(cached)))
