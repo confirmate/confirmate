@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
     title: Evidence Store API
-    version: core/v0.2.17-151-gf9fc36fb
+    version: core/v0.3.0-83-g4983bdea
 paths:
     /v1/evidence_store/evidence:
         post:
@@ -667,8 +667,23 @@ components:
         AwarenessTraining:
             type: object
             properties:
+                annualCadenceStated:
+                    type: array
+                    items:
+                        type: string
+                    description: Indicates whether the training plan states it is delivered at least annually.
                 annualUpdateCompleted:
                     type: boolean
+                planDocumented:
+                    type: array
+                    items:
+                        type: string
+                    description: Indicates whether a documented training and awareness plan is maintained.
+                roleAdjustedTracksStated:
+                    type: array
+                    items:
+                        type: string
+                    description: Indicates whether the training plan includes role-based tracks adjusted by employee function.
                 successfullyCompletedPercentage:
                     type: boolean
             description: AwarenessTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -4842,6 +4857,8 @@ components:
                     $ref: '#/components/schemas/AssetInventory'
                 auditLogMonitoringPolicy:
                     $ref: '#/components/schemas/AuditLogMonitoringPolicy'
+                awarenessTraining:
+                    $ref: '#/components/schemas/AwarenessTraining'
                 backup:
                     $ref: '#/components/schemas/Backup'
                 complianceAuditIntervalPolicy:
@@ -6009,8 +6026,23 @@ components:
         SecurityTraining:
             type: object
             properties:
+                annualCadenceStated:
+                    type: array
+                    items:
+                        type: string
+                    description: Indicates whether the training plan states it is delivered at least annually.
                 annualUpdateCompleted:
                     type: boolean
+                planDocumented:
+                    type: array
+                    items:
+                        type: string
+                    description: Indicates whether a documented training and awareness plan is maintained.
+                roleAdjustedTracksStated:
+                    type: array
+                    items:
+                        type: string
+                    description: Indicates whether the training plan includes role-based tracks adjusted by employee function.
                 successfullyCompletedPercentage:
                     type: boolean
             description: SecurityTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.

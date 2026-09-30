@@ -876,6 +876,16 @@ paths:
                   required: true
                   schema:
                     type: string
+                - name: topLevelControlsOnly
+                  in: query
+                  description: |-
+                    Optional. If true, restrict counts_by_compliance_status to top-level controls only, so its
+                     total matches counts_by_control_state instead of also including sub-control results. If false
+                     or unset (the default), compliance status is counted at whatever depth each control was
+                     actually evaluated at, since metrics are typically attached to sub-controls rather than their
+                     top-level parent.
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -3334,8 +3344,23 @@ components:
         AwarenessTraining:
             type: object
             properties:
+                annualCadenceStated:
+                    type: array
+                    items:
+                        type: string
+                    description: Indicates whether the training plan states it is delivered at least annually.
                 annualUpdateCompleted:
                     type: boolean
+                planDocumented:
+                    type: array
+                    items:
+                        type: string
+                    description: Indicates whether a documented training and awareness plan is maintained.
+                roleAdjustedTracksStated:
+                    type: array
+                    items:
+                        type: string
+                    description: Indicates whether the training plan includes role-based tracks adjusted by employee function.
                 successfullyCompletedPercentage:
                     type: boolean
             description: AwarenessTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -5661,9 +5686,9 @@ components:
                     description: |-
                         Number of controls, keyed by the name of their latest confirmate.evaluation.v1.EvaluationStatus
                          (e.g. "EVALUATION_STATUS_COMPLIANT"), for controls that have at least one evaluation result.
-                         Unlike counts_by_control_state, this counts controls at whatever depth they were actually
-                         evaluated at, since metrics are typically attached to sub-controls rather than their
-                         top-level parent.
+                         Unless the request set top_level_controls_only, this counts controls at whatever depth they
+                         were actually evaluated at, since metrics are typically attached to sub-controls rather than
+                         their top-level parent.
         GetCurrentTimeOperation:
             type: object
             properties:
@@ -8166,6 +8191,8 @@ components:
                     $ref: '#/components/schemas/AssetInventory'
                 auditLogMonitoringPolicy:
                     $ref: '#/components/schemas/AuditLogMonitoringPolicy'
+                awarenessTraining:
+                    $ref: '#/components/schemas/AwarenessTraining'
                 backup:
                     $ref: '#/components/schemas/Backup'
                 complianceAuditIntervalPolicy:
@@ -9368,8 +9395,23 @@ components:
         SecurityTraining:
             type: object
             properties:
+                annualCadenceStated:
+                    type: array
+                    items:
+                        type: string
+                    description: Indicates whether the training plan states it is delivered at least annually.
                 annualUpdateCompleted:
                     type: boolean
+                planDocumented:
+                    type: array
+                    items:
+                        type: string
+                    description: Indicates whether a documented training and awareness plan is maintained.
+                roleAdjustedTracksStated:
+                    type: array
+                    items:
+                        type: string
+                    description: Indicates whether the training plan includes role-based tracks adjusted by employee function.
                 successfullyCompletedPercentage:
                     type: boolean
             description: SecurityTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
