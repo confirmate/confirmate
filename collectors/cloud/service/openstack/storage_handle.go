@@ -47,45 +47,42 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 		name = volume.ID
 	}
 
-	// Get encryption information. Unfortunately, this requires a second lookup of the volume type. Many volumes
-	// share the same volume type, so we cache the result to avoid repeating the lookup for every volume.
-	if cached, ok := d.volumeTypeEncryption[volume.VolumeType]; ok {
-		are = cached
+	// Resolve the volume type name to the actual volume type object to get its ID
+	vType, err := d.getVolumeTypeByName(volume.VolumeType)
+	if err != nil {
+		slog.Error("error getting volume type information for volume", slog.String("name", volume.Name), tint.Err(err))
 	} else {
-		vType, err := volumetypes.Get(context.Background(), d.clients.blockStorageClient, volume.VolumeType).Extract()
+		// Use the resolved ID to get the encryption details
+		enc, err := volumetypes.GetEncryption(context.Background(), d.clients.blockStorageClient, vType.ID).Extract()
 		if err != nil {
-			slog.Error("error getting volume type information for volume", slog.String("name", volume.Name), tint.Err(err))
+			slog.Error("error getting encryption information for volume", slog.String("name", volume.Name), tint.Err(err))
+		} else if enc.EncryptionID != "" {
+			// Cinder only tells us that the volume type is encrypted, not whether the key is customer-managed.
+			// Report it as generic disk encryption rather than assuming customer-key ownership.
+			are = &ontology.AtRestEncryption{
+				Type: &ontology.AtRestEncryption_DiskEncryption{
+					DiskEncryption: &ontology.DiskEncryption{
+						Enabled:   new(true),
+						Algorithm: new(enc.Cipher),
+					},
+				},
+			}
 		} else {
-			enc, err := volumetypes.GetEncryption(context.Background(), d.clients.blockStorageClient, vType.ID).Extract()
-			if err != nil {
-				slog.Error("error getting encryption information for volume", slog.String("name", volume.Name), tint.Err(err))
-			} else if enc.EncryptionID != "" {
-				// Cinder only tells us that the volume type is encrypted, not whether the key is customer-managed.
-				// Report it as generic disk encryption rather than assuming customer-key ownership.
-				are = &ontology.AtRestEncryption{
-					Type: &ontology.AtRestEncryption_DiskEncryption{
-						DiskEncryption: &ontology.DiskEncryption{
-							Enabled:   new(true),
-							Algorithm: new(enc.Cipher),
-						},
+			are = &ontology.AtRestEncryption{
+				Type: &ontology.AtRestEncryption_DiskEncryption{
+					DiskEncryption: &ontology.DiskEncryption{
+						Enabled: new(false),
 					},
-				}
-			} else {
-				are = &ontology.AtRestEncryption{
-					Type: &ontology.AtRestEncryption_DiskEncryption{
-						DiskEncryption: &ontology.DiskEncryption{
-							Enabled: new(false),
-						},
-					},
-				}
+				},
 			}
 		}
-
-		if d.volumeTypeEncryption == nil {
-			d.volumeTypeEncryption = make(map[string]*ontology.AtRestEncryption)
-		}
-		d.volumeTypeEncryption[volume.VolumeType] = are
 	}
+
+	if d.volumeTypeEncryption == nil {
+		d.volumeTypeEncryption = make(map[string]*ontology.AtRestEncryption)
+	}
+	d.volumeTypeEncryption[volume.VolumeType] = are
+	// }
 
 	// Get backup information. OpenStack does not provide a direct way to check if backups are enabled for a
 	// volume, so we use the presence of any associated backup as a heuristic.
