@@ -111,6 +111,13 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 		slog.Error("error listing backups for block storage", slog.String("name", volume.Name), tint.Err(err))
 	}
 
+	// If no backups were found we set backup.enabled to false
+	if len(backup) == 0 {
+		backup = append(backup, &ontology.Backup{
+			Enabled: new(false),
+		})
+	}
+
 	r := &ontology.BlockStorage{
 		Id:           new(volume.ID),
 		Name:         new(name),
