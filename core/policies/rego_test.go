@@ -513,6 +513,56 @@ func Test_regoEval_Eval_SkipMissingMetricConfiguration(t *testing.T) {
 	assert.NotEqual(t, 0, len(results))
 }
 
+func Test_regoEval_Eval_ApplicableMetricsCache(t *testing.T) {
+	newEval := func(cacheApplicableMetrics bool) *regoEval {
+		return &regoEval{
+			qc:                     newQueryCache(),
+			mrtc:                   &metricsCache{m: make(map[string][]*assessment.Metric)},
+			pkg:                    DefaultRegoPackage,
+			cacheApplicableMetrics: cacheApplicableMetrics,
+		}
+	}
+
+	ev := &evidence.Evidence{
+		Id:                   "11111111-1111-1111-1111-111111111111",
+		ToolId:               "tool-a",
+		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
+	}
+	resource := &ontology.VirtualMachine{Id: new("vm-1")}
+
+	t.Run("disabled by default: the applicable-metrics cache is never populated", func(t *testing.T) {
+		pe := newEval(false)
+
+		_, err := pe.Eval(context.Background(), ev, resource, nil, &mockMetricsSource{t: t})
+		assert.NoError(t, err)
+
+		assert.Equal(t, 0, len(pe.mrtc.m))
+	})
+
+	t.Run("enabled: the applicable-metrics cache is populated and reused", func(t *testing.T) {
+		pe := newEval(true)
+
+		_, err := pe.Eval(context.Background(), ev, resource, nil, &mockMetricsSource{t: t})
+		assert.NoError(t, err)
+
+		if !assert.Equal(t, 1, len(pe.mrtc.m)) {
+			return
+		}
+
+		var cached []*assessment.Metric
+		for _, v := range pe.mrtc.m {
+			cached = v
+		}
+		assert.NotEqual(t, 0, len(cached))
+
+		// A second Eval for the same (tool, resource type) must reuse the cached list rather than
+		// discovering applicability again.
+		results, err := pe.Eval(context.Background(), ev, resource, nil, &mockMetricsSource{t: t})
+		assert.NoError(t, err)
+		assert.Equal(t, len(cached), len(results))
+	})
+}
+
 func TestWithPackageName(t *testing.T) {
 	var (
 		re  *regoEval
@@ -537,6 +587,19 @@ func TestWithSkipMetricOnError(t *testing.T) {
 	opt(re)
 
 	assert.True(t, re.skipMetricOnError)
+}
+
+func TestWithApplicableMetricsCache(t *testing.T) {
+	var (
+		re  *regoEval
+		opt RegoEvalOption
+	)
+
+	re = &regoEval{cacheApplicableMetrics: false}
+	opt = WithApplicableMetricsCache(true)
+	opt(re)
+
+	assert.True(t, re.cacheApplicableMetrics)
 }
 
 func Test_regoEval_evalMap(t *testing.T) {

@@ -51,6 +51,7 @@ var DefaultConfig = Config{
 	OrchestratorHTTPClient: service.DefaultHTTPClient,
 	RegoPackage:            policies.DefaultRegoPackage,
 	SkipMetricsOnError:     false,
+	CacheApplicableMetrics: false,
 }
 
 // Config represents the configuration for the assessment [Service].
@@ -67,6 +68,12 @@ type Config struct {
 	ServiceOAuth2Config *clientcredentials.Config
 	// SkipMetricsOnError indicates whether to skip metrics that produce an error during assessment.
 	SkipMetricsOnError bool
+	// CacheApplicableMetrics indicates whether to cache, per tool ID and resource type, which
+	// metrics were found applicable, instead of re-discovering applicability for every piece of
+	// evidence. Disabled by default: it's an unsound optimization when metric applicability can
+	// depend on which fields are populated on a specific resource, not just its type. See
+	// [policies.WithApplicableMetricsCache] for details.
+	CacheApplicableMetrics bool
 }
 
 const (
@@ -192,6 +199,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 		policies.WithPackageName(svc.cfg.RegoPackage),
 		policies.WithEventSubscriber(svc),
 		policies.WithSkipMetricOnError(svc.cfg.SkipMetricsOnError),
+		policies.WithApplicableMetricsCache(svc.cfg.CacheApplicableMetrics),
 	)
 
 	// Initialize orchestrator service client
