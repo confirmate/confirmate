@@ -88,7 +88,7 @@ func TestRelated(t *testing.T) {
 					Id:         new("some-id"),
 					Name:       new("some-name"),
 					LibraryIds: []string{"some-library"},
-					Raw:        new("{}"),
+					Raw:        nil,
 				},
 			},
 			want: []Relationship{

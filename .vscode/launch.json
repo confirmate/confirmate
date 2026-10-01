@@ -25,6 +25,19 @@
                 "--auth-enabled"
             ]
         },
+        {
+            "name": "Launch confirmate with postgres",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/core/cmd/confirmate",
+            "cwd": "${workspaceFolder}/core",
+            "args": [
+                "--log-level",
+                "debug",
+                "--auth-enabled"
+            ]
+        },
 		{
             "name": "Launch confirmate (demo)",
             "type": "go",
