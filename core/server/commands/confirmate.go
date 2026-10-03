@@ -218,7 +218,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		credentials = &clientcredentials.Config{
 			ClientID:     cmd.String("service-oauth2-client-id"),
 			ClientSecret: cmd.String("service-oauth2-client-secret"),
-			TokenURL:     cmd.String("service-oauth2-token-endpoint"),
+			TokenURL:     serviceTokenURL(cmd.String("service-oauth2-token-endpoint"), apiPort),
 		}
 		authorizer = api.NewOAuthAuthorizerFromClientCredentials(credentials)
 		orchestratorClient = api.NewOAuthHTTPClient(orchestratorClient, authorizer)
@@ -391,4 +391,16 @@ func waitForLocalServer(ctx context.Context, port uint16) (err error) {
 		case <-ticker.C:
 		}
 	}
+}
+
+// serviceTokenURL returns the token endpoint the embedded services use to authenticate against
+// each other. Like the JWKS URL, the default points to the embedded OAuth 2.0 server on the
+// configured API port rather than on the hard-coded default port.
+func serviceTokenURL(configured string, apiPort uint16) (tokenURL string) {
+	if configured != DefaultServiceTokenURL {
+		return configured
+	}
+
+	tokenURL = fmt.Sprintf("http://localhost:%d/v1/auth/token", apiPort)
+	return tokenURL
 }
