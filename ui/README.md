@@ -40,3 +40,18 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+## Serving under a path prefix
+
+To serve the UI below a path prefix (e.g. behind a reverse proxy at
+`https://<host>/proxy/5173/`), build it with `UI_BASE_PATH`:
+
+```sh
+UI_BASE_PATH=/proxy/5173 npm run build
+```
+
+The value must start with `/` and must not end with one. Internal links must
+use `resolve()` from `$app/paths` so they carry the prefix. For the embedded
+login, see "Running behind a path-prefix reverse proxy" in
+`core/docs/authentication-and-authorization.md`.
+

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import AuditScopeCard from '$lib/components/toe/AuditScopeCard.svelte';
 	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -16,7 +17,7 @@
 		description="Each audit scope evaluates this target against a compliance catalog."
 	>
 		{#snippet actions()}
-			<Button href="/toe/{data.toe.id}/audit-scopes/new/">New Audit Scope</Button>
+			<Button href={resolve(`/toe/${data.toe.id}/audit-scopes/new/`)}>New Audit Scope</Button>
 		{/snippet}
 	</SectionHeader>
 
@@ -33,7 +34,7 @@
 			<EmptyState
 				title="No audit scopes yet"
 				description="Create your first audit scope to start tracking compliance against a catalog."
-				actionHref="/toe/{data.toe.id}/audit-scopes/new/"
+				actionHref={resolve(`/toe/${data.toe.id}/audit-scopes/new/`)}
 				actionLabel="New Audit Scope"
 			/>
 		{/if}

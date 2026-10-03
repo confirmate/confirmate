@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { invalidateAll } from '$app/navigation';
 	import { orchestratorClient } from '$lib/api/client';
 	import WorkflowDialog from '$lib/components/ui/WorkflowDialog.svelte';
@@ -94,7 +95,7 @@
 <div>
 	<!-- Breadcrumb -->
 	<a
-		href="/toe/{data.auditScope?.targetOfEvaluationId}/audit-scopes/{data.auditScope?.id}/"
+		href={resolve(`/toe/${data.auditScope?.targetOfEvaluationId}/audit-scopes/${data.auditScope?.id}/`)}
 		class="text-sm text-gray-500 hover:text-gray-700"
 	>
 		← {data.auditScope?.name ?? 'Audit Scope'}
@@ -216,7 +217,7 @@
 						{#each data.control.metrics as metric}
 							<div class="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-gray-50">
 								<a
-									href="/toe/{data.auditScope?.targetOfEvaluationId}/assessment-results/?metric={encodeURIComponent(metric.id ?? '')}"
+									href={resolve(`/toe/${data.auditScope?.targetOfEvaluationId}/assessment-results/`) + `?metric=${encodeURIComponent(metric.id ?? '')}`}
 									class="font-mono text-xs text-blue-600 hover:underline"
 								>
 									{metric.id}

@@ -9,7 +9,7 @@
 <div class="flex items-start gap-4 px-4 py-3">
 	<div class="min-w-0 flex-1">
 		<div class="flex items-center gap-2">
-			<span class="text-sm font-medium text-gray-900">{metric.name}</span>
+			<span class="text-sm font-medium text-gray-900">{metric.name || metric.id}</span>
 			{#if metric.deprecatedSince}
 				<span class="rounded-full bg-yellow-50 px-1.5 py-0.5 text-xs font-medium text-yellow-700">
 					deprecated

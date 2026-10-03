@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import type { SchemaResourceSnapshot as Resource } from '$lib/api/openapi/evidence';
 	import type { SchemaAssessmentResult as AssessmentResult } from '$lib/api/openapi/orchestrator';
 	import { XMark, CheckCircle, XCircle, ShieldExclamation } from '@steeze-ui/heroicons';
@@ -141,7 +142,7 @@
 							{/if}
 							<div class="min-w-0">
 								<a
-									href="/toe/{resource.targetOfEvaluationId}/assessment-results/{r.id}"
+									href={resolve(`/toe/${resource.targetOfEvaluationId}/assessment-results/${r.id}/`)}
 									class="text-sm font-medium text-blue-600 hover:underline"
 								>
 									{r.metricId}
