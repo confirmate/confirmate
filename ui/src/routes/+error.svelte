@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 </script>
 
@@ -12,7 +13,7 @@
 			{page.error?.message ?? 'An unexpected error occurred.'}
 		</p>
 		<a
-			href="/"
+			href={resolve('/')}
 			class="mt-6 inline-block rounded-md bg-confirmate px-4 py-2 text-sm font-medium text-white hover:bg-confirmate-light"
 		>
 			Back to Dashboard

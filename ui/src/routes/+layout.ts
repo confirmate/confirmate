@@ -1,3 +1,4 @@
+import { base } from '$app/paths';
 import { orchestratorClient } from '$lib/api/client';
 import { isAuthenticated, login } from '$lib/auth';
 import type { LayoutLoad } from './$types';
@@ -7,7 +8,7 @@ export const trailingSlash = 'always';
 
 export const load = (async ({ url, fetch }) => {
 	// Skip auth check for the OAuth callback route
-	if (url.pathname.startsWith('/auth/')) {
+	if (url.pathname.startsWith(`${base}/auth/`)) {
 		return { services: [], catalogs: [], metrics: new Map(), currentUser: null };
 	}
 

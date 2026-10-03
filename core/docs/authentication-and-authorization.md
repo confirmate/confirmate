@@ -215,7 +215,14 @@ Command flags involved:
 - `service-oauth2-client-secret` — service client secret (default: `confirmate`)
 - `oauth2-public-url` — public base URL for the embedded OAuth 2.0 server;
   also used as the fallback `iss` claim for tokens issued by the embedded
-  server (confirmate command only, when `oauth2-embedded` is true)
+  server (confirmate command only, when `oauth2-embedded` is true). Its path
+  is the browser-facing base path of the login page, see
+  [Running behind a path-prefix reverse proxy](#running-behind-a-path-prefix-reverse-proxy)
+- `oauth2-ui-redirect-uri` — redirect URI registered for the `ui` client of
+  the embedded OAuth 2.0 server (default: `http://localhost:5173/auth/callback`).
+  The embedded server compares it exactly against the `redirect_uri` the UI
+  sends, so it must match the URL the UI is served from (confirmate command
+  only, when `oauth2-embedded` is true)
 - `demo-seed-file` — path to a JSON file (`{"users": [...]}`) that overrides
   the built-in demo user set for the embedded OAuth 2.0 server (confirmate
   command only, when `oauth2-embedded` is true). Any number of users is
@@ -224,6 +231,25 @@ Command flags involved:
   target of evaluation. If the flag is set but the file cannot be read or
   parsed, startup fails with an error rather than silently falling back to
   the built-in default users (alice/bob/charlie).
+
+### Running behind a path-prefix reverse proxy
+
+The UI and the embedded login can be served below a path prefix by a reverse
+proxy that strips the prefix before forwarding (e.g. code-server's
+`https://<host>/proxy/5173/`). Three settings have to agree:
+
+- the UI is built with `UI_BASE_PATH=/proxy/5173` (sets SvelteKit's
+  `paths.base`; links, assets, API calls and the OAuth callback carry it),
+- `oauth2-public-url` is `https://<host>/proxy/5173/v1/auth`,
+- `oauth2-ui-redirect-uri` is `https://<host>/proxy/5173/auth/callback`.
+
+When the path of `oauth2-public-url` has a prefix in front of `/v1/auth`, the
+embedded server uses that path for the login form target and the session
+cookie, adds the prefix to the post-login return URL, and issues absolute
+redirects against `oauth2-public-url`. Absolute redirects are needed because
+some proxies (code-server among them) prefix root-relative `Location` headers
+themselves, which would otherwise duplicate the prefix. Without a prefix, the
+behaviour is unchanged.
 
 Collector → evidence-store flags (same names on both the `collection` command in `core` and the
 `cloud-collector` command in `collectors/cloud`, defined separately per binary):

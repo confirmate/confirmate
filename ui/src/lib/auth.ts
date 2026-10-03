@@ -1,12 +1,14 @@
+import { base, resolve } from '$app/paths';
+
 // Used only for the authorize redirect (full navigation, not fetch)
-const AUTHORIZE_BASE = import.meta.env.VITE_AUTH_BASE ?? '';
+const AUTHORIZE_BASE = import.meta.env.VITE_AUTH_BASE ?? base;
 const CLIENT_ID = 'ui';
 const RETURN_TO_KEY = 'auth_return_to';
 const CODE_VERIFIER_KEY = 'auth_code_verifier';
 const TOKEN_KEY = 'token';
 
 function redirectUri(): string {
-	return `${window.location.origin}/auth/callback`;
+	return `${window.location.origin}${resolve('/auth/callback')}`;
 }
 
 async function generatePKCE(): Promise<{ verifier: string; challenge: string }> {
@@ -45,7 +47,7 @@ export function isAuthenticated(): boolean {
 	return !!getToken();
 }
 
-export async function login(returnTo = '/dashboard/'): Promise<void> {
+export async function login(returnTo: string = resolve('/dashboard/')): Promise<void> {
 	sessionStorage.setItem(RETURN_TO_KEY, returnTo);
 
 	const { verifier, challenge } = await generatePKCE();
@@ -66,7 +68,8 @@ export function logout(): void {
 	clearToken();
 	sessionStorage.removeItem(CODE_VERIFIER_KEY);
 	sessionStorage.removeItem(RETURN_TO_KEY);
-	const returnTo = encodeURIComponent(window.location.origin + '/');
+	// Must be a relative path: the logout endpoint rejects absolute return URLs
+	const returnTo = encodeURIComponent(resolve('/'));
 	window.location.replace(`${AUTHORIZE_BASE}/v1/auth/logout?return_to=${returnTo}`);
 }
 
@@ -83,7 +86,7 @@ export async function exchangeCode(code: string): Promise<void> {
 	});
 
 	// Use relative URL so the request goes through the Vite proxy (avoids CORS)
-	const res = await fetch(`/v1/auth/token`, {
+	const res = await fetch(`${base}/v1/auth/token`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 		body: body.toString()
@@ -100,7 +103,7 @@ export async function exchangeCode(code: string): Promise<void> {
 }
 
 export function getReturnTo(): string {
-	return sessionStorage.getItem(RETURN_TO_KEY) ?? '/dashboard/';
+	return sessionStorage.getItem(RETURN_TO_KEY) ?? resolve('/dashboard/');
 }
 
 export function clearReturnTo(): void {

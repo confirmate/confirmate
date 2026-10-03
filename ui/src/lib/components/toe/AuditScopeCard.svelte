@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { ChevronRight, Trash } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { orchestratorClient } from '$lib/api/client';
@@ -45,7 +46,7 @@
 
 <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 hover:border-confirmate hover:bg-blue-50">
 	<a
-		href="/toe/{auditScope.targetOfEvaluationId}/audit-scopes/{auditScope.id}/"
+		href={resolve(`/toe/${auditScope.targetOfEvaluationId}/audit-scopes/${auditScope.id}/`)}
 		class="flex-1"
 	>
 		<div class="font-medium text-gray-900">{auditScope.name}</div>
@@ -90,7 +91,7 @@
 				<Icon src={Trash} class="h-4 w-4" />
 			</button>
 		{/if}
-		<a href="/toe/{auditScope.targetOfEvaluationId}/audit-scopes/{auditScope.id}/">
+		<a href={resolve(`/toe/${auditScope.targetOfEvaluationId}/audit-scopes/${auditScope.id}/`)}>
 			<Icon src={ChevronRight} class="h-5 w-5 shrink-0 text-gray-400" />
 		</a>
 	</div>

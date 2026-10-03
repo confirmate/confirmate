@@ -62,6 +62,12 @@ var oauthServerFlags = []cli.Flag{
 		Sources: envVarSources("oauth2-public-url"),
 	},
 	&cli.StringFlag{
+		Name:    "oauth2-ui-redirect-uri",
+		Usage:   "Redirect URI registered for the UI client of the embedded OAuth 2.0 server",
+		Value:   server.DefaultOAuth2UIRedirectURI,
+		Sources: envVarSources("oauth2-ui-redirect-uri"),
+	},
+	&cli.StringFlag{
 		Name:    "oauth2-key-path",
 		Usage:   "Path to the OAuth 2.0 signing key",
 		Value:   server.DefaultOAuth2KeyPath,
@@ -326,6 +332,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 			cmd.String("oauth2-key-password"),
 			cmd.Bool("oauth2-key-save-on-create"),
 			cmd.String("oauth2-public-url"),
+			cmd.String("oauth2-ui-redirect-uri"),
 		))
 	}
 
