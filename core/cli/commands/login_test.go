@@ -59,6 +59,26 @@ func TestCallbackServer_authorizationURL(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "uses the configured redirect uri",
+			fields: fields{srv: &callbackServer{
+				verifier: "verifier-1",
+				state:    "state-123",
+				config: &oauth2.Config{
+					Endpoint:    oauth2.Endpoint{AuthURL: "http://localhost:8090/v1/auth/authorize"},
+					RedirectURL: "https://example.test/proxy/10000/callback",
+				},
+			}},
+			want: func(t *testing.T, got string, _ ...any) bool {
+				parsed, err := url.Parse(got)
+				if !assert.NoError(t, err) {
+					return false
+				}
+
+				return assert.Equal(t, "https://example.test/proxy/10000/callback", parsed.Query().Get("redirect_uri"))
+			},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
@@ -66,6 +86,43 @@ func TestCallbackServer_authorizationURL(t *testing.T) {
 			got := tt.fields.srv.authorizationURL()
 			assert.True(t, tt.wantErr(t, nil))
 			assert.True(t, tt.want(t, got))
+		})
+	}
+}
+
+func TestOAuth2Endpoint(t *testing.T) {
+	type args struct {
+		configured string
+		addr       string
+		path       string
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "derived from addr",
+			args: args{addr: "http://localhost:8090", path: "/v1/auth/authorize"},
+			want: "http://localhost:8090/v1/auth/authorize",
+		},
+		{
+			name: "trailing slash in addr",
+			args: args{addr: "http://localhost:8090/", path: "/v1/auth/token"},
+			want: "http://localhost:8090/v1/auth/token",
+		},
+		{
+			name: "configured endpoint is kept",
+			args: args{configured: "https://auth.example.test/authorize", addr: "http://localhost:8090", path: "/v1/auth/authorize"},
+			want: "https://auth.example.test/authorize",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := oauth2Endpoint(tt.args.configured, tt.args.addr, tt.args.path)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

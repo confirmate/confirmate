@@ -226,6 +226,9 @@ Command flags involved:
   The embedded server compares it exactly against the `redirect_uri` the UI
   sends, so it must match the URL the UI is served from (confirmate command
   only, when `oauth2-embedded` is true)
+- `oauth2-cli-redirect-uri` — redirect URI registered for the `cli` client
+  (`cf login`) of the embedded OAuth 2.0 server (default:
+  `http://localhost:10000/callback`); compared exactly like the UI one
 - `demo-seed-file` — path to a JSON file (`{"users": [...]}`) that overrides
   the built-in demo user set for the embedded OAuth 2.0 server (confirmate
   command only, when `oauth2-embedded` is true). Any number of users is
@@ -245,6 +248,18 @@ proxy that strips the prefix before forwarding (e.g. code-server's
   `paths.base`; links, assets, API calls and the OAuth callback carry it),
 - `oauth2-public-url` is `https://<host>/proxy/5173/v1/auth`,
 - `oauth2-ui-redirect-uri` is `https://<host>/proxy/5173/auth/callback`.
+
+For `cf login` in such an environment (e.g. a terminal in code-server), the
+browser cannot reach the CLI's callback server on `localhost:10000` directly.
+Expose it through the proxy instead:
+
+- `oauth2-cli-redirect-uri` is `https://<host>/proxy/10000/callback`,
+- `cf login --oauth2-redirect-uri https://<host>/proxy/10000/callback` (or
+  `CONFIRMATE_OAUTH2_REDIRECT_URI`). The callback server keeps listening on
+  `localhost:10000`; the proxy strips the prefix, so `/callback` reaches it.
+
+`cf login` derives its authorization and token URLs from `--addr`
+(`CONFIRMATE_ADDR`) unless `--oauth2-auth-url`/`--oauth2-token-url` are set.
 
 When the path of `oauth2-public-url` has a prefix in front of `/v1/auth`, the
 embedded server uses that path for the login form target and the session

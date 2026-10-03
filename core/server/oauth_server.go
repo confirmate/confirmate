@@ -105,8 +105,9 @@ func strPtr(s string) *string { return &s }
 // when the API is served behind a path-stripping reverse proxy (e.g. /proxy/5173/v1/auth). In that
 // case, redirects are made absolute against publicURL, because some proxies (e.g. code-server)
 // prefix root-relative Location headers with their own path a second time.
-// If uiRedirectURI is empty, the UI client is registered with [DefaultOAuth2UIRedirectURI].
-func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate bool, publicURL string, uiRedirectURI string, opts ...oauth2.AuthorizationServerOption) Option {
+// If uiRedirectURI or cliRedirectURI is empty, the UI or CLI client is registered with
+// [DefaultOAuth2UIRedirectURI] or [DefaultOAuth2CLIRedirectURI], respectively.
+func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate bool, publicURL string, uiRedirectURI string, cliRedirectURI string, opts ...oauth2.AuthorizationServerOption) Option {
 	return func(srv *Server) {
 		var (
 			oauthPublicURL  string
@@ -128,6 +129,9 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 		if uiRedirectURI == "" {
 			uiRedirectURI = DefaultOAuth2UIRedirectURI
 		}
+		if cliRedirectURI == "" {
+			cliRedirectURI = DefaultOAuth2CLIRedirectURI
+		}
 
 		slog.Info("Configuring embedded OAuth 2.0 server",
 			slog.String("public_url", oauthPublicURL),
@@ -136,7 +140,7 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 			slog.Bool("key_save_on_create", saveOnCreate),
 			slog.String("login_user", DefaultOAuth2LoginUser),
 			slog.String("cli_client_id", DefaultOAuth2CLIClientID),
-			slog.String("cli_redirect_uri", DefaultOAuth2CLIRedirectURI),
+			slog.String("cli_redirect_uri", cliRedirectURI),
 			slog.String("ui_redirect_uri", uiRedirectURI),
 			slog.String("service_client_id", DefaultOAuth2ServiceClientID),
 		)
@@ -153,7 +157,7 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 		}
 
 		opts = append(opts,
-			oauth2.WithClient(DefaultOAuth2CLIClientID, "", DefaultOAuth2CLIRedirectURI),
+			oauth2.WithClient(DefaultOAuth2CLIClientID, "", cliRedirectURI),
 			oauth2.WithClient(DefaultOAuth2UIClientID, "", uiRedirectURI),
 			oauth2.WithClient(DefaultOAuth2ServiceClientID, DefaultOAuth2ServiceSecret, ""),
 			login.WithLoginPage(loginPageOpts...),
