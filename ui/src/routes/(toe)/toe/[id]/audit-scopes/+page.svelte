@@ -34,7 +34,7 @@
 			<EmptyState
 				title="No audit scopes yet"
 				description="Create your first audit scope to start tracking compliance against a catalog."
-				actionHref="/toe/{data.toe.id}/audit-scopes/new/"
+				actionHref={resolve(`/toe/${data.toe.id}/audit-scopes/new/`)}
 				actionLabel="New Audit Scope"
 			/>
 		{/if}
