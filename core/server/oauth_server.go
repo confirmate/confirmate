@@ -230,6 +230,8 @@ type absoluteRedirectWriter struct {
 	origin string
 }
 
+// WriteHeader rewrites a root-relative Location header to an absolute URL and then writes the
+// response header with statusCode.
 func (w *absoluteRedirectWriter) WriteHeader(statusCode int) {
 	var location = w.Header().Get("Location")
 

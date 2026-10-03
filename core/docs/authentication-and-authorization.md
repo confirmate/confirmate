@@ -210,7 +210,10 @@ Command flags involved:
 
 - `auth-enabled` — enable JWT validation on incoming requests
 - `auth-jwks-url` — JWKS URL for token verification
-- `service-oauth2-token-endpoint` — token endpoint for service-to-service auth
+- `service-oauth2-token-endpoint` — token endpoint for service-to-service auth.
+  In the `confirmate` command with `oauth2-embedded`, it defaults to the embedded
+  server on the configured `api-port` (like `auth-jwks-url`) unless it is set
+  explicitly; with an external authorization server it must be set
 - `service-oauth2-client-id` — service client ID (default: `confirmate`)
 - `service-oauth2-client-secret` — service client secret (default: `confirmate`)
 - `oauth2-public-url` — public base URL for the embedded OAuth 2.0 server;
