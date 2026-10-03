@@ -1,6 +1,6 @@
 import { base } from '$app/paths';
 import { orchestratorClient } from '$lib/api/client';
-import { isAuthenticated, login } from '$lib/auth';
+import { clearToken, isAuthenticated, login } from '$lib/auth';
 import type { LayoutLoad } from './$types';
 
 export const ssr = false;
@@ -25,6 +25,14 @@ export const load = (async ({ url, fetch }) => {
 		client.GET('/v1/orchestrator/metrics', { params: { query: { pageSize: 200 } } }),
 		client.GET('/v1/users/me', {})
 	]);
+
+	// The stored token is no longer accepted, e.g. because the server restarted with new signing
+	// keys. Without this, every request fails and the UI silently shows empty lists.
+	if (currentUserRes.response.status === 401) {
+		clearToken();
+		await login(url.pathname + url.search);
+		return { services: [], catalogs: [], metrics: new Map(), currentUser: null };
+	}
 
 	const services = servicesRes.data?.targetsOfEvaluation ?? [];
 	const catalogs = catalogsRes.data?.catalogs ?? [];
