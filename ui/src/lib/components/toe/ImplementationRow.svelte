@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import type { SchemaControl, SchemaControlInScope, SchemaUser } from '$lib/api/openapi/orchestrator';
 	import WorkflowDialog from '$lib/components/ui/WorkflowDialog.svelte';
 	import ScopeCommentDialog from '$lib/components/ui/ScopeCommentDialog.svelte';
@@ -150,7 +151,7 @@
 
 		<!-- Name -->
 		<a
-			href="/toe/{targetId}/audit-scopes/{auditScopeId}/controls/{control.id}/"
+			href={resolve(`/toe/${targetId}/audit-scopes/${auditScopeId}/controls/${control.id}/`)}
 			class="min-w-0 flex-1 truncate text-sm hover:underline {depth === 0 ? 'font-medium text-gray-900' : 'text-gray-700'}"
 		>
 			{displayName}

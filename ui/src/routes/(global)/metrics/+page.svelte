@@ -10,11 +10,17 @@
 
 	let { data }: PageProps = $props();
 
+	// Not every metric has a category (the API omits empty fields), so group those separately
+	// instead of failing on undefined.
+	function categoryOf(m: SchemaMetric): string {
+		return m.category || 'Uncategorized';
+	}
+
 	const allMetrics = $derived([...data.metrics.values()]);
-	const allCategories = $derived([...new Set(allMetrics.map((m) => m.category))].sort());
+	const allCategories = $derived([...new Set(allMetrics.map(categoryOf))].sort());
 	const categoryCounts = $derived(
 		allMetrics.reduce<Record<string, number>>((acc, m) => {
-			acc[m.category] = (acc[m.category] ?? 0) + 1;
+			acc[categoryOf(m)] = (acc[categoryOf(m)] ?? 0) + 1;
 			return acc;
 		}, {})
 	);
@@ -57,19 +63,20 @@
 			const q = search.toLowerCase();
 			const matchSearch =
 				!q ||
-				m.name.toLowerCase().includes(q) ||
-				m.description.toLowerCase().includes(q) ||
-				m.category.toLowerCase().includes(q);
-			const matchCat = selectedCategories.size === 0 || selectedCategories.has(m.category);
+				(m.name || m.id).toLowerCase().includes(q) ||
+				(m.description ?? '').toLowerCase().includes(q) ||
+				categoryOf(m).toLowerCase().includes(q);
+			const matchCat = selectedCategories.size === 0 || selectedCategories.has(categoryOf(m));
 			return matchSearch && matchCat;
 		})
 	);
 
 	const grouped = $derived(
 		filtered.reduce<Map<string, SchemaMetric[]>>((acc, m) => {
-			const list = acc.get(m.category) ?? [];
+			const category = categoryOf(m);
+			const list = acc.get(category) ?? [];
 			list.push(m);
-			acc.set(m.category, list);
+			acc.set(category, list);
 			return acc;
 		}, new Map())
 	);

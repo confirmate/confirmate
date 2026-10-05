@@ -21,7 +21,12 @@ const config = {
 	kit: {
 		adapter: adapter({
 			fallback: 'index.html'
-		})
+		}),
+		paths: {
+			// Optional path prefix for serving the UI behind a path-based reverse proxy
+			// (e.g. UI_BASE_PATH=/proxy/5173). Must start with a slash and not end with one.
+			base: process.env.UI_BASE_PATH ?? ''
+		}
 	}
 };
 

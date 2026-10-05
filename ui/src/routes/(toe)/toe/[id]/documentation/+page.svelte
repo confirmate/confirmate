@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
   import type { SchemaEvidence as Evidence } from '$lib/api/openapi/evidence';
   import type { SchemaTargetOfEvaluation } from '$lib/api/openapi/orchestrator';
   import PageHeader from '$lib/components/navigation/PageHeader.svelte';
@@ -89,7 +90,7 @@
   <div class="border-b border-gray-200">
     <nav class="-mb-px flex space-x-8" aria-label="Tabs">
       <a
-        href="/toe/{data.toe.id}/documentation/"
+        href={resolve(`/toe/${data.toe.id}/documentation/`)}
         class="border-confirmate text-confirmate flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium"
       >
         Document Generator
