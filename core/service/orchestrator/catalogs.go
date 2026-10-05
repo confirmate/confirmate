@@ -24,6 +24,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
@@ -473,7 +474,10 @@ func (svc *Service) loadCatalogs() (err error) {
 			// other error (DB connectivity, schema issues, etc.) must fail the load.
 			createErr = svc.db.Create(catalog)
 			if errors.Is(createErr, persistence.ErrUniqueConstraintFailed) || errors.Is(createErr, persistence.ErrPrimaryKeyViolation) {
-				slog.Info("Catalog exists already, skipping", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()))
+				slog.Info("Catalog exists already, updating metric references only", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()))
+				if err = svc.syncControlMetrics(catalog); err != nil {
+					return fmt.Errorf("could not update metric references of catalog %s: %w", catalog.GetId(), err)
+				}
 				continue
 			}
 			if createErr != nil {
@@ -487,6 +491,113 @@ func (svc *Service) loadCatalogs() (err error) {
 		return fmt.Errorf("No catalogs were loaded.")
 	}
 	return nil
+}
+
+// syncControlMetrics updates the metric references of the controls of an already persisted
+// catalog to the ones in the given catalog definition, e.g. after a default catalog file changed
+// its metric references. Controls are matched by catalog ID and short name, because catalogs
+// loaded from files get new control IDs on every load. Only the control-metric associations are
+// replaced; controls, controls in scope and evaluation results stay as they are. Controls that do
+// not exist in the database yet are not added. Referenced metrics that do not exist yet are
+// created with their ID and name, as a regular catalog creation would do.
+func (svc *Service) syncControlMetrics(catalog *orchestrator.Catalog) (err error) {
+	var (
+		controls []*orchestrator.Control
+	)
+
+	for _, category := range catalog.GetCategories() {
+		controls = appendControlsRecursive(controls, category.GetControls())
+	}
+
+	err = svc.db.Transaction(func(tx persistence.DB) (err error) {
+		var (
+			existing orchestrator.Control
+			count    int64
+			none     struct{}
+		)
+
+		for _, control := range controls {
+			existing = orchestrator.Control{}
+			err = tx.Get(&existing, "catalog_id = ? AND short_name = ?", catalog.GetId(), control.GetShortName())
+			if errors.Is(err, persistence.ErrRecordNotFound) {
+				continue
+			} else if err != nil {
+				return fmt.Errorf("could not retrieve control %s: %w", control.GetShortName(), err)
+			}
+
+			if sameMetricIds(existing.GetMetrics(), control.GetMetrics()) {
+				continue
+			}
+
+			for _, metric := range control.GetMetrics() {
+				count, err = tx.Count(&assessment.Metric{}, "id = ?", metric.GetId())
+				if err != nil {
+					return fmt.Errorf("could not check metric %s: %w", metric.GetId(), err)
+				}
+				if count == 0 {
+					err = tx.Create(&assessment.Metric{Id: metric.GetId(), Name: metric.GetName()})
+					if err != nil {
+						return fmt.Errorf("could not create metric %s: %w", metric.GetId(), err)
+					}
+				}
+			}
+
+			err = tx.Raw(&none, "DELETE FROM control_metrics WHERE control_id = ?", existing.GetId())
+			if err != nil {
+				return fmt.Errorf("could not remove metric references of control %s: %w", control.GetShortName(), err)
+			}
+
+			for _, metric := range control.GetMetrics() {
+				err = tx.Raw(&none, "INSERT INTO control_metrics (control_id, metric_id) VALUES (?, ?)", existing.GetId(), metric.GetId())
+				if err != nil {
+					return fmt.Errorf("could not add metric %s to control %s: %w", metric.GetId(), control.GetShortName(), err)
+				}
+			}
+
+			slog.Info("Updated metric references of control",
+				slog.String("catalog_id", catalog.GetId()),
+				slog.String("control", control.GetShortName()),
+				slog.Int("metrics", len(control.GetMetrics())))
+		}
+
+		return nil
+	})
+
+	return err
+}
+
+// appendControlsRecursive appends the given controls and all of their sub-controls to list.
+func appendControlsRecursive(list []*orchestrator.Control, controls []*orchestrator.Control) (result []*orchestrator.Control) {
+	result = list
+	for _, control := range controls {
+		result = append(result, control)
+		result = appendControlsRecursive(result, control.GetControls())
+	}
+
+	return result
+}
+
+// sameMetricIds reports whether both metric lists reference the same set of metric IDs.
+func sameMetricIds(a []*assessment.Metric, b []*assessment.Metric) (same bool) {
+	var (
+		ids = make(map[string]bool, len(a))
+	)
+
+	if len(a) != len(b) {
+		return false
+	}
+
+	for _, metric := range a {
+		ids[metric.GetId()] = true
+	}
+
+	for _, metric := range b {
+		if !ids[metric.GetId()] {
+			return false
+		}
+	}
+
+	return true
 }
 
 // loadCatalogsFromFolder loads catalogs from a specified folder.
