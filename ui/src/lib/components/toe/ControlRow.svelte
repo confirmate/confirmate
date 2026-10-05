@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { invalidateAll } from '$app/navigation';
 	import { orchestratorClient } from '$lib/api/client';
 	import type { SchemaControl, SchemaControlInScope, SchemaEvaluationResult, SchemaUser } from '$lib/api/openapi/orchestrator';
@@ -249,7 +250,7 @@
 				{@const counts = assessmentCountByMetric[metric.id ?? ''] ?? { passing: 0, failing: 0 }}
 				<div class="flex items-center gap-2 text-xs">
 					<a
-						href="/toe/{targetId}/assessment-results/?metric={encodeURIComponent(metric.id)}"
+						href={resolve(`/toe/${targetId}/assessment-results/`) + `?metric=${encodeURIComponent(metric.id)}`}
 						class="shrink-0 rounded bg-purple-50 px-1.5 py-0.5 font-mono text-purple-600 hover:bg-purple-100 hover:underline"
 						title="Show assessment results for this metric"
 					>

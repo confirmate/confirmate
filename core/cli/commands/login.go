@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	confcli "confirmate.io/core/cli"
@@ -31,12 +32,11 @@ import (
 )
 
 const (
-	OAuth2AuthURLFlag  = "oauth2-auth-url"
-	OAuth2TokenURLFlag = "oauth2-token-url"
-	OAuth2ClientIDFlag = "oauth2-client-id"
+	OAuth2AuthURLFlag     = "oauth2-auth-url"
+	OAuth2TokenURLFlag    = "oauth2-token-url"
+	OAuth2ClientIDFlag    = "oauth2-client-id"
+	OAuth2RedirectURIFlag = "oauth2-redirect-uri"
 
-	DefaultOAuth2AuthURL  = "http://localhost:8080/v1/auth/authorize"
-	DefaultOAuth2TokenURL = "http://localhost:8080/v1/auth/token"
 	DefaultOAuth2ClientID = "cli"
 
 	DefaultCallbackServerAddress = "localhost:10000"
@@ -58,19 +58,27 @@ func LoginCommand() (command *cli.Command) {
 		Usage: "Log in to Confirmate",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  OAuth2AuthURLFlag,
-				Usage: "OAuth 2.0 authorization URL",
-				Value: DefaultOAuth2AuthURL,
+				Name:    OAuth2AuthURLFlag,
+				Usage:   "OAuth 2.0 authorization URL (default: <addr>/v1/auth/authorize)",
+				Sources: cli.EnvVars("CONFIRMATE_OAUTH2_AUTH_URL"),
 			},
 			&cli.StringFlag{
-				Name:  OAuth2TokenURLFlag,
-				Usage: "OAuth 2.0 token URL",
-				Value: DefaultOAuth2TokenURL,
+				Name:    OAuth2TokenURLFlag,
+				Usage:   "OAuth 2.0 token URL (default: <addr>/v1/auth/token)",
+				Sources: cli.EnvVars("CONFIRMATE_OAUTH2_TOKEN_URL"),
 			},
 			&cli.StringFlag{
 				Name:  OAuth2ClientIDFlag,
 				Usage: "OAuth 2.0 client ID",
 				Value: DefaultOAuth2ClientID,
+			},
+			&cli.StringFlag{
+				Name: OAuth2RedirectURIFlag,
+				Usage: "OAuth 2.0 redirect URI the browser returns to after login. The callback server " +
+					"always listens on " + DefaultCallbackServerAddress + "; set this when the browser " +
+					"reaches it through a proxy, e.g. https://<host>/proxy/10000/callback",
+				Value:   DefaultCallback,
+				Sources: cli.EnvVars("CONFIRMATE_OAUTH2_REDIRECT_URI"),
 			},
 		},
 		Action: func(_ context.Context, cmd *cli.Command) (err error) {
@@ -84,13 +92,14 @@ func LoginCommand() (command *cli.Command) {
 			var session *confcli.Session
 			var code string
 
+			addr = cmd.Root().String("addr")
 			config = &oauth2.Config{
 				ClientID: cmd.String(OAuth2ClientIDFlag),
 				Endpoint: oauth2.Endpoint{
-					AuthURL:  cmd.String(OAuth2AuthURLFlag),
-					TokenURL: cmd.String(OAuth2TokenURLFlag),
+					AuthURL:  oauth2Endpoint(cmd.String(OAuth2AuthURLFlag), addr, "/v1/auth/authorize"),
+					TokenURL: oauth2Endpoint(cmd.String(OAuth2TokenURLFlag), addr, "/v1/auth/token"),
 				},
-				RedirectURL: DefaultCallback,
+				RedirectURL: cmd.String(OAuth2RedirectURIFlag),
 			}
 
 			srv = newCallbackServer(config)
@@ -117,7 +126,6 @@ func LoginCommand() (command *cli.Command) {
 				return err
 			}
 
-			addr = cmd.Root().String("addr")
 			folder = cmd.Root().String(confcli.SessionFolderFlag)
 
 			session, err = confcli.NewSession(addr, config, token, folder)
@@ -135,6 +143,18 @@ func LoginCommand() (command *cli.Command) {
 	}
 
 	return command
+}
+
+// oauth2Endpoint returns the configured OAuth 2.0 endpoint or, if none is configured, the endpoint
+// at path on the Confirmate server at addr. With the embedded OAuth 2.0 server, the login then
+// follows --addr instead of a fixed port.
+func oauth2Endpoint(configured string, addr string, path string) (endpoint string) {
+	if configured != "" {
+		return configured
+	}
+
+	endpoint = strings.TrimSuffix(addr, "/") + path
+	return endpoint
 }
 
 type callbackServer struct {

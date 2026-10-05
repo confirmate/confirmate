@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import { invalidate } from '$app/navigation';
@@ -139,7 +140,7 @@
 
 <div>
 	<a
-		href="/toe/{data.auditScope.targetOfEvaluationId}/audit-scopes/"
+		href={resolve(`/toe/${data.auditScope.targetOfEvaluationId}/audit-scopes/`)}
 		class="text-sm text-gray-500 hover:text-gray-700"
 	>
 		← Back to Audit Scopes
