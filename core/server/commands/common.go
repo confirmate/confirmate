@@ -63,6 +63,12 @@ var (
 			Value:   server.DefaultConfig.CORS.AllowedHeaders,
 			Sources: envVarSources("api-cors-allowed-headers"),
 		},
+		&cli.StringSliceFlag{
+			Name:    "api-cors-exposed-headers",
+			Usage:   "Specifies the response headers exposed to browser JS on cross-origin responses",
+			Value:   server.DefaultConfig.CORS.ExposedHeaders,
+			Sources: envVarSources("api-cors-exposed-headers"),
+		},
 	}
 
 	// authFlags contains the flags for configuring authentication and authorization for the

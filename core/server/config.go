@@ -24,6 +24,10 @@ var DefaultConfig = Config{
 		AllowedOrigins: []string{"*"},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Content-Type", "Authorization", "Connect-Protocol-Version", "Connect-Timeout-Ms"},
+		// ExposedHeaders lists response headers that browser JS is allowed to read on cross-origin
+		// responses. Content-Disposition isn't in the browser's default safelist, but is needed by
+		// the UI to name file downloads (e.g. the audit scope report export).
+		ExposedHeaders: []string{"Content-Disposition"},
 	},
 }
 
@@ -43,4 +47,5 @@ type CORS struct {
 	AllowedOrigins []string
 	AllowedMethods []string
 	AllowedHeaders []string
+	ExposedHeaders []string
 }

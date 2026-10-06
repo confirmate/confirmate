@@ -130,6 +130,7 @@ var EvidenceCommand = &cli.Command{
 					AllowedOrigins: cmd.StringSlice("api-cors-allowed-origins"),
 					AllowedMethods: cmd.StringSlice("api-cors-allowed-methods"),
 					AllowedHeaders: cmd.StringSlice("api-cors-allowed-headers"),
+					ExposedHeaders: cmd.StringSlice("api-cors-exposed-headers"),
 				},
 			}),
 			server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(
