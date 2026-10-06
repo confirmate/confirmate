@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import type { SchemaAssessmentResult } from '$lib/api/openapi/orchestrator';
 	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
 	import EmptyState from '$lib/components/ui/EmptyState.svelte';
@@ -78,7 +79,7 @@
 			Filtered by metric
 			<span class="font-mono font-medium">{data.metricFilter}</span>
 			<a
-				href="/toe/{toeId}/assessment-results"
+				href={resolve(`/toe/${toeId}/assessment-results/`)}
 				class="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-purple-500 hover:bg-purple-100 hover:text-purple-700"
 				aria-label="Clear filter"
 				title="Clear filter"
@@ -146,7 +147,7 @@
 								{/if}
 							</td>
 							<td class="whitespace-nowrap px-4 py-3">
-								<a href="/toe/{toeId}/assessment-results/{result.id}" class="text-sm font-mono text-gray-900 hover:text-confirmate">
+								<a href={resolve(`/toe/${toeId}/assessment-results/${result.id}/`)} class="text-sm font-mono text-gray-900 hover:text-confirmate">
 									{result.metricId}
 								</a>
 							</td>

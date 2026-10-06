@@ -3276,10 +3276,16 @@ func (x *GetAuditScopeRequest) GetAuditScopeId() string {
 }
 
 type GetAuditScopeStatisticsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AuditScopeId  string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	AuditScopeId string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	// Optional. If true, restrict counts_by_compliance_status to top-level controls only, so its
+	// total matches counts_by_control_state instead of also including sub-control results. If false
+	// or unset (the default), compliance status is counted at whatever depth each control was
+	// actually evaluated at, since metrics are typically attached to sub-controls rather than their
+	// top-level parent.
+	TopLevelControlsOnly *bool `protobuf:"varint,2,opt,name=top_level_controls_only,json=topLevelControlsOnly,proto3,oneof" json:"top_level_controls_only,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *GetAuditScopeStatisticsRequest) Reset() {
@@ -3319,6 +3325,13 @@ func (x *GetAuditScopeStatisticsRequest) GetAuditScopeId() string {
 	return ""
 }
 
+func (x *GetAuditScopeStatisticsRequest) GetTopLevelControlsOnly() bool {
+	if x != nil && x.TopLevelControlsOnly != nil {
+		return *x.TopLevelControlsOnly
+	}
+	return false
+}
+
 type GetAuditScopeStatisticsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Number of top-level controls in scope, keyed by the name of their ControlInScopeState (e.g.
@@ -3328,9 +3341,9 @@ type GetAuditScopeStatisticsResponse struct {
 	CountsByControlState map[string]int64 `protobuf:"bytes,1,rep,name=counts_by_control_state,json=countsByControlState,proto3" json:"counts_by_control_state,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
 	// Number of controls, keyed by the name of their latest confirmate.evaluation.v1.EvaluationStatus
 	// (e.g. "EVALUATION_STATUS_COMPLIANT"), for controls that have at least one evaluation result.
-	// Unlike counts_by_control_state, this counts controls at whatever depth they were actually
-	// evaluated at, since metrics are typically attached to sub-controls rather than their
-	// top-level parent.
+	// Unless the request set top_level_controls_only, this counts controls at whatever depth they
+	// were actually evaluated at, since metrics are typically attached to sub-controls rather than
+	// their top-level parent.
 	CountsByComplianceStatus map[string]int64 `protobuf:"bytes,2,rep,name=counts_by_compliance_status,json=countsByComplianceStatus,proto3" json:"counts_by_compliance_status,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
@@ -6609,9 +6622,11 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\x12@\n" +
 	"\x06format\x18\x02 \x01(\x0e2(.confirmate.orchestrator.v1.ReportFormatR\x06format\"I\n" +
 	"\x14GetAuditScopeRequest\x121\n" +
-	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"S\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\xab\x01\n" +
 	"\x1eGetAuditScopeStatisticsRequest\x121\n" +
-	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\xe1\x03\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\x12:\n" +
+	"\x17top_level_controls_only\x18\x02 \x01(\bH\x00R\x14topLevelControlsOnly\x88\x01\x01B\x1a\n" +
+	"\x18_top_level_controls_only\"\xe1\x03\n" +
 	"\x1fGetAuditScopeStatisticsResponse\x12\x8c\x01\n" +
 	"\x17counts_by_control_state\x18\x01 \x03(\v2U.confirmate.orchestrator.v1.GetAuditScopeStatisticsResponse.CountsByControlStateEntryR\x14countsByControlState\x12\x98\x01\n" +
 	"\x1bcounts_by_compliance_status\x18\x02 \x03(\v2Y.confirmate.orchestrator.v1.GetAuditScopeStatisticsResponse.CountsByComplianceStatusEntryR\x18countsByComplianceStatus\x1aG\n" +
@@ -7329,6 +7344,7 @@ func file_api_orchestrator_orchestrator_proto_init() {
 	file_api_orchestrator_orchestrator_proto_msgTypes[38].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[39].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[41].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[47].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[49].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[53].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[66].OneofWrappers = []any{}

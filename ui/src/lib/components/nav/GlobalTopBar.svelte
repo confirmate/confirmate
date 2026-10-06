@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { SchemaUser } from '$lib/api/openapi/orchestrator';
 	import { logout } from '$lib/auth';
@@ -7,10 +8,10 @@
 	let { currentUser = null }: { currentUser?: SchemaUser | null } = $props();
 
 	const links = [
-		{ name: 'Dashboard', href: '/dashboard/' },
-		{ name: 'Targets', href: '/toe/' },
-		{ name: 'Metrics', href: '/metrics/' },
-		{ name: 'Users', href: '/users/' }
+		{ name: 'Dashboard', href: resolve('/dashboard/') },
+		{ name: 'Targets', href: resolve('/toe/') },
+		{ name: 'Metrics', href: resolve('/metrics/') },
+		{ name: 'Users', href: resolve('/users/') }
 	];
 
 	const displayName = $derived(() => {
@@ -27,7 +28,7 @@
 
 <div class="border-b border-gray-200 bg-white">
 	<div class="relative flex h-14 items-center px-6">
-		<a href="/dashboard/" class="flex flex-col leading-tight">
+		<a href={resolve('/dashboard/')} class="flex flex-col leading-tight">
 			<div class="text-lg font-bold text-confirmate">confirmate</div>
 			<div class="text-xs text-gray-400">Compliance &amp; Certification</div>
 		</a>

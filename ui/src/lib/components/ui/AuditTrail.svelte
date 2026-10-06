@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import type { SchemaAuditTrailEvent, SchemaUser } from '$lib/api/openapi/orchestrator';
 
 	let {
@@ -107,7 +108,7 @@
 										{@const controlId = (event.eventData as Record<string, unknown> | undefined)?.['controlId'] as string | undefined}
 										{#if controlId}
 											<a
-												href="/toe/{targetId}/audit-scopes/{auditScopeId}/controls/{controlId}/"
+												href={resolve(`/toe/${targetId}/audit-scopes/${auditScopeId}/controls/${controlId}/`)}
 												class="font-mono text-xs text-confirmate hover:underline"
 											>{ctrl}</a>
 										{:else}

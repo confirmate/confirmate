@@ -130,6 +130,30 @@ func TestService_GetAuditScopeStatistics(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "happy path: with top_level_controls_only, excludes the sub-control's result",
+			args: args{
+				req: &orchestrator.GetAuditScopeStatisticsRequest{
+					AuditScopeId:         orchestratortest.MockScopeId1,
+					TopLevelControlsOnly: new(true),
+				},
+			},
+			fields: fields{
+				db:    newAuditScopeStatisticsTestDB(t),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.GetAuditScopeStatisticsResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, map[string]int64{
+						"CONTROL_IN_SCOPE_STATE_IMPLEMENTED": 1,
+						"CONTROL_IN_SCOPE_STATE_ACCEPTED":    1,
+					}, got.Msg.GetCountsByControlState()) &&
+					assert.Equal(t, map[string]int64{
+						"EVALUATION_STATUS_COMPLIANT": 2,
+					}, got.Msg.GetCountsByComplianceStatus())
+			},
+			wantErr: assert.NoError,
+		},
+		{
 			name: "happy path: with authorization strategy with permission store and admin token",
 			args: args{
 				req: &orchestrator.GetAuditScopeStatisticsRequest{

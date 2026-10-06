@@ -27,7 +27,10 @@ import (
 
 func TestWithEmbeddedOAuth2Server_AuthorizeRoute(t *testing.T) {
 	type args struct {
-		path string
+		publicURL      string
+		uiRedirectURI  string
+		cliRedirectURI string
+		path           string
 	}
 
 	var (
@@ -45,21 +48,61 @@ func TestWithEmbeddedOAuth2Server_AuthorizeRoute(t *testing.T) {
 				wantStatusCode:     http.StatusFound,
 				wantLocationPrefix: "/v1/auth/login",
 			},
+			{
+				name: "public url path prefix yields absolute login redirect and prefixed return url",
+				args: args{
+					publicURL: "https://example.test/proxy/5173/v1/auth",
+					path:      "/v1/auth/authorize?client_id=cli&code_challenge=abc&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A10000%2Fcallback&response_type=code&state=test",
+				},
+				wantStatusCode:     http.StatusFound,
+				wantLocationPrefix: "https://example.test/proxy/5173/v1/auth/login?return_url=%2Fproxy%2F5173%2Fv1%2Fauth%2Fauthorize",
+			},
+			{
+				name: "logout redirects absolute below public url path prefix",
+				args: args{
+					publicURL: "https://example.test/proxy/5173/v1/auth",
+					path:      "/v1/auth/logout?return_to=%2Fproxy%2F5173%2F",
+				},
+				wantStatusCode:     http.StatusFound,
+				wantLocationPrefix: "https://example.test/proxy/5173/",
+			},
+			{
+				name: "configured ui redirect uri is accepted",
+				args: args{
+					uiRedirectURI: "https://example.test/proxy/5173/auth/callback",
+					path:          "/v1/auth/authorize?client_id=ui&code_challenge=abc&code_challenge_method=S256&redirect_uri=https%3A%2F%2Fexample.test%2Fproxy%2F5173%2Fauth%2Fcallback&response_type=code&state=test",
+				},
+				wantStatusCode:     http.StatusFound,
+				wantLocationPrefix: "/v1/auth/login",
+			},
+			{
+				name: "configured cli redirect uri is accepted",
+				args: args{
+					cliRedirectURI: "https://example.test/proxy/10000/callback",
+					path:           "/v1/auth/authorize?client_id=cli&code_challenge=abc&code_challenge_method=S256&redirect_uri=https%3A%2F%2Fexample.test%2Fproxy%2F10000%2Fcallback&response_type=code&state=test",
+				},
+				wantStatusCode:     http.StatusFound,
+				wantLocationPrefix: "/v1/auth/login",
+			},
+			{
+				name: "default cli redirect uri is rejected when another one is configured",
+				args: args{
+					cliRedirectURI: "https://example.test/proxy/10000/callback",
+					path:           "/v1/auth/authorize?client_id=cli&code_challenge=abc&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A10000%2Fcallback&response_type=code&state=test",
+				},
+				wantStatusCode: http.StatusBadRequest,
+			},
+			{
+				name: "default ui redirect uri is rejected when another one is configured",
+				args: args{
+					uiRedirectURI: "https://example.test/proxy/5173/auth/callback",
+					path:          "/v1/auth/authorize?client_id=ui&code_challenge=abc&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fauth%2Fcallback&response_type=code&state=test",
+				},
+				wantStatusCode: http.StatusBadRequest,
+			},
 		}
-		srv    *Server
-		err    error
 		client *http.Client
 	)
-
-	srv, err = NewConnectServer([]Option{
-		WithEmbeddedOAuth2Server(DefaultOAuth2KeyPath, DefaultOAuth2KeyPassword, false, ""),
-	})
-	if !assert.NoError(t, err) {
-		return
-	}
-
-	ts := httptest.NewServer(srv.Handler)
-	defer ts.Close()
 
 	client = &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -70,12 +113,22 @@ func TestWithEmbeddedOAuth2Server_AuthorizeRoute(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var (
+				srv *Server
 				res *http.Response
-				url string
+				err error
 			)
 
-			url = ts.URL + tt.args.path
-			res, err = client.Get(url)
+			srv, err = NewConnectServer([]Option{
+				WithEmbeddedOAuth2Server(DefaultOAuth2KeyPath, DefaultOAuth2KeyPassword, false, tt.args.publicURL, tt.args.uiRedirectURI, tt.args.cliRedirectURI),
+			})
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			ts := httptest.NewServer(srv.Handler)
+			defer ts.Close()
+
+			res, err = client.Get(ts.URL + tt.args.path)
 			if !assert.NoError(t, err) {
 				return
 			}
@@ -86,6 +139,39 @@ func TestWithEmbeddedOAuth2Server_AuthorizeRoute(t *testing.T) {
 
 			assert.Equal(t, tt.wantStatusCode, res.StatusCode)
 			assert.True(t, strings.HasPrefix(res.Header.Get("Location"), tt.wantLocationPrefix))
+		})
+	}
+}
+
+func TestOAuthPublicPath(t *testing.T) {
+	tests := []struct {
+		name      string
+		publicURL string
+		want      string
+	}{
+		{
+			name:      "default public url",
+			publicURL: "http://localhost:8080/v1/auth",
+			want:      "/v1/auth",
+		},
+		{
+			name:      "public url behind path prefix",
+			publicURL: "https://example.test/proxy/5173/v1/auth",
+			want:      "/proxy/5173/v1/auth",
+		},
+		{
+			name:      "unparsable url falls back to default",
+			publicURL: "://",
+			want:      "/v1/auth",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got string
+
+			got = OAuthPublicPath(tt.publicURL)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

@@ -100,26 +100,48 @@ func DemoOrchestratorUsers(issuer string) []*orchestrator.User {
 func strPtr(s string) *string { return &s }
 
 // WithEmbeddedOAuth2Server configures the server to include an embedded OAuth 2.0 authorization server.
-// If publicURL is empty, it defaults to http://localhost:<port>/v1/auth.
-func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate bool, publicURL string, opts ...oauth2.AuthorizationServerOption) Option {
+// If publicURL is empty, it defaults to http://localhost:<port>/v1/auth. The path of publicURL is
+// also used as the browser-facing base path of the login page, so the login flow keeps working
+// when the API is served behind a path-stripping reverse proxy (e.g. /proxy/5173/v1/auth). In that
+// case, redirects are made absolute against publicURL, because some proxies (e.g. code-server)
+// prefix root-relative Location headers with their own path a second time.
+// If uiRedirectURI or cliRedirectURI is empty, the UI or CLI client is registered with
+// [DefaultOAuth2UIRedirectURI] or [DefaultOAuth2CLIRedirectURI], respectively.
+func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate bool, publicURL string, uiRedirectURI string, cliRedirectURI string, opts ...oauth2.AuthorizationServerOption) Option {
 	return func(srv *Server) {
 		var (
 			oauthPublicURL  string
+			loginBaseURL    string
+			proxyPrefix     string
+			redirectOrigin  string
 			expandedKeyPath string
 			authSrv         *oauth2.AuthorizationServer
 			authHandler     func(w http.ResponseWriter, r *http.Request)
 		)
 
 		oauthPublicURL = NormalizeOAuthPublicURL(publicURL, srv.cfg.Port)
+		loginBaseURL = OAuthPublicPath(oauthPublicURL)
+		proxyPrefix = strings.TrimSuffix(loginBaseURL, "/v1/auth")
+		if proxyPrefix != "" {
+			redirectOrigin = strings.TrimSuffix(oauthPublicURL, loginBaseURL)
+		}
 		expandedKeyPath = util.ExpandPath(keyPath)
+		if uiRedirectURI == "" {
+			uiRedirectURI = DefaultOAuth2UIRedirectURI
+		}
+		if cliRedirectURI == "" {
+			cliRedirectURI = DefaultOAuth2CLIRedirectURI
+		}
 
 		slog.Info("Configuring embedded OAuth 2.0 server",
 			slog.String("public_url", oauthPublicURL),
+			slog.String("login_base_url", loginBaseURL),
 			slog.String("key_path", expandedKeyPath),
 			slog.Bool("key_save_on_create", saveOnCreate),
 			slog.String("login_user", DefaultOAuth2LoginUser),
 			slog.String("cli_client_id", DefaultOAuth2CLIClientID),
-			slog.String("cli_redirect_uri", DefaultOAuth2CLIRedirectURI),
+			slog.String("cli_redirect_uri", cliRedirectURI),
+			slog.String("ui_redirect_uri", uiRedirectURI),
 			slog.String("service_client_id", DefaultOAuth2ServiceClientID),
 		)
 
@@ -127,7 +149,7 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 		// --demo-seed-file with fewer or more than the built-in 3 demo users. The element type is
 		// unexported by the login package, so it cannot be named in a var (...) block above.
 		var loginPageOpts = sliceOf(
-			login.WithBaseURL("/v1/auth"),
+			login.WithBaseURL(loginBaseURL),
 			login.WithUser(DefaultOAuth2LoginUser, DefaultOAuth2LoginPassword),
 		)
 		for _, u := range DefaultDemoUsers {
@@ -135,8 +157,8 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 		}
 
 		opts = append(opts,
-			oauth2.WithClient(DefaultOAuth2CLIClientID, "", DefaultOAuth2CLIRedirectURI),
-			oauth2.WithClient(DefaultOAuth2UIClientID, "", DefaultOAuth2UIRedirectURI),
+			oauth2.WithClient(DefaultOAuth2CLIClientID, "", cliRedirectURI),
+			oauth2.WithClient(DefaultOAuth2UIClientID, "", uiRedirectURI),
 			oauth2.WithClient(DefaultOAuth2ServiceClientID, DefaultOAuth2ServiceSecret, ""),
 			login.WithLoginPage(loginPageOpts...),
 			oauth2.WithSigningKeysFunc(func() map[int]*ecdsa.PrivateKey {
@@ -169,6 +191,14 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 		authSrv = oauth2.NewServer("", opts...)
 
 		authHandler = func(w http.ResponseWriter, r *http.Request) {
+			// A path-stripping reverse proxy hands us /v1/auth/..., but the browser sits at
+			// <prefix>/v1/auth/.... The login page sends the user back to the request URI of the
+			// authorize call after a successful login, so it must carry the browser-facing prefix.
+			if proxyPrefix != "" {
+				r = r.Clone(r.Context())
+				r.RequestURI = proxyPrefix + r.RequestURI
+				w = &absoluteRedirectWriter{ResponseWriter: w, origin: redirectOrigin}
+			}
 			http.StripPrefix("/v1/auth", authSrv.Handler).ServeHTTP(w, r)
 		}
 
@@ -178,10 +208,13 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 		srv.httpHandlers["/v1/auth/authorize"] = http.HandlerFunc(authHandler)
 		srv.httpHandlers["/v1/auth/token"] = http.HandlerFunc(authHandler)
 		srv.httpHandlers["/v1/auth/logout"] = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if proxyPrefix != "" {
+				w = &absoluteRedirectWriter{ResponseWriter: w, origin: redirectOrigin}
+			}
 			http.SetCookie(w, &http.Cookie{
 				Name:    "id",
 				Value:   "",
-				Path:    "/v1/auth",
+				Path:    loginBaseURL,
 				MaxAge:  -1,
 				Expires: time.Unix(0, 0),
 			})
@@ -192,6 +225,25 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 			http.Redirect(w, r, returnTo, http.StatusFound)
 		})
 	}
+}
+
+// absoluteRedirectWriter turns root-relative Location headers into absolute URLs below origin
+// before the response header is written.
+type absoluteRedirectWriter struct {
+	http.ResponseWriter
+	origin string
+}
+
+// WriteHeader rewrites a root-relative Location header to an absolute URL and then writes the
+// response header with statusCode.
+func (w *absoluteRedirectWriter) WriteHeader(statusCode int) {
+	var location = w.Header().Get("Location")
+
+	if strings.HasPrefix(location, "/") && !strings.HasPrefix(location, "//") {
+		w.Header().Set("Location", w.origin+location)
+	}
+
+	w.ResponseWriter.WriteHeader(statusCode)
 }
 
 // sliceOf collects its variadic arguments into a slice. This lets us build a dynamically-sized
@@ -239,4 +291,22 @@ func NormalizeOAuthPublicURL(publicURL string, port uint16) (normalized string) 
 	}
 
 	return publicURL
+}
+
+// OAuthPublicPath returns the path component of a normalized OAuth 2.0 public URL, which is the
+// browser-facing base path of the embedded login page. It falls back to /v1/auth if the URL cannot
+// be parsed or has no path.
+func OAuthPublicPath(publicURL string) (path string) {
+	var (
+		u   *url.URL
+		err error
+	)
+
+	u, err = url.Parse(publicURL)
+	if err != nil || u.Path == "" {
+		return "/v1/auth"
+	}
+
+	path = u.Path
+	return path
 }

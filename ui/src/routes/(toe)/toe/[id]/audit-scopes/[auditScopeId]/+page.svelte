@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import { invalidate } from '$app/navigation';
@@ -125,7 +126,7 @@
 
 <div>
 	<a
-		href="/toe/{data.auditScope.targetOfEvaluationId}/audit-scopes/"
+		href={resolve(`/toe/${data.auditScope.targetOfEvaluationId}/audit-scopes/`)}
 		class="text-sm text-gray-500 hover:text-gray-700"
 	>
 		← Back to Audit Scopes
@@ -276,7 +277,7 @@
 	<!-- Compliance tab -->
 	{#if tab === 'compliance'}
 		<div class="mt-6">
-			<EvaluationSummary results={data.evaluationResults} />
+			<EvaluationSummary results={data.evaluationResultsTopLevel} />
 
 			<div class="mt-6 space-y-3">
 				{#if data.catalog?.categories?.length}
