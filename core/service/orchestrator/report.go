@@ -32,8 +32,15 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/xuri/excelize/v2"
+	"google.golang.org/genproto/googleapis/api/httpbody"
 	"google.golang.org/protobuf/types/known/structpb"
 )
+
+// reportContentTypes maps the file extension of a rendered report to its HTTP Content-Type.
+var reportContentTypes = map[string]string{
+	"xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	"pdf":  "application/pdf",
+}
 
 // controlInScopeStateLabels maps [orchestrator.ControlInScopeState] values to short,
 // human-readable labels for display in the report.
@@ -111,7 +118,7 @@ func (c reportControlRow) statusLabel() string {
 func (svc *Service) ExportAuditScopeReport(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ExportAuditScopeReportRequest],
-) (res *connect.Response[orchestrator.ExportAuditScopeReportResponse], err error) {
+) (res *connect.Response[httpbody.HttpBody], err error) {
 	var (
 		auditScope orchestrator.AuditScope
 		toe        orchestrator.TargetOfEvaluation
@@ -181,10 +188,11 @@ func (svc *Service) ExportAuditScopeReport(
 		reportFilenameSanitizer.ReplaceAllString(auditScope.GetName(), "-"),
 		time.Now().Format("20060102"), extension)
 
-	res = connect.NewResponse(&orchestrator.ExportAuditScopeReportResponse{
-		Content:  content,
-		Filename: filename,
+	res = connect.NewResponse(&httpbody.HttpBody{
+		ContentType: reportContentTypes[extension],
+		Data:        content,
 	})
+	res.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
 	return
 }
 

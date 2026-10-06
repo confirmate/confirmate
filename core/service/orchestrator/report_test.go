@@ -18,13 +18,18 @@ package orchestrator
 import (
 	"bytes"
 	"context"
+	"io"
+	"net/http"
 	"testing"
 	"time"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/server"
+	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
 
@@ -198,11 +203,12 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		if !assert.NotNil(t, res) {
 			return
 		}
-		assert.NotEmpty(t, res.Msg.GetContent())
-		assert.Equal(t, "audit-scope-report-Mock-Audit-Scope-1-"+time.Now().Format("20060102")+".xlsx",
-			res.Msg.GetFilename())
+		assert.NotEmpty(t, res.Msg.GetData())
+		assert.Equal(t, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", res.Msg.GetContentType())
+		assert.Equal(t, `attachment; filename="audit-scope-report-Mock-Audit-Scope-1-`+time.Now().Format("20060102")+`.xlsx"`,
+			res.Header().Get("Content-Disposition"))
 
-		f, err := excelize.OpenReader(bytes.NewReader(res.Msg.GetContent()))
+		f, err := excelize.OpenReader(bytes.NewReader(res.Msg.GetData()))
 		if !assert.NoError(t, err) {
 			return
 		}
@@ -274,11 +280,12 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		if !assert.NotNil(t, res) {
 			return
 		}
-		assert.NotEmpty(t, res.Msg.GetContent())
-		assert.Equal(t, "audit-scope-report-Mock-Audit-Scope-1-"+time.Now().Format("20060102")+".pdf",
-			res.Msg.GetFilename())
+		assert.NotEmpty(t, res.Msg.GetData())
+		assert.Equal(t, "application/pdf", res.Msg.GetContentType())
+		assert.Equal(t, `attachment; filename="audit-scope-report-Mock-Audit-Scope-1-`+time.Now().Format("20060102")+`.pdf"`,
+			res.Header().Get("Content-Disposition"))
 
-		content := res.Msg.GetContent()
+		content := res.Msg.GetData()
 		assert.True(t, bytes.HasPrefix(content, []byte("%PDF-")), "content does not start with a PDF header")
 
 		r := bytes.NewReader(content)
@@ -289,6 +296,40 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		pages, err := pdfapi.PageCount(r, pdfmodel.NewDefaultConfiguration())
 		assert.NoError(t, err)
 		assert.Equal(t, 1, pages)
+	})
+
+	t.Run("http-level: served as a raw XLSX response, not a JSON envelope", func(t *testing.T) {
+		_, testSrv := servertest.NewTestConnectServer(t,
+			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+		)
+		defer testSrv.Close()
+
+		httpRes, err := testSrv.Client().Get(testSrv.URL +
+			"/v1/orchestrator/audit_scopes/" + scopeId + "/report?format=REPORT_FORMAT_XLSX")
+		if !assert.NoError(t, err) {
+			return
+		}
+		defer httpRes.Body.Close()
+
+		body, err := io.ReadAll(httpRes.Body)
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, httpRes.StatusCode)
+		assert.Equal(t, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+			httpRes.Header.Get("Content-Type"))
+		assert.Equal(t, `attachment; filename="audit-scope-report-Mock-Audit-Scope-1-`+time.Now().Format("20060102")+`.xlsx"`,
+			httpRes.Header.Get("Content-Disposition"))
+
+		// The whole point of using google.api.HttpBody: the response body must be the raw XLSX
+		// file itself (a ZIP archive, "PK\x03\x04" magic), not JSON wrapping a base64 field.
+		assert.True(t, bytes.HasPrefix(body, []byte("PK\x03\x04")), "response body is not a raw XLSX/ZIP file")
+		assert.False(t, bytes.HasPrefix(bytes.TrimSpace(body), []byte("{")), "response body looks like a JSON envelope")
+
+		f, err := excelize.OpenReader(bytes.NewReader(body))
+		if !assert.NoError(t, err) {
+			return
+		}
+		defer f.Close()
 	})
 
 	t.Run("err: audit scope not found", func(t *testing.T) {
