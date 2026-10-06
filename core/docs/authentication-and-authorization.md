@@ -89,11 +89,26 @@ This strategy requires a `PermissionStore` implementation that can answer two qu
 - `HasPermission(userId, resourceId, permission, objectType)` → bool
 - `PermissionForResources(userId, permission, objectType)` → []resourceId
 
-The orchestrator service uses a database-backed `permissionStore` (`service/orchestrator/user.go`).
+The orchestrator service uses a database-backed `DBPermissionStore` (`service/permission_store_db.go`).
 
-The evaluation service — which has no database — uses an `orchestratorPermissionStore`
-(`service/evaluation/permission_store.go`) that calls `ListUserPermissions` on the orchestrator over
+The evaluation service — which has no database — uses an `OrchestratorPermissionStore`
+(`service/permission_store_orchestrator.go`) that calls `ListUserPermissions` on the orchestrator over
 the service-to-service connection.
+
+### Permission inheritance
+
+Permissions on a target of evaluation are inherited by all audit scopes of that target of
+evaluation, at the same level (`READER`, `CONTRIBUTOR` or `ADMIN`). Both permission stores apply
+this rule:
+
+- `HasPermission` for an audit scope (and for `OBJECT_TYPE_USER_PERMISSION` when the object is an
+  audit scope) succeeds if the user either has the permission on the audit scope itself or on its
+  target of evaluation.
+- `PermissionForObjects` for audit scopes (and for user permissions) additionally returns all audit
+  scopes of the targets of evaluation the user has the requested permission for.
+
+As a consequence, an `ADMIN` of a target of evaluation can manage the permissions of all its audit
+scopes, even if the audit scope was created by someone else.
 
 ### Admin bypass
 
@@ -165,7 +180,9 @@ directly so that the caller is always provisioned.
 The evaluation service omits this step (no DB).
 
 User permission management in `service/orchestrator/user.go` is restricted to admins for listing,
-granting, and removing explicit `UserPermission` entries.
+granting, and removing explicit `UserPermission` entries. This means global admins as well as users
+holding an `ADMIN` permission on the object, or — for audit scopes — on its target of evaluation
+(see [Permission inheritance](#permission-inheritance)).
 
 For authenticated create requests in the orchestrator, the creator is also granted an
 `ADMIN` `UserPermission` for each newly created target of evaluation or audit scope. This makes
