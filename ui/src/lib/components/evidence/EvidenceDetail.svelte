@@ -3,6 +3,7 @@
 	import type { SchemaAssessmentResult as AssessmentResult } from '$lib/api/openapi/orchestrator';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { CheckCircle, XCircle, ChevronDown, ChevronRight } from '@steeze-ui/heroicons';
+	import { metricName } from '$lib/metrics';
 
 	interface Props {
 		evidence: Evidence;
@@ -135,7 +136,7 @@
 						{:else}
 							<Icon src={XCircle} class="h-3.5 w-3.5 shrink-0 text-red-600" />
 						{/if}
-						<span class="text-gray-700">{r.metricId}</span>
+						<span class="text-gray-700">{metricName(r.metricId)}</span>
 					</li>
 				{/each}
 			</ul>

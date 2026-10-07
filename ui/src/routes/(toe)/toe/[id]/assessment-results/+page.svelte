@@ -7,6 +7,7 @@
 	import { CheckCircle, XCircle } from '@steeze-ui/heroicons';
 	import { page } from '$app/state';
 	import type { PageProps } from './$types';
+	import { metricName } from '$lib/metrics';
 
 	let { data }: PageProps = $props();
 
@@ -36,7 +37,7 @@
 			key: 'metricId',
 			label: 'Metric',
 			sortable: true,
-			render: (r: SchemaAssessmentResult) => r.metricId
+			render: (r: SchemaAssessmentResult) => metricName(r.metricId)
 		},
 		{
 			key: 'resourceId',
@@ -147,8 +148,8 @@
 								{/if}
 							</td>
 							<td class="whitespace-nowrap px-4 py-3">
-								<a href={resolve(`/toe/${toeId}/assessment-results/${result.id}/`)} class="text-sm font-mono text-gray-900 hover:text-confirmate">
-									{result.metricId}
+								<a href={resolve(`/toe/${toeId}/assessment-results/${result.id}/`)} class="text-sm text-gray-900 hover:text-confirmate">
+									{metricName(result.metricId)}
 								</a>
 							</td>
 							<td class="whitespace-nowrap px-4 py-3">
