@@ -302,11 +302,12 @@ func (d *azureCollector) collectDiagnosticSettings(resourceURI string) (*ontolog
 		raw = collector.Raw(pageResponse)
 	}
 
-	if len(workspaceIDs) > 0 {
-		al = &ontology.ActivityLogging{
-			Enabled:           new(true),
-			LoggingServiceIds: workspaceIDs, // TODO(all): Each diagnostic setting has also a retention period, maybe we should add that information as well
-		}
+	// The diagnostic settings could be listed, so the logging state is known: without a setting
+	// that sends logs to a Log Analytics workspace, activity logging is disabled. Returning nil
+	// instead would mark the state as unknown, and metrics would not be applicable at all.
+	al = &ontology.ActivityLogging{
+		Enabled:           new(len(workspaceIDs) > 0),
+		LoggingServiceIds: workspaceIDs, // TODO(all): Each diagnostic setting has also a retention period, maybe we should add that information as well
 	}
 
 	return al, raw, nil
