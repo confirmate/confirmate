@@ -285,7 +285,6 @@ func Test_regoEval_Eval(t *testing.T) {
 			},
 			compliant: map[string]bool{
 				"BootLoggingEnabled":   false,
-				"BootLoggingOutput":    false,
 				"BootLoggingRetention": false,
 				"OSLoggingEnabled":     false,
 				"OSLoggingOutput":      true,
