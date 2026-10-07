@@ -78,7 +78,7 @@
 	{#if data.metricFilter}
 		<div class="mt-4 inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-xs text-purple-700">
 			Filtered by metric
-			<span class="font-mono font-medium">{data.metricFilter}</span>
+			<span class="font-medium">{metricName(data.metricFilter)}</span>
 			<a
 				href={resolve(`/toe/${toeId}/assessment-results/`)}
 				class="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-purple-500 hover:bg-purple-100 hover:text-purple-700"
