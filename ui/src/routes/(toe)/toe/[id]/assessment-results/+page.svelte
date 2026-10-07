@@ -7,6 +7,7 @@
 	import { CheckCircle, XCircle } from '@steeze-ui/heroicons';
 	import { page } from '$app/state';
 	import type { PageProps } from './$types';
+	import { metricName } from '$lib/metrics';
 
 	let { data }: PageProps = $props();
 
@@ -36,7 +37,7 @@
 			key: 'metricId',
 			label: 'Metric',
 			sortable: true,
-			render: (r: SchemaAssessmentResult) => r.metricId
+			render: (r: SchemaAssessmentResult) => metricName(r.metricId)
 		},
 		{
 			key: 'resourceId',
@@ -77,7 +78,7 @@
 	{#if data.metricFilter}
 		<div class="mt-4 inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-xs text-purple-700">
 			Filtered by metric
-			<span class="font-mono font-medium">{data.metricFilter}</span>
+			<span class="font-medium">{metricName(data.metricFilter)}</span>
 			<a
 				href={resolve(`/toe/${toeId}/assessment-results/`)}
 				class="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-purple-500 hover:bg-purple-100 hover:text-purple-700"
@@ -147,8 +148,8 @@
 								{/if}
 							</td>
 							<td class="whitespace-nowrap px-4 py-3">
-								<a href={resolve(`/toe/${toeId}/assessment-results/${result.id}/`)} class="text-sm font-mono text-gray-900 hover:text-confirmate">
-									{result.metricId}
+								<a href={resolve(`/toe/${toeId}/assessment-results/${result.id}/`)} class="text-sm text-gray-900 hover:text-confirmate">
+									{metricName(result.metricId)}
 								</a>
 							</td>
 							<td class="whitespace-nowrap px-4 py-3">
