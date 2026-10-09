@@ -15,7 +15,11 @@
 
 package server
 
-import "testing"
+import (
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
 
 func Test_corsConfig_OriginAllowed(t *testing.T) {
 	type fields struct {
@@ -77,5 +81,30 @@ func Test_corsConfig_OriginAllowed(t *testing.T) {
 				t.Errorf("corsConfig.OriginAllowed() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func Test_handleCORS_ExposesConfiguredHeaders(t *testing.T) {
+	srv := &Server{
+		cfg: Config{
+			CORS: CORS{
+				AllowedOrigins: []string{"https://ui.example.com"},
+				ExposedHeaders: []string{"Content-Disposition"},
+			},
+		},
+	}
+
+	handler := srv.handleCORS(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Origin", "https://ui.example.com")
+	rec := httptest.NewRecorder()
+
+	handler.ServeHTTP(rec, req)
+
+	if got := rec.Header().Get("Access-Control-Expose-Headers"); got != "Content-Disposition" {
+		t.Errorf("Access-Control-Expose-Headers = %q, want %q", got, "Content-Disposition")
 	}
 }
