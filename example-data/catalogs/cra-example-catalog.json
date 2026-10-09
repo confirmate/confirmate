@@ -23,10 +23,12 @@
                     "id": "VulnerabilityScanReportUpdated"
                   },
                   {
-                    "id": "NoKnownVulnerabilities"
+                    "id": "92b4404d-0f00-4e9c-9d1c-52cb970d975b",
+                    "name": "NoKnownVulnerabilities"
                   },
                   {
-                    "id": "VulnerabilitiesNotExploitable"
+                    "id": "e0f1b6f2-13f5-482e-924e-c9e29145d7e5",
+                    "name": "VulnerabilitiesNotExploitable"
                   }
                 ],
                 "name": "Vulnerability Scanning"
@@ -60,7 +62,8 @@
                 "description": "Automatic updates must check for updates within appropriate intervals",
                 "metrics": [
                   {
-                    "id": "AutomaticUpdatesInterval"
+                    "id": "50118133-1b49-416c-a052-8bc9221241c2",
+                    "name": "AutomaticUpdatesInterval"
                   }
                 ],
                 "name": "Update Check Interval"
@@ -70,7 +73,8 @@
                 "description": "Automatic updates must be enabled by default",
                 "metrics": [
                   {
-                    "id": "AutomaticUpdatesEnabled"
+                    "id": "84eaed86-759d-4419-9954-f3d3ea1f5200",
+                    "name": "AutomaticUpdatesEnabled"
                   }
                 ],
                 "name": "Automatic Updates by Default"
@@ -107,7 +111,8 @@
                 "description": "Password policies must be enabled for identity management",
                 "metrics": [
                   {
-                    "id": "IdentityPasswordPolicyEnabled"
+                    "id": "12fc547b-7a33-4d6a-8f9a-cf9ec059a13e",
+                    "name": "IdentityPasswordPolicyEnabled"
                   }
                 ],
                 "name": "Password Policies"
@@ -127,7 +132,8 @@
                 "description": "Multi-factor authentication must be enabled for administrative access",
                 "metrics": [
                   {
-                    "id": "AdminMFAEnabled"
+                    "id": "2601ddd9-d98b-467d-ad5b-ebe1e333f566",
+                    "name": "AdminMFAEnabled"
                   }
                 ],
                 "name": "Multi-Factor Authentication"
@@ -137,7 +143,8 @@
                 "description": "Anomaly detection mechanisms must be enabled",
                 "metrics": [
                   {
-                    "id": "AnomalyDetectionEnabled"
+                    "id": "58d9a281-0f05-4a49-a1ef-df5013cc901e",
+                    "name": "AnomalyDetectionEnabled"
                   }
                 ],
                 "name": "Anomaly Detection"
@@ -154,7 +161,8 @@
                 "description": "Data at rest must be encrypted",
                 "metrics": [
                   {
-                    "id": "AtRestEncryptionEnabled"
+                    "id": "c7121da1-274e-4c6b-b2fe-47df992297a9",
+                    "name": "AtRestEncryptionEnabled"
                   }
                 ],
                 "name": "Encryption at Rest"
@@ -164,7 +172,8 @@
                 "description": "Strong cryptographic algorithms must be used",
                 "metrics": [
                   {
-                    "id": "StrongCryptographicHash"
+                    "id": "14f72a16-4939-47a9-b4d7-3514ee2a8c44",
+                    "name": "StrongCryptographicHash"
                   }
                 ],
                 "name": "Cryptographic Algorithm Strength"
@@ -174,7 +183,8 @@
                 "description": "Data in transit must be encrypted",
                 "metrics": [
                   {
-                    "id": "TransportEncryptionEnabled"
+                    "id": "642e9b84-4bf9-4853-9c76-555716f0c716",
+                    "name": "TransportEncryptionEnabled"
                   }
                 ],
                 "name": "Encryption in Transit"
@@ -191,7 +201,8 @@
                 "description": "Secure protocols must be enabled for data transmission",
                 "metrics": [
                   {
-                    "id": "TransportEncryptionEnabled"
+                    "id": "642e9b84-4bf9-4853-9c76-555716f0c716",
+                    "name": "TransportEncryptionEnabled"
                   }
                 ],
                 "name": "Secure Transmission Protocols"
@@ -201,7 +212,8 @@
                 "description": "Password policies must be enforced",
                 "metrics": [
                   {
-                    "id": "IdentityPasswordPolicyEnabled"
+                    "id": "12fc547b-7a33-4d6a-8f9a-cf9ec059a13e",
+                    "name": "IdentityPasswordPolicyEnabled"
                   }
                 ],
                 "name": "Password Policy Enforcement"
@@ -306,7 +318,8 @@
                 "description": "Backup mechanisms must be enabled for critical data flows",
                 "metrics": [
                   {
-                    "id": "BackupEnabled"
+                    "id": "c7a4fae4-216a-4440-93e9-637cb08d79a8",
+                    "name": "BackupEnabled"
                   }
                 ],
                 "name": "Critical Data Backup"
@@ -323,7 +336,8 @@
                 "description": "Activity logging must be enabled for security-relevant activities",
                 "metrics": [
                   {
-                    "id": "ActivityLoggingEnabled"
+                    "id": "3d2996d0-f41d-4283-b574-71aec7912cd2",
+                    "name": "ActivityLoggingEnabled"
                   }
                 ],
                 "name": "Security Activity Logging"
