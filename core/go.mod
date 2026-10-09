@@ -115,6 +115,7 @@ require (
 
 require (
 	cel.dev/cel-go v0.32.0 // indirect
+	connectrpc.com/connect/v2 v2.0.0 // indirect
 	github.com/boombuler/barcode v1.1.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/hhrutter/lzw v1.0.0 // indirect
