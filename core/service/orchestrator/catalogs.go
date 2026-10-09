@@ -433,9 +433,11 @@ func (svc *Service) loadCatalogs() (err error) {
 					// This guarantees that GORM inserts the parent catalog first,
 					// avoiding foreign key constraint violations for its nested categories.
 					upsertErr = svc.db.Create(catalog)
+					slog.Info("Catalog created", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()))
 				} else {
 					// If the catalog already exists, use Update() so nested associations are updated as well.
 					upsertErr = svc.db.Update(catalog)
+					slog.Info("Catalog updated", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()))
 				}
 
 				if upsertErr != nil {
