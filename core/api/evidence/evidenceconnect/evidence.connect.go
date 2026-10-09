@@ -20,45 +20,39 @@ package evidenceconnect
 
 import (
 	evidence "confirmate.io/core/api/evidence"
-	connect "connectrpc.com/connect/v2"
+	connect "connectrpc.com/connect"
 	context "context"
-	sync "sync"
+	errors "errors"
+	http "net/http"
+	strings "strings"
 )
+
+// This is a compile-time assertion to ensure that this generated file and the connect package are
+// compatible. If you get a compiler error that this constant is not defined, this code was
+// generated with a version of connect newer than the one compiled into your binary. You can fix the
+// problem by either regenerating this code with an older version of connect or updating the connect
+// version compiled into your binary.
+const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// ResourcesName is the fully-qualified name of the Resources service.
 	ResourcesName = "confirmate.evidence.v1.Resources"
 )
 
-// These constants are the procedure names of the RPCs defined in this package. They're exposed at
-// runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the fully-qualified names of the RPCs defined in this package. They're
+// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// ResourcesUpdateResourceProcedure is the procedure name of the Resources's UpdateResource RPC.
+	// ResourcesUpdateResourceProcedure is the fully-qualified name of the Resources's UpdateResource
+	// RPC.
 	ResourcesUpdateResourceProcedure = "/confirmate.evidence.v1.Resources/UpdateResource"
-	// ResourcesListGraphEdgesProcedure is the procedure name of the Resources's ListGraphEdges RPC.
+	// ResourcesListGraphEdgesProcedure is the fully-qualified name of the Resources's ListGraphEdges
+	// RPC.
 	ResourcesListGraphEdgesProcedure = "/confirmate.evidence.v1.Resources/ListGraphEdges"
-)
-
-var (
-	resourcesUpdateResourceSpec = sync.OnceValue(func() connect.Spec {
-		return connect.Spec{
-			StreamType: connect.StreamTypeUnary,
-			Schema:     evidence.File_api_evidence_evidence_proto.Services().ByName("Resources").Methods().ByName("UpdateResource"),
-			Procedure:  ResourcesUpdateResourceProcedure,
-		}
-	})
-	resourcesListGraphEdgesSpec = sync.OnceValue(func() connect.Spec {
-		return connect.Spec{
-			StreamType: connect.StreamTypeUnary,
-			Schema:     evidence.File_api_evidence_evidence_proto.Services().ByName("Resources").Methods().ByName("ListGraphEdges"),
-			Procedure:  ResourcesListGraphEdgesProcedure,
-		}
-	})
 )
 
 // ResourcesClient is a client for the confirmate.evidence.v1.Resources service.
@@ -66,16 +60,52 @@ type ResourcesClient interface {
 	// UpdateResource updates a resource (or creates it, if it does not exist).
 	// This is used to give third-party tools the possibility to add something to
 	// the resource graph.
-	UpdateResource(context.Context, *evidence.UpdateResourceRequest) (*evidence.ResourceSnapshot, error)
+	UpdateResource(context.Context, *connect.Request[evidence.UpdateResourceRequest]) (*connect.Response[evidence.ResourceSnapshot], error)
 	// ListGraphEdges returns the edges (relationship) between resources in our
 	// resource graph.
-	ListGraphEdges(context.Context, *evidence.ListGraphEdgesRequest) (*evidence.ListGraphEdgesResponse, error)
+	ListGraphEdges(context.Context, *connect.Request[evidence.ListGraphEdgesRequest]) (*connect.Response[evidence.ListGraphEdgesResponse], error)
 }
 
-// NewResourcesClient constructs a client for the confirmate.evidence.v1.Resources service. Multiple
-// service clients may share a single connect.Client.
-func NewResourcesClient(client *connect.Client) ResourcesClient {
-	return &resourcesClient{client: client}
+// NewResourcesClient constructs a client for the confirmate.evidence.v1.Resources service. By
+// default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
+// and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
+// connect.WithGRPC() or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewResourcesClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ResourcesClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	resourcesMethods := evidence.File_api_evidence_evidence_proto.Services().ByName("Resources").Methods()
+	return &resourcesClient{
+		updateResource: connect.NewClient[evidence.UpdateResourceRequest, evidence.ResourceSnapshot](
+			httpClient,
+			baseURL+ResourcesUpdateResourceProcedure,
+			connect.WithSchema(resourcesMethods.ByName("UpdateResource")),
+			connect.WithClientOptions(opts...),
+		),
+		listGraphEdges: connect.NewClient[evidence.ListGraphEdgesRequest, evidence.ListGraphEdgesResponse](
+			httpClient,
+			baseURL+ResourcesListGraphEdgesProcedure,
+			connect.WithSchema(resourcesMethods.ByName("ListGraphEdges")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// resourcesClient implements ResourcesClient.
+type resourcesClient struct {
+	updateResource *connect.Client[evidence.UpdateResourceRequest, evidence.ResourceSnapshot]
+	listGraphEdges *connect.Client[evidence.ListGraphEdgesRequest, evidence.ListGraphEdgesResponse]
+}
+
+// UpdateResource calls confirmate.evidence.v1.Resources.UpdateResource.
+func (c *resourcesClient) UpdateResource(ctx context.Context, req *connect.Request[evidence.UpdateResourceRequest]) (*connect.Response[evidence.ResourceSnapshot], error) {
+	return c.updateResource.CallUnary(ctx, req)
+}
+
+// ListGraphEdges calls confirmate.evidence.v1.Resources.ListGraphEdges.
+func (c *resourcesClient) ListGraphEdges(ctx context.Context, req *connect.Request[evidence.ListGraphEdgesRequest]) (*connect.Response[evidence.ListGraphEdgesResponse], error) {
+	return c.listGraphEdges.CallUnary(ctx, req)
 }
 
 // ResourcesHandler is an implementation of the confirmate.evidence.v1.Resources service.
@@ -83,75 +113,50 @@ type ResourcesHandler interface {
 	// UpdateResource updates a resource (or creates it, if it does not exist).
 	// This is used to give third-party tools the possibility to add something to
 	// the resource graph.
-	UpdateResource(context.Context, *evidence.UpdateResourceRequest) (*evidence.ResourceSnapshot, error)
+	UpdateResource(context.Context, *connect.Request[evidence.UpdateResourceRequest]) (*connect.Response[evidence.ResourceSnapshot], error)
 	// ListGraphEdges returns the edges (relationship) between resources in our
 	// resource graph.
-	ListGraphEdges(context.Context, *evidence.ListGraphEdgesRequest) (*evidence.ListGraphEdgesResponse, error)
+	ListGraphEdges(context.Context, *connect.Request[evidence.ListGraphEdgesRequest]) (*connect.Response[evidence.ListGraphEdgesResponse], error)
 }
 
-// RegisterResourcesHandler registers svc as the confirmate.evidence.v1.Resources implementation on
-// server.
-func RegisterResourcesHandler(server *connect.Server, svc ResourcesHandler) {
-	adapter := resourcesHandler{svc: svc}
-	server.Register(
-		connect.Method{Spec: resourcesUpdateResourceSpec(), Handler: adapter.updateResource},
-		connect.Method{Spec: resourcesListGraphEdgesSpec(), Handler: adapter.listGraphEdges},
+// NewResourcesHandler builds an HTTP handler from the service implementation. It returns the path
+// on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewResourcesHandler(svc ResourcesHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	resourcesMethods := evidence.File_api_evidence_evidence_proto.Services().ByName("Resources").Methods()
+	resourcesUpdateResourceHandler := connect.NewUnaryHandler(
+		ResourcesUpdateResourceProcedure,
+		svc.UpdateResource,
+		connect.WithSchema(resourcesMethods.ByName("UpdateResource")),
+		connect.WithHandlerOptions(opts...),
 	)
+	resourcesListGraphEdgesHandler := connect.NewUnaryHandler(
+		ResourcesListGraphEdgesProcedure,
+		svc.ListGraphEdges,
+		connect.WithSchema(resourcesMethods.ByName("ListGraphEdges")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/confirmate.evidence.v1.Resources/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case ResourcesUpdateResourceProcedure:
+			resourcesUpdateResourceHandler.ServeHTTP(w, r)
+		case ResourcesListGraphEdgesProcedure:
+			resourcesListGraphEdgesHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
 }
 
 // UnimplementedResourcesHandler returns CodeUnimplemented from all methods.
 type UnimplementedResourcesHandler struct{}
 
-func (UnimplementedResourcesHandler) UpdateResource(context.Context, *evidence.UpdateResourceRequest) (*evidence.ResourceSnapshot, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.evidence.v1.Resources.UpdateResource is not implemented")
+func (UnimplementedResourcesHandler) UpdateResource(context.Context, *connect.Request[evidence.UpdateResourceRequest]) (*connect.Response[evidence.ResourceSnapshot], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evidence.v1.Resources.UpdateResource is not implemented"))
 }
 
-func (UnimplementedResourcesHandler) ListGraphEdges(context.Context, *evidence.ListGraphEdgesRequest) (*evidence.ListGraphEdgesResponse, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.evidence.v1.Resources.ListGraphEdges is not implemented")
-}
-
-type resourcesClient struct {
-	client *connect.Client
-}
-
-func (c *resourcesClient) UpdateResource(ctx context.Context, req *evidence.UpdateResourceRequest) (*evidence.ResourceSnapshot, error) {
-	var res evidence.ResourceSnapshot
-	if err := c.client.CallUnary(ctx, resourcesUpdateResourceSpec(), req, &res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-func (c *resourcesClient) ListGraphEdges(ctx context.Context, req *evidence.ListGraphEdgesRequest) (*evidence.ListGraphEdgesResponse, error) {
-	var res evidence.ListGraphEdgesResponse
-	if err := c.client.CallUnary(ctx, resourcesListGraphEdgesSpec(), req, &res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-type resourcesHandler struct{ svc ResourcesHandler }
-
-func (h resourcesHandler) updateResource(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
-	var req evidence.UpdateResourceRequest
-	if err := stream.Receive(&req); err != nil {
-		return err
-	}
-	res, err := h.svc.UpdateResource(ctx, &req)
-	if err != nil {
-		return err
-	}
-	return stream.Send(res)
-}
-
-func (h resourcesHandler) listGraphEdges(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
-	var req evidence.ListGraphEdgesRequest
-	if err := stream.Receive(&req); err != nil {
-		return err
-	}
-	res, err := h.svc.ListGraphEdges(ctx, &req)
-	if err != nil {
-		return err
-	}
-	return stream.Send(res)
+func (UnimplementedResourcesHandler) ListGraphEdges(context.Context, *connect.Request[evidence.ListGraphEdgesRequest]) (*connect.Response[evidence.ListGraphEdgesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evidence.v1.Resources.ListGraphEdges is not implemented"))
 }

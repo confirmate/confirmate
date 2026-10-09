@@ -3,6 +3,6 @@ plugins:
   - remote: buf.build/protocolbuffers/go
     out: .
     opt: module=confirmate.io/core/api/ontology
-  - remote: buf.build/connectrpc/go
+  - remote: buf.build/connectrpc/go:v1.21.0
     out: .
     opt: module=confirmate.io/core/api/ontology
