@@ -76,6 +76,11 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 					ParentId:    new(testdata.MockOpenstackVolumeTenantID),
 					Description: new(""),
 					Raw:         new(""),
+					Backups: []*ontology.Backup{
+						{
+							Enabled: new(false),
+						},
+					},
 				}
 
 				gotNew := got.(*ontology.BlockStorage)
@@ -110,6 +115,11 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 					ParentId:    new(testdata.MockOpenstackVolumeTenantID),
 					Description: new(""),
 					Raw:         new(""),
+					Backups: []*ontology.Backup{
+						{
+							Enabled: new(false),
+						},
+					},
 				}
 
 				gotNew := got.(*ontology.BlockStorage)
