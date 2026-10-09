@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.17-73-g12489e9b
+    version: core/v0.3.0-6-g09612e69
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -428,7 +428,11 @@ paths:
         get:
             tags:
                 - Orchestrator
-            description: Exports a compliance report for an Audit Scope as an XLSX spreadsheet
+            description: |-
+                Exports a compliance report for an Audit Scope as an XLSX spreadsheet or PDF, returned as a
+                 raw HTTP response (correct Content-Type, Content-Disposition with the suggested filename)
+                 rather than wrapped in a JSON envelope, so any HTTP client can download it by simply saving
+                 the response body.
             operationId: Orchestrator_ExportAuditScopeReport
             parameters:
                 - name: auditScopeId
@@ -450,9 +454,7 @@ paths:
                 "200":
                     description: OK
                     content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ExportAuditScopeReportResponse'
+                        '*/*': {}
                 default:
                     description: Default error response
                     content:
@@ -2877,18 +2879,6 @@ components:
                 A evaluation result resource, representing the result after evaluating the
                  target of evaluation with a specific control target_of_evaluation_id, category_name and
                  catalog_id are necessary to get the corresponding AuditScope
-        ExportAuditScopeReportResponse:
-            type: object
-            properties:
-                content:
-                    readOnly: true
-                    type: string
-                    description: Content is the raw file content, in the format requested.
-                    format: bytes
-                filename:
-                    readOnly: true
-                    type: string
-                    description: Filename is the suggested filename for the download, e.g. "audit-scope-report-my-scope.xlsx".
         GetAuditScopeStatisticsResponse:
             type: object
             properties:
