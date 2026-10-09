@@ -23,2173 +23,2750 @@ import (
 	common "confirmate.io/core/api/common"
 	evaluation "confirmate.io/core/api/evaluation"
 	orchestrator "confirmate.io/core/api/orchestrator"
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// OrchestratorName is the fully-qualified name of the Orchestrator service.
 	OrchestratorName = "confirmate.orchestrator.v1.Orchestrator"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// OrchestratorRegisterAssessmentToolProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorRegisterAssessmentToolProcedure is the procedure name of the Orchestrator's
 	// RegisterAssessmentTool RPC.
 	OrchestratorRegisterAssessmentToolProcedure = "/confirmate.orchestrator.v1.Orchestrator/RegisterAssessmentTool"
-	// OrchestratorListAssessmentToolsProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorListAssessmentToolsProcedure is the procedure name of the Orchestrator's
 	// ListAssessmentTools RPC.
 	OrchestratorListAssessmentToolsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListAssessmentTools"
-	// OrchestratorGetAssessmentToolProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorGetAssessmentToolProcedure is the procedure name of the Orchestrator's
 	// GetAssessmentTool RPC.
 	OrchestratorGetAssessmentToolProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetAssessmentTool"
-	// OrchestratorUpdateAssessmentToolProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorUpdateAssessmentToolProcedure is the procedure name of the Orchestrator's
 	// UpdateAssessmentTool RPC.
 	OrchestratorUpdateAssessmentToolProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateAssessmentTool"
-	// OrchestratorDeregisterAssessmentToolProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorDeregisterAssessmentToolProcedure is the procedure name of the Orchestrator's
 	// DeregisterAssessmentTool RPC.
 	OrchestratorDeregisterAssessmentToolProcedure = "/confirmate.orchestrator.v1.Orchestrator/DeregisterAssessmentTool"
-	// OrchestratorStoreAssessmentResultProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorStoreAssessmentResultProcedure is the procedure name of the Orchestrator's
 	// StoreAssessmentResult RPC.
 	OrchestratorStoreAssessmentResultProcedure = "/confirmate.orchestrator.v1.Orchestrator/StoreAssessmentResult"
-	// OrchestratorStoreAssessmentResultsProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorStoreAssessmentResultsProcedure is the procedure name of the Orchestrator's
 	// StoreAssessmentResults RPC.
 	OrchestratorStoreAssessmentResultsProcedure = "/confirmate.orchestrator.v1.Orchestrator/StoreAssessmentResults"
-	// OrchestratorGetAssessmentResultProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorGetAssessmentResultProcedure is the procedure name of the Orchestrator's
 	// GetAssessmentResult RPC.
 	OrchestratorGetAssessmentResultProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetAssessmentResult"
-	// OrchestratorStoreEvaluationResultProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorStoreEvaluationResultProcedure is the procedure name of the Orchestrator's
 	// StoreEvaluationResult RPC.
 	OrchestratorStoreEvaluationResultProcedure = "/confirmate.orchestrator.v1.Orchestrator/StoreEvaluationResult"
-	// OrchestratorListAssessmentResultsProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorListAssessmentResultsProcedure is the procedure name of the Orchestrator's
 	// ListAssessmentResults RPC.
 	OrchestratorListAssessmentResultsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListAssessmentResults"
-	// OrchestratorListEvaluationResultsProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorListEvaluationResultsProcedure is the procedure name of the Orchestrator's
 	// ListEvaluationResults RPC.
 	OrchestratorListEvaluationResultsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListEvaluationResults"
-	// OrchestratorCreateMetricProcedure is the fully-qualified name of the Orchestrator's CreateMetric
-	// RPC.
+	// OrchestratorCreateMetricProcedure is the procedure name of the Orchestrator's CreateMetric RPC.
 	OrchestratorCreateMetricProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateMetric"
-	// OrchestratorUpdateMetricProcedure is the fully-qualified name of the Orchestrator's UpdateMetric
-	// RPC.
+	// OrchestratorUpdateMetricProcedure is the procedure name of the Orchestrator's UpdateMetric RPC.
 	OrchestratorUpdateMetricProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateMetric"
-	// OrchestratorGetMetricProcedure is the fully-qualified name of the Orchestrator's GetMetric RPC.
+	// OrchestratorGetMetricProcedure is the procedure name of the Orchestrator's GetMetric RPC.
 	OrchestratorGetMetricProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetMetric"
-	// OrchestratorListMetricsProcedure is the fully-qualified name of the Orchestrator's ListMetrics
-	// RPC.
+	// OrchestratorListMetricsProcedure is the procedure name of the Orchestrator's ListMetrics RPC.
 	OrchestratorListMetricsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListMetrics"
-	// OrchestratorRemoveMetricProcedure is the fully-qualified name of the Orchestrator's RemoveMetric
-	// RPC.
+	// OrchestratorRemoveMetricProcedure is the procedure name of the Orchestrator's RemoveMetric RPC.
 	OrchestratorRemoveMetricProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveMetric"
-	// OrchestratorCreateTargetOfEvaluationProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorCreateTargetOfEvaluationProcedure is the procedure name of the Orchestrator's
 	// CreateTargetOfEvaluation RPC.
 	OrchestratorCreateTargetOfEvaluationProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateTargetOfEvaluation"
-	// OrchestratorUpdateTargetOfEvaluationProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorUpdateTargetOfEvaluationProcedure is the procedure name of the Orchestrator's
 	// UpdateTargetOfEvaluation RPC.
 	OrchestratorUpdateTargetOfEvaluationProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateTargetOfEvaluation"
-	// OrchestratorGetTargetOfEvaluationProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorGetTargetOfEvaluationProcedure is the procedure name of the Orchestrator's
 	// GetTargetOfEvaluation RPC.
 	OrchestratorGetTargetOfEvaluationProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetTargetOfEvaluation"
-	// OrchestratorListTargetsOfEvaluationProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorListTargetsOfEvaluationProcedure is the procedure name of the Orchestrator's
 	// ListTargetsOfEvaluation RPC.
 	OrchestratorListTargetsOfEvaluationProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListTargetsOfEvaluation"
-	// OrchestratorRemoveTargetOfEvaluationProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorRemoveTargetOfEvaluationProcedure is the procedure name of the Orchestrator's
 	// RemoveTargetOfEvaluation RPC.
 	OrchestratorRemoveTargetOfEvaluationProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveTargetOfEvaluation"
-	// OrchestratorGetTargetOfEvaluationStatisticsProcedure is the fully-qualified name of the
-	// Orchestrator's GetTargetOfEvaluationStatistics RPC.
+	// OrchestratorGetTargetOfEvaluationStatisticsProcedure is the procedure name of the Orchestrator's
+	// GetTargetOfEvaluationStatistics RPC.
 	OrchestratorGetTargetOfEvaluationStatisticsProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetTargetOfEvaluationStatistics"
-	// OrchestratorUpdateMetricConfigurationProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorUpdateMetricConfigurationProcedure is the procedure name of the Orchestrator's
 	// UpdateMetricConfiguration RPC.
 	OrchestratorUpdateMetricConfigurationProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateMetricConfiguration"
-	// OrchestratorGetMetricConfigurationProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorGetMetricConfigurationProcedure is the procedure name of the Orchestrator's
 	// GetMetricConfiguration RPC.
 	OrchestratorGetMetricConfigurationProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetMetricConfiguration"
-	// OrchestratorListMetricConfigurationsProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorListMetricConfigurationsProcedure is the procedure name of the Orchestrator's
 	// ListMetricConfigurations RPC.
 	OrchestratorListMetricConfigurationsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListMetricConfigurations"
-	// OrchestratorUpdateMetricImplementationProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorUpdateMetricImplementationProcedure is the procedure name of the Orchestrator's
 	// UpdateMetricImplementation RPC.
 	OrchestratorUpdateMetricImplementationProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateMetricImplementation"
-	// OrchestratorGetMetricImplementationProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorGetMetricImplementationProcedure is the procedure name of the Orchestrator's
 	// GetMetricImplementation RPC.
 	OrchestratorGetMetricImplementationProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetMetricImplementation"
-	// OrchestratorSubscribeProcedure is the fully-qualified name of the Orchestrator's Subscribe RPC.
+	// OrchestratorSubscribeProcedure is the procedure name of the Orchestrator's Subscribe RPC.
 	OrchestratorSubscribeProcedure = "/confirmate.orchestrator.v1.Orchestrator/Subscribe"
-	// OrchestratorCreateCertificateProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorCreateCertificateProcedure is the procedure name of the Orchestrator's
 	// CreateCertificate RPC.
 	OrchestratorCreateCertificateProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateCertificate"
-	// OrchestratorGetCertificateProcedure is the fully-qualified name of the Orchestrator's
-	// GetCertificate RPC.
+	// OrchestratorGetCertificateProcedure is the procedure name of the Orchestrator's GetCertificate
+	// RPC.
 	OrchestratorGetCertificateProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetCertificate"
-	// OrchestratorListCertificatesProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorListCertificatesProcedure is the procedure name of the Orchestrator's
 	// ListCertificates RPC.
 	OrchestratorListCertificatesProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListCertificates"
-	// OrchestratorListPublicCertificatesProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorListPublicCertificatesProcedure is the procedure name of the Orchestrator's
 	// ListPublicCertificates RPC.
 	OrchestratorListPublicCertificatesProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListPublicCertificates"
-	// OrchestratorUpdateCertificateProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorUpdateCertificateProcedure is the procedure name of the Orchestrator's
 	// UpdateCertificate RPC.
 	OrchestratorUpdateCertificateProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateCertificate"
-	// OrchestratorRemoveCertificateProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorRemoveCertificateProcedure is the procedure name of the Orchestrator's
 	// RemoveCertificate RPC.
 	OrchestratorRemoveCertificateProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveCertificate"
-	// OrchestratorUpdateCertificateLifecycleProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorUpdateCertificateLifecycleProcedure is the procedure name of the Orchestrator's
 	// UpdateCertificateLifecycle RPC.
 	OrchestratorUpdateCertificateLifecycleProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateCertificateLifecycle"
-	// OrchestratorCreateCatalogProcedure is the fully-qualified name of the Orchestrator's
-	// CreateCatalog RPC.
+	// OrchestratorCreateCatalogProcedure is the procedure name of the Orchestrator's CreateCatalog RPC.
 	OrchestratorCreateCatalogProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateCatalog"
-	// OrchestratorListCatalogsProcedure is the fully-qualified name of the Orchestrator's ListCatalogs
-	// RPC.
+	// OrchestratorListCatalogsProcedure is the procedure name of the Orchestrator's ListCatalogs RPC.
 	OrchestratorListCatalogsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListCatalogs"
-	// OrchestratorGetCatalogProcedure is the fully-qualified name of the Orchestrator's GetCatalog RPC.
+	// OrchestratorGetCatalogProcedure is the procedure name of the Orchestrator's GetCatalog RPC.
 	OrchestratorGetCatalogProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetCatalog"
-	// OrchestratorRemoveCatalogProcedure is the fully-qualified name of the Orchestrator's
-	// RemoveCatalog RPC.
+	// OrchestratorRemoveCatalogProcedure is the procedure name of the Orchestrator's RemoveCatalog RPC.
 	OrchestratorRemoveCatalogProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveCatalog"
-	// OrchestratorUpdateCatalogProcedure is the fully-qualified name of the Orchestrator's
-	// UpdateCatalog RPC.
+	// OrchestratorUpdateCatalogProcedure is the procedure name of the Orchestrator's UpdateCatalog RPC.
 	OrchestratorUpdateCatalogProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateCatalog"
-	// OrchestratorGetCategoryProcedure is the fully-qualified name of the Orchestrator's GetCategory
-	// RPC.
+	// OrchestratorGetCategoryProcedure is the procedure name of the Orchestrator's GetCategory RPC.
 	OrchestratorGetCategoryProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetCategory"
-	// OrchestratorListControlsProcedure is the fully-qualified name of the Orchestrator's ListControls
-	// RPC.
+	// OrchestratorListControlsProcedure is the procedure name of the Orchestrator's ListControls RPC.
 	OrchestratorListControlsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListControls"
-	// OrchestratorGetControlProcedure is the fully-qualified name of the Orchestrator's GetControl RPC.
+	// OrchestratorGetControlProcedure is the procedure name of the Orchestrator's GetControl RPC.
 	OrchestratorGetControlProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetControl"
-	// OrchestratorCreateAuditScopeProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorCreateAuditScopeProcedure is the procedure name of the Orchestrator's
 	// CreateAuditScope RPC.
 	OrchestratorCreateAuditScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateAuditScope"
-	// OrchestratorGetAuditScopeProcedure is the fully-qualified name of the Orchestrator's
-	// GetAuditScope RPC.
+	// OrchestratorGetAuditScopeProcedure is the procedure name of the Orchestrator's GetAuditScope RPC.
 	OrchestratorGetAuditScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetAuditScope"
-	// OrchestratorGetAuditScopeStatisticsProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorGetAuditScopeStatisticsProcedure is the procedure name of the Orchestrator's
 	// GetAuditScopeStatistics RPC.
 	OrchestratorGetAuditScopeStatisticsProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetAuditScopeStatistics"
-	// OrchestratorListAuditScopesProcedure is the fully-qualified name of the Orchestrator's
-	// ListAuditScopes RPC.
+	// OrchestratorListAuditScopesProcedure is the procedure name of the Orchestrator's ListAuditScopes
+	// RPC.
 	OrchestratorListAuditScopesProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListAuditScopes"
-	// OrchestratorUpdateAuditScopeProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorUpdateAuditScopeProcedure is the procedure name of the Orchestrator's
 	// UpdateAuditScope RPC.
 	OrchestratorUpdateAuditScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateAuditScope"
-	// OrchestratorRemoveAuditScopeProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorRemoveAuditScopeProcedure is the procedure name of the Orchestrator's
 	// RemoveAuditScope RPC.
 	OrchestratorRemoveAuditScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveAuditScope"
-	// OrchestratorExportAuditScopeReportProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorExportAuditScopeReportProcedure is the procedure name of the Orchestrator's
 	// ExportAuditScopeReport RPC.
 	OrchestratorExportAuditScopeReportProcedure = "/confirmate.orchestrator.v1.Orchestrator/ExportAuditScopeReport"
-	// OrchestratorGetRuntimeInfoProcedure is the fully-qualified name of the Orchestrator's
-	// GetRuntimeInfo RPC.
+	// OrchestratorGetRuntimeInfoProcedure is the procedure name of the Orchestrator's GetRuntimeInfo
+	// RPC.
 	OrchestratorGetRuntimeInfoProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetRuntimeInfo"
-	// OrchestratorUpsertUserPermissionProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorUpsertUserPermissionProcedure is the procedure name of the Orchestrator's
 	// UpsertUserPermission RPC.
 	OrchestratorUpsertUserPermissionProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpsertUserPermission"
-	// OrchestratorRemoveUserPermissionProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorRemoveUserPermissionProcedure is the procedure name of the Orchestrator's
 	// RemoveUserPermission RPC.
 	OrchestratorRemoveUserPermissionProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveUserPermission"
-	// OrchestratorGetCurrentUserProcedure is the fully-qualified name of the Orchestrator's
-	// GetCurrentUser RPC.
+	// OrchestratorGetCurrentUserProcedure is the procedure name of the Orchestrator's GetCurrentUser
+	// RPC.
 	OrchestratorGetCurrentUserProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetCurrentUser"
-	// OrchestratorGetUserProcedure is the fully-qualified name of the Orchestrator's GetUser RPC.
+	// OrchestratorGetUserProcedure is the procedure name of the Orchestrator's GetUser RPC.
 	OrchestratorGetUserProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetUser"
-	// OrchestratorListUsersProcedure is the fully-qualified name of the Orchestrator's ListUsers RPC.
+	// OrchestratorListUsersProcedure is the procedure name of the Orchestrator's ListUsers RPC.
 	OrchestratorListUsersProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListUsers"
-	// OrchestratorListUserPermissionsProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorListUserPermissionsProcedure is the procedure name of the Orchestrator's
 	// ListUserPermissions RPC.
 	OrchestratorListUserPermissionsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListUserPermissions"
-	// OrchestratorListUserRolesProcedure is the fully-qualified name of the Orchestrator's
-	// ListUserRoles RPC.
+	// OrchestratorListUserRolesProcedure is the procedure name of the Orchestrator's ListUserRoles RPC.
 	OrchestratorListUserRolesProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListUserRoles"
-	// OrchestratorRemoveUserProcedure is the fully-qualified name of the Orchestrator's RemoveUser RPC.
+	// OrchestratorRemoveUserProcedure is the procedure name of the Orchestrator's RemoveUser RPC.
 	OrchestratorRemoveUserProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveUser"
-	// OrchestratorCreateControlInScopeProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorCreateControlInScopeProcedure is the procedure name of the Orchestrator's
 	// CreateControlInScope RPC.
 	OrchestratorCreateControlInScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateControlInScope"
-	// OrchestratorGetControlInScopeProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorGetControlInScopeProcedure is the procedure name of the Orchestrator's
 	// GetControlInScope RPC.
 	OrchestratorGetControlInScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetControlInScope"
-	// OrchestratorListControlsInScopeProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorListControlsInScopeProcedure is the procedure name of the Orchestrator's
 	// ListControlsInScope RPC.
 	OrchestratorListControlsInScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListControlsInScope"
-	// OrchestratorUpdateControlInScopeProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorUpdateControlInScopeProcedure is the procedure name of the Orchestrator's
 	// UpdateControlInScope RPC.
 	OrchestratorUpdateControlInScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateControlInScope"
-	// OrchestratorTransitionControlInScopeStateProcedure is the fully-qualified name of the
-	// Orchestrator's TransitionControlInScopeState RPC.
+	// OrchestratorTransitionControlInScopeStateProcedure is the procedure name of the Orchestrator's
+	// TransitionControlInScopeState RPC.
 	OrchestratorTransitionControlInScopeStateProcedure = "/confirmate.orchestrator.v1.Orchestrator/TransitionControlInScopeState"
-	// OrchestratorRemoveControlInScopeProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorRemoveControlInScopeProcedure is the procedure name of the Orchestrator's
 	// RemoveControlInScope RPC.
 	OrchestratorRemoveControlInScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveControlInScope"
-	// OrchestratorListAuditTrailEventsProcedure is the fully-qualified name of the Orchestrator's
+	// OrchestratorListAuditTrailEventsProcedure is the procedure name of the Orchestrator's
 	// ListAuditTrailEvents RPC.
 	OrchestratorListAuditTrailEventsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListAuditTrailEvents"
+)
+
+var (
+	orchestratorRegisterAssessmentToolSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("RegisterAssessmentTool"),
+			Procedure:  OrchestratorRegisterAssessmentToolProcedure,
+		}
+	})
+	orchestratorListAssessmentToolsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListAssessmentTools"),
+			Procedure:  OrchestratorListAssessmentToolsProcedure,
+		}
+	})
+	orchestratorGetAssessmentToolSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetAssessmentTool"),
+			Procedure:  OrchestratorGetAssessmentToolProcedure,
+		}
+	})
+	orchestratorUpdateAssessmentToolSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("UpdateAssessmentTool"),
+			Procedure:  OrchestratorUpdateAssessmentToolProcedure,
+		}
+	})
+	orchestratorDeregisterAssessmentToolSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("DeregisterAssessmentTool"),
+			Procedure:  OrchestratorDeregisterAssessmentToolProcedure,
+		}
+	})
+	orchestratorStoreAssessmentResultSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("StoreAssessmentResult"),
+			Procedure:  OrchestratorStoreAssessmentResultProcedure,
+		}
+	})
+	orchestratorStoreAssessmentResultsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeBidi,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("StoreAssessmentResults"),
+			Procedure:  OrchestratorStoreAssessmentResultsProcedure,
+		}
+	})
+	orchestratorGetAssessmentResultSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetAssessmentResult"),
+			Procedure:  OrchestratorGetAssessmentResultProcedure,
+		}
+	})
+	orchestratorStoreEvaluationResultSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("StoreEvaluationResult"),
+			Procedure:  OrchestratorStoreEvaluationResultProcedure,
+		}
+	})
+	orchestratorListAssessmentResultsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListAssessmentResults"),
+			Procedure:  OrchestratorListAssessmentResultsProcedure,
+		}
+	})
+	orchestratorListEvaluationResultsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListEvaluationResults"),
+			Procedure:  OrchestratorListEvaluationResultsProcedure,
+		}
+	})
+	orchestratorCreateMetricSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("CreateMetric"),
+			Procedure:  OrchestratorCreateMetricProcedure,
+		}
+	})
+	orchestratorUpdateMetricSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("UpdateMetric"),
+			Procedure:  OrchestratorUpdateMetricProcedure,
+		}
+	})
+	orchestratorGetMetricSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetMetric"),
+			Procedure:  OrchestratorGetMetricProcedure,
+		}
+	})
+	orchestratorListMetricsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListMetrics"),
+			Procedure:  OrchestratorListMetricsProcedure,
+		}
+	})
+	orchestratorRemoveMetricSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("RemoveMetric"),
+			Procedure:  OrchestratorRemoveMetricProcedure,
+		}
+	})
+	orchestratorCreateTargetOfEvaluationSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("CreateTargetOfEvaluation"),
+			Procedure:  OrchestratorCreateTargetOfEvaluationProcedure,
+		}
+	})
+	orchestratorUpdateTargetOfEvaluationSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("UpdateTargetOfEvaluation"),
+			Procedure:  OrchestratorUpdateTargetOfEvaluationProcedure,
+		}
+	})
+	orchestratorGetTargetOfEvaluationSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetTargetOfEvaluation"),
+			Procedure:  OrchestratorGetTargetOfEvaluationProcedure,
+		}
+	})
+	orchestratorListTargetsOfEvaluationSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListTargetsOfEvaluation"),
+			Procedure:  OrchestratorListTargetsOfEvaluationProcedure,
+		}
+	})
+	orchestratorRemoveTargetOfEvaluationSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("RemoveTargetOfEvaluation"),
+			Procedure:  OrchestratorRemoveTargetOfEvaluationProcedure,
+		}
+	})
+	orchestratorGetTargetOfEvaluationStatisticsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetTargetOfEvaluationStatistics"),
+			Procedure:  OrchestratorGetTargetOfEvaluationStatisticsProcedure,
+		}
+	})
+	orchestratorUpdateMetricConfigurationSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("UpdateMetricConfiguration"),
+			Procedure:  OrchestratorUpdateMetricConfigurationProcedure,
+		}
+	})
+	orchestratorGetMetricConfigurationSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetMetricConfiguration"),
+			Procedure:  OrchestratorGetMetricConfigurationProcedure,
+		}
+	})
+	orchestratorListMetricConfigurationsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListMetricConfigurations"),
+			Procedure:  OrchestratorListMetricConfigurationsProcedure,
+		}
+	})
+	orchestratorUpdateMetricImplementationSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("UpdateMetricImplementation"),
+			Procedure:  OrchestratorUpdateMetricImplementationProcedure,
+		}
+	})
+	orchestratorGetMetricImplementationSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetMetricImplementation"),
+			Procedure:  OrchestratorGetMetricImplementationProcedure,
+		}
+	})
+	orchestratorSubscribeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeServer,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("Subscribe"),
+			Procedure:  OrchestratorSubscribeProcedure,
+		}
+	})
+	orchestratorCreateCertificateSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("CreateCertificate"),
+			Procedure:  OrchestratorCreateCertificateProcedure,
+		}
+	})
+	orchestratorGetCertificateSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetCertificate"),
+			Procedure:  OrchestratorGetCertificateProcedure,
+		}
+	})
+	orchestratorListCertificatesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListCertificates"),
+			Procedure:  OrchestratorListCertificatesProcedure,
+		}
+	})
+	orchestratorListPublicCertificatesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListPublicCertificates"),
+			Procedure:  OrchestratorListPublicCertificatesProcedure,
+		}
+	})
+	orchestratorUpdateCertificateSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("UpdateCertificate"),
+			Procedure:  OrchestratorUpdateCertificateProcedure,
+		}
+	})
+	orchestratorRemoveCertificateSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("RemoveCertificate"),
+			Procedure:  OrchestratorRemoveCertificateProcedure,
+		}
+	})
+	orchestratorUpdateCertificateLifecycleSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("UpdateCertificateLifecycle"),
+			Procedure:  OrchestratorUpdateCertificateLifecycleProcedure,
+		}
+	})
+	orchestratorCreateCatalogSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("CreateCatalog"),
+			Procedure:  OrchestratorCreateCatalogProcedure,
+		}
+	})
+	orchestratorListCatalogsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListCatalogs"),
+			Procedure:  OrchestratorListCatalogsProcedure,
+		}
+	})
+	orchestratorGetCatalogSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetCatalog"),
+			Procedure:  OrchestratorGetCatalogProcedure,
+		}
+	})
+	orchestratorRemoveCatalogSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("RemoveCatalog"),
+			Procedure:  OrchestratorRemoveCatalogProcedure,
+		}
+	})
+	orchestratorUpdateCatalogSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("UpdateCatalog"),
+			Procedure:  OrchestratorUpdateCatalogProcedure,
+		}
+	})
+	orchestratorGetCategorySpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetCategory"),
+			Procedure:  OrchestratorGetCategoryProcedure,
+		}
+	})
+	orchestratorListControlsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListControls"),
+			Procedure:  OrchestratorListControlsProcedure,
+		}
+	})
+	orchestratorGetControlSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetControl"),
+			Procedure:  OrchestratorGetControlProcedure,
+		}
+	})
+	orchestratorCreateAuditScopeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("CreateAuditScope"),
+			Procedure:  OrchestratorCreateAuditScopeProcedure,
+		}
+	})
+	orchestratorGetAuditScopeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetAuditScope"),
+			Procedure:  OrchestratorGetAuditScopeProcedure,
+		}
+	})
+	orchestratorGetAuditScopeStatisticsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetAuditScopeStatistics"),
+			Procedure:  OrchestratorGetAuditScopeStatisticsProcedure,
+		}
+	})
+	orchestratorListAuditScopesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListAuditScopes"),
+			Procedure:  OrchestratorListAuditScopesProcedure,
+		}
+	})
+	orchestratorUpdateAuditScopeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("UpdateAuditScope"),
+			Procedure:  OrchestratorUpdateAuditScopeProcedure,
+		}
+	})
+	orchestratorRemoveAuditScopeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("RemoveAuditScope"),
+			Procedure:  OrchestratorRemoveAuditScopeProcedure,
+		}
+	})
+	orchestratorExportAuditScopeReportSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ExportAuditScopeReport"),
+			Procedure:  OrchestratorExportAuditScopeReportProcedure,
+		}
+	})
+	orchestratorGetRuntimeInfoSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetRuntimeInfo"),
+			Procedure:  OrchestratorGetRuntimeInfoProcedure,
+		}
+	})
+	orchestratorUpsertUserPermissionSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("UpsertUserPermission"),
+			Procedure:  OrchestratorUpsertUserPermissionProcedure,
+		}
+	})
+	orchestratorRemoveUserPermissionSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("RemoveUserPermission"),
+			Procedure:  OrchestratorRemoveUserPermissionProcedure,
+		}
+	})
+	orchestratorGetCurrentUserSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetCurrentUser"),
+			Procedure:  OrchestratorGetCurrentUserProcedure,
+		}
+	})
+	orchestratorGetUserSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetUser"),
+			Procedure:  OrchestratorGetUserProcedure,
+		}
+	})
+	orchestratorListUsersSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListUsers"),
+			Procedure:  OrchestratorListUsersProcedure,
+		}
+	})
+	orchestratorListUserPermissionsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListUserPermissions"),
+			Procedure:  OrchestratorListUserPermissionsProcedure,
+		}
+	})
+	orchestratorListUserRolesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListUserRoles"),
+			Procedure:  OrchestratorListUserRolesProcedure,
+		}
+	})
+	orchestratorRemoveUserSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("RemoveUser"),
+			Procedure:  OrchestratorRemoveUserProcedure,
+		}
+	})
+	orchestratorCreateControlInScopeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("CreateControlInScope"),
+			Procedure:  OrchestratorCreateControlInScopeProcedure,
+		}
+	})
+	orchestratorGetControlInScopeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("GetControlInScope"),
+			Procedure:  OrchestratorGetControlInScopeProcedure,
+		}
+	})
+	orchestratorListControlsInScopeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListControlsInScope"),
+			Procedure:  OrchestratorListControlsInScopeProcedure,
+		}
+	})
+	orchestratorUpdateControlInScopeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("UpdateControlInScope"),
+			Procedure:  OrchestratorUpdateControlInScopeProcedure,
+		}
+	})
+	orchestratorTransitionControlInScopeStateSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("TransitionControlInScopeState"),
+			Procedure:  OrchestratorTransitionControlInScopeStateProcedure,
+		}
+	})
+	orchestratorRemoveControlInScopeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("RemoveControlInScope"),
+			Procedure:  OrchestratorRemoveControlInScopeProcedure,
+		}
+	})
+	orchestratorListAuditTrailEventsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods().ByName("ListAuditTrailEvents"),
+			Procedure:  OrchestratorListAuditTrailEventsProcedure,
+		}
+	})
 )
 
 // OrchestratorClient is a client for the confirmate.orchestrator.v1.Orchestrator service.
 type OrchestratorClient interface {
 	// Registers the passed assessment tool
-	RegisterAssessmentTool(context.Context, *connect.Request[orchestrator.RegisterAssessmentToolRequest]) (*connect.Response[orchestrator.AssessmentTool], error)
+	RegisterAssessmentTool(context.Context, *orchestrator.RegisterAssessmentToolRequest) (*orchestrator.AssessmentTool, error)
 	// Lists all assessment tools assessing evidences for the metric given by the
 	// passed metric id
-	ListAssessmentTools(context.Context, *connect.Request[orchestrator.ListAssessmentToolsRequest]) (*connect.Response[orchestrator.ListAssessmentToolsResponse], error)
+	ListAssessmentTools(context.Context, *orchestrator.ListAssessmentToolsRequest) (*orchestrator.ListAssessmentToolsResponse, error)
 	// Returns assessment tool given by the passed tool id
-	GetAssessmentTool(context.Context, *connect.Request[orchestrator.GetAssessmentToolRequest]) (*connect.Response[orchestrator.AssessmentTool], error)
+	GetAssessmentTool(context.Context, *orchestrator.GetAssessmentToolRequest) (*orchestrator.AssessmentTool, error)
 	// Updates the assessment tool given by the passed id
-	UpdateAssessmentTool(context.Context, *connect.Request[orchestrator.UpdateAssessmentToolRequest]) (*connect.Response[orchestrator.AssessmentTool], error)
+	UpdateAssessmentTool(context.Context, *orchestrator.UpdateAssessmentToolRequest) (*orchestrator.AssessmentTool, error)
 	// Remove assessment tool with passed id from the list of active assessment
 	// tools
-	DeregisterAssessmentTool(context.Context, *connect.Request[orchestrator.DeregisterAssessmentToolRequest]) (*connect.Response[emptypb.Empty], error)
+	DeregisterAssessmentTool(context.Context, *orchestrator.DeregisterAssessmentToolRequest) (*emptypb.Empty, error)
 	// Stores the assessment result provided by an assessment tool
-	StoreAssessmentResult(context.Context, *connect.Request[orchestrator.StoreAssessmentResultRequest]) (*connect.Response[orchestrator.StoreAssessmentResultResponse], error)
+	StoreAssessmentResult(context.Context, *orchestrator.StoreAssessmentResultRequest) (*orchestrator.StoreAssessmentResultResponse, error)
 	// Stores stream of assessment results provided by an assessment tool and
 	// returns a response stream. Part of the public API, not exposed as REST.
-	StoreAssessmentResults(context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
+	StoreAssessmentResults(context.Context) (OrchestratorStoreAssessmentResultsClientStream, error)
 	// Get an assessment result by ID
-	GetAssessmentResult(context.Context, *connect.Request[orchestrator.GetAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error)
+	GetAssessmentResult(context.Context, *orchestrator.GetAssessmentResultRequest) (*assessment.AssessmentResult, error)
 	// Store the evaluation result provided by the evaluation component.″
-	StoreEvaluationResult(context.Context, *connect.Request[orchestrator.StoreEvaluationResultRequest]) (*connect.Response[evaluation.EvaluationResult], error)
+	StoreEvaluationResult(context.Context, *orchestrator.StoreEvaluationResultRequest) (*evaluation.EvaluationResult, error)
 	// List all assessment results. Part of the public API, also exposed as REST.
-	ListAssessmentResults(context.Context, *connect.Request[orchestrator.ListAssessmentResultsRequest]) (*connect.Response[orchestrator.ListAssessmentResultsResponse], error)
+	ListAssessmentResults(context.Context, *orchestrator.ListAssessmentResultsRequest) (*orchestrator.ListAssessmentResultsResponse, error)
 	// List all evaluation results that the user can access. It can further be
 	// restricted by various filtering options. Part of the public API, also
 	// exposed as REST.
-	ListEvaluationResults(context.Context, *connect.Request[orchestrator.ListEvaluationResultsRequest]) (*connect.Response[orchestrator.ListEvaluationResultsResponse], error)
+	ListEvaluationResults(context.Context, *orchestrator.ListEvaluationResultsRequest) (*orchestrator.ListEvaluationResultsResponse, error)
 	// Creates a new metric
-	CreateMetric(context.Context, *connect.Request[orchestrator.CreateMetricRequest]) (*connect.Response[assessment.Metric], error)
+	CreateMetric(context.Context, *orchestrator.CreateMetricRequest) (*assessment.Metric, error)
 	// Updates an existing metric
-	UpdateMetric(context.Context, *connect.Request[orchestrator.UpdateMetricRequest]) (*connect.Response[assessment.Metric], error)
+	UpdateMetric(context.Context, *orchestrator.UpdateMetricRequest) (*assessment.Metric, error)
 	// Returns the metric with the passed metric id
-	GetMetric(context.Context, *connect.Request[orchestrator.GetMetricRequest]) (*connect.Response[assessment.Metric], error)
+	GetMetric(context.Context, *orchestrator.GetMetricRequest) (*assessment.Metric, error)
 	// List all metrics provided by the metric catalog
-	ListMetrics(context.Context, *connect.Request[orchestrator.ListMetricsRequest]) (*connect.Response[orchestrator.ListMetricsResponse], error)
+	ListMetrics(context.Context, *orchestrator.ListMetricsRequest) (*orchestrator.ListMetricsResponse, error)
 	// Removes a new metric
-	RemoveMetric(context.Context, *connect.Request[orchestrator.RemoveMetricRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveMetric(context.Context, *orchestrator.RemoveMetricRequest) (*emptypb.Empty, error)
 	// Registers a new target of evaluation
-	CreateTargetOfEvaluation(context.Context, *connect.Request[orchestrator.CreateTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error)
+	CreateTargetOfEvaluation(context.Context, *orchestrator.CreateTargetOfEvaluationRequest) (*orchestrator.TargetOfEvaluation, error)
 	// Registers a new target of evaluation
-	UpdateTargetOfEvaluation(context.Context, *connect.Request[orchestrator.UpdateTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error)
+	UpdateTargetOfEvaluation(context.Context, *orchestrator.UpdateTargetOfEvaluationRequest) (*orchestrator.TargetOfEvaluation, error)
 	// Retrieves a target of evaluation
-	GetTargetOfEvaluation(context.Context, *connect.Request[orchestrator.GetTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error)
+	GetTargetOfEvaluation(context.Context, *orchestrator.GetTargetOfEvaluationRequest) (*orchestrator.TargetOfEvaluation, error)
 	// Lists all targets of evaluations
-	ListTargetsOfEvaluation(context.Context, *connect.Request[orchestrator.ListTargetsOfEvaluationRequest]) (*connect.Response[orchestrator.ListTargetsOfEvaluationResponse], error)
+	ListTargetsOfEvaluation(context.Context, *orchestrator.ListTargetsOfEvaluationRequest) (*orchestrator.ListTargetsOfEvaluationResponse, error)
 	// Removes a target of evaluation
-	RemoveTargetOfEvaluation(context.Context, *connect.Request[orchestrator.RemoveTargetOfEvaluationRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveTargetOfEvaluation(context.Context, *orchestrator.RemoveTargetOfEvaluationRequest) (*emptypb.Empty, error)
 	// Retrieves target of evaluation statistics
-	GetTargetOfEvaluationStatistics(context.Context, *connect.Request[orchestrator.GetTargetOfEvaluationStatisticsRequest]) (*connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], error)
+	GetTargetOfEvaluationStatistics(context.Context, *orchestrator.GetTargetOfEvaluationStatisticsRequest) (*orchestrator.GetTargetOfEvaluationStatisticsResponse, error)
 	// Updates a metric configuration (target value and operator) for a specific
 	// target of evaluation and metric ID
-	UpdateMetricConfiguration(context.Context, *connect.Request[orchestrator.UpdateMetricConfigurationRequest]) (*connect.Response[assessment.MetricConfiguration], error)
+	UpdateMetricConfiguration(context.Context, *orchestrator.UpdateMetricConfigurationRequest) (*assessment.MetricConfiguration, error)
 	// Retrieves a metric configuration (target value and operator) for a specific
 	// target of evaluation and metric ID.
-	GetMetricConfiguration(context.Context, *connect.Request[orchestrator.GetMetricConfigurationRequest]) (*connect.Response[assessment.MetricConfiguration], error)
+	GetMetricConfiguration(context.Context, *orchestrator.GetMetricConfigurationRequest) (*assessment.MetricConfiguration, error)
 	// Lists all metric configurations (target value and operator) for a
 	// specific target of evaluation ID
-	ListMetricConfigurations(context.Context, *connect.Request[orchestrator.ListMetricConfigurationRequest]) (*connect.Response[orchestrator.ListMetricConfigurationResponse], error)
+	ListMetricConfigurations(context.Context, *orchestrator.ListMetricConfigurationRequest) (*orchestrator.ListMetricConfigurationResponse, error)
 	// Updates an existing metric implementation
-	UpdateMetricImplementation(context.Context, *connect.Request[orchestrator.UpdateMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error)
+	UpdateMetricImplementation(context.Context, *orchestrator.UpdateMetricImplementationRequest) (*assessment.MetricImplementation, error)
 	// Returns the metric implementation of the passed metric id
-	GetMetricImplementation(context.Context, *connect.Request[orchestrator.GetMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error)
+	GetMetricImplementation(context.Context, *orchestrator.GetMetricImplementationRequest) (*assessment.MetricImplementation, error)
 	// Subscribes to change events in the orchestrator
-	Subscribe(context.Context, *connect.Request[orchestrator.SubscribeRequest]) (*connect.ServerStreamForClient[orchestrator.ChangeEvent], error)
+	Subscribe(context.Context, *orchestrator.SubscribeRequest) (OrchestratorSubscribeClientStream, error)
 	// Creates a new certificate
-	CreateCertificate(context.Context, *connect.Request[orchestrator.CreateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
+	CreateCertificate(context.Context, *orchestrator.CreateCertificateRequest) (*orchestrator.Certificate, error)
 	// Retrieves a certificate
-	GetCertificate(context.Context, *connect.Request[orchestrator.GetCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
+	GetCertificate(context.Context, *orchestrator.GetCertificateRequest) (*orchestrator.Certificate, error)
 	// Lists all target certificates
-	ListCertificates(context.Context, *connect.Request[orchestrator.ListCertificatesRequest]) (*connect.Response[orchestrator.ListCertificatesResponse], error)
+	ListCertificates(context.Context, *orchestrator.ListCertificatesRequest) (*orchestrator.ListCertificatesResponse, error)
 	// Lists all target certificates without state history
-	ListPublicCertificates(context.Context, *connect.Request[orchestrator.ListPublicCertificatesRequest]) (*connect.Response[orchestrator.ListPublicCertificatesResponse], error)
+	ListPublicCertificates(context.Context, *orchestrator.ListPublicCertificatesRequest) (*orchestrator.ListPublicCertificatesResponse, error)
 	// Updates an existing certificate
-	UpdateCertificate(context.Context, *connect.Request[orchestrator.UpdateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
+	UpdateCertificate(context.Context, *orchestrator.UpdateCertificateRequest) (*orchestrator.Certificate, error)
 	// Removes a certificate
-	RemoveCertificate(context.Context, *connect.Request[orchestrator.RemoveCertificateRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveCertificate(context.Context, *orchestrator.RemoveCertificateRequest) (*emptypb.Empty, error)
 	// Re-evaluates the certificate lifecycle state for the given audit scope
 	// based on its current evaluation results. This is called by the
 	// evaluation component once a full catalog evaluation run has finished.
-	UpdateCertificateLifecycle(context.Context, *connect.Request[orchestrator.UpdateCertificateLifecycleRequest]) (*connect.Response[emptypb.Empty], error)
+	UpdateCertificateLifecycle(context.Context, *orchestrator.UpdateCertificateLifecycleRequest) (*emptypb.Empty, error)
 	// Creates a new security controls catalog
-	CreateCatalog(context.Context, *connect.Request[orchestrator.CreateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
+	CreateCatalog(context.Context, *orchestrator.CreateCatalogRequest) (*orchestrator.Catalog, error)
 	// Lists all security controls catalogs. Each catalog includes a list of its
 	// categories but no additional sub-resources.
-	ListCatalogs(context.Context, *connect.Request[orchestrator.ListCatalogsRequest]) (*connect.Response[orchestrator.ListCatalogsResponse], error)
+	ListCatalogs(context.Context, *orchestrator.ListCatalogsRequest) (*orchestrator.ListCatalogsResponse, error)
 	// Retrieves a specific catalog by it's ID. The catalog includes a list of all
 	// of it categories as well as the first level of controls in each category.
-	GetCatalog(context.Context, *connect.Request[orchestrator.GetCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
+	GetCatalog(context.Context, *orchestrator.GetCatalogRequest) (*orchestrator.Catalog, error)
 	// Removes a catalog
-	RemoveCatalog(context.Context, *connect.Request[orchestrator.RemoveCatalogRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveCatalog(context.Context, *orchestrator.RemoveCatalogRequest) (*emptypb.Empty, error)
 	// Updates an existing certificate
-	UpdateCatalog(context.Context, *connect.Request[orchestrator.UpdateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
+	UpdateCatalog(context.Context, *orchestrator.UpdateCatalogRequest) (*orchestrator.Catalog, error)
 	// Retrieves a category of a catalog specified by the catalog ID and the
 	// category name. It includes the first level of controls within each
 	// category.
-	GetCategory(context.Context, *connect.Request[orchestrator.GetCategoryRequest]) (*connect.Response[orchestrator.Category], error)
+	GetCategory(context.Context, *orchestrator.GetCategoryRequest) (*orchestrator.Category, error)
 	// If no additional parameters are specified, this lists all controls. If a
 	// catalog ID and a category name is specified, then only controls containing
 	// in this category are returned.
-	ListControls(context.Context, *connect.Request[orchestrator.ListControlsRequest]) (*connect.Response[orchestrator.ListControlsResponse], error)
+	ListControls(context.Context, *orchestrator.ListControlsRequest) (*orchestrator.ListControlsResponse, error)
 	// Retrieves a control by its unique control ID.
 	// If present, it also includes a list of sub-controls if present or a list of
 	// metrics if no sub-controls but metrics are present.
-	GetControl(context.Context, *connect.Request[orchestrator.GetControlRequest]) (*connect.Response[orchestrator.Control], error)
+	GetControl(context.Context, *orchestrator.GetControlRequest) (*orchestrator.Control, error)
 	// Creates a new Audit Scope
-	CreateAuditScope(context.Context, *connect.Request[orchestrator.CreateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
+	CreateAuditScope(context.Context, *orchestrator.CreateAuditScopeRequest) (*orchestrator.AuditScope, error)
 	// Retrieves an Audit Scope
-	GetAuditScope(context.Context, *connect.Request[orchestrator.GetAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
+	GetAuditScope(context.Context, *orchestrator.GetAuditScopeRequest) (*orchestrator.AuditScope, error)
 	// Retrieves aggregated statistics for an audit scope: the number of top-level controls in
 	// scope grouped by workflow (implementation) state, and the number of controls grouped by
 	// their latest compliance (evaluation) status.
-	GetAuditScopeStatistics(context.Context, *connect.Request[orchestrator.GetAuditScopeStatisticsRequest]) (*connect.Response[orchestrator.GetAuditScopeStatisticsResponse], error)
+	GetAuditScopeStatistics(context.Context, *orchestrator.GetAuditScopeStatisticsRequest) (*orchestrator.GetAuditScopeStatisticsResponse, error)
 	// Lists all Audit Scopes
-	ListAuditScopes(context.Context, *connect.Request[orchestrator.ListAuditScopesRequest]) (*connect.Response[orchestrator.ListAuditScopesResponse], error)
+	ListAuditScopes(context.Context, *orchestrator.ListAuditScopesRequest) (*orchestrator.ListAuditScopesResponse, error)
 	// Updates an existing Audit Scope
-	UpdateAuditScope(context.Context, *connect.Request[orchestrator.UpdateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
+	UpdateAuditScope(context.Context, *orchestrator.UpdateAuditScopeRequest) (*orchestrator.AuditScope, error)
 	// Removes an Audit Scope
-	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveAuditScope(context.Context, *orchestrator.RemoveAuditScopeRequest) (*emptypb.Empty, error)
 	// Exports a compliance report for an Audit Scope as an XLSX spreadsheet or PDF, returned as a
 	// raw HTTP response (correct Content-Type, Content-Disposition with the suggested filename)
 	// rather than wrapped in a JSON envelope, so any HTTP client can download it by simply saving
 	// the response body.
-	ExportAuditScopeReport(context.Context, *connect.Request[orchestrator.ExportAuditScopeReportRequest]) (*connect.Response[httpbody.HttpBody], error)
+	ExportAuditScopeReport(context.Context, *orchestrator.ExportAuditScopeReportRequest) (*httpbody.HttpBody, error)
 	// Get Runtime Information
-	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
+	GetRuntimeInfo(context.Context, *common.GetRuntimeInfoRequest) (*common.Runtime, error)
 	// Upserts a specific user permission identified by object and user.
-	UpsertUserPermission(context.Context, *connect.Request[orchestrator.UpsertUserPermissionRequest]) (*connect.Response[orchestrator.UpsertUserPermissionResponse], error)
+	UpsertUserPermission(context.Context, *orchestrator.UpsertUserPermissionRequest) (*orchestrator.UpsertUserPermissionResponse, error)
 	// Removes a specific user permission identified by object ID, object type and user ID.
-	RemoveUserPermission(context.Context, *connect.Request[orchestrator.RemoveUserPermissionRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveUserPermission(context.Context, *orchestrator.RemoveUserPermissionRequest) (*emptypb.Empty, error)
 	// Returns information about the currently authenticated user
-	GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error)
+	GetCurrentUser(context.Context, *orchestrator.GetCurrentUserRequest) (*orchestrator.User, error)
 	// Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
-	GetUser(context.Context, *connect.Request[orchestrator.GetUserRequest]) (*connect.Response[orchestrator.User], error)
+	GetUser(context.Context, *orchestrator.GetUserRequest) (*orchestrator.User, error)
 	// Lists users with optional filtering
-	ListUsers(context.Context, *connect.Request[orchestrator.ListUsersRequest]) (*connect.Response[orchestrator.ListUsersResponse], error)
+	ListUsers(context.Context, *orchestrator.ListUsersRequest) (*orchestrator.ListUsersResponse, error)
 	// Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
-	ListUserPermissions(context.Context, *connect.Request[orchestrator.ListUserPermissionsRequest]) (*connect.Response[orchestrator.ListUserPermissionsResponse], error)
+	ListUserPermissions(context.Context, *orchestrator.ListUserPermissionsRequest) (*orchestrator.ListUserPermissionsResponse, error)
 	// Lists all predefined roles in the system.
-	ListUserRoles(context.Context, *connect.Request[orchestrator.ListUserRolesRequest]) (*connect.Response[orchestrator.ListUserRolesResponse], error)
+	ListUserRoles(context.Context, *orchestrator.ListUserRolesRequest) (*orchestrator.ListUserRolesResponse, error)
 	// Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
-	RemoveUser(context.Context, *connect.Request[orchestrator.RemoveUserRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveUser(context.Context, *orchestrator.RemoveUserRequest) (*emptypb.Empty, error)
 	// Manually brings a control into scope within an audit scope, creating a ControlInScope record.
 	// Note: controls are also brought in scope automatically when an audit scope is created.
-	CreateControlInScope(context.Context, *connect.Request[orchestrator.CreateControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error)
+	CreateControlInScope(context.Context, *orchestrator.CreateControlInScopeRequest) (*orchestrator.ControlInScope, error)
 	// Retrieves a ControlInScope record by ID.
-	GetControlInScope(context.Context, *connect.Request[orchestrator.GetControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error)
+	GetControlInScope(context.Context, *orchestrator.GetControlInScopeRequest) (*orchestrator.ControlInScope, error)
 	// Lists controls in scope with optional filtering by audit scope, state, or assignee.
-	ListControlsInScope(context.Context, *connect.Request[orchestrator.ListControlsInScopeRequest]) (*connect.Response[orchestrator.ListControlsInScopeResponse], error)
+	ListControlsInScope(context.Context, *orchestrator.ListControlsInScopeRequest) (*orchestrator.ListControlsInScopeResponse, error)
 	// Updates a ControlInScope record. Only assignee_id and implementation_details can be updated;
 	// use TransitionControlInScopeState to change the implementation state.
-	UpdateControlInScope(context.Context, *connect.Request[orchestrator.UpdateControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error)
+	UpdateControlInScope(context.Context, *orchestrator.UpdateControlInScopeRequest) (*orchestrator.ControlInScope, error)
 	// Transitions a ControlInScope to a new implementation state, enforcing the state machine and
 	// recording the change as an AuditTrailEvent.
-	TransitionControlInScopeState(context.Context, *connect.Request[orchestrator.TransitionControlInScopeStateRequest]) (*connect.Response[orchestrator.ControlInScope], error)
+	TransitionControlInScopeState(context.Context, *orchestrator.TransitionControlInScopeStateRequest) (*orchestrator.ControlInScope, error)
 	// Manually removes a control from scope within an audit scope, creating an AuditTrailEvent.
-	RemoveControlInScope(context.Context, *connect.Request[orchestrator.RemoveControlInScopeRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveControlInScope(context.Context, *orchestrator.RemoveControlInScopeRequest) (*emptypb.Empty, error)
 	// Lists audit trail events, optionally filtered by audit scope.
-	ListAuditTrailEvents(context.Context, *connect.Request[orchestrator.ListAuditTrailEventsRequest]) (*connect.Response[orchestrator.ListAuditTrailEventsResponse], error)
+	ListAuditTrailEvents(context.Context, *orchestrator.ListAuditTrailEventsRequest) (*orchestrator.ListAuditTrailEventsResponse, error)
 }
 
 // NewOrchestratorClient constructs a client for the confirmate.orchestrator.v1.Orchestrator
-// service. By default, it uses the Connect protocol with the binary Protobuf Codec, asks for
-// gzipped responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply
-// the connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) OrchestratorClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	orchestratorMethods := orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods()
-	return &orchestratorClient{
-		registerAssessmentTool: connect.NewClient[orchestrator.RegisterAssessmentToolRequest, orchestrator.AssessmentTool](
-			httpClient,
-			baseURL+OrchestratorRegisterAssessmentToolProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("RegisterAssessmentTool")),
-			connect.WithClientOptions(opts...),
-		),
-		listAssessmentTools: connect.NewClient[orchestrator.ListAssessmentToolsRequest, orchestrator.ListAssessmentToolsResponse](
-			httpClient,
-			baseURL+OrchestratorListAssessmentToolsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListAssessmentTools")),
-			connect.WithClientOptions(opts...),
-		),
-		getAssessmentTool: connect.NewClient[orchestrator.GetAssessmentToolRequest, orchestrator.AssessmentTool](
-			httpClient,
-			baseURL+OrchestratorGetAssessmentToolProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetAssessmentTool")),
-			connect.WithClientOptions(opts...),
-		),
-		updateAssessmentTool: connect.NewClient[orchestrator.UpdateAssessmentToolRequest, orchestrator.AssessmentTool](
-			httpClient,
-			baseURL+OrchestratorUpdateAssessmentToolProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UpdateAssessmentTool")),
-			connect.WithClientOptions(opts...),
-		),
-		deregisterAssessmentTool: connect.NewClient[orchestrator.DeregisterAssessmentToolRequest, emptypb.Empty](
-			httpClient,
-			baseURL+OrchestratorDeregisterAssessmentToolProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("DeregisterAssessmentTool")),
-			connect.WithClientOptions(opts...),
-		),
-		storeAssessmentResult: connect.NewClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultResponse](
-			httpClient,
-			baseURL+OrchestratorStoreAssessmentResultProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("StoreAssessmentResult")),
-			connect.WithClientOptions(opts...),
-		),
-		storeAssessmentResults: connect.NewClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse](
-			httpClient,
-			baseURL+OrchestratorStoreAssessmentResultsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("StoreAssessmentResults")),
-			connect.WithClientOptions(opts...),
-		),
-		getAssessmentResult: connect.NewClient[orchestrator.GetAssessmentResultRequest, assessment.AssessmentResult](
-			httpClient,
-			baseURL+OrchestratorGetAssessmentResultProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetAssessmentResult")),
-			connect.WithClientOptions(opts...),
-		),
-		storeEvaluationResult: connect.NewClient[orchestrator.StoreEvaluationResultRequest, evaluation.EvaluationResult](
-			httpClient,
-			baseURL+OrchestratorStoreEvaluationResultProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("StoreEvaluationResult")),
-			connect.WithClientOptions(opts...),
-		),
-		listAssessmentResults: connect.NewClient[orchestrator.ListAssessmentResultsRequest, orchestrator.ListAssessmentResultsResponse](
-			httpClient,
-			baseURL+OrchestratorListAssessmentResultsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListAssessmentResults")),
-			connect.WithClientOptions(opts...),
-		),
-		listEvaluationResults: connect.NewClient[orchestrator.ListEvaluationResultsRequest, orchestrator.ListEvaluationResultsResponse](
-			httpClient,
-			baseURL+OrchestratorListEvaluationResultsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListEvaluationResults")),
-			connect.WithClientOptions(opts...),
-		),
-		createMetric: connect.NewClient[orchestrator.CreateMetricRequest, assessment.Metric](
-			httpClient,
-			baseURL+OrchestratorCreateMetricProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("CreateMetric")),
-			connect.WithClientOptions(opts...),
-		),
-		updateMetric: connect.NewClient[orchestrator.UpdateMetricRequest, assessment.Metric](
-			httpClient,
-			baseURL+OrchestratorUpdateMetricProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UpdateMetric")),
-			connect.WithClientOptions(opts...),
-		),
-		getMetric: connect.NewClient[orchestrator.GetMetricRequest, assessment.Metric](
-			httpClient,
-			baseURL+OrchestratorGetMetricProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetMetric")),
-			connect.WithClientOptions(opts...),
-		),
-		listMetrics: connect.NewClient[orchestrator.ListMetricsRequest, orchestrator.ListMetricsResponse](
-			httpClient,
-			baseURL+OrchestratorListMetricsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListMetrics")),
-			connect.WithClientOptions(opts...),
-		),
-		removeMetric: connect.NewClient[orchestrator.RemoveMetricRequest, emptypb.Empty](
-			httpClient,
-			baseURL+OrchestratorRemoveMetricProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("RemoveMetric")),
-			connect.WithClientOptions(opts...),
-		),
-		createTargetOfEvaluation: connect.NewClient[orchestrator.CreateTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation](
-			httpClient,
-			baseURL+OrchestratorCreateTargetOfEvaluationProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("CreateTargetOfEvaluation")),
-			connect.WithClientOptions(opts...),
-		),
-		updateTargetOfEvaluation: connect.NewClient[orchestrator.UpdateTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation](
-			httpClient,
-			baseURL+OrchestratorUpdateTargetOfEvaluationProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UpdateTargetOfEvaluation")),
-			connect.WithClientOptions(opts...),
-		),
-		getTargetOfEvaluation: connect.NewClient[orchestrator.GetTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation](
-			httpClient,
-			baseURL+OrchestratorGetTargetOfEvaluationProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetTargetOfEvaluation")),
-			connect.WithClientOptions(opts...),
-		),
-		listTargetsOfEvaluation: connect.NewClient[orchestrator.ListTargetsOfEvaluationRequest, orchestrator.ListTargetsOfEvaluationResponse](
-			httpClient,
-			baseURL+OrchestratorListTargetsOfEvaluationProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListTargetsOfEvaluation")),
-			connect.WithClientOptions(opts...),
-		),
-		removeTargetOfEvaluation: connect.NewClient[orchestrator.RemoveTargetOfEvaluationRequest, emptypb.Empty](
-			httpClient,
-			baseURL+OrchestratorRemoveTargetOfEvaluationProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("RemoveTargetOfEvaluation")),
-			connect.WithClientOptions(opts...),
-		),
-		getTargetOfEvaluationStatistics: connect.NewClient[orchestrator.GetTargetOfEvaluationStatisticsRequest, orchestrator.GetTargetOfEvaluationStatisticsResponse](
-			httpClient,
-			baseURL+OrchestratorGetTargetOfEvaluationStatisticsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetTargetOfEvaluationStatistics")),
-			connect.WithClientOptions(opts...),
-		),
-		updateMetricConfiguration: connect.NewClient[orchestrator.UpdateMetricConfigurationRequest, assessment.MetricConfiguration](
-			httpClient,
-			baseURL+OrchestratorUpdateMetricConfigurationProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UpdateMetricConfiguration")),
-			connect.WithClientOptions(opts...),
-		),
-		getMetricConfiguration: connect.NewClient[orchestrator.GetMetricConfigurationRequest, assessment.MetricConfiguration](
-			httpClient,
-			baseURL+OrchestratorGetMetricConfigurationProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetMetricConfiguration")),
-			connect.WithClientOptions(opts...),
-		),
-		listMetricConfigurations: connect.NewClient[orchestrator.ListMetricConfigurationRequest, orchestrator.ListMetricConfigurationResponse](
-			httpClient,
-			baseURL+OrchestratorListMetricConfigurationsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListMetricConfigurations")),
-			connect.WithClientOptions(opts...),
-		),
-		updateMetricImplementation: connect.NewClient[orchestrator.UpdateMetricImplementationRequest, assessment.MetricImplementation](
-			httpClient,
-			baseURL+OrchestratorUpdateMetricImplementationProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UpdateMetricImplementation")),
-			connect.WithClientOptions(opts...),
-		),
-		getMetricImplementation: connect.NewClient[orchestrator.GetMetricImplementationRequest, assessment.MetricImplementation](
-			httpClient,
-			baseURL+OrchestratorGetMetricImplementationProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetMetricImplementation")),
-			connect.WithClientOptions(opts...),
-		),
-		subscribe: connect.NewClient[orchestrator.SubscribeRequest, orchestrator.ChangeEvent](
-			httpClient,
-			baseURL+OrchestratorSubscribeProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("Subscribe")),
-			connect.WithClientOptions(opts...),
-		),
-		createCertificate: connect.NewClient[orchestrator.CreateCertificateRequest, orchestrator.Certificate](
-			httpClient,
-			baseURL+OrchestratorCreateCertificateProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("CreateCertificate")),
-			connect.WithClientOptions(opts...),
-		),
-		getCertificate: connect.NewClient[orchestrator.GetCertificateRequest, orchestrator.Certificate](
-			httpClient,
-			baseURL+OrchestratorGetCertificateProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetCertificate")),
-			connect.WithClientOptions(opts...),
-		),
-		listCertificates: connect.NewClient[orchestrator.ListCertificatesRequest, orchestrator.ListCertificatesResponse](
-			httpClient,
-			baseURL+OrchestratorListCertificatesProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListCertificates")),
-			connect.WithClientOptions(opts...),
-		),
-		listPublicCertificates: connect.NewClient[orchestrator.ListPublicCertificatesRequest, orchestrator.ListPublicCertificatesResponse](
-			httpClient,
-			baseURL+OrchestratorListPublicCertificatesProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListPublicCertificates")),
-			connect.WithClientOptions(opts...),
-		),
-		updateCertificate: connect.NewClient[orchestrator.UpdateCertificateRequest, orchestrator.Certificate](
-			httpClient,
-			baseURL+OrchestratorUpdateCertificateProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UpdateCertificate")),
-			connect.WithClientOptions(opts...),
-		),
-		removeCertificate: connect.NewClient[orchestrator.RemoveCertificateRequest, emptypb.Empty](
-			httpClient,
-			baseURL+OrchestratorRemoveCertificateProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("RemoveCertificate")),
-			connect.WithClientOptions(opts...),
-		),
-		updateCertificateLifecycle: connect.NewClient[orchestrator.UpdateCertificateLifecycleRequest, emptypb.Empty](
-			httpClient,
-			baseURL+OrchestratorUpdateCertificateLifecycleProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UpdateCertificateLifecycle")),
-			connect.WithClientOptions(opts...),
-		),
-		createCatalog: connect.NewClient[orchestrator.CreateCatalogRequest, orchestrator.Catalog](
-			httpClient,
-			baseURL+OrchestratorCreateCatalogProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("CreateCatalog")),
-			connect.WithClientOptions(opts...),
-		),
-		listCatalogs: connect.NewClient[orchestrator.ListCatalogsRequest, orchestrator.ListCatalogsResponse](
-			httpClient,
-			baseURL+OrchestratorListCatalogsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListCatalogs")),
-			connect.WithClientOptions(opts...),
-		),
-		getCatalog: connect.NewClient[orchestrator.GetCatalogRequest, orchestrator.Catalog](
-			httpClient,
-			baseURL+OrchestratorGetCatalogProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetCatalog")),
-			connect.WithClientOptions(opts...),
-		),
-		removeCatalog: connect.NewClient[orchestrator.RemoveCatalogRequest, emptypb.Empty](
-			httpClient,
-			baseURL+OrchestratorRemoveCatalogProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("RemoveCatalog")),
-			connect.WithClientOptions(opts...),
-		),
-		updateCatalog: connect.NewClient[orchestrator.UpdateCatalogRequest, orchestrator.Catalog](
-			httpClient,
-			baseURL+OrchestratorUpdateCatalogProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UpdateCatalog")),
-			connect.WithClientOptions(opts...),
-		),
-		getCategory: connect.NewClient[orchestrator.GetCategoryRequest, orchestrator.Category](
-			httpClient,
-			baseURL+OrchestratorGetCategoryProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetCategory")),
-			connect.WithClientOptions(opts...),
-		),
-		listControls: connect.NewClient[orchestrator.ListControlsRequest, orchestrator.ListControlsResponse](
-			httpClient,
-			baseURL+OrchestratorListControlsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListControls")),
-			connect.WithClientOptions(opts...),
-		),
-		getControl: connect.NewClient[orchestrator.GetControlRequest, orchestrator.Control](
-			httpClient,
-			baseURL+OrchestratorGetControlProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetControl")),
-			connect.WithClientOptions(opts...),
-		),
-		createAuditScope: connect.NewClient[orchestrator.CreateAuditScopeRequest, orchestrator.AuditScope](
-			httpClient,
-			baseURL+OrchestratorCreateAuditScopeProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("CreateAuditScope")),
-			connect.WithClientOptions(opts...),
-		),
-		getAuditScope: connect.NewClient[orchestrator.GetAuditScopeRequest, orchestrator.AuditScope](
-			httpClient,
-			baseURL+OrchestratorGetAuditScopeProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetAuditScope")),
-			connect.WithClientOptions(opts...),
-		),
-		getAuditScopeStatistics: connect.NewClient[orchestrator.GetAuditScopeStatisticsRequest, orchestrator.GetAuditScopeStatisticsResponse](
-			httpClient,
-			baseURL+OrchestratorGetAuditScopeStatisticsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetAuditScopeStatistics")),
-			connect.WithClientOptions(opts...),
-		),
-		listAuditScopes: connect.NewClient[orchestrator.ListAuditScopesRequest, orchestrator.ListAuditScopesResponse](
-			httpClient,
-			baseURL+OrchestratorListAuditScopesProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListAuditScopes")),
-			connect.WithClientOptions(opts...),
-		),
-		updateAuditScope: connect.NewClient[orchestrator.UpdateAuditScopeRequest, orchestrator.AuditScope](
-			httpClient,
-			baseURL+OrchestratorUpdateAuditScopeProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UpdateAuditScope")),
-			connect.WithClientOptions(opts...),
-		),
-		removeAuditScope: connect.NewClient[orchestrator.RemoveAuditScopeRequest, emptypb.Empty](
-			httpClient,
-			baseURL+OrchestratorRemoveAuditScopeProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("RemoveAuditScope")),
-			connect.WithClientOptions(opts...),
-		),
-		exportAuditScopeReport: connect.NewClient[orchestrator.ExportAuditScopeReportRequest, httpbody.HttpBody](
-			httpClient,
-			baseURL+OrchestratorExportAuditScopeReportProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ExportAuditScopeReport")),
-			connect.WithClientOptions(opts...),
-		),
-		getRuntimeInfo: connect.NewClient[common.GetRuntimeInfoRequest, common.Runtime](
-			httpClient,
-			baseURL+OrchestratorGetRuntimeInfoProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetRuntimeInfo")),
-			connect.WithClientOptions(opts...),
-		),
-		upsertUserPermission: connect.NewClient[orchestrator.UpsertUserPermissionRequest, orchestrator.UpsertUserPermissionResponse](
-			httpClient,
-			baseURL+OrchestratorUpsertUserPermissionProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UpsertUserPermission")),
-			connect.WithClientOptions(opts...),
-		),
-		removeUserPermission: connect.NewClient[orchestrator.RemoveUserPermissionRequest, emptypb.Empty](
-			httpClient,
-			baseURL+OrchestratorRemoveUserPermissionProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("RemoveUserPermission")),
-			connect.WithClientOptions(opts...),
-		),
-		getCurrentUser: connect.NewClient[orchestrator.GetCurrentUserRequest, orchestrator.User](
-			httpClient,
-			baseURL+OrchestratorGetCurrentUserProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetCurrentUser")),
-			connect.WithClientOptions(opts...),
-		),
-		getUser: connect.NewClient[orchestrator.GetUserRequest, orchestrator.User](
-			httpClient,
-			baseURL+OrchestratorGetUserProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetUser")),
-			connect.WithClientOptions(opts...),
-		),
-		listUsers: connect.NewClient[orchestrator.ListUsersRequest, orchestrator.ListUsersResponse](
-			httpClient,
-			baseURL+OrchestratorListUsersProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListUsers")),
-			connect.WithClientOptions(opts...),
-		),
-		listUserPermissions: connect.NewClient[orchestrator.ListUserPermissionsRequest, orchestrator.ListUserPermissionsResponse](
-			httpClient,
-			baseURL+OrchestratorListUserPermissionsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListUserPermissions")),
-			connect.WithClientOptions(opts...),
-		),
-		listUserRoles: connect.NewClient[orchestrator.ListUserRolesRequest, orchestrator.ListUserRolesResponse](
-			httpClient,
-			baseURL+OrchestratorListUserRolesProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListUserRoles")),
-			connect.WithClientOptions(opts...),
-		),
-		removeUser: connect.NewClient[orchestrator.RemoveUserRequest, emptypb.Empty](
-			httpClient,
-			baseURL+OrchestratorRemoveUserProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("RemoveUser")),
-			connect.WithClientOptions(opts...),
-		),
-		createControlInScope: connect.NewClient[orchestrator.CreateControlInScopeRequest, orchestrator.ControlInScope](
-			httpClient,
-			baseURL+OrchestratorCreateControlInScopeProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("CreateControlInScope")),
-			connect.WithClientOptions(opts...),
-		),
-		getControlInScope: connect.NewClient[orchestrator.GetControlInScopeRequest, orchestrator.ControlInScope](
-			httpClient,
-			baseURL+OrchestratorGetControlInScopeProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetControlInScope")),
-			connect.WithClientOptions(opts...),
-		),
-		listControlsInScope: connect.NewClient[orchestrator.ListControlsInScopeRequest, orchestrator.ListControlsInScopeResponse](
-			httpClient,
-			baseURL+OrchestratorListControlsInScopeProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListControlsInScope")),
-			connect.WithClientOptions(opts...),
-		),
-		updateControlInScope: connect.NewClient[orchestrator.UpdateControlInScopeRequest, orchestrator.ControlInScope](
-			httpClient,
-			baseURL+OrchestratorUpdateControlInScopeProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UpdateControlInScope")),
-			connect.WithClientOptions(opts...),
-		),
-		transitionControlInScopeState: connect.NewClient[orchestrator.TransitionControlInScopeStateRequest, orchestrator.ControlInScope](
-			httpClient,
-			baseURL+OrchestratorTransitionControlInScopeStateProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("TransitionControlInScopeState")),
-			connect.WithClientOptions(opts...),
-		),
-		removeControlInScope: connect.NewClient[orchestrator.RemoveControlInScopeRequest, emptypb.Empty](
-			httpClient,
-			baseURL+OrchestratorRemoveControlInScopeProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("RemoveControlInScope")),
-			connect.WithClientOptions(opts...),
-		),
-		listAuditTrailEvents: connect.NewClient[orchestrator.ListAuditTrailEventsRequest, orchestrator.ListAuditTrailEventsResponse](
-			httpClient,
-			baseURL+OrchestratorListAuditTrailEventsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListAuditTrailEvents")),
-			connect.WithClientOptions(opts...),
-		),
+// service. Multiple service clients may share a single connect.Client.
+func NewOrchestratorClient(client *connect.Client) OrchestratorClient {
+	return &orchestratorClient{client: client}
+}
+
+// OrchestratorStoreAssessmentResultsClientStream is the client stream for the Orchestrator's
+// StoreAssessmentResults RPC.
+type OrchestratorStoreAssessmentResultsClientStream struct {
+	stream connect.ClientStream
+}
+
+// SendHeaders opens the stream and flushes the request headers without a message. The first Send or
+// Receive does this implicitly.
+func (s OrchestratorStoreAssessmentResultsClientStream) SendHeaders() error {
+	return s.stream.SendHeaders()
+}
+
+// Send sends a request message to the server.
+func (s OrchestratorStoreAssessmentResultsClientStream) Send(req *orchestrator.StoreAssessmentResultRequest) error {
+	return s.stream.Send(req)
+}
+
+// CloseSend closes the request side of the stream.
+func (s OrchestratorStoreAssessmentResultsClientStream) CloseSend() error {
+	return s.stream.CloseSend()
+}
+
+// Receive returns the next response message from the server.
+func (s OrchestratorStoreAssessmentResultsClientStream) Receive() (*orchestrator.StoreAssessmentResultsResponse, error) {
+	var res orchestrator.StoreAssessmentResultsResponse
+	if err := s.stream.Receive(&res); err != nil {
+		return nil, err
 	}
+	return &res, nil
 }
 
-// orchestratorClient implements OrchestratorClient.
-type orchestratorClient struct {
-	registerAssessmentTool          *connect.Client[orchestrator.RegisterAssessmentToolRequest, orchestrator.AssessmentTool]
-	listAssessmentTools             *connect.Client[orchestrator.ListAssessmentToolsRequest, orchestrator.ListAssessmentToolsResponse]
-	getAssessmentTool               *connect.Client[orchestrator.GetAssessmentToolRequest, orchestrator.AssessmentTool]
-	updateAssessmentTool            *connect.Client[orchestrator.UpdateAssessmentToolRequest, orchestrator.AssessmentTool]
-	deregisterAssessmentTool        *connect.Client[orchestrator.DeregisterAssessmentToolRequest, emptypb.Empty]
-	storeAssessmentResult           *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultResponse]
-	storeAssessmentResults          *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
-	getAssessmentResult             *connect.Client[orchestrator.GetAssessmentResultRequest, assessment.AssessmentResult]
-	storeEvaluationResult           *connect.Client[orchestrator.StoreEvaluationResultRequest, evaluation.EvaluationResult]
-	listAssessmentResults           *connect.Client[orchestrator.ListAssessmentResultsRequest, orchestrator.ListAssessmentResultsResponse]
-	listEvaluationResults           *connect.Client[orchestrator.ListEvaluationResultsRequest, orchestrator.ListEvaluationResultsResponse]
-	createMetric                    *connect.Client[orchestrator.CreateMetricRequest, assessment.Metric]
-	updateMetric                    *connect.Client[orchestrator.UpdateMetricRequest, assessment.Metric]
-	getMetric                       *connect.Client[orchestrator.GetMetricRequest, assessment.Metric]
-	listMetrics                     *connect.Client[orchestrator.ListMetricsRequest, orchestrator.ListMetricsResponse]
-	removeMetric                    *connect.Client[orchestrator.RemoveMetricRequest, emptypb.Empty]
-	createTargetOfEvaluation        *connect.Client[orchestrator.CreateTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
-	updateTargetOfEvaluation        *connect.Client[orchestrator.UpdateTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
-	getTargetOfEvaluation           *connect.Client[orchestrator.GetTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
-	listTargetsOfEvaluation         *connect.Client[orchestrator.ListTargetsOfEvaluationRequest, orchestrator.ListTargetsOfEvaluationResponse]
-	removeTargetOfEvaluation        *connect.Client[orchestrator.RemoveTargetOfEvaluationRequest, emptypb.Empty]
-	getTargetOfEvaluationStatistics *connect.Client[orchestrator.GetTargetOfEvaluationStatisticsRequest, orchestrator.GetTargetOfEvaluationStatisticsResponse]
-	updateMetricConfiguration       *connect.Client[orchestrator.UpdateMetricConfigurationRequest, assessment.MetricConfiguration]
-	getMetricConfiguration          *connect.Client[orchestrator.GetMetricConfigurationRequest, assessment.MetricConfiguration]
-	listMetricConfigurations        *connect.Client[orchestrator.ListMetricConfigurationRequest, orchestrator.ListMetricConfigurationResponse]
-	updateMetricImplementation      *connect.Client[orchestrator.UpdateMetricImplementationRequest, assessment.MetricImplementation]
-	getMetricImplementation         *connect.Client[orchestrator.GetMetricImplementationRequest, assessment.MetricImplementation]
-	subscribe                       *connect.Client[orchestrator.SubscribeRequest, orchestrator.ChangeEvent]
-	createCertificate               *connect.Client[orchestrator.CreateCertificateRequest, orchestrator.Certificate]
-	getCertificate                  *connect.Client[orchestrator.GetCertificateRequest, orchestrator.Certificate]
-	listCertificates                *connect.Client[orchestrator.ListCertificatesRequest, orchestrator.ListCertificatesResponse]
-	listPublicCertificates          *connect.Client[orchestrator.ListPublicCertificatesRequest, orchestrator.ListPublicCertificatesResponse]
-	updateCertificate               *connect.Client[orchestrator.UpdateCertificateRequest, orchestrator.Certificate]
-	removeCertificate               *connect.Client[orchestrator.RemoveCertificateRequest, emptypb.Empty]
-	updateCertificateLifecycle      *connect.Client[orchestrator.UpdateCertificateLifecycleRequest, emptypb.Empty]
-	createCatalog                   *connect.Client[orchestrator.CreateCatalogRequest, orchestrator.Catalog]
-	listCatalogs                    *connect.Client[orchestrator.ListCatalogsRequest, orchestrator.ListCatalogsResponse]
-	getCatalog                      *connect.Client[orchestrator.GetCatalogRequest, orchestrator.Catalog]
-	removeCatalog                   *connect.Client[orchestrator.RemoveCatalogRequest, emptypb.Empty]
-	updateCatalog                   *connect.Client[orchestrator.UpdateCatalogRequest, orchestrator.Catalog]
-	getCategory                     *connect.Client[orchestrator.GetCategoryRequest, orchestrator.Category]
-	listControls                    *connect.Client[orchestrator.ListControlsRequest, orchestrator.ListControlsResponse]
-	getControl                      *connect.Client[orchestrator.GetControlRequest, orchestrator.Control]
-	createAuditScope                *connect.Client[orchestrator.CreateAuditScopeRequest, orchestrator.AuditScope]
-	getAuditScope                   *connect.Client[orchestrator.GetAuditScopeRequest, orchestrator.AuditScope]
-	getAuditScopeStatistics         *connect.Client[orchestrator.GetAuditScopeStatisticsRequest, orchestrator.GetAuditScopeStatisticsResponse]
-	listAuditScopes                 *connect.Client[orchestrator.ListAuditScopesRequest, orchestrator.ListAuditScopesResponse]
-	updateAuditScope                *connect.Client[orchestrator.UpdateAuditScopeRequest, orchestrator.AuditScope]
-	removeAuditScope                *connect.Client[orchestrator.RemoveAuditScopeRequest, emptypb.Empty]
-	exportAuditScopeReport          *connect.Client[orchestrator.ExportAuditScopeReportRequest, httpbody.HttpBody]
-	getRuntimeInfo                  *connect.Client[common.GetRuntimeInfoRequest, common.Runtime]
-	upsertUserPermission            *connect.Client[orchestrator.UpsertUserPermissionRequest, orchestrator.UpsertUserPermissionResponse]
-	removeUserPermission            *connect.Client[orchestrator.RemoveUserPermissionRequest, emptypb.Empty]
-	getCurrentUser                  *connect.Client[orchestrator.GetCurrentUserRequest, orchestrator.User]
-	getUser                         *connect.Client[orchestrator.GetUserRequest, orchestrator.User]
-	listUsers                       *connect.Client[orchestrator.ListUsersRequest, orchestrator.ListUsersResponse]
-	listUserPermissions             *connect.Client[orchestrator.ListUserPermissionsRequest, orchestrator.ListUserPermissionsResponse]
-	listUserRoles                   *connect.Client[orchestrator.ListUserRolesRequest, orchestrator.ListUserRolesResponse]
-	removeUser                      *connect.Client[orchestrator.RemoveUserRequest, emptypb.Empty]
-	createControlInScope            *connect.Client[orchestrator.CreateControlInScopeRequest, orchestrator.ControlInScope]
-	getControlInScope               *connect.Client[orchestrator.GetControlInScopeRequest, orchestrator.ControlInScope]
-	listControlsInScope             *connect.Client[orchestrator.ListControlsInScopeRequest, orchestrator.ListControlsInScopeResponse]
-	updateControlInScope            *connect.Client[orchestrator.UpdateControlInScopeRequest, orchestrator.ControlInScope]
-	transitionControlInScopeState   *connect.Client[orchestrator.TransitionControlInScopeStateRequest, orchestrator.ControlInScope]
-	removeControlInScope            *connect.Client[orchestrator.RemoveControlInScopeRequest, emptypb.Empty]
-	listAuditTrailEvents            *connect.Client[orchestrator.ListAuditTrailEventsRequest, orchestrator.ListAuditTrailEventsResponse]
+// Close releases the stream's resources. It is idempotent and is typically deferred to clean up a
+// stream abandoned before io.EOF.
+func (s OrchestratorStoreAssessmentResultsClientStream) Close() error {
+	return s.stream.Close()
 }
 
-// RegisterAssessmentTool calls confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool.
-func (c *orchestratorClient) RegisterAssessmentTool(ctx context.Context, req *connect.Request[orchestrator.RegisterAssessmentToolRequest]) (*connect.Response[orchestrator.AssessmentTool], error) {
-	return c.registerAssessmentTool.CallUnary(ctx, req)
+// OrchestratorSubscribeClientStream is the client stream for the Orchestrator's Subscribe RPC.
+type OrchestratorSubscribeClientStream struct {
+	stream connect.ClientStream
 }
 
-// ListAssessmentTools calls confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools.
-func (c *orchestratorClient) ListAssessmentTools(ctx context.Context, req *connect.Request[orchestrator.ListAssessmentToolsRequest]) (*connect.Response[orchestrator.ListAssessmentToolsResponse], error) {
-	return c.listAssessmentTools.CallUnary(ctx, req)
+// Receive returns the next response message from the server.
+func (s OrchestratorSubscribeClientStream) Receive() (*orchestrator.ChangeEvent, error) {
+	var res orchestrator.ChangeEvent
+	if err := s.stream.Receive(&res); err != nil {
+		return nil, err
+	}
+	return &res, nil
 }
 
-// GetAssessmentTool calls confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool.
-func (c *orchestratorClient) GetAssessmentTool(ctx context.Context, req *connect.Request[orchestrator.GetAssessmentToolRequest]) (*connect.Response[orchestrator.AssessmentTool], error) {
-	return c.getAssessmentTool.CallUnary(ctx, req)
-}
-
-// UpdateAssessmentTool calls confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool.
-func (c *orchestratorClient) UpdateAssessmentTool(ctx context.Context, req *connect.Request[orchestrator.UpdateAssessmentToolRequest]) (*connect.Response[orchestrator.AssessmentTool], error) {
-	return c.updateAssessmentTool.CallUnary(ctx, req)
-}
-
-// DeregisterAssessmentTool calls confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool.
-func (c *orchestratorClient) DeregisterAssessmentTool(ctx context.Context, req *connect.Request[orchestrator.DeregisterAssessmentToolRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.deregisterAssessmentTool.CallUnary(ctx, req)
-}
-
-// StoreAssessmentResult calls confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult.
-func (c *orchestratorClient) StoreAssessmentResult(ctx context.Context, req *connect.Request[orchestrator.StoreAssessmentResultRequest]) (*connect.Response[orchestrator.StoreAssessmentResultResponse], error) {
-	return c.storeAssessmentResult.CallUnary(ctx, req)
-}
-
-// StoreAssessmentResults calls confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults.
-func (c *orchestratorClient) StoreAssessmentResults(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
-	return c.storeAssessmentResults.CallBidiStream(ctx)
-}
-
-// GetAssessmentResult calls confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult.
-func (c *orchestratorClient) GetAssessmentResult(ctx context.Context, req *connect.Request[orchestrator.GetAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error) {
-	return c.getAssessmentResult.CallUnary(ctx, req)
-}
-
-// StoreEvaluationResult calls confirmate.orchestrator.v1.Orchestrator.StoreEvaluationResult.
-func (c *orchestratorClient) StoreEvaluationResult(ctx context.Context, req *connect.Request[orchestrator.StoreEvaluationResultRequest]) (*connect.Response[evaluation.EvaluationResult], error) {
-	return c.storeEvaluationResult.CallUnary(ctx, req)
-}
-
-// ListAssessmentResults calls confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults.
-func (c *orchestratorClient) ListAssessmentResults(ctx context.Context, req *connect.Request[orchestrator.ListAssessmentResultsRequest]) (*connect.Response[orchestrator.ListAssessmentResultsResponse], error) {
-	return c.listAssessmentResults.CallUnary(ctx, req)
-}
-
-// ListEvaluationResults calls confirmate.orchestrator.v1.Orchestrator.ListEvaluationResults.
-func (c *orchestratorClient) ListEvaluationResults(ctx context.Context, req *connect.Request[orchestrator.ListEvaluationResultsRequest]) (*connect.Response[orchestrator.ListEvaluationResultsResponse], error) {
-	return c.listEvaluationResults.CallUnary(ctx, req)
-}
-
-// CreateMetric calls confirmate.orchestrator.v1.Orchestrator.CreateMetric.
-func (c *orchestratorClient) CreateMetric(ctx context.Context, req *connect.Request[orchestrator.CreateMetricRequest]) (*connect.Response[assessment.Metric], error) {
-	return c.createMetric.CallUnary(ctx, req)
-}
-
-// UpdateMetric calls confirmate.orchestrator.v1.Orchestrator.UpdateMetric.
-func (c *orchestratorClient) UpdateMetric(ctx context.Context, req *connect.Request[orchestrator.UpdateMetricRequest]) (*connect.Response[assessment.Metric], error) {
-	return c.updateMetric.CallUnary(ctx, req)
-}
-
-// GetMetric calls confirmate.orchestrator.v1.Orchestrator.GetMetric.
-func (c *orchestratorClient) GetMetric(ctx context.Context, req *connect.Request[orchestrator.GetMetricRequest]) (*connect.Response[assessment.Metric], error) {
-	return c.getMetric.CallUnary(ctx, req)
-}
-
-// ListMetrics calls confirmate.orchestrator.v1.Orchestrator.ListMetrics.
-func (c *orchestratorClient) ListMetrics(ctx context.Context, req *connect.Request[orchestrator.ListMetricsRequest]) (*connect.Response[orchestrator.ListMetricsResponse], error) {
-	return c.listMetrics.CallUnary(ctx, req)
-}
-
-// RemoveMetric calls confirmate.orchestrator.v1.Orchestrator.RemoveMetric.
-func (c *orchestratorClient) RemoveMetric(ctx context.Context, req *connect.Request[orchestrator.RemoveMetricRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.removeMetric.CallUnary(ctx, req)
-}
-
-// CreateTargetOfEvaluation calls confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation.
-func (c *orchestratorClient) CreateTargetOfEvaluation(ctx context.Context, req *connect.Request[orchestrator.CreateTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error) {
-	return c.createTargetOfEvaluation.CallUnary(ctx, req)
-}
-
-// UpdateTargetOfEvaluation calls confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation.
-func (c *orchestratorClient) UpdateTargetOfEvaluation(ctx context.Context, req *connect.Request[orchestrator.UpdateTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error) {
-	return c.updateTargetOfEvaluation.CallUnary(ctx, req)
-}
-
-// GetTargetOfEvaluation calls confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation.
-func (c *orchestratorClient) GetTargetOfEvaluation(ctx context.Context, req *connect.Request[orchestrator.GetTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error) {
-	return c.getTargetOfEvaluation.CallUnary(ctx, req)
-}
-
-// ListTargetsOfEvaluation calls confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation.
-func (c *orchestratorClient) ListTargetsOfEvaluation(ctx context.Context, req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest]) (*connect.Response[orchestrator.ListTargetsOfEvaluationResponse], error) {
-	return c.listTargetsOfEvaluation.CallUnary(ctx, req)
-}
-
-// RemoveTargetOfEvaluation calls confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation.
-func (c *orchestratorClient) RemoveTargetOfEvaluation(ctx context.Context, req *connect.Request[orchestrator.RemoveTargetOfEvaluationRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.removeTargetOfEvaluation.CallUnary(ctx, req)
-}
-
-// GetTargetOfEvaluationStatistics calls
-// confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics.
-func (c *orchestratorClient) GetTargetOfEvaluationStatistics(ctx context.Context, req *connect.Request[orchestrator.GetTargetOfEvaluationStatisticsRequest]) (*connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], error) {
-	return c.getTargetOfEvaluationStatistics.CallUnary(ctx, req)
-}
-
-// UpdateMetricConfiguration calls
-// confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration.
-func (c *orchestratorClient) UpdateMetricConfiguration(ctx context.Context, req *connect.Request[orchestrator.UpdateMetricConfigurationRequest]) (*connect.Response[assessment.MetricConfiguration], error) {
-	return c.updateMetricConfiguration.CallUnary(ctx, req)
-}
-
-// GetMetricConfiguration calls confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration.
-func (c *orchestratorClient) GetMetricConfiguration(ctx context.Context, req *connect.Request[orchestrator.GetMetricConfigurationRequest]) (*connect.Response[assessment.MetricConfiguration], error) {
-	return c.getMetricConfiguration.CallUnary(ctx, req)
-}
-
-// ListMetricConfigurations calls confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations.
-func (c *orchestratorClient) ListMetricConfigurations(ctx context.Context, req *connect.Request[orchestrator.ListMetricConfigurationRequest]) (*connect.Response[orchestrator.ListMetricConfigurationResponse], error) {
-	return c.listMetricConfigurations.CallUnary(ctx, req)
-}
-
-// UpdateMetricImplementation calls
-// confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation.
-func (c *orchestratorClient) UpdateMetricImplementation(ctx context.Context, req *connect.Request[orchestrator.UpdateMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error) {
-	return c.updateMetricImplementation.CallUnary(ctx, req)
-}
-
-// GetMetricImplementation calls confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation.
-func (c *orchestratorClient) GetMetricImplementation(ctx context.Context, req *connect.Request[orchestrator.GetMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error) {
-	return c.getMetricImplementation.CallUnary(ctx, req)
-}
-
-// Subscribe calls confirmate.orchestrator.v1.Orchestrator.Subscribe.
-func (c *orchestratorClient) Subscribe(ctx context.Context, req *connect.Request[orchestrator.SubscribeRequest]) (*connect.ServerStreamForClient[orchestrator.ChangeEvent], error) {
-	return c.subscribe.CallServerStream(ctx, req)
-}
-
-// CreateCertificate calls confirmate.orchestrator.v1.Orchestrator.CreateCertificate.
-func (c *orchestratorClient) CreateCertificate(ctx context.Context, req *connect.Request[orchestrator.CreateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {
-	return c.createCertificate.CallUnary(ctx, req)
-}
-
-// GetCertificate calls confirmate.orchestrator.v1.Orchestrator.GetCertificate.
-func (c *orchestratorClient) GetCertificate(ctx context.Context, req *connect.Request[orchestrator.GetCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {
-	return c.getCertificate.CallUnary(ctx, req)
-}
-
-// ListCertificates calls confirmate.orchestrator.v1.Orchestrator.ListCertificates.
-func (c *orchestratorClient) ListCertificates(ctx context.Context, req *connect.Request[orchestrator.ListCertificatesRequest]) (*connect.Response[orchestrator.ListCertificatesResponse], error) {
-	return c.listCertificates.CallUnary(ctx, req)
-}
-
-// ListPublicCertificates calls confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates.
-func (c *orchestratorClient) ListPublicCertificates(ctx context.Context, req *connect.Request[orchestrator.ListPublicCertificatesRequest]) (*connect.Response[orchestrator.ListPublicCertificatesResponse], error) {
-	return c.listPublicCertificates.CallUnary(ctx, req)
-}
-
-// UpdateCertificate calls confirmate.orchestrator.v1.Orchestrator.UpdateCertificate.
-func (c *orchestratorClient) UpdateCertificate(ctx context.Context, req *connect.Request[orchestrator.UpdateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {
-	return c.updateCertificate.CallUnary(ctx, req)
-}
-
-// RemoveCertificate calls confirmate.orchestrator.v1.Orchestrator.RemoveCertificate.
-func (c *orchestratorClient) RemoveCertificate(ctx context.Context, req *connect.Request[orchestrator.RemoveCertificateRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.removeCertificate.CallUnary(ctx, req)
-}
-
-// UpdateCertificateLifecycle calls
-// confirmate.orchestrator.v1.Orchestrator.UpdateCertificateLifecycle.
-func (c *orchestratorClient) UpdateCertificateLifecycle(ctx context.Context, req *connect.Request[orchestrator.UpdateCertificateLifecycleRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.updateCertificateLifecycle.CallUnary(ctx, req)
-}
-
-// CreateCatalog calls confirmate.orchestrator.v1.Orchestrator.CreateCatalog.
-func (c *orchestratorClient) CreateCatalog(ctx context.Context, req *connect.Request[orchestrator.CreateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error) {
-	return c.createCatalog.CallUnary(ctx, req)
-}
-
-// ListCatalogs calls confirmate.orchestrator.v1.Orchestrator.ListCatalogs.
-func (c *orchestratorClient) ListCatalogs(ctx context.Context, req *connect.Request[orchestrator.ListCatalogsRequest]) (*connect.Response[orchestrator.ListCatalogsResponse], error) {
-	return c.listCatalogs.CallUnary(ctx, req)
-}
-
-// GetCatalog calls confirmate.orchestrator.v1.Orchestrator.GetCatalog.
-func (c *orchestratorClient) GetCatalog(ctx context.Context, req *connect.Request[orchestrator.GetCatalogRequest]) (*connect.Response[orchestrator.Catalog], error) {
-	return c.getCatalog.CallUnary(ctx, req)
-}
-
-// RemoveCatalog calls confirmate.orchestrator.v1.Orchestrator.RemoveCatalog.
-func (c *orchestratorClient) RemoveCatalog(ctx context.Context, req *connect.Request[orchestrator.RemoveCatalogRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.removeCatalog.CallUnary(ctx, req)
-}
-
-// UpdateCatalog calls confirmate.orchestrator.v1.Orchestrator.UpdateCatalog.
-func (c *orchestratorClient) UpdateCatalog(ctx context.Context, req *connect.Request[orchestrator.UpdateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error) {
-	return c.updateCatalog.CallUnary(ctx, req)
-}
-
-// GetCategory calls confirmate.orchestrator.v1.Orchestrator.GetCategory.
-func (c *orchestratorClient) GetCategory(ctx context.Context, req *connect.Request[orchestrator.GetCategoryRequest]) (*connect.Response[orchestrator.Category], error) {
-	return c.getCategory.CallUnary(ctx, req)
-}
-
-// ListControls calls confirmate.orchestrator.v1.Orchestrator.ListControls.
-func (c *orchestratorClient) ListControls(ctx context.Context, req *connect.Request[orchestrator.ListControlsRequest]) (*connect.Response[orchestrator.ListControlsResponse], error) {
-	return c.listControls.CallUnary(ctx, req)
-}
-
-// GetControl calls confirmate.orchestrator.v1.Orchestrator.GetControl.
-func (c *orchestratorClient) GetControl(ctx context.Context, req *connect.Request[orchestrator.GetControlRequest]) (*connect.Response[orchestrator.Control], error) {
-	return c.getControl.CallUnary(ctx, req)
-}
-
-// CreateAuditScope calls confirmate.orchestrator.v1.Orchestrator.CreateAuditScope.
-func (c *orchestratorClient) CreateAuditScope(ctx context.Context, req *connect.Request[orchestrator.CreateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error) {
-	return c.createAuditScope.CallUnary(ctx, req)
-}
-
-// GetAuditScope calls confirmate.orchestrator.v1.Orchestrator.GetAuditScope.
-func (c *orchestratorClient) GetAuditScope(ctx context.Context, req *connect.Request[orchestrator.GetAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error) {
-	return c.getAuditScope.CallUnary(ctx, req)
-}
-
-// GetAuditScopeStatistics calls confirmate.orchestrator.v1.Orchestrator.GetAuditScopeStatistics.
-func (c *orchestratorClient) GetAuditScopeStatistics(ctx context.Context, req *connect.Request[orchestrator.GetAuditScopeStatisticsRequest]) (*connect.Response[orchestrator.GetAuditScopeStatisticsResponse], error) {
-	return c.getAuditScopeStatistics.CallUnary(ctx, req)
-}
-
-// ListAuditScopes calls confirmate.orchestrator.v1.Orchestrator.ListAuditScopes.
-func (c *orchestratorClient) ListAuditScopes(ctx context.Context, req *connect.Request[orchestrator.ListAuditScopesRequest]) (*connect.Response[orchestrator.ListAuditScopesResponse], error) {
-	return c.listAuditScopes.CallUnary(ctx, req)
-}
-
-// UpdateAuditScope calls confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope.
-func (c *orchestratorClient) UpdateAuditScope(ctx context.Context, req *connect.Request[orchestrator.UpdateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error) {
-	return c.updateAuditScope.CallUnary(ctx, req)
-}
-
-// RemoveAuditScope calls confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope.
-func (c *orchestratorClient) RemoveAuditScope(ctx context.Context, req *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.removeAuditScope.CallUnary(ctx, req)
-}
-
-// ExportAuditScopeReport calls confirmate.orchestrator.v1.Orchestrator.ExportAuditScopeReport.
-func (c *orchestratorClient) ExportAuditScopeReport(ctx context.Context, req *connect.Request[orchestrator.ExportAuditScopeReportRequest]) (*connect.Response[httpbody.HttpBody], error) {
-	return c.exportAuditScopeReport.CallUnary(ctx, req)
-}
-
-// GetRuntimeInfo calls confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo.
-func (c *orchestratorClient) GetRuntimeInfo(ctx context.Context, req *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error) {
-	return c.getRuntimeInfo.CallUnary(ctx, req)
-}
-
-// UpsertUserPermission calls confirmate.orchestrator.v1.Orchestrator.UpsertUserPermission.
-func (c *orchestratorClient) UpsertUserPermission(ctx context.Context, req *connect.Request[orchestrator.UpsertUserPermissionRequest]) (*connect.Response[orchestrator.UpsertUserPermissionResponse], error) {
-	return c.upsertUserPermission.CallUnary(ctx, req)
-}
-
-// RemoveUserPermission calls confirmate.orchestrator.v1.Orchestrator.RemoveUserPermission.
-func (c *orchestratorClient) RemoveUserPermission(ctx context.Context, req *connect.Request[orchestrator.RemoveUserPermissionRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.removeUserPermission.CallUnary(ctx, req)
-}
-
-// GetCurrentUser calls confirmate.orchestrator.v1.Orchestrator.GetCurrentUser.
-func (c *orchestratorClient) GetCurrentUser(ctx context.Context, req *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error) {
-	return c.getCurrentUser.CallUnary(ctx, req)
-}
-
-// GetUser calls confirmate.orchestrator.v1.Orchestrator.GetUser.
-func (c *orchestratorClient) GetUser(ctx context.Context, req *connect.Request[orchestrator.GetUserRequest]) (*connect.Response[orchestrator.User], error) {
-	return c.getUser.CallUnary(ctx, req)
-}
-
-// ListUsers calls confirmate.orchestrator.v1.Orchestrator.ListUsers.
-func (c *orchestratorClient) ListUsers(ctx context.Context, req *connect.Request[orchestrator.ListUsersRequest]) (*connect.Response[orchestrator.ListUsersResponse], error) {
-	return c.listUsers.CallUnary(ctx, req)
-}
-
-// ListUserPermissions calls confirmate.orchestrator.v1.Orchestrator.ListUserPermissions.
-func (c *orchestratorClient) ListUserPermissions(ctx context.Context, req *connect.Request[orchestrator.ListUserPermissionsRequest]) (*connect.Response[orchestrator.ListUserPermissionsResponse], error) {
-	return c.listUserPermissions.CallUnary(ctx, req)
-}
-
-// ListUserRoles calls confirmate.orchestrator.v1.Orchestrator.ListUserRoles.
-func (c *orchestratorClient) ListUserRoles(ctx context.Context, req *connect.Request[orchestrator.ListUserRolesRequest]) (*connect.Response[orchestrator.ListUserRolesResponse], error) {
-	return c.listUserRoles.CallUnary(ctx, req)
-}
-
-// RemoveUser calls confirmate.orchestrator.v1.Orchestrator.RemoveUser.
-func (c *orchestratorClient) RemoveUser(ctx context.Context, req *connect.Request[orchestrator.RemoveUserRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.removeUser.CallUnary(ctx, req)
-}
-
-// CreateControlInScope calls confirmate.orchestrator.v1.Orchestrator.CreateControlInScope.
-func (c *orchestratorClient) CreateControlInScope(ctx context.Context, req *connect.Request[orchestrator.CreateControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
-	return c.createControlInScope.CallUnary(ctx, req)
-}
-
-// GetControlInScope calls confirmate.orchestrator.v1.Orchestrator.GetControlInScope.
-func (c *orchestratorClient) GetControlInScope(ctx context.Context, req *connect.Request[orchestrator.GetControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
-	return c.getControlInScope.CallUnary(ctx, req)
-}
-
-// ListControlsInScope calls confirmate.orchestrator.v1.Orchestrator.ListControlsInScope.
-func (c *orchestratorClient) ListControlsInScope(ctx context.Context, req *connect.Request[orchestrator.ListControlsInScopeRequest]) (*connect.Response[orchestrator.ListControlsInScopeResponse], error) {
-	return c.listControlsInScope.CallUnary(ctx, req)
-}
-
-// UpdateControlInScope calls confirmate.orchestrator.v1.Orchestrator.UpdateControlInScope.
-func (c *orchestratorClient) UpdateControlInScope(ctx context.Context, req *connect.Request[orchestrator.UpdateControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
-	return c.updateControlInScope.CallUnary(ctx, req)
-}
-
-// TransitionControlInScopeState calls
-// confirmate.orchestrator.v1.Orchestrator.TransitionControlInScopeState.
-func (c *orchestratorClient) TransitionControlInScopeState(ctx context.Context, req *connect.Request[orchestrator.TransitionControlInScopeStateRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
-	return c.transitionControlInScopeState.CallUnary(ctx, req)
-}
-
-// RemoveControlInScope calls confirmate.orchestrator.v1.Orchestrator.RemoveControlInScope.
-func (c *orchestratorClient) RemoveControlInScope(ctx context.Context, req *connect.Request[orchestrator.RemoveControlInScopeRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.removeControlInScope.CallUnary(ctx, req)
-}
-
-// ListAuditTrailEvents calls confirmate.orchestrator.v1.Orchestrator.ListAuditTrailEvents.
-func (c *orchestratorClient) ListAuditTrailEvents(ctx context.Context, req *connect.Request[orchestrator.ListAuditTrailEventsRequest]) (*connect.Response[orchestrator.ListAuditTrailEventsResponse], error) {
-	return c.listAuditTrailEvents.CallUnary(ctx, req)
+// Close releases the stream's resources. It is idempotent and is typically deferred to clean up a
+// stream abandoned before io.EOF.
+func (s OrchestratorSubscribeClientStream) Close() error {
+	return s.stream.Close()
 }
 
 // OrchestratorHandler is an implementation of the confirmate.orchestrator.v1.Orchestrator service.
 type OrchestratorHandler interface {
 	// Registers the passed assessment tool
-	RegisterAssessmentTool(context.Context, *connect.Request[orchestrator.RegisterAssessmentToolRequest]) (*connect.Response[orchestrator.AssessmentTool], error)
+	RegisterAssessmentTool(context.Context, *orchestrator.RegisterAssessmentToolRequest) (*orchestrator.AssessmentTool, error)
 	// Lists all assessment tools assessing evidences for the metric given by the
 	// passed metric id
-	ListAssessmentTools(context.Context, *connect.Request[orchestrator.ListAssessmentToolsRequest]) (*connect.Response[orchestrator.ListAssessmentToolsResponse], error)
+	ListAssessmentTools(context.Context, *orchestrator.ListAssessmentToolsRequest) (*orchestrator.ListAssessmentToolsResponse, error)
 	// Returns assessment tool given by the passed tool id
-	GetAssessmentTool(context.Context, *connect.Request[orchestrator.GetAssessmentToolRequest]) (*connect.Response[orchestrator.AssessmentTool], error)
+	GetAssessmentTool(context.Context, *orchestrator.GetAssessmentToolRequest) (*orchestrator.AssessmentTool, error)
 	// Updates the assessment tool given by the passed id
-	UpdateAssessmentTool(context.Context, *connect.Request[orchestrator.UpdateAssessmentToolRequest]) (*connect.Response[orchestrator.AssessmentTool], error)
+	UpdateAssessmentTool(context.Context, *orchestrator.UpdateAssessmentToolRequest) (*orchestrator.AssessmentTool, error)
 	// Remove assessment tool with passed id from the list of active assessment
 	// tools
-	DeregisterAssessmentTool(context.Context, *connect.Request[orchestrator.DeregisterAssessmentToolRequest]) (*connect.Response[emptypb.Empty], error)
+	DeregisterAssessmentTool(context.Context, *orchestrator.DeregisterAssessmentToolRequest) (*emptypb.Empty, error)
 	// Stores the assessment result provided by an assessment tool
-	StoreAssessmentResult(context.Context, *connect.Request[orchestrator.StoreAssessmentResultRequest]) (*connect.Response[orchestrator.StoreAssessmentResultResponse], error)
+	StoreAssessmentResult(context.Context, *orchestrator.StoreAssessmentResultRequest) (*orchestrator.StoreAssessmentResultResponse, error)
 	// Stores stream of assessment results provided by an assessment tool and
 	// returns a response stream. Part of the public API, not exposed as REST.
-	StoreAssessmentResults(context.Context, *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]) error
+	StoreAssessmentResults(context.Context, OrchestratorStoreAssessmentResultsServerStream) error
 	// Get an assessment result by ID
-	GetAssessmentResult(context.Context, *connect.Request[orchestrator.GetAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error)
+	GetAssessmentResult(context.Context, *orchestrator.GetAssessmentResultRequest) (*assessment.AssessmentResult, error)
 	// Store the evaluation result provided by the evaluation component.″
-	StoreEvaluationResult(context.Context, *connect.Request[orchestrator.StoreEvaluationResultRequest]) (*connect.Response[evaluation.EvaluationResult], error)
+	StoreEvaluationResult(context.Context, *orchestrator.StoreEvaluationResultRequest) (*evaluation.EvaluationResult, error)
 	// List all assessment results. Part of the public API, also exposed as REST.
-	ListAssessmentResults(context.Context, *connect.Request[orchestrator.ListAssessmentResultsRequest]) (*connect.Response[orchestrator.ListAssessmentResultsResponse], error)
+	ListAssessmentResults(context.Context, *orchestrator.ListAssessmentResultsRequest) (*orchestrator.ListAssessmentResultsResponse, error)
 	// List all evaluation results that the user can access. It can further be
 	// restricted by various filtering options. Part of the public API, also
 	// exposed as REST.
-	ListEvaluationResults(context.Context, *connect.Request[orchestrator.ListEvaluationResultsRequest]) (*connect.Response[orchestrator.ListEvaluationResultsResponse], error)
+	ListEvaluationResults(context.Context, *orchestrator.ListEvaluationResultsRequest) (*orchestrator.ListEvaluationResultsResponse, error)
 	// Creates a new metric
-	CreateMetric(context.Context, *connect.Request[orchestrator.CreateMetricRequest]) (*connect.Response[assessment.Metric], error)
+	CreateMetric(context.Context, *orchestrator.CreateMetricRequest) (*assessment.Metric, error)
 	// Updates an existing metric
-	UpdateMetric(context.Context, *connect.Request[orchestrator.UpdateMetricRequest]) (*connect.Response[assessment.Metric], error)
+	UpdateMetric(context.Context, *orchestrator.UpdateMetricRequest) (*assessment.Metric, error)
 	// Returns the metric with the passed metric id
-	GetMetric(context.Context, *connect.Request[orchestrator.GetMetricRequest]) (*connect.Response[assessment.Metric], error)
+	GetMetric(context.Context, *orchestrator.GetMetricRequest) (*assessment.Metric, error)
 	// List all metrics provided by the metric catalog
-	ListMetrics(context.Context, *connect.Request[orchestrator.ListMetricsRequest]) (*connect.Response[orchestrator.ListMetricsResponse], error)
+	ListMetrics(context.Context, *orchestrator.ListMetricsRequest) (*orchestrator.ListMetricsResponse, error)
 	// Removes a new metric
-	RemoveMetric(context.Context, *connect.Request[orchestrator.RemoveMetricRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveMetric(context.Context, *orchestrator.RemoveMetricRequest) (*emptypb.Empty, error)
 	// Registers a new target of evaluation
-	CreateTargetOfEvaluation(context.Context, *connect.Request[orchestrator.CreateTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error)
+	CreateTargetOfEvaluation(context.Context, *orchestrator.CreateTargetOfEvaluationRequest) (*orchestrator.TargetOfEvaluation, error)
 	// Registers a new target of evaluation
-	UpdateTargetOfEvaluation(context.Context, *connect.Request[orchestrator.UpdateTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error)
+	UpdateTargetOfEvaluation(context.Context, *orchestrator.UpdateTargetOfEvaluationRequest) (*orchestrator.TargetOfEvaluation, error)
 	// Retrieves a target of evaluation
-	GetTargetOfEvaluation(context.Context, *connect.Request[orchestrator.GetTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error)
+	GetTargetOfEvaluation(context.Context, *orchestrator.GetTargetOfEvaluationRequest) (*orchestrator.TargetOfEvaluation, error)
 	// Lists all targets of evaluations
-	ListTargetsOfEvaluation(context.Context, *connect.Request[orchestrator.ListTargetsOfEvaluationRequest]) (*connect.Response[orchestrator.ListTargetsOfEvaluationResponse], error)
+	ListTargetsOfEvaluation(context.Context, *orchestrator.ListTargetsOfEvaluationRequest) (*orchestrator.ListTargetsOfEvaluationResponse, error)
 	// Removes a target of evaluation
-	RemoveTargetOfEvaluation(context.Context, *connect.Request[orchestrator.RemoveTargetOfEvaluationRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveTargetOfEvaluation(context.Context, *orchestrator.RemoveTargetOfEvaluationRequest) (*emptypb.Empty, error)
 	// Retrieves target of evaluation statistics
-	GetTargetOfEvaluationStatistics(context.Context, *connect.Request[orchestrator.GetTargetOfEvaluationStatisticsRequest]) (*connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], error)
+	GetTargetOfEvaluationStatistics(context.Context, *orchestrator.GetTargetOfEvaluationStatisticsRequest) (*orchestrator.GetTargetOfEvaluationStatisticsResponse, error)
 	// Updates a metric configuration (target value and operator) for a specific
 	// target of evaluation and metric ID
-	UpdateMetricConfiguration(context.Context, *connect.Request[orchestrator.UpdateMetricConfigurationRequest]) (*connect.Response[assessment.MetricConfiguration], error)
+	UpdateMetricConfiguration(context.Context, *orchestrator.UpdateMetricConfigurationRequest) (*assessment.MetricConfiguration, error)
 	// Retrieves a metric configuration (target value and operator) for a specific
 	// target of evaluation and metric ID.
-	GetMetricConfiguration(context.Context, *connect.Request[orchestrator.GetMetricConfigurationRequest]) (*connect.Response[assessment.MetricConfiguration], error)
+	GetMetricConfiguration(context.Context, *orchestrator.GetMetricConfigurationRequest) (*assessment.MetricConfiguration, error)
 	// Lists all metric configurations (target value and operator) for a
 	// specific target of evaluation ID
-	ListMetricConfigurations(context.Context, *connect.Request[orchestrator.ListMetricConfigurationRequest]) (*connect.Response[orchestrator.ListMetricConfigurationResponse], error)
+	ListMetricConfigurations(context.Context, *orchestrator.ListMetricConfigurationRequest) (*orchestrator.ListMetricConfigurationResponse, error)
 	// Updates an existing metric implementation
-	UpdateMetricImplementation(context.Context, *connect.Request[orchestrator.UpdateMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error)
+	UpdateMetricImplementation(context.Context, *orchestrator.UpdateMetricImplementationRequest) (*assessment.MetricImplementation, error)
 	// Returns the metric implementation of the passed metric id
-	GetMetricImplementation(context.Context, *connect.Request[orchestrator.GetMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error)
+	GetMetricImplementation(context.Context, *orchestrator.GetMetricImplementationRequest) (*assessment.MetricImplementation, error)
 	// Subscribes to change events in the orchestrator
-	Subscribe(context.Context, *connect.Request[orchestrator.SubscribeRequest], *connect.ServerStream[orchestrator.ChangeEvent]) error
+	Subscribe(context.Context, *orchestrator.SubscribeRequest, OrchestratorSubscribeServerStream) error
 	// Creates a new certificate
-	CreateCertificate(context.Context, *connect.Request[orchestrator.CreateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
+	CreateCertificate(context.Context, *orchestrator.CreateCertificateRequest) (*orchestrator.Certificate, error)
 	// Retrieves a certificate
-	GetCertificate(context.Context, *connect.Request[orchestrator.GetCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
+	GetCertificate(context.Context, *orchestrator.GetCertificateRequest) (*orchestrator.Certificate, error)
 	// Lists all target certificates
-	ListCertificates(context.Context, *connect.Request[orchestrator.ListCertificatesRequest]) (*connect.Response[orchestrator.ListCertificatesResponse], error)
+	ListCertificates(context.Context, *orchestrator.ListCertificatesRequest) (*orchestrator.ListCertificatesResponse, error)
 	// Lists all target certificates without state history
-	ListPublicCertificates(context.Context, *connect.Request[orchestrator.ListPublicCertificatesRequest]) (*connect.Response[orchestrator.ListPublicCertificatesResponse], error)
+	ListPublicCertificates(context.Context, *orchestrator.ListPublicCertificatesRequest) (*orchestrator.ListPublicCertificatesResponse, error)
 	// Updates an existing certificate
-	UpdateCertificate(context.Context, *connect.Request[orchestrator.UpdateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
+	UpdateCertificate(context.Context, *orchestrator.UpdateCertificateRequest) (*orchestrator.Certificate, error)
 	// Removes a certificate
-	RemoveCertificate(context.Context, *connect.Request[orchestrator.RemoveCertificateRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveCertificate(context.Context, *orchestrator.RemoveCertificateRequest) (*emptypb.Empty, error)
 	// Re-evaluates the certificate lifecycle state for the given audit scope
 	// based on its current evaluation results. This is called by the
 	// evaluation component once a full catalog evaluation run has finished.
-	UpdateCertificateLifecycle(context.Context, *connect.Request[orchestrator.UpdateCertificateLifecycleRequest]) (*connect.Response[emptypb.Empty], error)
+	UpdateCertificateLifecycle(context.Context, *orchestrator.UpdateCertificateLifecycleRequest) (*emptypb.Empty, error)
 	// Creates a new security controls catalog
-	CreateCatalog(context.Context, *connect.Request[orchestrator.CreateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
+	CreateCatalog(context.Context, *orchestrator.CreateCatalogRequest) (*orchestrator.Catalog, error)
 	// Lists all security controls catalogs. Each catalog includes a list of its
 	// categories but no additional sub-resources.
-	ListCatalogs(context.Context, *connect.Request[orchestrator.ListCatalogsRequest]) (*connect.Response[orchestrator.ListCatalogsResponse], error)
+	ListCatalogs(context.Context, *orchestrator.ListCatalogsRequest) (*orchestrator.ListCatalogsResponse, error)
 	// Retrieves a specific catalog by it's ID. The catalog includes a list of all
 	// of it categories as well as the first level of controls in each category.
-	GetCatalog(context.Context, *connect.Request[orchestrator.GetCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
+	GetCatalog(context.Context, *orchestrator.GetCatalogRequest) (*orchestrator.Catalog, error)
 	// Removes a catalog
-	RemoveCatalog(context.Context, *connect.Request[orchestrator.RemoveCatalogRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveCatalog(context.Context, *orchestrator.RemoveCatalogRequest) (*emptypb.Empty, error)
 	// Updates an existing certificate
-	UpdateCatalog(context.Context, *connect.Request[orchestrator.UpdateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
+	UpdateCatalog(context.Context, *orchestrator.UpdateCatalogRequest) (*orchestrator.Catalog, error)
 	// Retrieves a category of a catalog specified by the catalog ID and the
 	// category name. It includes the first level of controls within each
 	// category.
-	GetCategory(context.Context, *connect.Request[orchestrator.GetCategoryRequest]) (*connect.Response[orchestrator.Category], error)
+	GetCategory(context.Context, *orchestrator.GetCategoryRequest) (*orchestrator.Category, error)
 	// If no additional parameters are specified, this lists all controls. If a
 	// catalog ID and a category name is specified, then only controls containing
 	// in this category are returned.
-	ListControls(context.Context, *connect.Request[orchestrator.ListControlsRequest]) (*connect.Response[orchestrator.ListControlsResponse], error)
+	ListControls(context.Context, *orchestrator.ListControlsRequest) (*orchestrator.ListControlsResponse, error)
 	// Retrieves a control by its unique control ID.
 	// If present, it also includes a list of sub-controls if present or a list of
 	// metrics if no sub-controls but metrics are present.
-	GetControl(context.Context, *connect.Request[orchestrator.GetControlRequest]) (*connect.Response[orchestrator.Control], error)
+	GetControl(context.Context, *orchestrator.GetControlRequest) (*orchestrator.Control, error)
 	// Creates a new Audit Scope
-	CreateAuditScope(context.Context, *connect.Request[orchestrator.CreateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
+	CreateAuditScope(context.Context, *orchestrator.CreateAuditScopeRequest) (*orchestrator.AuditScope, error)
 	// Retrieves an Audit Scope
-	GetAuditScope(context.Context, *connect.Request[orchestrator.GetAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
+	GetAuditScope(context.Context, *orchestrator.GetAuditScopeRequest) (*orchestrator.AuditScope, error)
 	// Retrieves aggregated statistics for an audit scope: the number of top-level controls in
 	// scope grouped by workflow (implementation) state, and the number of controls grouped by
 	// their latest compliance (evaluation) status.
-	GetAuditScopeStatistics(context.Context, *connect.Request[orchestrator.GetAuditScopeStatisticsRequest]) (*connect.Response[orchestrator.GetAuditScopeStatisticsResponse], error)
+	GetAuditScopeStatistics(context.Context, *orchestrator.GetAuditScopeStatisticsRequest) (*orchestrator.GetAuditScopeStatisticsResponse, error)
 	// Lists all Audit Scopes
-	ListAuditScopes(context.Context, *connect.Request[orchestrator.ListAuditScopesRequest]) (*connect.Response[orchestrator.ListAuditScopesResponse], error)
+	ListAuditScopes(context.Context, *orchestrator.ListAuditScopesRequest) (*orchestrator.ListAuditScopesResponse, error)
 	// Updates an existing Audit Scope
-	UpdateAuditScope(context.Context, *connect.Request[orchestrator.UpdateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
+	UpdateAuditScope(context.Context, *orchestrator.UpdateAuditScopeRequest) (*orchestrator.AuditScope, error)
 	// Removes an Audit Scope
-	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveAuditScope(context.Context, *orchestrator.RemoveAuditScopeRequest) (*emptypb.Empty, error)
 	// Exports a compliance report for an Audit Scope as an XLSX spreadsheet or PDF, returned as a
 	// raw HTTP response (correct Content-Type, Content-Disposition with the suggested filename)
 	// rather than wrapped in a JSON envelope, so any HTTP client can download it by simply saving
 	// the response body.
-	ExportAuditScopeReport(context.Context, *connect.Request[orchestrator.ExportAuditScopeReportRequest]) (*connect.Response[httpbody.HttpBody], error)
+	ExportAuditScopeReport(context.Context, *orchestrator.ExportAuditScopeReportRequest) (*httpbody.HttpBody, error)
 	// Get Runtime Information
-	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
+	GetRuntimeInfo(context.Context, *common.GetRuntimeInfoRequest) (*common.Runtime, error)
 	// Upserts a specific user permission identified by object and user.
-	UpsertUserPermission(context.Context, *connect.Request[orchestrator.UpsertUserPermissionRequest]) (*connect.Response[orchestrator.UpsertUserPermissionResponse], error)
+	UpsertUserPermission(context.Context, *orchestrator.UpsertUserPermissionRequest) (*orchestrator.UpsertUserPermissionResponse, error)
 	// Removes a specific user permission identified by object ID, object type and user ID.
-	RemoveUserPermission(context.Context, *connect.Request[orchestrator.RemoveUserPermissionRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveUserPermission(context.Context, *orchestrator.RemoveUserPermissionRequest) (*emptypb.Empty, error)
 	// Returns information about the currently authenticated user
-	GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error)
+	GetCurrentUser(context.Context, *orchestrator.GetCurrentUserRequest) (*orchestrator.User, error)
 	// Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
-	GetUser(context.Context, *connect.Request[orchestrator.GetUserRequest]) (*connect.Response[orchestrator.User], error)
+	GetUser(context.Context, *orchestrator.GetUserRequest) (*orchestrator.User, error)
 	// Lists users with optional filtering
-	ListUsers(context.Context, *connect.Request[orchestrator.ListUsersRequest]) (*connect.Response[orchestrator.ListUsersResponse], error)
+	ListUsers(context.Context, *orchestrator.ListUsersRequest) (*orchestrator.ListUsersResponse, error)
 	// Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
-	ListUserPermissions(context.Context, *connect.Request[orchestrator.ListUserPermissionsRequest]) (*connect.Response[orchestrator.ListUserPermissionsResponse], error)
+	ListUserPermissions(context.Context, *orchestrator.ListUserPermissionsRequest) (*orchestrator.ListUserPermissionsResponse, error)
 	// Lists all predefined roles in the system.
-	ListUserRoles(context.Context, *connect.Request[orchestrator.ListUserRolesRequest]) (*connect.Response[orchestrator.ListUserRolesResponse], error)
+	ListUserRoles(context.Context, *orchestrator.ListUserRolesRequest) (*orchestrator.ListUserRolesResponse, error)
 	// Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
-	RemoveUser(context.Context, *connect.Request[orchestrator.RemoveUserRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveUser(context.Context, *orchestrator.RemoveUserRequest) (*emptypb.Empty, error)
 	// Manually brings a control into scope within an audit scope, creating a ControlInScope record.
 	// Note: controls are also brought in scope automatically when an audit scope is created.
-	CreateControlInScope(context.Context, *connect.Request[orchestrator.CreateControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error)
+	CreateControlInScope(context.Context, *orchestrator.CreateControlInScopeRequest) (*orchestrator.ControlInScope, error)
 	// Retrieves a ControlInScope record by ID.
-	GetControlInScope(context.Context, *connect.Request[orchestrator.GetControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error)
+	GetControlInScope(context.Context, *orchestrator.GetControlInScopeRequest) (*orchestrator.ControlInScope, error)
 	// Lists controls in scope with optional filtering by audit scope, state, or assignee.
-	ListControlsInScope(context.Context, *connect.Request[orchestrator.ListControlsInScopeRequest]) (*connect.Response[orchestrator.ListControlsInScopeResponse], error)
+	ListControlsInScope(context.Context, *orchestrator.ListControlsInScopeRequest) (*orchestrator.ListControlsInScopeResponse, error)
 	// Updates a ControlInScope record. Only assignee_id and implementation_details can be updated;
 	// use TransitionControlInScopeState to change the implementation state.
-	UpdateControlInScope(context.Context, *connect.Request[orchestrator.UpdateControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error)
+	UpdateControlInScope(context.Context, *orchestrator.UpdateControlInScopeRequest) (*orchestrator.ControlInScope, error)
 	// Transitions a ControlInScope to a new implementation state, enforcing the state machine and
 	// recording the change as an AuditTrailEvent.
-	TransitionControlInScopeState(context.Context, *connect.Request[orchestrator.TransitionControlInScopeStateRequest]) (*connect.Response[orchestrator.ControlInScope], error)
+	TransitionControlInScopeState(context.Context, *orchestrator.TransitionControlInScopeStateRequest) (*orchestrator.ControlInScope, error)
 	// Manually removes a control from scope within an audit scope, creating an AuditTrailEvent.
-	RemoveControlInScope(context.Context, *connect.Request[orchestrator.RemoveControlInScopeRequest]) (*connect.Response[emptypb.Empty], error)
+	RemoveControlInScope(context.Context, *orchestrator.RemoveControlInScopeRequest) (*emptypb.Empty, error)
 	// Lists audit trail events, optionally filtered by audit scope.
-	ListAuditTrailEvents(context.Context, *connect.Request[orchestrator.ListAuditTrailEventsRequest]) (*connect.Response[orchestrator.ListAuditTrailEventsResponse], error)
+	ListAuditTrailEvents(context.Context, *orchestrator.ListAuditTrailEventsRequest) (*orchestrator.ListAuditTrailEventsResponse, error)
 }
 
-// NewOrchestratorHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	orchestratorMethods := orchestrator.File_api_orchestrator_orchestrator_proto.Services().ByName("Orchestrator").Methods()
-	orchestratorRegisterAssessmentToolHandler := connect.NewUnaryHandler(
-		OrchestratorRegisterAssessmentToolProcedure,
-		svc.RegisterAssessmentTool,
-		connect.WithSchema(orchestratorMethods.ByName("RegisterAssessmentTool")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListAssessmentToolsHandler := connect.NewUnaryHandler(
-		OrchestratorListAssessmentToolsProcedure,
-		svc.ListAssessmentTools,
-		connect.WithSchema(orchestratorMethods.ByName("ListAssessmentTools")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetAssessmentToolHandler := connect.NewUnaryHandler(
-		OrchestratorGetAssessmentToolProcedure,
-		svc.GetAssessmentTool,
-		connect.WithSchema(orchestratorMethods.ByName("GetAssessmentTool")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorUpdateAssessmentToolHandler := connect.NewUnaryHandler(
-		OrchestratorUpdateAssessmentToolProcedure,
-		svc.UpdateAssessmentTool,
-		connect.WithSchema(orchestratorMethods.ByName("UpdateAssessmentTool")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorDeregisterAssessmentToolHandler := connect.NewUnaryHandler(
-		OrchestratorDeregisterAssessmentToolProcedure,
-		svc.DeregisterAssessmentTool,
-		connect.WithSchema(orchestratorMethods.ByName("DeregisterAssessmentTool")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorStoreAssessmentResultHandler := connect.NewUnaryHandler(
-		OrchestratorStoreAssessmentResultProcedure,
-		svc.StoreAssessmentResult,
-		connect.WithSchema(orchestratorMethods.ByName("StoreAssessmentResult")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorStoreAssessmentResultsHandler := connect.NewBidiStreamHandler(
-		OrchestratorStoreAssessmentResultsProcedure,
-		svc.StoreAssessmentResults,
-		connect.WithSchema(orchestratorMethods.ByName("StoreAssessmentResults")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetAssessmentResultHandler := connect.NewUnaryHandler(
-		OrchestratorGetAssessmentResultProcedure,
-		svc.GetAssessmentResult,
-		connect.WithSchema(orchestratorMethods.ByName("GetAssessmentResult")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorStoreEvaluationResultHandler := connect.NewUnaryHandler(
-		OrchestratorStoreEvaluationResultProcedure,
-		svc.StoreEvaluationResult,
-		connect.WithSchema(orchestratorMethods.ByName("StoreEvaluationResult")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListAssessmentResultsHandler := connect.NewUnaryHandler(
-		OrchestratorListAssessmentResultsProcedure,
-		svc.ListAssessmentResults,
-		connect.WithSchema(orchestratorMethods.ByName("ListAssessmentResults")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListEvaluationResultsHandler := connect.NewUnaryHandler(
-		OrchestratorListEvaluationResultsProcedure,
-		svc.ListEvaluationResults,
-		connect.WithSchema(orchestratorMethods.ByName("ListEvaluationResults")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorCreateMetricHandler := connect.NewUnaryHandler(
-		OrchestratorCreateMetricProcedure,
-		svc.CreateMetric,
-		connect.WithSchema(orchestratorMethods.ByName("CreateMetric")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorUpdateMetricHandler := connect.NewUnaryHandler(
-		OrchestratorUpdateMetricProcedure,
-		svc.UpdateMetric,
-		connect.WithSchema(orchestratorMethods.ByName("UpdateMetric")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetMetricHandler := connect.NewUnaryHandler(
-		OrchestratorGetMetricProcedure,
-		svc.GetMetric,
-		connect.WithSchema(orchestratorMethods.ByName("GetMetric")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListMetricsHandler := connect.NewUnaryHandler(
-		OrchestratorListMetricsProcedure,
-		svc.ListMetrics,
-		connect.WithSchema(orchestratorMethods.ByName("ListMetrics")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorRemoveMetricHandler := connect.NewUnaryHandler(
-		OrchestratorRemoveMetricProcedure,
-		svc.RemoveMetric,
-		connect.WithSchema(orchestratorMethods.ByName("RemoveMetric")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorCreateTargetOfEvaluationHandler := connect.NewUnaryHandler(
-		OrchestratorCreateTargetOfEvaluationProcedure,
-		svc.CreateTargetOfEvaluation,
-		connect.WithSchema(orchestratorMethods.ByName("CreateTargetOfEvaluation")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorUpdateTargetOfEvaluationHandler := connect.NewUnaryHandler(
-		OrchestratorUpdateTargetOfEvaluationProcedure,
-		svc.UpdateTargetOfEvaluation,
-		connect.WithSchema(orchestratorMethods.ByName("UpdateTargetOfEvaluation")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetTargetOfEvaluationHandler := connect.NewUnaryHandler(
-		OrchestratorGetTargetOfEvaluationProcedure,
-		svc.GetTargetOfEvaluation,
-		connect.WithSchema(orchestratorMethods.ByName("GetTargetOfEvaluation")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListTargetsOfEvaluationHandler := connect.NewUnaryHandler(
-		OrchestratorListTargetsOfEvaluationProcedure,
-		svc.ListTargetsOfEvaluation,
-		connect.WithSchema(orchestratorMethods.ByName("ListTargetsOfEvaluation")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorRemoveTargetOfEvaluationHandler := connect.NewUnaryHandler(
-		OrchestratorRemoveTargetOfEvaluationProcedure,
-		svc.RemoveTargetOfEvaluation,
-		connect.WithSchema(orchestratorMethods.ByName("RemoveTargetOfEvaluation")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetTargetOfEvaluationStatisticsHandler := connect.NewUnaryHandler(
-		OrchestratorGetTargetOfEvaluationStatisticsProcedure,
-		svc.GetTargetOfEvaluationStatistics,
-		connect.WithSchema(orchestratorMethods.ByName("GetTargetOfEvaluationStatistics")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorUpdateMetricConfigurationHandler := connect.NewUnaryHandler(
-		OrchestratorUpdateMetricConfigurationProcedure,
-		svc.UpdateMetricConfiguration,
-		connect.WithSchema(orchestratorMethods.ByName("UpdateMetricConfiguration")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetMetricConfigurationHandler := connect.NewUnaryHandler(
-		OrchestratorGetMetricConfigurationProcedure,
-		svc.GetMetricConfiguration,
-		connect.WithSchema(orchestratorMethods.ByName("GetMetricConfiguration")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListMetricConfigurationsHandler := connect.NewUnaryHandler(
-		OrchestratorListMetricConfigurationsProcedure,
-		svc.ListMetricConfigurations,
-		connect.WithSchema(orchestratorMethods.ByName("ListMetricConfigurations")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorUpdateMetricImplementationHandler := connect.NewUnaryHandler(
-		OrchestratorUpdateMetricImplementationProcedure,
-		svc.UpdateMetricImplementation,
-		connect.WithSchema(orchestratorMethods.ByName("UpdateMetricImplementation")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetMetricImplementationHandler := connect.NewUnaryHandler(
-		OrchestratorGetMetricImplementationProcedure,
-		svc.GetMetricImplementation,
-		connect.WithSchema(orchestratorMethods.ByName("GetMetricImplementation")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorSubscribeHandler := connect.NewServerStreamHandler(
-		OrchestratorSubscribeProcedure,
-		svc.Subscribe,
-		connect.WithSchema(orchestratorMethods.ByName("Subscribe")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorCreateCertificateHandler := connect.NewUnaryHandler(
-		OrchestratorCreateCertificateProcedure,
-		svc.CreateCertificate,
-		connect.WithSchema(orchestratorMethods.ByName("CreateCertificate")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetCertificateHandler := connect.NewUnaryHandler(
-		OrchestratorGetCertificateProcedure,
-		svc.GetCertificate,
-		connect.WithSchema(orchestratorMethods.ByName("GetCertificate")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListCertificatesHandler := connect.NewUnaryHandler(
-		OrchestratorListCertificatesProcedure,
-		svc.ListCertificates,
-		connect.WithSchema(orchestratorMethods.ByName("ListCertificates")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListPublicCertificatesHandler := connect.NewUnaryHandler(
-		OrchestratorListPublicCertificatesProcedure,
-		svc.ListPublicCertificates,
-		connect.WithSchema(orchestratorMethods.ByName("ListPublicCertificates")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorUpdateCertificateHandler := connect.NewUnaryHandler(
-		OrchestratorUpdateCertificateProcedure,
-		svc.UpdateCertificate,
-		connect.WithSchema(orchestratorMethods.ByName("UpdateCertificate")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorRemoveCertificateHandler := connect.NewUnaryHandler(
-		OrchestratorRemoveCertificateProcedure,
-		svc.RemoveCertificate,
-		connect.WithSchema(orchestratorMethods.ByName("RemoveCertificate")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorUpdateCertificateLifecycleHandler := connect.NewUnaryHandler(
-		OrchestratorUpdateCertificateLifecycleProcedure,
-		svc.UpdateCertificateLifecycle,
-		connect.WithSchema(orchestratorMethods.ByName("UpdateCertificateLifecycle")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorCreateCatalogHandler := connect.NewUnaryHandler(
-		OrchestratorCreateCatalogProcedure,
-		svc.CreateCatalog,
-		connect.WithSchema(orchestratorMethods.ByName("CreateCatalog")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListCatalogsHandler := connect.NewUnaryHandler(
-		OrchestratorListCatalogsProcedure,
-		svc.ListCatalogs,
-		connect.WithSchema(orchestratorMethods.ByName("ListCatalogs")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetCatalogHandler := connect.NewUnaryHandler(
-		OrchestratorGetCatalogProcedure,
-		svc.GetCatalog,
-		connect.WithSchema(orchestratorMethods.ByName("GetCatalog")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorRemoveCatalogHandler := connect.NewUnaryHandler(
-		OrchestratorRemoveCatalogProcedure,
-		svc.RemoveCatalog,
-		connect.WithSchema(orchestratorMethods.ByName("RemoveCatalog")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorUpdateCatalogHandler := connect.NewUnaryHandler(
-		OrchestratorUpdateCatalogProcedure,
-		svc.UpdateCatalog,
-		connect.WithSchema(orchestratorMethods.ByName("UpdateCatalog")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetCategoryHandler := connect.NewUnaryHandler(
-		OrchestratorGetCategoryProcedure,
-		svc.GetCategory,
-		connect.WithSchema(orchestratorMethods.ByName("GetCategory")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListControlsHandler := connect.NewUnaryHandler(
-		OrchestratorListControlsProcedure,
-		svc.ListControls,
-		connect.WithSchema(orchestratorMethods.ByName("ListControls")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetControlHandler := connect.NewUnaryHandler(
-		OrchestratorGetControlProcedure,
-		svc.GetControl,
-		connect.WithSchema(orchestratorMethods.ByName("GetControl")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorCreateAuditScopeHandler := connect.NewUnaryHandler(
-		OrchestratorCreateAuditScopeProcedure,
-		svc.CreateAuditScope,
-		connect.WithSchema(orchestratorMethods.ByName("CreateAuditScope")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetAuditScopeHandler := connect.NewUnaryHandler(
-		OrchestratorGetAuditScopeProcedure,
-		svc.GetAuditScope,
-		connect.WithSchema(orchestratorMethods.ByName("GetAuditScope")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetAuditScopeStatisticsHandler := connect.NewUnaryHandler(
-		OrchestratorGetAuditScopeStatisticsProcedure,
-		svc.GetAuditScopeStatistics,
-		connect.WithSchema(orchestratorMethods.ByName("GetAuditScopeStatistics")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListAuditScopesHandler := connect.NewUnaryHandler(
-		OrchestratorListAuditScopesProcedure,
-		svc.ListAuditScopes,
-		connect.WithSchema(orchestratorMethods.ByName("ListAuditScopes")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorUpdateAuditScopeHandler := connect.NewUnaryHandler(
-		OrchestratorUpdateAuditScopeProcedure,
-		svc.UpdateAuditScope,
-		connect.WithSchema(orchestratorMethods.ByName("UpdateAuditScope")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorRemoveAuditScopeHandler := connect.NewUnaryHandler(
-		OrchestratorRemoveAuditScopeProcedure,
-		svc.RemoveAuditScope,
-		connect.WithSchema(orchestratorMethods.ByName("RemoveAuditScope")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorExportAuditScopeReportHandler := connect.NewUnaryHandler(
-		OrchestratorExportAuditScopeReportProcedure,
-		svc.ExportAuditScopeReport,
-		connect.WithSchema(orchestratorMethods.ByName("ExportAuditScopeReport")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetRuntimeInfoHandler := connect.NewUnaryHandler(
-		OrchestratorGetRuntimeInfoProcedure,
-		svc.GetRuntimeInfo,
-		connect.WithSchema(orchestratorMethods.ByName("GetRuntimeInfo")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorUpsertUserPermissionHandler := connect.NewUnaryHandler(
-		OrchestratorUpsertUserPermissionProcedure,
-		svc.UpsertUserPermission,
-		connect.WithSchema(orchestratorMethods.ByName("UpsertUserPermission")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorRemoveUserPermissionHandler := connect.NewUnaryHandler(
-		OrchestratorRemoveUserPermissionProcedure,
-		svc.RemoveUserPermission,
-		connect.WithSchema(orchestratorMethods.ByName("RemoveUserPermission")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetCurrentUserHandler := connect.NewUnaryHandler(
-		OrchestratorGetCurrentUserProcedure,
-		svc.GetCurrentUser,
-		connect.WithSchema(orchestratorMethods.ByName("GetCurrentUser")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetUserHandler := connect.NewUnaryHandler(
-		OrchestratorGetUserProcedure,
-		svc.GetUser,
-		connect.WithSchema(orchestratorMethods.ByName("GetUser")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListUsersHandler := connect.NewUnaryHandler(
-		OrchestratorListUsersProcedure,
-		svc.ListUsers,
-		connect.WithSchema(orchestratorMethods.ByName("ListUsers")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListUserPermissionsHandler := connect.NewUnaryHandler(
-		OrchestratorListUserPermissionsProcedure,
-		svc.ListUserPermissions,
-		connect.WithSchema(orchestratorMethods.ByName("ListUserPermissions")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListUserRolesHandler := connect.NewUnaryHandler(
-		OrchestratorListUserRolesProcedure,
-		svc.ListUserRoles,
-		connect.WithSchema(orchestratorMethods.ByName("ListUserRoles")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorRemoveUserHandler := connect.NewUnaryHandler(
-		OrchestratorRemoveUserProcedure,
-		svc.RemoveUser,
-		connect.WithSchema(orchestratorMethods.ByName("RemoveUser")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorCreateControlInScopeHandler := connect.NewUnaryHandler(
-		OrchestratorCreateControlInScopeProcedure,
-		svc.CreateControlInScope,
-		connect.WithSchema(orchestratorMethods.ByName("CreateControlInScope")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorGetControlInScopeHandler := connect.NewUnaryHandler(
-		OrchestratorGetControlInScopeProcedure,
-		svc.GetControlInScope,
-		connect.WithSchema(orchestratorMethods.ByName("GetControlInScope")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListControlsInScopeHandler := connect.NewUnaryHandler(
-		OrchestratorListControlsInScopeProcedure,
-		svc.ListControlsInScope,
-		connect.WithSchema(orchestratorMethods.ByName("ListControlsInScope")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorUpdateControlInScopeHandler := connect.NewUnaryHandler(
-		OrchestratorUpdateControlInScopeProcedure,
-		svc.UpdateControlInScope,
-		connect.WithSchema(orchestratorMethods.ByName("UpdateControlInScope")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorTransitionControlInScopeStateHandler := connect.NewUnaryHandler(
-		OrchestratorTransitionControlInScopeStateProcedure,
-		svc.TransitionControlInScopeState,
-		connect.WithSchema(orchestratorMethods.ByName("TransitionControlInScopeState")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorRemoveControlInScopeHandler := connect.NewUnaryHandler(
-		OrchestratorRemoveControlInScopeProcedure,
-		svc.RemoveControlInScope,
-		connect.WithSchema(orchestratorMethods.ByName("RemoveControlInScope")),
-		connect.WithHandlerOptions(opts...),
-	)
-	orchestratorListAuditTrailEventsHandler := connect.NewUnaryHandler(
-		OrchestratorListAuditTrailEventsProcedure,
-		svc.ListAuditTrailEvents,
-		connect.WithSchema(orchestratorMethods.ByName("ListAuditTrailEvents")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/confirmate.orchestrator.v1.Orchestrator/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case OrchestratorRegisterAssessmentToolProcedure:
-			orchestratorRegisterAssessmentToolHandler.ServeHTTP(w, r)
-		case OrchestratorListAssessmentToolsProcedure:
-			orchestratorListAssessmentToolsHandler.ServeHTTP(w, r)
-		case OrchestratorGetAssessmentToolProcedure:
-			orchestratorGetAssessmentToolHandler.ServeHTTP(w, r)
-		case OrchestratorUpdateAssessmentToolProcedure:
-			orchestratorUpdateAssessmentToolHandler.ServeHTTP(w, r)
-		case OrchestratorDeregisterAssessmentToolProcedure:
-			orchestratorDeregisterAssessmentToolHandler.ServeHTTP(w, r)
-		case OrchestratorStoreAssessmentResultProcedure:
-			orchestratorStoreAssessmentResultHandler.ServeHTTP(w, r)
-		case OrchestratorStoreAssessmentResultsProcedure:
-			orchestratorStoreAssessmentResultsHandler.ServeHTTP(w, r)
-		case OrchestratorGetAssessmentResultProcedure:
-			orchestratorGetAssessmentResultHandler.ServeHTTP(w, r)
-		case OrchestratorStoreEvaluationResultProcedure:
-			orchestratorStoreEvaluationResultHandler.ServeHTTP(w, r)
-		case OrchestratorListAssessmentResultsProcedure:
-			orchestratorListAssessmentResultsHandler.ServeHTTP(w, r)
-		case OrchestratorListEvaluationResultsProcedure:
-			orchestratorListEvaluationResultsHandler.ServeHTTP(w, r)
-		case OrchestratorCreateMetricProcedure:
-			orchestratorCreateMetricHandler.ServeHTTP(w, r)
-		case OrchestratorUpdateMetricProcedure:
-			orchestratorUpdateMetricHandler.ServeHTTP(w, r)
-		case OrchestratorGetMetricProcedure:
-			orchestratorGetMetricHandler.ServeHTTP(w, r)
-		case OrchestratorListMetricsProcedure:
-			orchestratorListMetricsHandler.ServeHTTP(w, r)
-		case OrchestratorRemoveMetricProcedure:
-			orchestratorRemoveMetricHandler.ServeHTTP(w, r)
-		case OrchestratorCreateTargetOfEvaluationProcedure:
-			orchestratorCreateTargetOfEvaluationHandler.ServeHTTP(w, r)
-		case OrchestratorUpdateTargetOfEvaluationProcedure:
-			orchestratorUpdateTargetOfEvaluationHandler.ServeHTTP(w, r)
-		case OrchestratorGetTargetOfEvaluationProcedure:
-			orchestratorGetTargetOfEvaluationHandler.ServeHTTP(w, r)
-		case OrchestratorListTargetsOfEvaluationProcedure:
-			orchestratorListTargetsOfEvaluationHandler.ServeHTTP(w, r)
-		case OrchestratorRemoveTargetOfEvaluationProcedure:
-			orchestratorRemoveTargetOfEvaluationHandler.ServeHTTP(w, r)
-		case OrchestratorGetTargetOfEvaluationStatisticsProcedure:
-			orchestratorGetTargetOfEvaluationStatisticsHandler.ServeHTTP(w, r)
-		case OrchestratorUpdateMetricConfigurationProcedure:
-			orchestratorUpdateMetricConfigurationHandler.ServeHTTP(w, r)
-		case OrchestratorGetMetricConfigurationProcedure:
-			orchestratorGetMetricConfigurationHandler.ServeHTTP(w, r)
-		case OrchestratorListMetricConfigurationsProcedure:
-			orchestratorListMetricConfigurationsHandler.ServeHTTP(w, r)
-		case OrchestratorUpdateMetricImplementationProcedure:
-			orchestratorUpdateMetricImplementationHandler.ServeHTTP(w, r)
-		case OrchestratorGetMetricImplementationProcedure:
-			orchestratorGetMetricImplementationHandler.ServeHTTP(w, r)
-		case OrchestratorSubscribeProcedure:
-			orchestratorSubscribeHandler.ServeHTTP(w, r)
-		case OrchestratorCreateCertificateProcedure:
-			orchestratorCreateCertificateHandler.ServeHTTP(w, r)
-		case OrchestratorGetCertificateProcedure:
-			orchestratorGetCertificateHandler.ServeHTTP(w, r)
-		case OrchestratorListCertificatesProcedure:
-			orchestratorListCertificatesHandler.ServeHTTP(w, r)
-		case OrchestratorListPublicCertificatesProcedure:
-			orchestratorListPublicCertificatesHandler.ServeHTTP(w, r)
-		case OrchestratorUpdateCertificateProcedure:
-			orchestratorUpdateCertificateHandler.ServeHTTP(w, r)
-		case OrchestratorRemoveCertificateProcedure:
-			orchestratorRemoveCertificateHandler.ServeHTTP(w, r)
-		case OrchestratorUpdateCertificateLifecycleProcedure:
-			orchestratorUpdateCertificateLifecycleHandler.ServeHTTP(w, r)
-		case OrchestratorCreateCatalogProcedure:
-			orchestratorCreateCatalogHandler.ServeHTTP(w, r)
-		case OrchestratorListCatalogsProcedure:
-			orchestratorListCatalogsHandler.ServeHTTP(w, r)
-		case OrchestratorGetCatalogProcedure:
-			orchestratorGetCatalogHandler.ServeHTTP(w, r)
-		case OrchestratorRemoveCatalogProcedure:
-			orchestratorRemoveCatalogHandler.ServeHTTP(w, r)
-		case OrchestratorUpdateCatalogProcedure:
-			orchestratorUpdateCatalogHandler.ServeHTTP(w, r)
-		case OrchestratorGetCategoryProcedure:
-			orchestratorGetCategoryHandler.ServeHTTP(w, r)
-		case OrchestratorListControlsProcedure:
-			orchestratorListControlsHandler.ServeHTTP(w, r)
-		case OrchestratorGetControlProcedure:
-			orchestratorGetControlHandler.ServeHTTP(w, r)
-		case OrchestratorCreateAuditScopeProcedure:
-			orchestratorCreateAuditScopeHandler.ServeHTTP(w, r)
-		case OrchestratorGetAuditScopeProcedure:
-			orchestratorGetAuditScopeHandler.ServeHTTP(w, r)
-		case OrchestratorGetAuditScopeStatisticsProcedure:
-			orchestratorGetAuditScopeStatisticsHandler.ServeHTTP(w, r)
-		case OrchestratorListAuditScopesProcedure:
-			orchestratorListAuditScopesHandler.ServeHTTP(w, r)
-		case OrchestratorUpdateAuditScopeProcedure:
-			orchestratorUpdateAuditScopeHandler.ServeHTTP(w, r)
-		case OrchestratorRemoveAuditScopeProcedure:
-			orchestratorRemoveAuditScopeHandler.ServeHTTP(w, r)
-		case OrchestratorExportAuditScopeReportProcedure:
-			orchestratorExportAuditScopeReportHandler.ServeHTTP(w, r)
-		case OrchestratorGetRuntimeInfoProcedure:
-			orchestratorGetRuntimeInfoHandler.ServeHTTP(w, r)
-		case OrchestratorUpsertUserPermissionProcedure:
-			orchestratorUpsertUserPermissionHandler.ServeHTTP(w, r)
-		case OrchestratorRemoveUserPermissionProcedure:
-			orchestratorRemoveUserPermissionHandler.ServeHTTP(w, r)
-		case OrchestratorGetCurrentUserProcedure:
-			orchestratorGetCurrentUserHandler.ServeHTTP(w, r)
-		case OrchestratorGetUserProcedure:
-			orchestratorGetUserHandler.ServeHTTP(w, r)
-		case OrchestratorListUsersProcedure:
-			orchestratorListUsersHandler.ServeHTTP(w, r)
-		case OrchestratorListUserPermissionsProcedure:
-			orchestratorListUserPermissionsHandler.ServeHTTP(w, r)
-		case OrchestratorListUserRolesProcedure:
-			orchestratorListUserRolesHandler.ServeHTTP(w, r)
-		case OrchestratorRemoveUserProcedure:
-			orchestratorRemoveUserHandler.ServeHTTP(w, r)
-		case OrchestratorCreateControlInScopeProcedure:
-			orchestratorCreateControlInScopeHandler.ServeHTTP(w, r)
-		case OrchestratorGetControlInScopeProcedure:
-			orchestratorGetControlInScopeHandler.ServeHTTP(w, r)
-		case OrchestratorListControlsInScopeProcedure:
-			orchestratorListControlsInScopeHandler.ServeHTTP(w, r)
-		case OrchestratorUpdateControlInScopeProcedure:
-			orchestratorUpdateControlInScopeHandler.ServeHTTP(w, r)
-		case OrchestratorTransitionControlInScopeStateProcedure:
-			orchestratorTransitionControlInScopeStateHandler.ServeHTTP(w, r)
-		case OrchestratorRemoveControlInScopeProcedure:
-			orchestratorRemoveControlInScopeHandler.ServeHTTP(w, r)
-		case OrchestratorListAuditTrailEventsProcedure:
-			orchestratorListAuditTrailEventsHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
+// RegisterOrchestratorHandler registers svc as the confirmate.orchestrator.v1.Orchestrator
+// implementation on server.
+func RegisterOrchestratorHandler(server *connect.Server, svc OrchestratorHandler) {
+	adapter := orchestratorHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: orchestratorRegisterAssessmentToolSpec(), Handler: adapter.registerAssessmentTool},
+		connect.Method{Spec: orchestratorListAssessmentToolsSpec(), Handler: adapter.listAssessmentTools},
+		connect.Method{Spec: orchestratorGetAssessmentToolSpec(), Handler: adapter.getAssessmentTool},
+		connect.Method{Spec: orchestratorUpdateAssessmentToolSpec(), Handler: adapter.updateAssessmentTool},
+		connect.Method{Spec: orchestratorDeregisterAssessmentToolSpec(), Handler: adapter.deregisterAssessmentTool},
+		connect.Method{Spec: orchestratorStoreAssessmentResultSpec(), Handler: adapter.storeAssessmentResult},
+		connect.Method{Spec: orchestratorStoreAssessmentResultsSpec(), Handler: adapter.storeAssessmentResults},
+		connect.Method{Spec: orchestratorGetAssessmentResultSpec(), Handler: adapter.getAssessmentResult},
+		connect.Method{Spec: orchestratorStoreEvaluationResultSpec(), Handler: adapter.storeEvaluationResult},
+		connect.Method{Spec: orchestratorListAssessmentResultsSpec(), Handler: adapter.listAssessmentResults},
+		connect.Method{Spec: orchestratorListEvaluationResultsSpec(), Handler: adapter.listEvaluationResults},
+		connect.Method{Spec: orchestratorCreateMetricSpec(), Handler: adapter.createMetric},
+		connect.Method{Spec: orchestratorUpdateMetricSpec(), Handler: adapter.updateMetric},
+		connect.Method{Spec: orchestratorGetMetricSpec(), Handler: adapter.getMetric},
+		connect.Method{Spec: orchestratorListMetricsSpec(), Handler: adapter.listMetrics},
+		connect.Method{Spec: orchestratorRemoveMetricSpec(), Handler: adapter.removeMetric},
+		connect.Method{Spec: orchestratorCreateTargetOfEvaluationSpec(), Handler: adapter.createTargetOfEvaluation},
+		connect.Method{Spec: orchestratorUpdateTargetOfEvaluationSpec(), Handler: adapter.updateTargetOfEvaluation},
+		connect.Method{Spec: orchestratorGetTargetOfEvaluationSpec(), Handler: adapter.getTargetOfEvaluation},
+		connect.Method{Spec: orchestratorListTargetsOfEvaluationSpec(), Handler: adapter.listTargetsOfEvaluation},
+		connect.Method{Spec: orchestratorRemoveTargetOfEvaluationSpec(), Handler: adapter.removeTargetOfEvaluation},
+		connect.Method{Spec: orchestratorGetTargetOfEvaluationStatisticsSpec(), Handler: adapter.getTargetOfEvaluationStatistics},
+		connect.Method{Spec: orchestratorUpdateMetricConfigurationSpec(), Handler: adapter.updateMetricConfiguration},
+		connect.Method{Spec: orchestratorGetMetricConfigurationSpec(), Handler: adapter.getMetricConfiguration},
+		connect.Method{Spec: orchestratorListMetricConfigurationsSpec(), Handler: adapter.listMetricConfigurations},
+		connect.Method{Spec: orchestratorUpdateMetricImplementationSpec(), Handler: adapter.updateMetricImplementation},
+		connect.Method{Spec: orchestratorGetMetricImplementationSpec(), Handler: adapter.getMetricImplementation},
+		connect.Method{Spec: orchestratorSubscribeSpec(), Handler: adapter.subscribe},
+		connect.Method{Spec: orchestratorCreateCertificateSpec(), Handler: adapter.createCertificate},
+		connect.Method{Spec: orchestratorGetCertificateSpec(), Handler: adapter.getCertificate},
+		connect.Method{Spec: orchestratorListCertificatesSpec(), Handler: adapter.listCertificates},
+		connect.Method{Spec: orchestratorListPublicCertificatesSpec(), Handler: adapter.listPublicCertificates},
+		connect.Method{Spec: orchestratorUpdateCertificateSpec(), Handler: adapter.updateCertificate},
+		connect.Method{Spec: orchestratorRemoveCertificateSpec(), Handler: adapter.removeCertificate},
+		connect.Method{Spec: orchestratorUpdateCertificateLifecycleSpec(), Handler: adapter.updateCertificateLifecycle},
+		connect.Method{Spec: orchestratorCreateCatalogSpec(), Handler: adapter.createCatalog},
+		connect.Method{Spec: orchestratorListCatalogsSpec(), Handler: adapter.listCatalogs},
+		connect.Method{Spec: orchestratorGetCatalogSpec(), Handler: adapter.getCatalog},
+		connect.Method{Spec: orchestratorRemoveCatalogSpec(), Handler: adapter.removeCatalog},
+		connect.Method{Spec: orchestratorUpdateCatalogSpec(), Handler: adapter.updateCatalog},
+		connect.Method{Spec: orchestratorGetCategorySpec(), Handler: adapter.getCategory},
+		connect.Method{Spec: orchestratorListControlsSpec(), Handler: adapter.listControls},
+		connect.Method{Spec: orchestratorGetControlSpec(), Handler: adapter.getControl},
+		connect.Method{Spec: orchestratorCreateAuditScopeSpec(), Handler: adapter.createAuditScope},
+		connect.Method{Spec: orchestratorGetAuditScopeSpec(), Handler: adapter.getAuditScope},
+		connect.Method{Spec: orchestratorGetAuditScopeStatisticsSpec(), Handler: adapter.getAuditScopeStatistics},
+		connect.Method{Spec: orchestratorListAuditScopesSpec(), Handler: adapter.listAuditScopes},
+		connect.Method{Spec: orchestratorUpdateAuditScopeSpec(), Handler: adapter.updateAuditScope},
+		connect.Method{Spec: orchestratorRemoveAuditScopeSpec(), Handler: adapter.removeAuditScope},
+		connect.Method{Spec: orchestratorExportAuditScopeReportSpec(), Handler: adapter.exportAuditScopeReport},
+		connect.Method{Spec: orchestratorGetRuntimeInfoSpec(), Handler: adapter.getRuntimeInfo},
+		connect.Method{Spec: orchestratorUpsertUserPermissionSpec(), Handler: adapter.upsertUserPermission},
+		connect.Method{Spec: orchestratorRemoveUserPermissionSpec(), Handler: adapter.removeUserPermission},
+		connect.Method{Spec: orchestratorGetCurrentUserSpec(), Handler: adapter.getCurrentUser},
+		connect.Method{Spec: orchestratorGetUserSpec(), Handler: adapter.getUser},
+		connect.Method{Spec: orchestratorListUsersSpec(), Handler: adapter.listUsers},
+		connect.Method{Spec: orchestratorListUserPermissionsSpec(), Handler: adapter.listUserPermissions},
+		connect.Method{Spec: orchestratorListUserRolesSpec(), Handler: adapter.listUserRoles},
+		connect.Method{Spec: orchestratorRemoveUserSpec(), Handler: adapter.removeUser},
+		connect.Method{Spec: orchestratorCreateControlInScopeSpec(), Handler: adapter.createControlInScope},
+		connect.Method{Spec: orchestratorGetControlInScopeSpec(), Handler: adapter.getControlInScope},
+		connect.Method{Spec: orchestratorListControlsInScopeSpec(), Handler: adapter.listControlsInScope},
+		connect.Method{Spec: orchestratorUpdateControlInScopeSpec(), Handler: adapter.updateControlInScope},
+		connect.Method{Spec: orchestratorTransitionControlInScopeStateSpec(), Handler: adapter.transitionControlInScopeState},
+		connect.Method{Spec: orchestratorRemoveControlInScopeSpec(), Handler: adapter.removeControlInScope},
+		connect.Method{Spec: orchestratorListAuditTrailEventsSpec(), Handler: adapter.listAuditTrailEvents},
+	)
+}
+
+// OrchestratorStoreAssessmentResultsServerStream is the server stream for the Orchestrator's
+// StoreAssessmentResults RPC.
+type OrchestratorStoreAssessmentResultsServerStream struct {
+	stream connect.ServerStream
+}
+
+// Receive returns the next request message from the client.
+func (s OrchestratorStoreAssessmentResultsServerStream) Receive() (*orchestrator.StoreAssessmentResultRequest, error) {
+	var req orchestrator.StoreAssessmentResultRequest
+	if err := s.stream.Receive(&req); err != nil {
+		return nil, err
+	}
+	return &req, nil
+}
+
+// SendHeaders flushes the response headers without a message. The first Send does this implicitly.
+func (s OrchestratorStoreAssessmentResultsServerStream) SendHeaders() error {
+	return s.stream.SendHeaders()
+}
+
+// Send sends a response message to the client.
+func (s OrchestratorStoreAssessmentResultsServerStream) Send(res *orchestrator.StoreAssessmentResultsResponse) error {
+	return s.stream.Send(res)
+}
+
+// OrchestratorSubscribeServerStream is the server stream for the Orchestrator's Subscribe RPC.
+type OrchestratorSubscribeServerStream struct {
+	stream connect.ServerStream
+}
+
+// SendHeaders flushes the response headers without a message. The first Send does this implicitly.
+func (s OrchestratorSubscribeServerStream) SendHeaders() error {
+	return s.stream.SendHeaders()
+}
+
+// Send sends a response message to the client.
+func (s OrchestratorSubscribeServerStream) Send(res *orchestrator.ChangeEvent) error {
+	return s.stream.Send(res)
 }
 
 // UnimplementedOrchestratorHandler returns CodeUnimplemented from all methods.
 type UnimplementedOrchestratorHandler struct{}
 
-func (UnimplementedOrchestratorHandler) RegisterAssessmentTool(context.Context, *connect.Request[orchestrator.RegisterAssessmentToolRequest]) (*connect.Response[orchestrator.AssessmentTool], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool is not implemented"))
+func (UnimplementedOrchestratorHandler) RegisterAssessmentTool(context.Context, *orchestrator.RegisterAssessmentToolRequest) (*orchestrator.AssessmentTool, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListAssessmentTools(context.Context, *connect.Request[orchestrator.ListAssessmentToolsRequest]) (*connect.Response[orchestrator.ListAssessmentToolsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools is not implemented"))
+func (UnimplementedOrchestratorHandler) ListAssessmentTools(context.Context, *orchestrator.ListAssessmentToolsRequest) (*orchestrator.ListAssessmentToolsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetAssessmentTool(context.Context, *connect.Request[orchestrator.GetAssessmentToolRequest]) (*connect.Response[orchestrator.AssessmentTool], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool is not implemented"))
+func (UnimplementedOrchestratorHandler) GetAssessmentTool(context.Context, *orchestrator.GetAssessmentToolRequest) (*orchestrator.AssessmentTool, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) UpdateAssessmentTool(context.Context, *connect.Request[orchestrator.UpdateAssessmentToolRequest]) (*connect.Response[orchestrator.AssessmentTool], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool is not implemented"))
+func (UnimplementedOrchestratorHandler) UpdateAssessmentTool(context.Context, *orchestrator.UpdateAssessmentToolRequest) (*orchestrator.AssessmentTool, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) DeregisterAssessmentTool(context.Context, *connect.Request[orchestrator.DeregisterAssessmentToolRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool is not implemented"))
+func (UnimplementedOrchestratorHandler) DeregisterAssessmentTool(context.Context, *orchestrator.DeregisterAssessmentToolRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) StoreAssessmentResult(context.Context, *connect.Request[orchestrator.StoreAssessmentResultRequest]) (*connect.Response[orchestrator.StoreAssessmentResultResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult is not implemented"))
+func (UnimplementedOrchestratorHandler) StoreAssessmentResult(context.Context, *orchestrator.StoreAssessmentResultRequest) (*orchestrator.StoreAssessmentResultResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) StoreAssessmentResults(context.Context, *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]) error {
-	return connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults is not implemented"))
+func (UnimplementedOrchestratorHandler) StoreAssessmentResults(context.Context, OrchestratorStoreAssessmentResultsServerStream) error {
+	return connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetAssessmentResult(context.Context, *connect.Request[orchestrator.GetAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult is not implemented"))
+func (UnimplementedOrchestratorHandler) GetAssessmentResult(context.Context, *orchestrator.GetAssessmentResultRequest) (*assessment.AssessmentResult, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) StoreEvaluationResult(context.Context, *connect.Request[orchestrator.StoreEvaluationResultRequest]) (*connect.Response[evaluation.EvaluationResult], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.StoreEvaluationResult is not implemented"))
+func (UnimplementedOrchestratorHandler) StoreEvaluationResult(context.Context, *orchestrator.StoreEvaluationResultRequest) (*evaluation.EvaluationResult, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.StoreEvaluationResult is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListAssessmentResults(context.Context, *connect.Request[orchestrator.ListAssessmentResultsRequest]) (*connect.Response[orchestrator.ListAssessmentResultsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults is not implemented"))
+func (UnimplementedOrchestratorHandler) ListAssessmentResults(context.Context, *orchestrator.ListAssessmentResultsRequest) (*orchestrator.ListAssessmentResultsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListEvaluationResults(context.Context, *connect.Request[orchestrator.ListEvaluationResultsRequest]) (*connect.Response[orchestrator.ListEvaluationResultsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListEvaluationResults is not implemented"))
+func (UnimplementedOrchestratorHandler) ListEvaluationResults(context.Context, *orchestrator.ListEvaluationResultsRequest) (*orchestrator.ListEvaluationResultsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListEvaluationResults is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) CreateMetric(context.Context, *connect.Request[orchestrator.CreateMetricRequest]) (*connect.Response[assessment.Metric], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.CreateMetric is not implemented"))
+func (UnimplementedOrchestratorHandler) CreateMetric(context.Context, *orchestrator.CreateMetricRequest) (*assessment.Metric, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.CreateMetric is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) UpdateMetric(context.Context, *connect.Request[orchestrator.UpdateMetricRequest]) (*connect.Response[assessment.Metric], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateMetric is not implemented"))
+func (UnimplementedOrchestratorHandler) UpdateMetric(context.Context, *orchestrator.UpdateMetricRequest) (*assessment.Metric, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.UpdateMetric is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetMetric(context.Context, *connect.Request[orchestrator.GetMetricRequest]) (*connect.Response[assessment.Metric], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetMetric is not implemented"))
+func (UnimplementedOrchestratorHandler) GetMetric(context.Context, *orchestrator.GetMetricRequest) (*assessment.Metric, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetMetric is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListMetrics(context.Context, *connect.Request[orchestrator.ListMetricsRequest]) (*connect.Response[orchestrator.ListMetricsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListMetrics is not implemented"))
+func (UnimplementedOrchestratorHandler) ListMetrics(context.Context, *orchestrator.ListMetricsRequest) (*orchestrator.ListMetricsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListMetrics is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) RemoveMetric(context.Context, *connect.Request[orchestrator.RemoveMetricRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveMetric is not implemented"))
+func (UnimplementedOrchestratorHandler) RemoveMetric(context.Context, *orchestrator.RemoveMetricRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.RemoveMetric is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) CreateTargetOfEvaluation(context.Context, *connect.Request[orchestrator.CreateTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation is not implemented"))
+func (UnimplementedOrchestratorHandler) CreateTargetOfEvaluation(context.Context, *orchestrator.CreateTargetOfEvaluationRequest) (*orchestrator.TargetOfEvaluation, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) UpdateTargetOfEvaluation(context.Context, *connect.Request[orchestrator.UpdateTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation is not implemented"))
+func (UnimplementedOrchestratorHandler) UpdateTargetOfEvaluation(context.Context, *orchestrator.UpdateTargetOfEvaluationRequest) (*orchestrator.TargetOfEvaluation, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetTargetOfEvaluation(context.Context, *connect.Request[orchestrator.GetTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation is not implemented"))
+func (UnimplementedOrchestratorHandler) GetTargetOfEvaluation(context.Context, *orchestrator.GetTargetOfEvaluationRequest) (*orchestrator.TargetOfEvaluation, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListTargetsOfEvaluation(context.Context, *connect.Request[orchestrator.ListTargetsOfEvaluationRequest]) (*connect.Response[orchestrator.ListTargetsOfEvaluationResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation is not implemented"))
+func (UnimplementedOrchestratorHandler) ListTargetsOfEvaluation(context.Context, *orchestrator.ListTargetsOfEvaluationRequest) (*orchestrator.ListTargetsOfEvaluationResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) RemoveTargetOfEvaluation(context.Context, *connect.Request[orchestrator.RemoveTargetOfEvaluationRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation is not implemented"))
+func (UnimplementedOrchestratorHandler) RemoveTargetOfEvaluation(context.Context, *orchestrator.RemoveTargetOfEvaluationRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetTargetOfEvaluationStatistics(context.Context, *connect.Request[orchestrator.GetTargetOfEvaluationStatisticsRequest]) (*connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics is not implemented"))
+func (UnimplementedOrchestratorHandler) GetTargetOfEvaluationStatistics(context.Context, *orchestrator.GetTargetOfEvaluationStatisticsRequest) (*orchestrator.GetTargetOfEvaluationStatisticsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) UpdateMetricConfiguration(context.Context, *connect.Request[orchestrator.UpdateMetricConfigurationRequest]) (*connect.Response[assessment.MetricConfiguration], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration is not implemented"))
+func (UnimplementedOrchestratorHandler) UpdateMetricConfiguration(context.Context, *orchestrator.UpdateMetricConfigurationRequest) (*assessment.MetricConfiguration, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetMetricConfiguration(context.Context, *connect.Request[orchestrator.GetMetricConfigurationRequest]) (*connect.Response[assessment.MetricConfiguration], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration is not implemented"))
+func (UnimplementedOrchestratorHandler) GetMetricConfiguration(context.Context, *orchestrator.GetMetricConfigurationRequest) (*assessment.MetricConfiguration, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListMetricConfigurations(context.Context, *connect.Request[orchestrator.ListMetricConfigurationRequest]) (*connect.Response[orchestrator.ListMetricConfigurationResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations is not implemented"))
+func (UnimplementedOrchestratorHandler) ListMetricConfigurations(context.Context, *orchestrator.ListMetricConfigurationRequest) (*orchestrator.ListMetricConfigurationResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) UpdateMetricImplementation(context.Context, *connect.Request[orchestrator.UpdateMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation is not implemented"))
+func (UnimplementedOrchestratorHandler) UpdateMetricImplementation(context.Context, *orchestrator.UpdateMetricImplementationRequest) (*assessment.MetricImplementation, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetMetricImplementation(context.Context, *connect.Request[orchestrator.GetMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation is not implemented"))
+func (UnimplementedOrchestratorHandler) GetMetricImplementation(context.Context, *orchestrator.GetMetricImplementationRequest) (*assessment.MetricImplementation, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) Subscribe(context.Context, *connect.Request[orchestrator.SubscribeRequest], *connect.ServerStream[orchestrator.ChangeEvent]) error {
-	return connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.Subscribe is not implemented"))
+func (UnimplementedOrchestratorHandler) Subscribe(context.Context, *orchestrator.SubscribeRequest, OrchestratorSubscribeServerStream) error {
+	return connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.Subscribe is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) CreateCertificate(context.Context, *connect.Request[orchestrator.CreateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.CreateCertificate is not implemented"))
+func (UnimplementedOrchestratorHandler) CreateCertificate(context.Context, *orchestrator.CreateCertificateRequest) (*orchestrator.Certificate, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.CreateCertificate is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetCertificate(context.Context, *connect.Request[orchestrator.GetCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetCertificate is not implemented"))
+func (UnimplementedOrchestratorHandler) GetCertificate(context.Context, *orchestrator.GetCertificateRequest) (*orchestrator.Certificate, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetCertificate is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListCertificates(context.Context, *connect.Request[orchestrator.ListCertificatesRequest]) (*connect.Response[orchestrator.ListCertificatesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListCertificates is not implemented"))
+func (UnimplementedOrchestratorHandler) ListCertificates(context.Context, *orchestrator.ListCertificatesRequest) (*orchestrator.ListCertificatesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListCertificates is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListPublicCertificates(context.Context, *connect.Request[orchestrator.ListPublicCertificatesRequest]) (*connect.Response[orchestrator.ListPublicCertificatesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates is not implemented"))
+func (UnimplementedOrchestratorHandler) ListPublicCertificates(context.Context, *orchestrator.ListPublicCertificatesRequest) (*orchestrator.ListPublicCertificatesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) UpdateCertificate(context.Context, *connect.Request[orchestrator.UpdateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateCertificate is not implemented"))
+func (UnimplementedOrchestratorHandler) UpdateCertificate(context.Context, *orchestrator.UpdateCertificateRequest) (*orchestrator.Certificate, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.UpdateCertificate is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) RemoveCertificate(context.Context, *connect.Request[orchestrator.RemoveCertificateRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveCertificate is not implemented"))
+func (UnimplementedOrchestratorHandler) RemoveCertificate(context.Context, *orchestrator.RemoveCertificateRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.RemoveCertificate is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) UpdateCertificateLifecycle(context.Context, *connect.Request[orchestrator.UpdateCertificateLifecycleRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateCertificateLifecycle is not implemented"))
+func (UnimplementedOrchestratorHandler) UpdateCertificateLifecycle(context.Context, *orchestrator.UpdateCertificateLifecycleRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.UpdateCertificateLifecycle is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) CreateCatalog(context.Context, *connect.Request[orchestrator.CreateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.CreateCatalog is not implemented"))
+func (UnimplementedOrchestratorHandler) CreateCatalog(context.Context, *orchestrator.CreateCatalogRequest) (*orchestrator.Catalog, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.CreateCatalog is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListCatalogs(context.Context, *connect.Request[orchestrator.ListCatalogsRequest]) (*connect.Response[orchestrator.ListCatalogsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListCatalogs is not implemented"))
+func (UnimplementedOrchestratorHandler) ListCatalogs(context.Context, *orchestrator.ListCatalogsRequest) (*orchestrator.ListCatalogsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListCatalogs is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetCatalog(context.Context, *connect.Request[orchestrator.GetCatalogRequest]) (*connect.Response[orchestrator.Catalog], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetCatalog is not implemented"))
+func (UnimplementedOrchestratorHandler) GetCatalog(context.Context, *orchestrator.GetCatalogRequest) (*orchestrator.Catalog, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetCatalog is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) RemoveCatalog(context.Context, *connect.Request[orchestrator.RemoveCatalogRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveCatalog is not implemented"))
+func (UnimplementedOrchestratorHandler) RemoveCatalog(context.Context, *orchestrator.RemoveCatalogRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.RemoveCatalog is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) UpdateCatalog(context.Context, *connect.Request[orchestrator.UpdateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateCatalog is not implemented"))
+func (UnimplementedOrchestratorHandler) UpdateCatalog(context.Context, *orchestrator.UpdateCatalogRequest) (*orchestrator.Catalog, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.UpdateCatalog is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetCategory(context.Context, *connect.Request[orchestrator.GetCategoryRequest]) (*connect.Response[orchestrator.Category], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetCategory is not implemented"))
+func (UnimplementedOrchestratorHandler) GetCategory(context.Context, *orchestrator.GetCategoryRequest) (*orchestrator.Category, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetCategory is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListControls(context.Context, *connect.Request[orchestrator.ListControlsRequest]) (*connect.Response[orchestrator.ListControlsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListControls is not implemented"))
+func (UnimplementedOrchestratorHandler) ListControls(context.Context, *orchestrator.ListControlsRequest) (*orchestrator.ListControlsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListControls is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetControl(context.Context, *connect.Request[orchestrator.GetControlRequest]) (*connect.Response[orchestrator.Control], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetControl is not implemented"))
+func (UnimplementedOrchestratorHandler) GetControl(context.Context, *orchestrator.GetControlRequest) (*orchestrator.Control, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetControl is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) CreateAuditScope(context.Context, *connect.Request[orchestrator.CreateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.CreateAuditScope is not implemented"))
+func (UnimplementedOrchestratorHandler) CreateAuditScope(context.Context, *orchestrator.CreateAuditScopeRequest) (*orchestrator.AuditScope, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.CreateAuditScope is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetAuditScope(context.Context, *connect.Request[orchestrator.GetAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetAuditScope is not implemented"))
+func (UnimplementedOrchestratorHandler) GetAuditScope(context.Context, *orchestrator.GetAuditScopeRequest) (*orchestrator.AuditScope, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetAuditScope is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetAuditScopeStatistics(context.Context, *connect.Request[orchestrator.GetAuditScopeStatisticsRequest]) (*connect.Response[orchestrator.GetAuditScopeStatisticsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetAuditScopeStatistics is not implemented"))
+func (UnimplementedOrchestratorHandler) GetAuditScopeStatistics(context.Context, *orchestrator.GetAuditScopeStatisticsRequest) (*orchestrator.GetAuditScopeStatisticsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetAuditScopeStatistics is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListAuditScopes(context.Context, *connect.Request[orchestrator.ListAuditScopesRequest]) (*connect.Response[orchestrator.ListAuditScopesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListAuditScopes is not implemented"))
+func (UnimplementedOrchestratorHandler) ListAuditScopes(context.Context, *orchestrator.ListAuditScopesRequest) (*orchestrator.ListAuditScopesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListAuditScopes is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) UpdateAuditScope(context.Context, *connect.Request[orchestrator.UpdateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope is not implemented"))
+func (UnimplementedOrchestratorHandler) UpdateAuditScope(context.Context, *orchestrator.UpdateAuditScopeRequest) (*orchestrator.AuditScope, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope is not implemented"))
+func (UnimplementedOrchestratorHandler) RemoveAuditScope(context.Context, *orchestrator.RemoveAuditScopeRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ExportAuditScopeReport(context.Context, *connect.Request[orchestrator.ExportAuditScopeReportRequest]) (*connect.Response[httpbody.HttpBody], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ExportAuditScopeReport is not implemented"))
+func (UnimplementedOrchestratorHandler) ExportAuditScopeReport(context.Context, *orchestrator.ExportAuditScopeReportRequest) (*httpbody.HttpBody, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ExportAuditScopeReport is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo is not implemented"))
+func (UnimplementedOrchestratorHandler) GetRuntimeInfo(context.Context, *common.GetRuntimeInfoRequest) (*common.Runtime, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) UpsertUserPermission(context.Context, *connect.Request[orchestrator.UpsertUserPermissionRequest]) (*connect.Response[orchestrator.UpsertUserPermissionResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpsertUserPermission is not implemented"))
+func (UnimplementedOrchestratorHandler) UpsertUserPermission(context.Context, *orchestrator.UpsertUserPermissionRequest) (*orchestrator.UpsertUserPermissionResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.UpsertUserPermission is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) RemoveUserPermission(context.Context, *connect.Request[orchestrator.RemoveUserPermissionRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveUserPermission is not implemented"))
+func (UnimplementedOrchestratorHandler) RemoveUserPermission(context.Context, *orchestrator.RemoveUserPermissionRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.RemoveUserPermission is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetCurrentUser is not implemented"))
+func (UnimplementedOrchestratorHandler) GetCurrentUser(context.Context, *orchestrator.GetCurrentUserRequest) (*orchestrator.User, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetCurrentUser is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetUser(context.Context, *connect.Request[orchestrator.GetUserRequest]) (*connect.Response[orchestrator.User], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetUser is not implemented"))
+func (UnimplementedOrchestratorHandler) GetUser(context.Context, *orchestrator.GetUserRequest) (*orchestrator.User, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetUser is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListUsers(context.Context, *connect.Request[orchestrator.ListUsersRequest]) (*connect.Response[orchestrator.ListUsersResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListUsers is not implemented"))
+func (UnimplementedOrchestratorHandler) ListUsers(context.Context, *orchestrator.ListUsersRequest) (*orchestrator.ListUsersResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListUsers is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListUserPermissions(context.Context, *connect.Request[orchestrator.ListUserPermissionsRequest]) (*connect.Response[orchestrator.ListUserPermissionsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListUserPermissions is not implemented"))
+func (UnimplementedOrchestratorHandler) ListUserPermissions(context.Context, *orchestrator.ListUserPermissionsRequest) (*orchestrator.ListUserPermissionsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListUserPermissions is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListUserRoles(context.Context, *connect.Request[orchestrator.ListUserRolesRequest]) (*connect.Response[orchestrator.ListUserRolesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListUserRoles is not implemented"))
+func (UnimplementedOrchestratorHandler) ListUserRoles(context.Context, *orchestrator.ListUserRolesRequest) (*orchestrator.ListUserRolesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListUserRoles is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) RemoveUser(context.Context, *connect.Request[orchestrator.RemoveUserRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveUser is not implemented"))
+func (UnimplementedOrchestratorHandler) RemoveUser(context.Context, *orchestrator.RemoveUserRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.RemoveUser is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) CreateControlInScope(context.Context, *connect.Request[orchestrator.CreateControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.CreateControlInScope is not implemented"))
+func (UnimplementedOrchestratorHandler) CreateControlInScope(context.Context, *orchestrator.CreateControlInScopeRequest) (*orchestrator.ControlInScope, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.CreateControlInScope is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) GetControlInScope(context.Context, *connect.Request[orchestrator.GetControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetControlInScope is not implemented"))
+func (UnimplementedOrchestratorHandler) GetControlInScope(context.Context, *orchestrator.GetControlInScopeRequest) (*orchestrator.ControlInScope, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.GetControlInScope is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListControlsInScope(context.Context, *connect.Request[orchestrator.ListControlsInScopeRequest]) (*connect.Response[orchestrator.ListControlsInScopeResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListControlsInScope is not implemented"))
+func (UnimplementedOrchestratorHandler) ListControlsInScope(context.Context, *orchestrator.ListControlsInScopeRequest) (*orchestrator.ListControlsInScopeResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListControlsInScope is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) UpdateControlInScope(context.Context, *connect.Request[orchestrator.UpdateControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateControlInScope is not implemented"))
+func (UnimplementedOrchestratorHandler) UpdateControlInScope(context.Context, *orchestrator.UpdateControlInScopeRequest) (*orchestrator.ControlInScope, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.UpdateControlInScope is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) TransitionControlInScopeState(context.Context, *connect.Request[orchestrator.TransitionControlInScopeStateRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.TransitionControlInScopeState is not implemented"))
+func (UnimplementedOrchestratorHandler) TransitionControlInScopeState(context.Context, *orchestrator.TransitionControlInScopeStateRequest) (*orchestrator.ControlInScope, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.TransitionControlInScopeState is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) RemoveControlInScope(context.Context, *connect.Request[orchestrator.RemoveControlInScopeRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveControlInScope is not implemented"))
+func (UnimplementedOrchestratorHandler) RemoveControlInScope(context.Context, *orchestrator.RemoveControlInScopeRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.RemoveControlInScope is not implemented")
 }
 
-func (UnimplementedOrchestratorHandler) ListAuditTrailEvents(context.Context, *connect.Request[orchestrator.ListAuditTrailEventsRequest]) (*connect.Response[orchestrator.ListAuditTrailEventsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListAuditTrailEvents is not implemented"))
+func (UnimplementedOrchestratorHandler) ListAuditTrailEvents(context.Context, *orchestrator.ListAuditTrailEventsRequest) (*orchestrator.ListAuditTrailEventsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.orchestrator.v1.Orchestrator.ListAuditTrailEvents is not implemented")
+}
+
+type orchestratorClient struct {
+	client *connect.Client
+}
+
+func (c *orchestratorClient) RegisterAssessmentTool(ctx context.Context, req *orchestrator.RegisterAssessmentToolRequest) (*orchestrator.AssessmentTool, error) {
+	var res orchestrator.AssessmentTool
+	if err := c.client.CallUnary(ctx, orchestratorRegisterAssessmentToolSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListAssessmentTools(ctx context.Context, req *orchestrator.ListAssessmentToolsRequest) (*orchestrator.ListAssessmentToolsResponse, error) {
+	var res orchestrator.ListAssessmentToolsResponse
+	if err := c.client.CallUnary(ctx, orchestratorListAssessmentToolsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetAssessmentTool(ctx context.Context, req *orchestrator.GetAssessmentToolRequest) (*orchestrator.AssessmentTool, error) {
+	var res orchestrator.AssessmentTool
+	if err := c.client.CallUnary(ctx, orchestratorGetAssessmentToolSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) UpdateAssessmentTool(ctx context.Context, req *orchestrator.UpdateAssessmentToolRequest) (*orchestrator.AssessmentTool, error) {
+	var res orchestrator.AssessmentTool
+	if err := c.client.CallUnary(ctx, orchestratorUpdateAssessmentToolSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) DeregisterAssessmentTool(ctx context.Context, req *orchestrator.DeregisterAssessmentToolRequest) (*emptypb.Empty, error) {
+	var res emptypb.Empty
+	if err := c.client.CallUnary(ctx, orchestratorDeregisterAssessmentToolSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) StoreAssessmentResult(ctx context.Context, req *orchestrator.StoreAssessmentResultRequest) (*orchestrator.StoreAssessmentResultResponse, error) {
+	var res orchestrator.StoreAssessmentResultResponse
+	if err := c.client.CallUnary(ctx, orchestratorStoreAssessmentResultSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) StoreAssessmentResults(ctx context.Context) (OrchestratorStoreAssessmentResultsClientStream, error) {
+	stream, err := c.client.CallClientStream(ctx, orchestratorStoreAssessmentResultsSpec())
+	if err != nil {
+		return OrchestratorStoreAssessmentResultsClientStream{}, err
+	}
+	return OrchestratorStoreAssessmentResultsClientStream{stream: stream}, nil
+}
+
+func (c *orchestratorClient) GetAssessmentResult(ctx context.Context, req *orchestrator.GetAssessmentResultRequest) (*assessment.AssessmentResult, error) {
+	var res assessment.AssessmentResult
+	if err := c.client.CallUnary(ctx, orchestratorGetAssessmentResultSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) StoreEvaluationResult(ctx context.Context, req *orchestrator.StoreEvaluationResultRequest) (*evaluation.EvaluationResult, error) {
+	var res evaluation.EvaluationResult
+	if err := c.client.CallUnary(ctx, orchestratorStoreEvaluationResultSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListAssessmentResults(ctx context.Context, req *orchestrator.ListAssessmentResultsRequest) (*orchestrator.ListAssessmentResultsResponse, error) {
+	var res orchestrator.ListAssessmentResultsResponse
+	if err := c.client.CallUnary(ctx, orchestratorListAssessmentResultsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListEvaluationResults(ctx context.Context, req *orchestrator.ListEvaluationResultsRequest) (*orchestrator.ListEvaluationResultsResponse, error) {
+	var res orchestrator.ListEvaluationResultsResponse
+	if err := c.client.CallUnary(ctx, orchestratorListEvaluationResultsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) CreateMetric(ctx context.Context, req *orchestrator.CreateMetricRequest) (*assessment.Metric, error) {
+	var res assessment.Metric
+	if err := c.client.CallUnary(ctx, orchestratorCreateMetricSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) UpdateMetric(ctx context.Context, req *orchestrator.UpdateMetricRequest) (*assessment.Metric, error) {
+	var res assessment.Metric
+	if err := c.client.CallUnary(ctx, orchestratorUpdateMetricSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetMetric(ctx context.Context, req *orchestrator.GetMetricRequest) (*assessment.Metric, error) {
+	var res assessment.Metric
+	if err := c.client.CallUnary(ctx, orchestratorGetMetricSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListMetrics(ctx context.Context, req *orchestrator.ListMetricsRequest) (*orchestrator.ListMetricsResponse, error) {
+	var res orchestrator.ListMetricsResponse
+	if err := c.client.CallUnary(ctx, orchestratorListMetricsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) RemoveMetric(ctx context.Context, req *orchestrator.RemoveMetricRequest) (*emptypb.Empty, error) {
+	var res emptypb.Empty
+	if err := c.client.CallUnary(ctx, orchestratorRemoveMetricSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) CreateTargetOfEvaluation(ctx context.Context, req *orchestrator.CreateTargetOfEvaluationRequest) (*orchestrator.TargetOfEvaluation, error) {
+	var res orchestrator.TargetOfEvaluation
+	if err := c.client.CallUnary(ctx, orchestratorCreateTargetOfEvaluationSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) UpdateTargetOfEvaluation(ctx context.Context, req *orchestrator.UpdateTargetOfEvaluationRequest) (*orchestrator.TargetOfEvaluation, error) {
+	var res orchestrator.TargetOfEvaluation
+	if err := c.client.CallUnary(ctx, orchestratorUpdateTargetOfEvaluationSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetTargetOfEvaluation(ctx context.Context, req *orchestrator.GetTargetOfEvaluationRequest) (*orchestrator.TargetOfEvaluation, error) {
+	var res orchestrator.TargetOfEvaluation
+	if err := c.client.CallUnary(ctx, orchestratorGetTargetOfEvaluationSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListTargetsOfEvaluation(ctx context.Context, req *orchestrator.ListTargetsOfEvaluationRequest) (*orchestrator.ListTargetsOfEvaluationResponse, error) {
+	var res orchestrator.ListTargetsOfEvaluationResponse
+	if err := c.client.CallUnary(ctx, orchestratorListTargetsOfEvaluationSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) RemoveTargetOfEvaluation(ctx context.Context, req *orchestrator.RemoveTargetOfEvaluationRequest) (*emptypb.Empty, error) {
+	var res emptypb.Empty
+	if err := c.client.CallUnary(ctx, orchestratorRemoveTargetOfEvaluationSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetTargetOfEvaluationStatistics(ctx context.Context, req *orchestrator.GetTargetOfEvaluationStatisticsRequest) (*orchestrator.GetTargetOfEvaluationStatisticsResponse, error) {
+	var res orchestrator.GetTargetOfEvaluationStatisticsResponse
+	if err := c.client.CallUnary(ctx, orchestratorGetTargetOfEvaluationStatisticsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) UpdateMetricConfiguration(ctx context.Context, req *orchestrator.UpdateMetricConfigurationRequest) (*assessment.MetricConfiguration, error) {
+	var res assessment.MetricConfiguration
+	if err := c.client.CallUnary(ctx, orchestratorUpdateMetricConfigurationSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetMetricConfiguration(ctx context.Context, req *orchestrator.GetMetricConfigurationRequest) (*assessment.MetricConfiguration, error) {
+	var res assessment.MetricConfiguration
+	if err := c.client.CallUnary(ctx, orchestratorGetMetricConfigurationSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListMetricConfigurations(ctx context.Context, req *orchestrator.ListMetricConfigurationRequest) (*orchestrator.ListMetricConfigurationResponse, error) {
+	var res orchestrator.ListMetricConfigurationResponse
+	if err := c.client.CallUnary(ctx, orchestratorListMetricConfigurationsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) UpdateMetricImplementation(ctx context.Context, req *orchestrator.UpdateMetricImplementationRequest) (*assessment.MetricImplementation, error) {
+	var res assessment.MetricImplementation
+	if err := c.client.CallUnary(ctx, orchestratorUpdateMetricImplementationSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetMetricImplementation(ctx context.Context, req *orchestrator.GetMetricImplementationRequest) (*assessment.MetricImplementation, error) {
+	var res assessment.MetricImplementation
+	if err := c.client.CallUnary(ctx, orchestratorGetMetricImplementationSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) Subscribe(ctx context.Context, req *orchestrator.SubscribeRequest) (OrchestratorSubscribeClientStream, error) {
+	stream, err := c.client.CallServerStream(ctx, orchestratorSubscribeSpec(), req)
+	if err != nil {
+		return OrchestratorSubscribeClientStream{}, err
+	}
+	return OrchestratorSubscribeClientStream{stream: stream}, nil
+}
+
+func (c *orchestratorClient) CreateCertificate(ctx context.Context, req *orchestrator.CreateCertificateRequest) (*orchestrator.Certificate, error) {
+	var res orchestrator.Certificate
+	if err := c.client.CallUnary(ctx, orchestratorCreateCertificateSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetCertificate(ctx context.Context, req *orchestrator.GetCertificateRequest) (*orchestrator.Certificate, error) {
+	var res orchestrator.Certificate
+	if err := c.client.CallUnary(ctx, orchestratorGetCertificateSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListCertificates(ctx context.Context, req *orchestrator.ListCertificatesRequest) (*orchestrator.ListCertificatesResponse, error) {
+	var res orchestrator.ListCertificatesResponse
+	if err := c.client.CallUnary(ctx, orchestratorListCertificatesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListPublicCertificates(ctx context.Context, req *orchestrator.ListPublicCertificatesRequest) (*orchestrator.ListPublicCertificatesResponse, error) {
+	var res orchestrator.ListPublicCertificatesResponse
+	if err := c.client.CallUnary(ctx, orchestratorListPublicCertificatesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) UpdateCertificate(ctx context.Context, req *orchestrator.UpdateCertificateRequest) (*orchestrator.Certificate, error) {
+	var res orchestrator.Certificate
+	if err := c.client.CallUnary(ctx, orchestratorUpdateCertificateSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) RemoveCertificate(ctx context.Context, req *orchestrator.RemoveCertificateRequest) (*emptypb.Empty, error) {
+	var res emptypb.Empty
+	if err := c.client.CallUnary(ctx, orchestratorRemoveCertificateSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) UpdateCertificateLifecycle(ctx context.Context, req *orchestrator.UpdateCertificateLifecycleRequest) (*emptypb.Empty, error) {
+	var res emptypb.Empty
+	if err := c.client.CallUnary(ctx, orchestratorUpdateCertificateLifecycleSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) CreateCatalog(ctx context.Context, req *orchestrator.CreateCatalogRequest) (*orchestrator.Catalog, error) {
+	var res orchestrator.Catalog
+	if err := c.client.CallUnary(ctx, orchestratorCreateCatalogSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListCatalogs(ctx context.Context, req *orchestrator.ListCatalogsRequest) (*orchestrator.ListCatalogsResponse, error) {
+	var res orchestrator.ListCatalogsResponse
+	if err := c.client.CallUnary(ctx, orchestratorListCatalogsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetCatalog(ctx context.Context, req *orchestrator.GetCatalogRequest) (*orchestrator.Catalog, error) {
+	var res orchestrator.Catalog
+	if err := c.client.CallUnary(ctx, orchestratorGetCatalogSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) RemoveCatalog(ctx context.Context, req *orchestrator.RemoveCatalogRequest) (*emptypb.Empty, error) {
+	var res emptypb.Empty
+	if err := c.client.CallUnary(ctx, orchestratorRemoveCatalogSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) UpdateCatalog(ctx context.Context, req *orchestrator.UpdateCatalogRequest) (*orchestrator.Catalog, error) {
+	var res orchestrator.Catalog
+	if err := c.client.CallUnary(ctx, orchestratorUpdateCatalogSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetCategory(ctx context.Context, req *orchestrator.GetCategoryRequest) (*orchestrator.Category, error) {
+	var res orchestrator.Category
+	if err := c.client.CallUnary(ctx, orchestratorGetCategorySpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListControls(ctx context.Context, req *orchestrator.ListControlsRequest) (*orchestrator.ListControlsResponse, error) {
+	var res orchestrator.ListControlsResponse
+	if err := c.client.CallUnary(ctx, orchestratorListControlsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetControl(ctx context.Context, req *orchestrator.GetControlRequest) (*orchestrator.Control, error) {
+	var res orchestrator.Control
+	if err := c.client.CallUnary(ctx, orchestratorGetControlSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) CreateAuditScope(ctx context.Context, req *orchestrator.CreateAuditScopeRequest) (*orchestrator.AuditScope, error) {
+	var res orchestrator.AuditScope
+	if err := c.client.CallUnary(ctx, orchestratorCreateAuditScopeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetAuditScope(ctx context.Context, req *orchestrator.GetAuditScopeRequest) (*orchestrator.AuditScope, error) {
+	var res orchestrator.AuditScope
+	if err := c.client.CallUnary(ctx, orchestratorGetAuditScopeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetAuditScopeStatistics(ctx context.Context, req *orchestrator.GetAuditScopeStatisticsRequest) (*orchestrator.GetAuditScopeStatisticsResponse, error) {
+	var res orchestrator.GetAuditScopeStatisticsResponse
+	if err := c.client.CallUnary(ctx, orchestratorGetAuditScopeStatisticsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListAuditScopes(ctx context.Context, req *orchestrator.ListAuditScopesRequest) (*orchestrator.ListAuditScopesResponse, error) {
+	var res orchestrator.ListAuditScopesResponse
+	if err := c.client.CallUnary(ctx, orchestratorListAuditScopesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) UpdateAuditScope(ctx context.Context, req *orchestrator.UpdateAuditScopeRequest) (*orchestrator.AuditScope, error) {
+	var res orchestrator.AuditScope
+	if err := c.client.CallUnary(ctx, orchestratorUpdateAuditScopeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) RemoveAuditScope(ctx context.Context, req *orchestrator.RemoveAuditScopeRequest) (*emptypb.Empty, error) {
+	var res emptypb.Empty
+	if err := c.client.CallUnary(ctx, orchestratorRemoveAuditScopeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ExportAuditScopeReport(ctx context.Context, req *orchestrator.ExportAuditScopeReportRequest) (*httpbody.HttpBody, error) {
+	var res httpbody.HttpBody
+	if err := c.client.CallUnary(ctx, orchestratorExportAuditScopeReportSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetRuntimeInfo(ctx context.Context, req *common.GetRuntimeInfoRequest) (*common.Runtime, error) {
+	var res common.Runtime
+	if err := c.client.CallUnary(ctx, orchestratorGetRuntimeInfoSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) UpsertUserPermission(ctx context.Context, req *orchestrator.UpsertUserPermissionRequest) (*orchestrator.UpsertUserPermissionResponse, error) {
+	var res orchestrator.UpsertUserPermissionResponse
+	if err := c.client.CallUnary(ctx, orchestratorUpsertUserPermissionSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) RemoveUserPermission(ctx context.Context, req *orchestrator.RemoveUserPermissionRequest) (*emptypb.Empty, error) {
+	var res emptypb.Empty
+	if err := c.client.CallUnary(ctx, orchestratorRemoveUserPermissionSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetCurrentUser(ctx context.Context, req *orchestrator.GetCurrentUserRequest) (*orchestrator.User, error) {
+	var res orchestrator.User
+	if err := c.client.CallUnary(ctx, orchestratorGetCurrentUserSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetUser(ctx context.Context, req *orchestrator.GetUserRequest) (*orchestrator.User, error) {
+	var res orchestrator.User
+	if err := c.client.CallUnary(ctx, orchestratorGetUserSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListUsers(ctx context.Context, req *orchestrator.ListUsersRequest) (*orchestrator.ListUsersResponse, error) {
+	var res orchestrator.ListUsersResponse
+	if err := c.client.CallUnary(ctx, orchestratorListUsersSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListUserPermissions(ctx context.Context, req *orchestrator.ListUserPermissionsRequest) (*orchestrator.ListUserPermissionsResponse, error) {
+	var res orchestrator.ListUserPermissionsResponse
+	if err := c.client.CallUnary(ctx, orchestratorListUserPermissionsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListUserRoles(ctx context.Context, req *orchestrator.ListUserRolesRequest) (*orchestrator.ListUserRolesResponse, error) {
+	var res orchestrator.ListUserRolesResponse
+	if err := c.client.CallUnary(ctx, orchestratorListUserRolesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) RemoveUser(ctx context.Context, req *orchestrator.RemoveUserRequest) (*emptypb.Empty, error) {
+	var res emptypb.Empty
+	if err := c.client.CallUnary(ctx, orchestratorRemoveUserSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) CreateControlInScope(ctx context.Context, req *orchestrator.CreateControlInScopeRequest) (*orchestrator.ControlInScope, error) {
+	var res orchestrator.ControlInScope
+	if err := c.client.CallUnary(ctx, orchestratorCreateControlInScopeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) GetControlInScope(ctx context.Context, req *orchestrator.GetControlInScopeRequest) (*orchestrator.ControlInScope, error) {
+	var res orchestrator.ControlInScope
+	if err := c.client.CallUnary(ctx, orchestratorGetControlInScopeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListControlsInScope(ctx context.Context, req *orchestrator.ListControlsInScopeRequest) (*orchestrator.ListControlsInScopeResponse, error) {
+	var res orchestrator.ListControlsInScopeResponse
+	if err := c.client.CallUnary(ctx, orchestratorListControlsInScopeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) UpdateControlInScope(ctx context.Context, req *orchestrator.UpdateControlInScopeRequest) (*orchestrator.ControlInScope, error) {
+	var res orchestrator.ControlInScope
+	if err := c.client.CallUnary(ctx, orchestratorUpdateControlInScopeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) TransitionControlInScopeState(ctx context.Context, req *orchestrator.TransitionControlInScopeStateRequest) (*orchestrator.ControlInScope, error) {
+	var res orchestrator.ControlInScope
+	if err := c.client.CallUnary(ctx, orchestratorTransitionControlInScopeStateSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) RemoveControlInScope(ctx context.Context, req *orchestrator.RemoveControlInScopeRequest) (*emptypb.Empty, error) {
+	var res emptypb.Empty
+	if err := c.client.CallUnary(ctx, orchestratorRemoveControlInScopeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orchestratorClient) ListAuditTrailEvents(ctx context.Context, req *orchestrator.ListAuditTrailEventsRequest) (*orchestrator.ListAuditTrailEventsResponse, error) {
+	var res orchestrator.ListAuditTrailEventsResponse
+	if err := c.client.CallUnary(ctx, orchestratorListAuditTrailEventsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type orchestratorHandler struct{ svc OrchestratorHandler }
+
+func (h orchestratorHandler) registerAssessmentTool(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.RegisterAssessmentToolRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RegisterAssessmentTool(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listAssessmentTools(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListAssessmentToolsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListAssessmentTools(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getAssessmentTool(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetAssessmentToolRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetAssessmentTool(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) updateAssessmentTool(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.UpdateAssessmentToolRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateAssessmentTool(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) deregisterAssessmentTool(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.DeregisterAssessmentToolRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.DeregisterAssessmentTool(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) storeAssessmentResult(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.StoreAssessmentResultRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.StoreAssessmentResult(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) storeAssessmentResults(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	return h.svc.StoreAssessmentResults(ctx, OrchestratorStoreAssessmentResultsServerStream{stream: stream})
+}
+
+func (h orchestratorHandler) getAssessmentResult(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetAssessmentResultRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetAssessmentResult(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) storeEvaluationResult(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.StoreEvaluationResultRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.StoreEvaluationResult(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listAssessmentResults(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListAssessmentResultsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListAssessmentResults(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listEvaluationResults(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListEvaluationResultsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListEvaluationResults(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) createMetric(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.CreateMetricRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CreateMetric(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) updateMetric(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.UpdateMetricRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateMetric(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getMetric(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetMetricRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetMetric(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listMetrics(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListMetricsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListMetrics(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) removeMetric(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.RemoveMetricRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RemoveMetric(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) createTargetOfEvaluation(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.CreateTargetOfEvaluationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CreateTargetOfEvaluation(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) updateTargetOfEvaluation(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.UpdateTargetOfEvaluationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateTargetOfEvaluation(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getTargetOfEvaluation(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetTargetOfEvaluationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetTargetOfEvaluation(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listTargetsOfEvaluation(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListTargetsOfEvaluationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListTargetsOfEvaluation(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) removeTargetOfEvaluation(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.RemoveTargetOfEvaluationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RemoveTargetOfEvaluation(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getTargetOfEvaluationStatistics(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetTargetOfEvaluationStatisticsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetTargetOfEvaluationStatistics(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) updateMetricConfiguration(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.UpdateMetricConfigurationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateMetricConfiguration(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getMetricConfiguration(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetMetricConfigurationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetMetricConfiguration(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listMetricConfigurations(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListMetricConfigurationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListMetricConfigurations(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) updateMetricImplementation(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.UpdateMetricImplementationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateMetricImplementation(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getMetricImplementation(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetMetricImplementationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetMetricImplementation(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) subscribe(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.SubscribeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	return h.svc.Subscribe(ctx, &req, OrchestratorSubscribeServerStream{stream: stream})
+}
+
+func (h orchestratorHandler) createCertificate(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.CreateCertificateRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CreateCertificate(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getCertificate(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetCertificateRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetCertificate(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listCertificates(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListCertificatesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListCertificates(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listPublicCertificates(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListPublicCertificatesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListPublicCertificates(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) updateCertificate(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.UpdateCertificateRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateCertificate(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) removeCertificate(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.RemoveCertificateRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RemoveCertificate(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) updateCertificateLifecycle(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.UpdateCertificateLifecycleRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateCertificateLifecycle(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) createCatalog(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.CreateCatalogRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CreateCatalog(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listCatalogs(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListCatalogsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListCatalogs(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getCatalog(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetCatalogRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetCatalog(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) removeCatalog(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.RemoveCatalogRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RemoveCatalog(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) updateCatalog(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.UpdateCatalogRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateCatalog(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getCategory(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetCategoryRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetCategory(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listControls(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListControlsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListControls(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getControl(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetControlRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetControl(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) createAuditScope(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.CreateAuditScopeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CreateAuditScope(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getAuditScope(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetAuditScopeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetAuditScope(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getAuditScopeStatistics(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetAuditScopeStatisticsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetAuditScopeStatistics(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listAuditScopes(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListAuditScopesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListAuditScopes(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) updateAuditScope(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.UpdateAuditScopeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateAuditScope(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) removeAuditScope(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.RemoveAuditScopeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RemoveAuditScope(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) exportAuditScopeReport(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ExportAuditScopeReportRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ExportAuditScopeReport(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getRuntimeInfo(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req common.GetRuntimeInfoRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetRuntimeInfo(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) upsertUserPermission(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.UpsertUserPermissionRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpsertUserPermission(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) removeUserPermission(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.RemoveUserPermissionRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RemoveUserPermission(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getCurrentUser(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetCurrentUserRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetCurrentUser(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getUser(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetUserRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetUser(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listUsers(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListUsersRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListUsers(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listUserPermissions(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListUserPermissionsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListUserPermissions(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listUserRoles(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListUserRolesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListUserRoles(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) removeUser(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.RemoveUserRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RemoveUser(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) createControlInScope(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.CreateControlInScopeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CreateControlInScope(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) getControlInScope(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.GetControlInScopeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetControlInScope(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listControlsInScope(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListControlsInScopeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListControlsInScope(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) updateControlInScope(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.UpdateControlInScopeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateControlInScope(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) transitionControlInScopeState(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.TransitionControlInScopeStateRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.TransitionControlInScopeState(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) removeControlInScope(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.RemoveControlInScopeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RemoveControlInScope(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orchestratorHandler) listAuditTrailEvents(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req orchestrator.ListAuditTrailEventsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListAuditTrailEvents(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

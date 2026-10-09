@@ -7,7 +7,7 @@ info:
     description: |-
         Representing the link between orchestrator and discovery: Assessing evidences
          from discovery and sending results to orchestrator
-    version: core/v0.3.0-87-g6cade3fb
+    version: core/v0.3.0-94-g333a43aa
 paths:
     /v1/assessment/evidences:
         post:
@@ -116,6 +116,17 @@ components:
             description: |-
                 Account is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  This represents the cloud account as a whole, e.g., an Azure subscription.
+        AccountManagementPolicy:
+            type: object
+            properties:
+                intervalMonths:
+                    type: integer
+                    format: int32
+                secretStorage:
+                    type: array
+                    items:
+                        type: string
+            description: AccountManagementPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         ActivityLogging:
             type: object
             properties:
@@ -813,7 +824,11 @@ components:
                 percentageLastMonth:
                     type: number
                     format: float
-            description: "CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n Percentage: Percentage of commits with \"Signed-off-by\" lines. \n PercentageLastMonth: Percentage of commits with \"Signed-off-by\" lines in the last 30 days. \n Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository"
+            description: |-
+                CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                 Percentage: Percentage of commits with "Signed-off-by" lines.
+                 PercentageLastMonth: Percentage of commits with "Signed-off-by" lines in the last 30 days.
+                 Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository
         ComplianceAuditIntervalPolicy:
             type: object
             properties:
@@ -2375,6 +2390,8 @@ components:
                     $ref: '#/components/schemas/AcceptableUsePolicy'
                 accessControlTypePolicy:
                     $ref: '#/components/schemas/AccessControlTypePolicy'
+                accountManagementPolicy:
+                    $ref: '#/components/schemas/AccountManagementPolicy'
                 auditLogMonitoringPolicy:
                     $ref: '#/components/schemas/AuditLogMonitoringPolicy'
                 complianceAuditIntervalPolicy:
@@ -2387,6 +2404,8 @@ components:
                     $ref: '#/components/schemas/DataConfidentialitySDNPolicy'
                 deviceManagementPolicy:
                     $ref: '#/components/schemas/DeviceManagementPolicy'
+                informationSecurityManagementSystem:
+                    $ref: '#/components/schemas/InformationSecurityManagementSystem'
                 leastPrivilegePolicy:
                     $ref: '#/components/schemas/LeastPrivilegePolicy'
                 liabilityPolicy:
@@ -3075,6 +3094,14 @@ components:
                 enabled:
                     type: boolean
             description: Immutability is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        InformationSecurityManagementSystem:
+            type: object
+            properties:
+                iso27001Certified:
+                    type: array
+                    items:
+                        type: string
+            description: InformationSecurityManagementSystem is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         Infrastructure:
             type: object
             properties:
@@ -4596,6 +4623,9 @@ components:
                 failedAuthenticationAttempts:
                     type: integer
                     format: int32
+                length:
+                    type: integer
+                    format: int32
                 rotationInterval:
                     type: integer
                     description: Maximum password rotation interval in months
@@ -4666,6 +4696,8 @@ components:
                     $ref: '#/components/schemas/AcceptableUsePolicy'
                 accessControlTypePolicy:
                     $ref: '#/components/schemas/AccessControlTypePolicy'
+                accountManagementPolicy:
+                    $ref: '#/components/schemas/AccountManagementPolicy'
                 assetInventory:
                     $ref: '#/components/schemas/AssetInventory'
                 auditLogMonitoringPolicy:
@@ -4696,6 +4728,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Governance'
+                informationSecurityManagementSystem:
+                    $ref: '#/components/schemas/InformationSecurityManagementSystem'
                 leastPrivilegePolicy:
                     $ref: '#/components/schemas/LeastPrivilegePolicy'
                 liabilityPolicy:
@@ -5924,7 +5958,11 @@ components:
                 percentageLastMonth:
                     type: number
                     format: float
-            description: "SignedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n  SignedCommits cryptographically verify the identity of the commit author.\n Percentage: Percentage of signed commits. \n PercentageLastMonth: Percentage of signed commits in the last 30 days."
+            description: |-
+                SignedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                  SignedCommits cryptographically verify the identity of the commit author.
+                 Percentage: Percentage of signed commits.
+                 PercentageLastMonth: Percentage of signed commits in the last 30 days.
         SingleSignOn:
             type: object
             properties:
@@ -6259,7 +6297,11 @@ components:
                 percentageLastMonth:
                     type: number
                     format: float
-            description: "VerifiedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n  VerifiedCommits ensure that cryptographic signatures on commits are successfully validated against trusted keys, confirming author authenticity and code integrity.\n Percentage: Percentage of verified commits. \n PercentageLastMonth: Percentage of verified commits in the last 30 days."
+            description: |-
+                VerifiedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                  VerifiedCommits ensure that cryptographic signatures on commits are successfully validated against trusted keys, confirming author authenticity and code integrity.
+                 Percentage: Percentage of verified commits.
+                 PercentageLastMonth: Percentage of verified commits in the last 30 days.
         VirtualMachine:
             type: object
             properties:

@@ -20,175 +20,232 @@ package assessmentconnect
 
 import (
 	assessment "confirmate.io/core/api/assessment"
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// AssessmentName is the fully-qualified name of the Assessment service.
 	AssessmentName = "confirmate.assessment.v1.Assessment"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// AssessmentCalculateComplianceProcedure is the fully-qualified name of the Assessment's
+	// AssessmentCalculateComplianceProcedure is the procedure name of the Assessment's
 	// CalculateCompliance RPC.
 	AssessmentCalculateComplianceProcedure = "/confirmate.assessment.v1.Assessment/CalculateCompliance"
-	// AssessmentAssessEvidenceProcedure is the fully-qualified name of the Assessment's AssessEvidence
-	// RPC.
+	// AssessmentAssessEvidenceProcedure is the procedure name of the Assessment's AssessEvidence RPC.
 	AssessmentAssessEvidenceProcedure = "/confirmate.assessment.v1.Assessment/AssessEvidence"
-	// AssessmentAssessEvidencesProcedure is the fully-qualified name of the Assessment's
-	// AssessEvidences RPC.
+	// AssessmentAssessEvidencesProcedure is the procedure name of the Assessment's AssessEvidences RPC.
 	AssessmentAssessEvidencesProcedure = "/confirmate.assessment.v1.Assessment/AssessEvidences"
+)
+
+var (
+	assessmentCalculateComplianceSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     assessment.File_api_assessment_assessment_proto.Services().ByName("Assessment").Methods().ByName("CalculateCompliance"),
+			Procedure:  AssessmentCalculateComplianceProcedure,
+		}
+	})
+	assessmentAssessEvidenceSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     assessment.File_api_assessment_assessment_proto.Services().ByName("Assessment").Methods().ByName("AssessEvidence"),
+			Procedure:  AssessmentAssessEvidenceProcedure,
+		}
+	})
+	assessmentAssessEvidencesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeBidi,
+			Schema:     assessment.File_api_assessment_assessment_proto.Services().ByName("Assessment").Methods().ByName("AssessEvidences"),
+			Procedure:  AssessmentAssessEvidencesProcedure,
+		}
+	})
 )
 
 // AssessmentClient is a client for the confirmate.assessment.v1.Assessment service.
 type AssessmentClient interface {
 	// Triggers the compliance calculation. Part of the private API. Not exposed
 	// as REST.
-	CalculateCompliance(context.Context, *connect.Request[assessment.CalculateComplianceRequest]) (*connect.Response[emptypb.Empty], error)
+	CalculateCompliance(context.Context, *assessment.CalculateComplianceRequest) (*emptypb.Empty, error)
 	// Assesses the evidence sent by the discovery. Part of the public API, also
 	// exposed as REST.
-	AssessEvidence(context.Context, *connect.Request[assessment.AssessEvidenceRequest]) (*connect.Response[assessment.AssessEvidenceResponse], error)
+	AssessEvidence(context.Context, *assessment.AssessEvidenceRequest) (*assessment.AssessEvidenceResponse, error)
 	// Assesses stream of evidences sent by the discovery and returns a response
 	// stream. Part of the public API. Not exposed as REST.
-	AssessEvidences(context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
+	AssessEvidences(context.Context) (AssessmentAssessEvidencesClientStream, error)
 }
 
-// NewAssessmentClient constructs a client for the confirmate.assessment.v1.Assessment service. By
-// default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
-// and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
-// connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewAssessmentClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AssessmentClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	assessmentMethods := assessment.File_api_assessment_assessment_proto.Services().ByName("Assessment").Methods()
-	return &assessmentClient{
-		calculateCompliance: connect.NewClient[assessment.CalculateComplianceRequest, emptypb.Empty](
-			httpClient,
-			baseURL+AssessmentCalculateComplianceProcedure,
-			connect.WithSchema(assessmentMethods.ByName("CalculateCompliance")),
-			connect.WithClientOptions(opts...),
-		),
-		assessEvidence: connect.NewClient[assessment.AssessEvidenceRequest, assessment.AssessEvidenceResponse](
-			httpClient,
-			baseURL+AssessmentAssessEvidenceProcedure,
-			connect.WithSchema(assessmentMethods.ByName("AssessEvidence")),
-			connect.WithClientOptions(opts...),
-		),
-		assessEvidences: connect.NewClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse](
-			httpClient,
-			baseURL+AssessmentAssessEvidencesProcedure,
-			connect.WithSchema(assessmentMethods.ByName("AssessEvidences")),
-			connect.WithClientOptions(opts...),
-		),
+// NewAssessmentClient constructs a client for the confirmate.assessment.v1.Assessment service.
+// Multiple service clients may share a single connect.Client.
+func NewAssessmentClient(client *connect.Client) AssessmentClient {
+	return &assessmentClient{client: client}
+}
+
+// AssessmentAssessEvidencesClientStream is the client stream for the Assessment's AssessEvidences
+// RPC.
+type AssessmentAssessEvidencesClientStream struct {
+	stream connect.ClientStream
+}
+
+// SendHeaders opens the stream and flushes the request headers without a message. The first Send or
+// Receive does this implicitly.
+func (s AssessmentAssessEvidencesClientStream) SendHeaders() error {
+	return s.stream.SendHeaders()
+}
+
+// Send sends a request message to the server.
+func (s AssessmentAssessEvidencesClientStream) Send(req *assessment.AssessEvidenceRequest) error {
+	return s.stream.Send(req)
+}
+
+// CloseSend closes the request side of the stream.
+func (s AssessmentAssessEvidencesClientStream) CloseSend() error {
+	return s.stream.CloseSend()
+}
+
+// Receive returns the next response message from the server.
+func (s AssessmentAssessEvidencesClientStream) Receive() (*assessment.AssessEvidencesResponse, error) {
+	var res assessment.AssessEvidencesResponse
+	if err := s.stream.Receive(&res); err != nil {
+		return nil, err
 	}
+	return &res, nil
 }
 
-// assessmentClient implements AssessmentClient.
-type assessmentClient struct {
-	calculateCompliance *connect.Client[assessment.CalculateComplianceRequest, emptypb.Empty]
-	assessEvidence      *connect.Client[assessment.AssessEvidenceRequest, assessment.AssessEvidenceResponse]
-	assessEvidences     *connect.Client[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
-}
-
-// CalculateCompliance calls confirmate.assessment.v1.Assessment.CalculateCompliance.
-func (c *assessmentClient) CalculateCompliance(ctx context.Context, req *connect.Request[assessment.CalculateComplianceRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.calculateCompliance.CallUnary(ctx, req)
-}
-
-// AssessEvidence calls confirmate.assessment.v1.Assessment.AssessEvidence.
-func (c *assessmentClient) AssessEvidence(ctx context.Context, req *connect.Request[assessment.AssessEvidenceRequest]) (*connect.Response[assessment.AssessEvidenceResponse], error) {
-	return c.assessEvidence.CallUnary(ctx, req)
-}
-
-// AssessEvidences calls confirmate.assessment.v1.Assessment.AssessEvidences.
-func (c *assessmentClient) AssessEvidences(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
-	return c.assessEvidences.CallBidiStream(ctx)
+// Close releases the stream's resources. It is idempotent and is typically deferred to clean up a
+// stream abandoned before io.EOF.
+func (s AssessmentAssessEvidencesClientStream) Close() error {
+	return s.stream.Close()
 }
 
 // AssessmentHandler is an implementation of the confirmate.assessment.v1.Assessment service.
 type AssessmentHandler interface {
 	// Triggers the compliance calculation. Part of the private API. Not exposed
 	// as REST.
-	CalculateCompliance(context.Context, *connect.Request[assessment.CalculateComplianceRequest]) (*connect.Response[emptypb.Empty], error)
+	CalculateCompliance(context.Context, *assessment.CalculateComplianceRequest) (*emptypb.Empty, error)
 	// Assesses the evidence sent by the discovery. Part of the public API, also
 	// exposed as REST.
-	AssessEvidence(context.Context, *connect.Request[assessment.AssessEvidenceRequest]) (*connect.Response[assessment.AssessEvidenceResponse], error)
+	AssessEvidence(context.Context, *assessment.AssessEvidenceRequest) (*assessment.AssessEvidenceResponse, error)
 	// Assesses stream of evidences sent by the discovery and returns a response
 	// stream. Part of the public API. Not exposed as REST.
-	AssessEvidences(context.Context, *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) error
+	AssessEvidences(context.Context, AssessmentAssessEvidencesServerStream) error
 }
 
-// NewAssessmentHandler builds an HTTP handler from the service implementation. It returns the path
-// on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewAssessmentHandler(svc AssessmentHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	assessmentMethods := assessment.File_api_assessment_assessment_proto.Services().ByName("Assessment").Methods()
-	assessmentCalculateComplianceHandler := connect.NewUnaryHandler(
-		AssessmentCalculateComplianceProcedure,
-		svc.CalculateCompliance,
-		connect.WithSchema(assessmentMethods.ByName("CalculateCompliance")),
-		connect.WithHandlerOptions(opts...),
+// RegisterAssessmentHandler registers svc as the confirmate.assessment.v1.Assessment implementation
+// on server.
+func RegisterAssessmentHandler(server *connect.Server, svc AssessmentHandler) {
+	adapter := assessmentHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: assessmentCalculateComplianceSpec(), Handler: adapter.calculateCompliance},
+		connect.Method{Spec: assessmentAssessEvidenceSpec(), Handler: adapter.assessEvidence},
+		connect.Method{Spec: assessmentAssessEvidencesSpec(), Handler: adapter.assessEvidences},
 	)
-	assessmentAssessEvidenceHandler := connect.NewUnaryHandler(
-		AssessmentAssessEvidenceProcedure,
-		svc.AssessEvidence,
-		connect.WithSchema(assessmentMethods.ByName("AssessEvidence")),
-		connect.WithHandlerOptions(opts...),
-	)
-	assessmentAssessEvidencesHandler := connect.NewBidiStreamHandler(
-		AssessmentAssessEvidencesProcedure,
-		svc.AssessEvidences,
-		connect.WithSchema(assessmentMethods.ByName("AssessEvidences")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/confirmate.assessment.v1.Assessment/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case AssessmentCalculateComplianceProcedure:
-			assessmentCalculateComplianceHandler.ServeHTTP(w, r)
-		case AssessmentAssessEvidenceProcedure:
-			assessmentAssessEvidenceHandler.ServeHTTP(w, r)
-		case AssessmentAssessEvidencesProcedure:
-			assessmentAssessEvidencesHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
+}
+
+// AssessmentAssessEvidencesServerStream is the server stream for the Assessment's AssessEvidences
+// RPC.
+type AssessmentAssessEvidencesServerStream struct {
+	stream connect.ServerStream
+}
+
+// Receive returns the next request message from the client.
+func (s AssessmentAssessEvidencesServerStream) Receive() (*assessment.AssessEvidenceRequest, error) {
+	var req assessment.AssessEvidenceRequest
+	if err := s.stream.Receive(&req); err != nil {
+		return nil, err
+	}
+	return &req, nil
+}
+
+// SendHeaders flushes the response headers without a message. The first Send does this implicitly.
+func (s AssessmentAssessEvidencesServerStream) SendHeaders() error {
+	return s.stream.SendHeaders()
+}
+
+// Send sends a response message to the client.
+func (s AssessmentAssessEvidencesServerStream) Send(res *assessment.AssessEvidencesResponse) error {
+	return s.stream.Send(res)
 }
 
 // UnimplementedAssessmentHandler returns CodeUnimplemented from all methods.
 type UnimplementedAssessmentHandler struct{}
 
-func (UnimplementedAssessmentHandler) CalculateCompliance(context.Context, *connect.Request[assessment.CalculateComplianceRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.assessment.v1.Assessment.CalculateCompliance is not implemented"))
+func (UnimplementedAssessmentHandler) CalculateCompliance(context.Context, *assessment.CalculateComplianceRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.assessment.v1.Assessment.CalculateCompliance is not implemented")
 }
 
-func (UnimplementedAssessmentHandler) AssessEvidence(context.Context, *connect.Request[assessment.AssessEvidenceRequest]) (*connect.Response[assessment.AssessEvidenceResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.assessment.v1.Assessment.AssessEvidence is not implemented"))
+func (UnimplementedAssessmentHandler) AssessEvidence(context.Context, *assessment.AssessEvidenceRequest) (*assessment.AssessEvidenceResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.assessment.v1.Assessment.AssessEvidence is not implemented")
 }
 
-func (UnimplementedAssessmentHandler) AssessEvidences(context.Context, *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) error {
-	return connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.assessment.v1.Assessment.AssessEvidences is not implemented"))
+func (UnimplementedAssessmentHandler) AssessEvidences(context.Context, AssessmentAssessEvidencesServerStream) error {
+	return connect.NewError(connect.CodeUnimplemented, "confirmate.assessment.v1.Assessment.AssessEvidences is not implemented")
+}
+
+type assessmentClient struct {
+	client *connect.Client
+}
+
+func (c *assessmentClient) CalculateCompliance(ctx context.Context, req *assessment.CalculateComplianceRequest) (*emptypb.Empty, error) {
+	var res emptypb.Empty
+	if err := c.client.CallUnary(ctx, assessmentCalculateComplianceSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *assessmentClient) AssessEvidence(ctx context.Context, req *assessment.AssessEvidenceRequest) (*assessment.AssessEvidenceResponse, error) {
+	var res assessment.AssessEvidenceResponse
+	if err := c.client.CallUnary(ctx, assessmentAssessEvidenceSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *assessmentClient) AssessEvidences(ctx context.Context) (AssessmentAssessEvidencesClientStream, error) {
+	stream, err := c.client.CallClientStream(ctx, assessmentAssessEvidencesSpec())
+	if err != nil {
+		return AssessmentAssessEvidencesClientStream{}, err
+	}
+	return AssessmentAssessEvidencesClientStream{stream: stream}, nil
+}
+
+type assessmentHandler struct{ svc AssessmentHandler }
+
+func (h assessmentHandler) calculateCompliance(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req assessment.CalculateComplianceRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CalculateCompliance(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h assessmentHandler) assessEvidence(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req assessment.AssessEvidenceRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.AssessEvidence(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h assessmentHandler) assessEvidences(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	return h.svc.AssessEvidences(ctx, AssessmentAssessEvidencesServerStream{stream: stream})
 }

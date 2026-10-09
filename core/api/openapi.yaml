@@ -830,7 +830,11 @@ paths:
         get:
             tags:
                 - Orchestrator
-            description: Exports a compliance report for an Audit Scope as an XLSX spreadsheet
+            description: |-
+                Exports a compliance report for an Audit Scope as an XLSX spreadsheet or PDF, returned as a
+                 raw HTTP response (correct Content-Type, Content-Disposition with the suggested filename)
+                 rather than wrapped in a JSON envelope, so any HTTP client can download it by simply saving
+                 the response body.
             operationId: Orchestrator_ExportAuditScopeReport
             parameters:
                 - name: auditScopeId
@@ -852,9 +856,7 @@ paths:
                 "200":
                     description: OK
                     content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ExportAuditScopeReportResponse'
+                        '*/*': {}
                 default:
                     description: Default error response
                     content:
@@ -2823,6 +2825,17 @@ components:
             description: |-
                 Account is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  This represents the cloud account as a whole, e.g., an Azure subscription.
+        AccountManagementPolicy:
+            type: object
+            properties:
+                intervalMonths:
+                    type: integer
+                    format: int32
+                secretStorage:
+                    type: array
+                    items:
+                        type: string
+            description: AccountManagementPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         ActivityLogging:
             type: object
             properties:
@@ -3769,7 +3782,11 @@ components:
                 percentageLastMonth:
                     type: number
                     format: float
-            description: "CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n Percentage: Percentage of commits with \"Signed-off-by\" lines. \n PercentageLastMonth: Percentage of commits with \"Signed-off-by\" lines in the last 30 days. \n Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository"
+            description: |-
+                CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                 Percentage: Percentage of commits with "Signed-off-by" lines.
+                 PercentageLastMonth: Percentage of commits with "Signed-off-by" lines in the last 30 days.
+                 Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository
         ComparisonResult:
             required:
                 - property
@@ -5161,18 +5178,6 @@ components:
             type: object
             properties: {}
             description: ExplainableResults is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-        ExportAuditScopeReportResponse:
-            type: object
-            properties:
-                content:
-                    readOnly: true
-                    type: string
-                    description: Content is the raw file content, in the format requested.
-                    format: bytes
-                filename:
-                    readOnly: true
-                    type: string
-                    description: Filename is the suggested filename for the download, e.g. "audit-scope-report-my-scope.xlsx".
         File:
             type: object
             properties:
@@ -5610,6 +5615,8 @@ components:
                     $ref: '#/components/schemas/AcceptableUsePolicy'
                 accessControlTypePolicy:
                     $ref: '#/components/schemas/AccessControlTypePolicy'
+                accountManagementPolicy:
+                    $ref: '#/components/schemas/AccountManagementPolicy'
                 auditLogMonitoringPolicy:
                     $ref: '#/components/schemas/AuditLogMonitoringPolicy'
                 complianceAuditIntervalPolicy:
@@ -5622,6 +5629,8 @@ components:
                     $ref: '#/components/schemas/DataConfidentialitySDNPolicy'
                 deviceManagementPolicy:
                     $ref: '#/components/schemas/DeviceManagementPolicy'
+                informationSecurityManagementSystem:
+                    $ref: '#/components/schemas/InformationSecurityManagementSystem'
                 leastPrivilegePolicy:
                     $ref: '#/components/schemas/LeastPrivilegePolicy'
                 liabilityPolicy:
@@ -6365,6 +6374,14 @@ components:
                 enabled:
                     type: boolean
             description: Immutability is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        InformationSecurityManagementSystem:
+            type: object
+            properties:
+                iso27001Certified:
+                    type: array
+                    items:
+                        type: string
+            description: InformationSecurityManagementSystem is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         Infrastructure:
             type: object
             properties:
@@ -8210,6 +8227,9 @@ components:
                 failedAuthenticationAttempts:
                     type: integer
                     format: int32
+                length:
+                    type: integer
+                    format: int32
                 rotationInterval:
                     type: integer
                     description: Maximum password rotation interval in months
@@ -8280,6 +8300,8 @@ components:
                     $ref: '#/components/schemas/AcceptableUsePolicy'
                 accessControlTypePolicy:
                     $ref: '#/components/schemas/AccessControlTypePolicy'
+                accountManagementPolicy:
+                    $ref: '#/components/schemas/AccountManagementPolicy'
                 assetInventory:
                     $ref: '#/components/schemas/AssetInventory'
                 auditLogMonitoringPolicy:
@@ -8310,6 +8332,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Governance'
+                informationSecurityManagementSystem:
+                    $ref: '#/components/schemas/InformationSecurityManagementSystem'
                 leastPrivilegePolicy:
                     $ref: '#/components/schemas/LeastPrivilegePolicy'
                 liabilityPolicy:
@@ -9619,7 +9643,11 @@ components:
                 percentageLastMonth:
                     type: number
                     format: float
-            description: "SignedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n  SignedCommits cryptographically verify the identity of the commit author.\n Percentage: Percentage of signed commits. \n PercentageLastMonth: Percentage of signed commits in the last 30 days."
+            description: |-
+                SignedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                  SignedCommits cryptographically verify the identity of the commit author.
+                 Percentage: Percentage of signed commits.
+                 PercentageLastMonth: Percentage of signed commits in the last 30 days.
         SingleSignOn:
             type: object
             properties:
@@ -10201,7 +10229,11 @@ components:
                 percentageLastMonth:
                     type: number
                     format: float
-            description: "VerifiedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n  VerifiedCommits ensure that cryptographic signatures on commits are successfully validated against trusted keys, confirming author authenticity and code integrity.\n Percentage: Percentage of verified commits. \n PercentageLastMonth: Percentage of verified commits in the last 30 days."
+            description: |-
+                VerifiedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                  VerifiedCommits ensure that cryptographic signatures on commits are successfully validated against trusted keys, confirming author authenticity and code integrity.
+                 Percentage: Percentage of verified commits.
+                 PercentageLastMonth: Percentage of verified commits in the last 30 days.
         VirtualMachine:
             type: object
             properties:

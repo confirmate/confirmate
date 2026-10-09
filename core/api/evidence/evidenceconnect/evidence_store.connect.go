@@ -20,299 +20,389 @@ package evidenceconnect
 
 import (
 	evidence "confirmate.io/core/api/evidence"
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// EvidenceStoreName is the fully-qualified name of the EvidenceStore service.
 	EvidenceStoreName = "confirmate.evidence.v1.EvidenceStore"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// EvidenceStoreStoreEvidenceProcedure is the fully-qualified name of the EvidenceStore's
-	// StoreEvidence RPC.
-	EvidenceStoreStoreEvidenceProcedure = "/confirmate.evidence.v1.EvidenceStore/StoreEvidence"
-	// EvidenceStoreStoreEvidencesProcedure is the fully-qualified name of the EvidenceStore's
-	// StoreEvidences RPC.
-	EvidenceStoreStoreEvidencesProcedure = "/confirmate.evidence.v1.EvidenceStore/StoreEvidences"
-	// EvidenceStoreListEvidencesProcedure is the fully-qualified name of the EvidenceStore's
-	// ListEvidences RPC.
-	EvidenceStoreListEvidencesProcedure = "/confirmate.evidence.v1.EvidenceStore/ListEvidences"
-	// EvidenceStoreGetEvidenceProcedure is the fully-qualified name of the EvidenceStore's GetEvidence
+	// EvidenceStoreStoreEvidenceProcedure is the procedure name of the EvidenceStore's StoreEvidence
 	// RPC.
+	EvidenceStoreStoreEvidenceProcedure = "/confirmate.evidence.v1.EvidenceStore/StoreEvidence"
+	// EvidenceStoreStoreEvidencesProcedure is the procedure name of the EvidenceStore's StoreEvidences
+	// RPC.
+	EvidenceStoreStoreEvidencesProcedure = "/confirmate.evidence.v1.EvidenceStore/StoreEvidences"
+	// EvidenceStoreListEvidencesProcedure is the procedure name of the EvidenceStore's ListEvidences
+	// RPC.
+	EvidenceStoreListEvidencesProcedure = "/confirmate.evidence.v1.EvidenceStore/ListEvidences"
+	// EvidenceStoreGetEvidenceProcedure is the procedure name of the EvidenceStore's GetEvidence RPC.
 	EvidenceStoreGetEvidenceProcedure = "/confirmate.evidence.v1.EvidenceStore/GetEvidence"
-	// EvidenceStoreListSupportedResourceTypesProcedure is the fully-qualified name of the
-	// EvidenceStore's ListSupportedResourceTypes RPC.
+	// EvidenceStoreListSupportedResourceTypesProcedure is the procedure name of the EvidenceStore's
+	// ListSupportedResourceTypes RPC.
 	EvidenceStoreListSupportedResourceTypesProcedure = "/confirmate.evidence.v1.EvidenceStore/ListSupportedResourceTypes"
-	// EvidenceStoreListResourcesProcedure is the fully-qualified name of the EvidenceStore's
-	// ListResources RPC.
+	// EvidenceStoreListResourcesProcedure is the procedure name of the EvidenceStore's ListResources
+	// RPC.
 	EvidenceStoreListResourcesProcedure = "/confirmate.evidence.v1.EvidenceStore/ListResources"
-	// EvidenceStoreListToolsProcedure is the fully-qualified name of the EvidenceStore's ListTools RPC.
+	// EvidenceStoreListToolsProcedure is the procedure name of the EvidenceStore's ListTools RPC.
 	EvidenceStoreListToolsProcedure = "/confirmate.evidence.v1.EvidenceStore/ListTools"
+)
+
+var (
+	evidenceStoreStoreEvidenceSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     evidence.File_api_evidence_evidence_store_proto.Services().ByName("EvidenceStore").Methods().ByName("StoreEvidence"),
+			Procedure:  EvidenceStoreStoreEvidenceProcedure,
+		}
+	})
+	evidenceStoreStoreEvidencesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeBidi,
+			Schema:     evidence.File_api_evidence_evidence_store_proto.Services().ByName("EvidenceStore").Methods().ByName("StoreEvidences"),
+			Procedure:  EvidenceStoreStoreEvidencesProcedure,
+		}
+	})
+	evidenceStoreListEvidencesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     evidence.File_api_evidence_evidence_store_proto.Services().ByName("EvidenceStore").Methods().ByName("ListEvidences"),
+			Procedure:  EvidenceStoreListEvidencesProcedure,
+		}
+	})
+	evidenceStoreGetEvidenceSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     evidence.File_api_evidence_evidence_store_proto.Services().ByName("EvidenceStore").Methods().ByName("GetEvidence"),
+			Procedure:  EvidenceStoreGetEvidenceProcedure,
+		}
+	})
+	evidenceStoreListSupportedResourceTypesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     evidence.File_api_evidence_evidence_store_proto.Services().ByName("EvidenceStore").Methods().ByName("ListSupportedResourceTypes"),
+			Procedure:  EvidenceStoreListSupportedResourceTypesProcedure,
+		}
+	})
+	evidenceStoreListResourcesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     evidence.File_api_evidence_evidence_store_proto.Services().ByName("EvidenceStore").Methods().ByName("ListResources"),
+			Procedure:  EvidenceStoreListResourcesProcedure,
+		}
+	})
+	evidenceStoreListToolsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     evidence.File_api_evidence_evidence_store_proto.Services().ByName("EvidenceStore").Methods().ByName("ListTools"),
+			Procedure:  EvidenceStoreListToolsProcedure,
+		}
+	})
 )
 
 // EvidenceStoreClient is a client for the confirmate.evidence.v1.EvidenceStore service.
 type EvidenceStoreClient interface {
 	// Stores an evidence to the evidence storage. Part of the public API, also
 	// exposed as REST.
-	StoreEvidence(context.Context, *connect.Request[evidence.StoreEvidenceRequest]) (*connect.Response[evidence.StoreEvidenceResponse], error)
+	StoreEvidence(context.Context, *evidence.StoreEvidenceRequest) (*evidence.StoreEvidenceResponse, error)
 	// Stores a stream of evidences to the evidence storage and returns a response
 	// stream. Part of the public API, not exposed as REST.
-	StoreEvidences(context.Context) *connect.BidiStreamForClient[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]
+	StoreEvidences(context.Context) (EvidenceStoreStoreEvidencesClientStream, error)
 	// Returns all stored evidences. Part of the public API, also exposed as REST.
-	ListEvidences(context.Context, *connect.Request[evidence.ListEvidencesRequest]) (*connect.Response[evidence.ListEvidencesResponse], error)
+	ListEvidences(context.Context, *evidence.ListEvidencesRequest) (*evidence.ListEvidencesResponse, error)
 	// Returns a particular stored evidence. Part of the public API, also exposed
 	// as REST.
-	GetEvidence(context.Context, *connect.Request[evidence.GetEvidenceRequest]) (*connect.Response[evidence.Evidence], error)
+	GetEvidence(context.Context, *evidence.GetEvidenceRequest) (*evidence.Evidence, error)
 	// Returns the resource types that are supported by the EvidenceStore.
-	ListSupportedResourceTypes(context.Context, *connect.Request[evidence.ListSupportedResourceTypesRequest]) (*connect.Response[evidence.ListSupportedResourceTypesResponse], error)
+	ListSupportedResourceTypes(context.Context, *evidence.ListSupportedResourceTypesRequest) (*evidence.ListSupportedResourceTypesResponse, error)
 	// Lists all resources collected in the last run, exposed as REST.
-	ListResources(context.Context, *connect.Request[evidence.ListResourcesRequest]) (*connect.Response[evidence.ListResourcesResponse], error)
+	ListResources(context.Context, *evidence.ListResourcesRequest) (*evidence.ListResourcesResponse, error)
 	// Returns the IDs of all evidence collecting tools that have provided
 	// evidence so far. Part of the public API, also exposed as REST.
-	ListTools(context.Context, *connect.Request[evidence.ListToolsRequest]) (*connect.Response[evidence.ListToolsResponse], error)
+	ListTools(context.Context, *evidence.ListToolsRequest) (*evidence.ListToolsResponse, error)
 }
 
 // NewEvidenceStoreClient constructs a client for the confirmate.evidence.v1.EvidenceStore service.
-// By default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped
-// responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
-// connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewEvidenceStoreClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) EvidenceStoreClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	evidenceStoreMethods := evidence.File_api_evidence_evidence_store_proto.Services().ByName("EvidenceStore").Methods()
-	return &evidenceStoreClient{
-		storeEvidence: connect.NewClient[evidence.StoreEvidenceRequest, evidence.StoreEvidenceResponse](
-			httpClient,
-			baseURL+EvidenceStoreStoreEvidenceProcedure,
-			connect.WithSchema(evidenceStoreMethods.ByName("StoreEvidence")),
-			connect.WithClientOptions(opts...),
-		),
-		storeEvidences: connect.NewClient[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse](
-			httpClient,
-			baseURL+EvidenceStoreStoreEvidencesProcedure,
-			connect.WithSchema(evidenceStoreMethods.ByName("StoreEvidences")),
-			connect.WithClientOptions(opts...),
-		),
-		listEvidences: connect.NewClient[evidence.ListEvidencesRequest, evidence.ListEvidencesResponse](
-			httpClient,
-			baseURL+EvidenceStoreListEvidencesProcedure,
-			connect.WithSchema(evidenceStoreMethods.ByName("ListEvidences")),
-			connect.WithClientOptions(opts...),
-		),
-		getEvidence: connect.NewClient[evidence.GetEvidenceRequest, evidence.Evidence](
-			httpClient,
-			baseURL+EvidenceStoreGetEvidenceProcedure,
-			connect.WithSchema(evidenceStoreMethods.ByName("GetEvidence")),
-			connect.WithClientOptions(opts...),
-		),
-		listSupportedResourceTypes: connect.NewClient[evidence.ListSupportedResourceTypesRequest, evidence.ListSupportedResourceTypesResponse](
-			httpClient,
-			baseURL+EvidenceStoreListSupportedResourceTypesProcedure,
-			connect.WithSchema(evidenceStoreMethods.ByName("ListSupportedResourceTypes")),
-			connect.WithClientOptions(opts...),
-		),
-		listResources: connect.NewClient[evidence.ListResourcesRequest, evidence.ListResourcesResponse](
-			httpClient,
-			baseURL+EvidenceStoreListResourcesProcedure,
-			connect.WithSchema(evidenceStoreMethods.ByName("ListResources")),
-			connect.WithClientOptions(opts...),
-		),
-		listTools: connect.NewClient[evidence.ListToolsRequest, evidence.ListToolsResponse](
-			httpClient,
-			baseURL+EvidenceStoreListToolsProcedure,
-			connect.WithSchema(evidenceStoreMethods.ByName("ListTools")),
-			connect.WithClientOptions(opts...),
-		),
+// Multiple service clients may share a single connect.Client.
+func NewEvidenceStoreClient(client *connect.Client) EvidenceStoreClient {
+	return &evidenceStoreClient{client: client}
+}
+
+// EvidenceStoreStoreEvidencesClientStream is the client stream for the EvidenceStore's
+// StoreEvidences RPC.
+type EvidenceStoreStoreEvidencesClientStream struct {
+	stream connect.ClientStream
+}
+
+// SendHeaders opens the stream and flushes the request headers without a message. The first Send or
+// Receive does this implicitly.
+func (s EvidenceStoreStoreEvidencesClientStream) SendHeaders() error {
+	return s.stream.SendHeaders()
+}
+
+// Send sends a request message to the server.
+func (s EvidenceStoreStoreEvidencesClientStream) Send(req *evidence.StoreEvidenceRequest) error {
+	return s.stream.Send(req)
+}
+
+// CloseSend closes the request side of the stream.
+func (s EvidenceStoreStoreEvidencesClientStream) CloseSend() error {
+	return s.stream.CloseSend()
+}
+
+// Receive returns the next response message from the server.
+func (s EvidenceStoreStoreEvidencesClientStream) Receive() (*evidence.StoreEvidencesResponse, error) {
+	var res evidence.StoreEvidencesResponse
+	if err := s.stream.Receive(&res); err != nil {
+		return nil, err
 	}
+	return &res, nil
 }
 
-// evidenceStoreClient implements EvidenceStoreClient.
-type evidenceStoreClient struct {
-	storeEvidence              *connect.Client[evidence.StoreEvidenceRequest, evidence.StoreEvidenceResponse]
-	storeEvidences             *connect.Client[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]
-	listEvidences              *connect.Client[evidence.ListEvidencesRequest, evidence.ListEvidencesResponse]
-	getEvidence                *connect.Client[evidence.GetEvidenceRequest, evidence.Evidence]
-	listSupportedResourceTypes *connect.Client[evidence.ListSupportedResourceTypesRequest, evidence.ListSupportedResourceTypesResponse]
-	listResources              *connect.Client[evidence.ListResourcesRequest, evidence.ListResourcesResponse]
-	listTools                  *connect.Client[evidence.ListToolsRequest, evidence.ListToolsResponse]
-}
-
-// StoreEvidence calls confirmate.evidence.v1.EvidenceStore.StoreEvidence.
-func (c *evidenceStoreClient) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (*connect.Response[evidence.StoreEvidenceResponse], error) {
-	return c.storeEvidence.CallUnary(ctx, req)
-}
-
-// StoreEvidences calls confirmate.evidence.v1.EvidenceStore.StoreEvidences.
-func (c *evidenceStoreClient) StoreEvidences(ctx context.Context) *connect.BidiStreamForClient[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse] {
-	return c.storeEvidences.CallBidiStream(ctx)
-}
-
-// ListEvidences calls confirmate.evidence.v1.EvidenceStore.ListEvidences.
-func (c *evidenceStoreClient) ListEvidences(ctx context.Context, req *connect.Request[evidence.ListEvidencesRequest]) (*connect.Response[evidence.ListEvidencesResponse], error) {
-	return c.listEvidences.CallUnary(ctx, req)
-}
-
-// GetEvidence calls confirmate.evidence.v1.EvidenceStore.GetEvidence.
-func (c *evidenceStoreClient) GetEvidence(ctx context.Context, req *connect.Request[evidence.GetEvidenceRequest]) (*connect.Response[evidence.Evidence], error) {
-	return c.getEvidence.CallUnary(ctx, req)
-}
-
-// ListSupportedResourceTypes calls confirmate.evidence.v1.EvidenceStore.ListSupportedResourceTypes.
-func (c *evidenceStoreClient) ListSupportedResourceTypes(ctx context.Context, req *connect.Request[evidence.ListSupportedResourceTypesRequest]) (*connect.Response[evidence.ListSupportedResourceTypesResponse], error) {
-	return c.listSupportedResourceTypes.CallUnary(ctx, req)
-}
-
-// ListResources calls confirmate.evidence.v1.EvidenceStore.ListResources.
-func (c *evidenceStoreClient) ListResources(ctx context.Context, req *connect.Request[evidence.ListResourcesRequest]) (*connect.Response[evidence.ListResourcesResponse], error) {
-	return c.listResources.CallUnary(ctx, req)
-}
-
-// ListTools calls confirmate.evidence.v1.EvidenceStore.ListTools.
-func (c *evidenceStoreClient) ListTools(ctx context.Context, req *connect.Request[evidence.ListToolsRequest]) (*connect.Response[evidence.ListToolsResponse], error) {
-	return c.listTools.CallUnary(ctx, req)
+// Close releases the stream's resources. It is idempotent and is typically deferred to clean up a
+// stream abandoned before io.EOF.
+func (s EvidenceStoreStoreEvidencesClientStream) Close() error {
+	return s.stream.Close()
 }
 
 // EvidenceStoreHandler is an implementation of the confirmate.evidence.v1.EvidenceStore service.
 type EvidenceStoreHandler interface {
 	// Stores an evidence to the evidence storage. Part of the public API, also
 	// exposed as REST.
-	StoreEvidence(context.Context, *connect.Request[evidence.StoreEvidenceRequest]) (*connect.Response[evidence.StoreEvidenceResponse], error)
+	StoreEvidence(context.Context, *evidence.StoreEvidenceRequest) (*evidence.StoreEvidenceResponse, error)
 	// Stores a stream of evidences to the evidence storage and returns a response
 	// stream. Part of the public API, not exposed as REST.
-	StoreEvidences(context.Context, *connect.BidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]) error
+	StoreEvidences(context.Context, EvidenceStoreStoreEvidencesServerStream) error
 	// Returns all stored evidences. Part of the public API, also exposed as REST.
-	ListEvidences(context.Context, *connect.Request[evidence.ListEvidencesRequest]) (*connect.Response[evidence.ListEvidencesResponse], error)
+	ListEvidences(context.Context, *evidence.ListEvidencesRequest) (*evidence.ListEvidencesResponse, error)
 	// Returns a particular stored evidence. Part of the public API, also exposed
 	// as REST.
-	GetEvidence(context.Context, *connect.Request[evidence.GetEvidenceRequest]) (*connect.Response[evidence.Evidence], error)
+	GetEvidence(context.Context, *evidence.GetEvidenceRequest) (*evidence.Evidence, error)
 	// Returns the resource types that are supported by the EvidenceStore.
-	ListSupportedResourceTypes(context.Context, *connect.Request[evidence.ListSupportedResourceTypesRequest]) (*connect.Response[evidence.ListSupportedResourceTypesResponse], error)
+	ListSupportedResourceTypes(context.Context, *evidence.ListSupportedResourceTypesRequest) (*evidence.ListSupportedResourceTypesResponse, error)
 	// Lists all resources collected in the last run, exposed as REST.
-	ListResources(context.Context, *connect.Request[evidence.ListResourcesRequest]) (*connect.Response[evidence.ListResourcesResponse], error)
+	ListResources(context.Context, *evidence.ListResourcesRequest) (*evidence.ListResourcesResponse, error)
 	// Returns the IDs of all evidence collecting tools that have provided
 	// evidence so far. Part of the public API, also exposed as REST.
-	ListTools(context.Context, *connect.Request[evidence.ListToolsRequest]) (*connect.Response[evidence.ListToolsResponse], error)
+	ListTools(context.Context, *evidence.ListToolsRequest) (*evidence.ListToolsResponse, error)
 }
 
-// NewEvidenceStoreHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewEvidenceStoreHandler(svc EvidenceStoreHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	evidenceStoreMethods := evidence.File_api_evidence_evidence_store_proto.Services().ByName("EvidenceStore").Methods()
-	evidenceStoreStoreEvidenceHandler := connect.NewUnaryHandler(
-		EvidenceStoreStoreEvidenceProcedure,
-		svc.StoreEvidence,
-		connect.WithSchema(evidenceStoreMethods.ByName("StoreEvidence")),
-		connect.WithHandlerOptions(opts...),
+// RegisterEvidenceStoreHandler registers svc as the confirmate.evidence.v1.EvidenceStore
+// implementation on server.
+func RegisterEvidenceStoreHandler(server *connect.Server, svc EvidenceStoreHandler) {
+	adapter := evidenceStoreHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: evidenceStoreStoreEvidenceSpec(), Handler: adapter.storeEvidence},
+		connect.Method{Spec: evidenceStoreStoreEvidencesSpec(), Handler: adapter.storeEvidences},
+		connect.Method{Spec: evidenceStoreListEvidencesSpec(), Handler: adapter.listEvidences},
+		connect.Method{Spec: evidenceStoreGetEvidenceSpec(), Handler: adapter.getEvidence},
+		connect.Method{Spec: evidenceStoreListSupportedResourceTypesSpec(), Handler: adapter.listSupportedResourceTypes},
+		connect.Method{Spec: evidenceStoreListResourcesSpec(), Handler: adapter.listResources},
+		connect.Method{Spec: evidenceStoreListToolsSpec(), Handler: adapter.listTools},
 	)
-	evidenceStoreStoreEvidencesHandler := connect.NewBidiStreamHandler(
-		EvidenceStoreStoreEvidencesProcedure,
-		svc.StoreEvidences,
-		connect.WithSchema(evidenceStoreMethods.ByName("StoreEvidences")),
-		connect.WithHandlerOptions(opts...),
-	)
-	evidenceStoreListEvidencesHandler := connect.NewUnaryHandler(
-		EvidenceStoreListEvidencesProcedure,
-		svc.ListEvidences,
-		connect.WithSchema(evidenceStoreMethods.ByName("ListEvidences")),
-		connect.WithHandlerOptions(opts...),
-	)
-	evidenceStoreGetEvidenceHandler := connect.NewUnaryHandler(
-		EvidenceStoreGetEvidenceProcedure,
-		svc.GetEvidence,
-		connect.WithSchema(evidenceStoreMethods.ByName("GetEvidence")),
-		connect.WithHandlerOptions(opts...),
-	)
-	evidenceStoreListSupportedResourceTypesHandler := connect.NewUnaryHandler(
-		EvidenceStoreListSupportedResourceTypesProcedure,
-		svc.ListSupportedResourceTypes,
-		connect.WithSchema(evidenceStoreMethods.ByName("ListSupportedResourceTypes")),
-		connect.WithHandlerOptions(opts...),
-	)
-	evidenceStoreListResourcesHandler := connect.NewUnaryHandler(
-		EvidenceStoreListResourcesProcedure,
-		svc.ListResources,
-		connect.WithSchema(evidenceStoreMethods.ByName("ListResources")),
-		connect.WithHandlerOptions(opts...),
-	)
-	evidenceStoreListToolsHandler := connect.NewUnaryHandler(
-		EvidenceStoreListToolsProcedure,
-		svc.ListTools,
-		connect.WithSchema(evidenceStoreMethods.ByName("ListTools")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/confirmate.evidence.v1.EvidenceStore/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case EvidenceStoreStoreEvidenceProcedure:
-			evidenceStoreStoreEvidenceHandler.ServeHTTP(w, r)
-		case EvidenceStoreStoreEvidencesProcedure:
-			evidenceStoreStoreEvidencesHandler.ServeHTTP(w, r)
-		case EvidenceStoreListEvidencesProcedure:
-			evidenceStoreListEvidencesHandler.ServeHTTP(w, r)
-		case EvidenceStoreGetEvidenceProcedure:
-			evidenceStoreGetEvidenceHandler.ServeHTTP(w, r)
-		case EvidenceStoreListSupportedResourceTypesProcedure:
-			evidenceStoreListSupportedResourceTypesHandler.ServeHTTP(w, r)
-		case EvidenceStoreListResourcesProcedure:
-			evidenceStoreListResourcesHandler.ServeHTTP(w, r)
-		case EvidenceStoreListToolsProcedure:
-			evidenceStoreListToolsHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
+}
+
+// EvidenceStoreStoreEvidencesServerStream is the server stream for the EvidenceStore's
+// StoreEvidences RPC.
+type EvidenceStoreStoreEvidencesServerStream struct {
+	stream connect.ServerStream
+}
+
+// Receive returns the next request message from the client.
+func (s EvidenceStoreStoreEvidencesServerStream) Receive() (*evidence.StoreEvidenceRequest, error) {
+	var req evidence.StoreEvidenceRequest
+	if err := s.stream.Receive(&req); err != nil {
+		return nil, err
+	}
+	return &req, nil
+}
+
+// SendHeaders flushes the response headers without a message. The first Send does this implicitly.
+func (s EvidenceStoreStoreEvidencesServerStream) SendHeaders() error {
+	return s.stream.SendHeaders()
+}
+
+// Send sends a response message to the client.
+func (s EvidenceStoreStoreEvidencesServerStream) Send(res *evidence.StoreEvidencesResponse) error {
+	return s.stream.Send(res)
 }
 
 // UnimplementedEvidenceStoreHandler returns CodeUnimplemented from all methods.
 type UnimplementedEvidenceStoreHandler struct{}
 
-func (UnimplementedEvidenceStoreHandler) StoreEvidence(context.Context, *connect.Request[evidence.StoreEvidenceRequest]) (*connect.Response[evidence.StoreEvidenceResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evidence.v1.EvidenceStore.StoreEvidence is not implemented"))
+func (UnimplementedEvidenceStoreHandler) StoreEvidence(context.Context, *evidence.StoreEvidenceRequest) (*evidence.StoreEvidenceResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.evidence.v1.EvidenceStore.StoreEvidence is not implemented")
 }
 
-func (UnimplementedEvidenceStoreHandler) StoreEvidences(context.Context, *connect.BidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]) error {
-	return connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evidence.v1.EvidenceStore.StoreEvidences is not implemented"))
+func (UnimplementedEvidenceStoreHandler) StoreEvidences(context.Context, EvidenceStoreStoreEvidencesServerStream) error {
+	return connect.NewError(connect.CodeUnimplemented, "confirmate.evidence.v1.EvidenceStore.StoreEvidences is not implemented")
 }
 
-func (UnimplementedEvidenceStoreHandler) ListEvidences(context.Context, *connect.Request[evidence.ListEvidencesRequest]) (*connect.Response[evidence.ListEvidencesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evidence.v1.EvidenceStore.ListEvidences is not implemented"))
+func (UnimplementedEvidenceStoreHandler) ListEvidences(context.Context, *evidence.ListEvidencesRequest) (*evidence.ListEvidencesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.evidence.v1.EvidenceStore.ListEvidences is not implemented")
 }
 
-func (UnimplementedEvidenceStoreHandler) GetEvidence(context.Context, *connect.Request[evidence.GetEvidenceRequest]) (*connect.Response[evidence.Evidence], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evidence.v1.EvidenceStore.GetEvidence is not implemented"))
+func (UnimplementedEvidenceStoreHandler) GetEvidence(context.Context, *evidence.GetEvidenceRequest) (*evidence.Evidence, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.evidence.v1.EvidenceStore.GetEvidence is not implemented")
 }
 
-func (UnimplementedEvidenceStoreHandler) ListSupportedResourceTypes(context.Context, *connect.Request[evidence.ListSupportedResourceTypesRequest]) (*connect.Response[evidence.ListSupportedResourceTypesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evidence.v1.EvidenceStore.ListSupportedResourceTypes is not implemented"))
+func (UnimplementedEvidenceStoreHandler) ListSupportedResourceTypes(context.Context, *evidence.ListSupportedResourceTypesRequest) (*evidence.ListSupportedResourceTypesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.evidence.v1.EvidenceStore.ListSupportedResourceTypes is not implemented")
 }
 
-func (UnimplementedEvidenceStoreHandler) ListResources(context.Context, *connect.Request[evidence.ListResourcesRequest]) (*connect.Response[evidence.ListResourcesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evidence.v1.EvidenceStore.ListResources is not implemented"))
+func (UnimplementedEvidenceStoreHandler) ListResources(context.Context, *evidence.ListResourcesRequest) (*evidence.ListResourcesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.evidence.v1.EvidenceStore.ListResources is not implemented")
 }
 
-func (UnimplementedEvidenceStoreHandler) ListTools(context.Context, *connect.Request[evidence.ListToolsRequest]) (*connect.Response[evidence.ListToolsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evidence.v1.EvidenceStore.ListTools is not implemented"))
+func (UnimplementedEvidenceStoreHandler) ListTools(context.Context, *evidence.ListToolsRequest) (*evidence.ListToolsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "confirmate.evidence.v1.EvidenceStore.ListTools is not implemented")
+}
+
+type evidenceStoreClient struct {
+	client *connect.Client
+}
+
+func (c *evidenceStoreClient) StoreEvidence(ctx context.Context, req *evidence.StoreEvidenceRequest) (*evidence.StoreEvidenceResponse, error) {
+	var res evidence.StoreEvidenceResponse
+	if err := c.client.CallUnary(ctx, evidenceStoreStoreEvidenceSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *evidenceStoreClient) StoreEvidences(ctx context.Context) (EvidenceStoreStoreEvidencesClientStream, error) {
+	stream, err := c.client.CallClientStream(ctx, evidenceStoreStoreEvidencesSpec())
+	if err != nil {
+		return EvidenceStoreStoreEvidencesClientStream{}, err
+	}
+	return EvidenceStoreStoreEvidencesClientStream{stream: stream}, nil
+}
+
+func (c *evidenceStoreClient) ListEvidences(ctx context.Context, req *evidence.ListEvidencesRequest) (*evidence.ListEvidencesResponse, error) {
+	var res evidence.ListEvidencesResponse
+	if err := c.client.CallUnary(ctx, evidenceStoreListEvidencesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *evidenceStoreClient) GetEvidence(ctx context.Context, req *evidence.GetEvidenceRequest) (*evidence.Evidence, error) {
+	var res evidence.Evidence
+	if err := c.client.CallUnary(ctx, evidenceStoreGetEvidenceSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *evidenceStoreClient) ListSupportedResourceTypes(ctx context.Context, req *evidence.ListSupportedResourceTypesRequest) (*evidence.ListSupportedResourceTypesResponse, error) {
+	var res evidence.ListSupportedResourceTypesResponse
+	if err := c.client.CallUnary(ctx, evidenceStoreListSupportedResourceTypesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *evidenceStoreClient) ListResources(ctx context.Context, req *evidence.ListResourcesRequest) (*evidence.ListResourcesResponse, error) {
+	var res evidence.ListResourcesResponse
+	if err := c.client.CallUnary(ctx, evidenceStoreListResourcesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *evidenceStoreClient) ListTools(ctx context.Context, req *evidence.ListToolsRequest) (*evidence.ListToolsResponse, error) {
+	var res evidence.ListToolsResponse
+	if err := c.client.CallUnary(ctx, evidenceStoreListToolsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type evidenceStoreHandler struct{ svc EvidenceStoreHandler }
+
+func (h evidenceStoreHandler) storeEvidence(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req evidence.StoreEvidenceRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.StoreEvidence(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h evidenceStoreHandler) storeEvidences(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	return h.svc.StoreEvidences(ctx, EvidenceStoreStoreEvidencesServerStream{stream: stream})
+}
+
+func (h evidenceStoreHandler) listEvidences(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req evidence.ListEvidencesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListEvidences(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h evidenceStoreHandler) getEvidence(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req evidence.GetEvidenceRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetEvidence(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h evidenceStoreHandler) listSupportedResourceTypes(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req evidence.ListSupportedResourceTypesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListSupportedResourceTypes(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h evidenceStoreHandler) listResources(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req evidence.ListResourcesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListResources(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h evidenceStoreHandler) listTools(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req evidence.ListToolsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListTools(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }
