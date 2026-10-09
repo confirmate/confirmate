@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
 	import type { PageProps } from './$types';
 
@@ -13,7 +14,7 @@
 			{#each data.services as service}
 				<li>
 					<a
-						href="/toe/{service.id}/audit-scopes/"
+						href={resolve(`/toe/${service.id}/audit-scopes/`)}
 						class="block rounded-lg border border-gray-200 bg-white p-4 hover:border-confirmate hover:bg-blue-50"
 					>
 						<div class="font-medium text-gray-900">{service.name}</div>

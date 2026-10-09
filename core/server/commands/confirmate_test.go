@@ -112,3 +112,48 @@ func TestCommandDBInMemoryDefaults(t *testing.T) {
 		})
 	}
 }
+
+func TestServiceTokenURL(t *testing.T) {
+	type args struct {
+		configured string
+		explicit   bool
+		embedded   bool
+		apiPort    uint16
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "embedded server default follows api port",
+			args: args{configured: DefaultServiceTokenURL, embedded: true, apiPort: 8090},
+			want: "http://localhost:8090/v1/auth/token",
+		},
+		{
+			name: "explicit endpoint is kept",
+			args: args{configured: "https://auth.example.test/token", explicit: true, embedded: true, apiPort: 8090},
+			want: "https://auth.example.test/token",
+		},
+		{
+			name: "explicit endpoint equal to the default is kept",
+			args: args{configured: DefaultServiceTokenURL, explicit: true, embedded: true, apiPort: 8090},
+			want: DefaultServiceTokenURL,
+		},
+		{
+			name: "default is kept without embedded server",
+			args: args{configured: DefaultServiceTokenURL, embedded: false, apiPort: 8090},
+			want: DefaultServiceTokenURL,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got string
+
+			got = serviceTokenURL(tt.args.configured, tt.args.explicit, tt.args.embedded, tt.args.apiPort)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}

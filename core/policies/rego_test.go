@@ -285,7 +285,6 @@ func Test_regoEval_Eval(t *testing.T) {
 			},
 			compliant: map[string]bool{
 				"BootLoggingEnabled":   false,
-				"BootLoggingOutput":    false,
 				"BootLoggingRetention": false,
 				"OSLoggingEnabled":     false,
 				"OSLoggingOutput":      true,
@@ -494,7 +493,7 @@ func Test_regoEval_Eval_SkipMissingMetricConfiguration(t *testing.T) {
 		Id:                   "11111111-1111-1111-1111-111111111111",
 		ToolId:               "tool-a",
 		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
-	}, &ontology.VirtualMachine{Id: new("vm-1")}, nil, source)
+	}, &ontology.VirtualMachine{Id: new("vm-1"), BootLogging: &ontology.BootLogging{Enabled: new(true)}}, nil, source)
 
 	assert.NoError(t, err)
 	assert.Equal(t, 0, len(results))
@@ -507,7 +506,7 @@ func Test_regoEval_Eval_SkipMissingMetricConfiguration(t *testing.T) {
 		Id:                   "22222222-2222-2222-2222-222222222222",
 		ToolId:               "tool-a",
 		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
-	}, &ontology.VirtualMachine{Id: new("vm-1")}, nil, &mockMetricsSource{t: t})
+	}, &ontology.VirtualMachine{Id: new("vm-1"), BootLogging: &ontology.BootLogging{Enabled: new(true)}}, nil, &mockMetricsSource{t: t})
 
 	assert.NoError(t, err)
 	assert.NotEqual(t, 0, len(results))
@@ -528,7 +527,7 @@ func Test_regoEval_Eval_ApplicableMetricsCache(t *testing.T) {
 		ToolId:               "tool-a",
 		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
 	}
-	resource := &ontology.VirtualMachine{Id: new("vm-1")}
+	resource := &ontology.VirtualMachine{Id: new("vm-1"), BootLogging: &ontology.BootLogging{Enabled: new(true)}}
 
 	t.Run("disabled by default: the applicable-metrics cache is never populated", func(t *testing.T) {
 		pe := newEval(false)

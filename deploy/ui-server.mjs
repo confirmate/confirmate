@@ -58,6 +58,13 @@ const server = createServer(async (req, res) => {
       proxyRes.headers.forEach((v, k) => {
         respHeaders[k] = v;
       });
+      // fetch() has already decoded the body, so the upstream encoding and length no longer apply.
+      delete respHeaders['content-encoding'];
+      delete respHeaders['content-length'];
+      // fetch() joins multiple Set-Cookie headers into one; restore them individually.
+      if (typeof proxyRes.headers.getSetCookie === 'function' && proxyRes.headers.getSetCookie().length > 0) {
+        respHeaders['set-cookie'] = proxyRes.headers.getSetCookie();
+      }
 
       res.writeHead(proxyRes.status, respHeaders);
       const buf = Buffer.from(await proxyRes.arrayBuffer());

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import type { SchemaEvidence, SchemaResource } from '$lib/api/openapi/evidence';
 	import PageHeader from '$lib/components/ui/PageHeader.svelte';
 	import EmptyState from '$lib/components/ui/EmptyState.svelte';
@@ -118,7 +119,7 @@ function getResourceName(resource: SchemaResource | undefined): string {
 <div>
 	<div class="mb-6">
 		<a
-			href="/toe/{toeId}/evidences/"
+			href={resolve(`/toe/${toeId}/evidences/`)}
 			class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-confirmate"
 		>
 			<Icon src={ArrowLeft} class="h-4 w-4" />

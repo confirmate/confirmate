@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { goto, invalidate } from '$app/navigation';
 	import { orchestratorClient } from '$lib/api/client';
 	import CatalogPicker from '$lib/components/toe/CatalogPicker.svelte';
@@ -37,14 +38,14 @@
 			saving = false;
 			return;
 		}
-		await invalidate((url) => url.pathname === '/v1/orchestrator/audit_scopes');
-		goto(`/toe/${data.toe.id}/audit-scopes/`);
+		await invalidate((url) => url.pathname.endsWith('/v1/orchestrator/audit_scopes'));
+		goto(resolve(`/toe/${data.toe.id}/audit-scopes/`));
 	}
 </script>
 
 <div class="max-w-2xl">
 	<div class="mb-8">
-		<a href="/toe/{data.toe.id}/audit-scopes/" class="text-sm text-gray-500 hover:text-gray-700">
+		<a href={resolve(`/toe/${data.toe.id}/audit-scopes/`)} class="text-sm text-gray-500 hover:text-gray-700">
 			← Back to Audit Scopes
 		</a>
 		<h2 class="mt-4 text-lg font-semibold text-gray-900">New Audit Scope</h2>
@@ -75,7 +76,7 @@
 				<Button onclick={create} disabled={!name || saving}>
 					{saving ? 'Creating…' : 'Create Audit Scope'}
 				</Button>
-				<Button variant="secondary" href="/toe/{data.toe.id}/audit-scopes/">Cancel</Button>
+				<Button variant="secondary" href={resolve(`/toe/${data.toe.id}/audit-scopes/`)}>Cancel</Button>
 			</div>
 			{#if errorMsg}
 				<p class="text-sm text-red-600">{errorMsg}</p>
