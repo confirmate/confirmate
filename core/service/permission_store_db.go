@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"slices"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
@@ -31,6 +33,34 @@ func (ps DBPermissionStore) HasPermission(_ context.Context, userId string, obje
 	if err != nil {
 		return false, fmt.Errorf("failed to check permissions: %w", err)
 	}
+	if count > 0 {
+		return true, nil
+	}
+
+	// Permissions on a target of evaluation are inherited by its audit scopes. The object ID might
+	// refer to an audit scope (either directly or via OBJECT_TYPE_USER_PERMISSION), so we check the
+	// permission of the user on the audit scope's target of evaluation as well.
+	if objectType != orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE &&
+		objectType != orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION {
+		return false, nil
+	}
+
+	var scope orchestrator.AuditScope
+	err = ps.DB.Get(&scope, persistence.WithoutPreload(), "id = ?", objectId)
+	if errors.Is(err, persistence.ErrRecordNotFound) {
+		return false, nil
+	} else if err != nil {
+		return false, fmt.Errorf("failed to retrieve audit scope: %w", err)
+	}
+
+	count, err = ps.DB.Count(
+		&userPermission,
+		"user_id = ? AND object_id = ? AND object_type = ? AND permission IN ?",
+		userId, scope.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION, allowedPermissions(permission),
+	)
+	if err != nil {
+		return false, fmt.Errorf("failed to check permissions: %w", err)
+	}
 
 	return count > 0, nil
 }
@@ -45,9 +75,7 @@ func (ps DBPermissionStore) PermissionForObjects(_ context.Context, userID strin
 	types := []orchestrator.ObjectType{objectType}
 
 	if objectType == orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION {
-		if objectType == orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION {
-			types = []orchestrator.ObjectType{orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE}
-		}
+		types = []orchestrator.ObjectType{orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE}
 	}
 
 	err = ps.DB.List(
@@ -65,9 +93,56 @@ func (ps DBPermissionStore) PermissionForObjects(_ context.Context, userID strin
 		return nil, fmt.Errorf("failed to retrieve permissions: %w", err)
 	}
 
-	objectIds := make([]string, len(userPermissions))
+	objectIds := make([]string, 0, len(userPermissions))
+	toeIds := make([]string, 0)
 	for i := range userPermissions {
-		objectIds[i] = userPermissions[i].ObjectId
+		objectIds = append(objectIds, userPermissions[i].ObjectId)
+		if userPermissions[i].ObjectType == orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION {
+			toeIds = append(toeIds, userPermissions[i].ObjectId)
+		}
+	}
+
+	if !slices.Contains(types, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE) {
+		return objectIds, nil
+	}
+
+	// Permissions on a target of evaluation are inherited by its audit scopes, so we add all audit
+	// scopes of the targets of evaluation the user has (at least) the requested permission for.
+	if objectType == orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE {
+		err = ps.DB.List(
+			&userPermissions,
+			"object_id",
+			true,
+			0,
+			-1,
+			"user_id = ? AND object_type = ? AND permission IN (?)",
+			userID,
+			orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+			allowedPermissions(permission),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to retrieve permissions: %w", err)
+		}
+
+		for i := range userPermissions {
+			toeIds = append(toeIds, userPermissions[i].ObjectId)
+		}
+	}
+
+	if len(toeIds) == 0 {
+		return objectIds, nil
+	}
+
+	var scopes []orchestrator.AuditScope
+	err = ps.DB.List(&scopes, "id", true, 0, -1, persistence.WithoutPreload(), "target_of_evaluation_id IN (?)", toeIds)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve audit scopes: %w", err)
+	}
+
+	for i := range scopes {
+		if !slices.Contains(objectIds, scopes[i].Id) {
+			objectIds = append(objectIds, scopes[i].Id)
+		}
 	}
 
 	return objectIds, nil

@@ -292,6 +292,83 @@ func TestService_UpsertUserPermission(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "happy path: target of evaluation admin can manage permissions of its audit scope",
+			args: args{
+				ctx: auth.WithClaims(context.Background(),
+					&auth.OAuthClaims{
+						RegisteredClaims: jwt.RegisteredClaims{
+							Subject: orchestratortest.MockUserId1,
+							Issuer:  orchestratortest.MockUserIssuer1,
+						},
+						IsAdminToken: false,
+					},
+				),
+				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
+					UserPermission: &orchestrator.UserPermission{
+						UserId:     orchestratortest.MockUserId2,
+						ObjectId:   orchestratortest.MockScopeId1,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+						Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							assert.NoError(t, d.Create(orchestratortest.MockCatalog1))
+							assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+							assert.NoError(t, d.Create(orchestratortest.MockUserPermissionsToEAdmin))
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.UpsertUserPermissionResponse], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, orchestratortest.MockScopeId1, got.Msg.UserPermission.ObjectId)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "err: target of evaluation admin cannot manage permissions of another target's audit scope",
+			args: args{
+				ctx: auth.WithClaims(context.Background(),
+					&auth.OAuthClaims{
+						RegisteredClaims: jwt.RegisteredClaims{
+							Subject: orchestratortest.MockUserId1,
+							Issuer:  orchestratortest.MockUserIssuer1,
+						},
+						IsAdminToken: false,
+					},
+				),
+				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
+					UserPermission: &orchestrator.UserPermission{
+						UserId:     orchestratortest.MockUserId2,
+						ObjectId:   orchestratortest.MockScopeId2,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+						Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							assert.NoError(t, d.Create(orchestratortest.MockCatalog2))
+							assert.NoError(t, d.Create(orchestratortest.MockAuditScope2))
+							assert.NoError(t, d.Create(orchestratortest.MockUserPermissionsToEAdmin))
+						}),
+					},
+				},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.UpsertUserPermissionResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
 	}
 
 	for _, tt := range tests {

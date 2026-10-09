@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"slices"
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/orchestrator"
@@ -36,6 +37,28 @@ func (ps *OrchestratorPermissionStore) HasPermission(ctx context.Context, userId
 		}
 	}
 
+	// Permissions on a target of evaluation are inherited by its audit scopes.
+	if objectType != orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE {
+		return false, nil
+	}
+
+	scope, err := ps.Client.GetAuditScope(ctx, connect.NewRequest(&orchestrator.GetAuditScopeRequest{
+		AuditScopeId: objectId,
+	}))
+	if connect.CodeOf(err) == connect.CodeNotFound {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	for _, p := range permissions {
+		if p.GetObjectId() == scope.Msg.GetTargetOfEvaluationId() &&
+			p.GetObjectType() == orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION &&
+			p.GetPermission() >= permission {
+			return true, nil
+		}
+	}
+
 	return false, nil
 }
 
@@ -55,6 +78,40 @@ func (ps *OrchestratorPermissionStore) PermissionForObjects(ctx context.Context,
 	for _, p := range permissions {
 		if p.GetObjectType() == objectType && p.GetPermission() >= permission {
 			ids = append(ids, p.GetObjectId())
+		}
+	}
+
+	if objectType != orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE {
+		return ids, nil
+	}
+
+	// Permissions on a target of evaluation are inherited by its audit scopes, so we add all audit
+	// scopes of the targets of evaluation the user has (at least) the requested permission for.
+	for _, p := range permissions {
+		if p.GetObjectType() != orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION || p.GetPermission() < permission {
+			continue
+		}
+
+		toeId := p.GetObjectId()
+		scopes, err := api.ListAllPaginated(ctx, &orchestrator.ListAuditScopesRequest{
+			Filter: &orchestrator.ListAuditScopesRequest_Filter{TargetOfEvaluationId: &toeId},
+		}, func(ctx context.Context, req *orchestrator.ListAuditScopesRequest) (*orchestrator.ListAuditScopesResponse, error) {
+			res, err := ps.Client.ListAuditScopes(ctx, connect.NewRequest(req))
+			if err != nil {
+				return nil, err
+			}
+			return res.Msg, nil
+		}, func(res *orchestrator.ListAuditScopesResponse) []*orchestrator.AuditScope {
+			return res.GetAuditScopes()
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, scope := range scopes {
+			if !slices.Contains(ids, scope.GetId()) {
+				ids = append(ids, scope.GetId())
+			}
 		}
 	}
 
