@@ -265,8 +265,8 @@ func TestService_AssessEvidence(t *testing.T) {
 		// 				ToolId:    evidencetest.MockEvidenceToolID1,
 		// 				Timestamp: timestamppb.Now(),
 		// 				Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-		// 					Id:   evidencetest.MockVirtualMachineID1,
-		// 					Name: evidencetest.MockVirtualMachineName1,
+		// 					Id:   new(evidencetest.MockVirtualMachineID1),
+		// 					Name: new(evidencetest.MockVirtualMachineName1),
 		// 				}),
 		// 				TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1},
 		// 		},
@@ -1579,19 +1579,22 @@ func setupOrchestratorForTesting(t *testing.T) (orchestratorconnect.Orchestrator
 func ValidRego() string {
 	return `package cch.metrics.boot_logging_enabled
 
-	import data.cch.compare
-	import rego.v1
-	import input.bootLogging as logging
+import data.cch.comparison_result
+import rego.v1
+import input.bootLogging as logging
 
-	default applicable = false
+default applicable = false
 
-	default compliant = false
+default compliant = false
 
-	applicable if {
-		logging
-	}
+applicable if {
+	logging
+}
 
-	compliant if {
-		compare(data.operator, data.target_value, logging.enabled)
-	}`
+compliant if {
+	every r in results { r.success }
+}
+
+results := [comparison_result("bootLogging.enabled", logging.enabled)]
+`
 }
