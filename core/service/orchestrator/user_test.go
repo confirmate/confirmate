@@ -326,8 +326,14 @@ func TestService_UpsertUserPermission(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.UpsertUserPermissionResponse], _ ...any) bool {
+				want := &orchestrator.UserPermission{
+					UserId:     orchestratortest.MockUserId2,
+					ObjectId:   orchestratortest.MockScopeId1,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+					Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+				}
 				return assert.NotNil(t, got) &&
-					assert.Equal(t, orchestratortest.MockScopeId1, got.Msg.UserPermission.ObjectId)
+					assert.Equal(t, want, got.Msg.UserPermission)
 			},
 			wantErr: assert.NoError,
 		},
