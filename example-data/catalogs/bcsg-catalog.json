@@ -28,7 +28,7 @@
                 "name": "Password Policy",
                 "description": "A strong password policy must be enforced.",
                 "metrics": [
-                  { "id": "IdentityPasswordPolicyEnabled" }
+                  { "id": "12fc547b-7a33-4d6a-8f9a-cf9ec059a13e", "name": "IdentityPasswordPolicyEnabled" }
                 ]
               },
               {
@@ -36,7 +36,7 @@
                 "name": "Multi-Factor Authentication",
                 "description": "MFA must be available for administrative accounts.",
                 "metrics": [
-                  { "id": "AdminMFAEnabled" }
+                  { "id": "2601ddd9-d98b-467d-ad5b-ebe1e333f566", "name": "AdminMFAEnabled" }
                 ]
               }
             ]
@@ -57,7 +57,7 @@
                 "name": "Encryption at Rest",
                 "description": "Sensitive data must be encrypted at rest.",
                 "metrics": [
-                  { "id": "AtRestEncryptionEnabled" }
+                  { "id": "c7121da1-274e-4c6b-b2fe-47df992297a9", "name": "AtRestEncryptionEnabled" }
                 ]
               },
               {
@@ -65,7 +65,7 @@
                 "name": "Encryption in Transit",
                 "description": "All external communication must use strong encryption.",
                 "metrics": [
-                  { "id": "TransportEncryptionEnabled" }
+                  { "id": "642e9b84-4bf9-4853-9c76-555716f0c716", "name": "TransportEncryptionEnabled" }
                 ]
               },
               {
@@ -73,7 +73,7 @@
                 "name": "Cryptographic Algorithm Strength",
                 "description": "Only strong cryptographic algorithms must be used.",
                 "metrics": [
-                  { "id": "StrongCryptographicHash" }
+                  { "id": "14f72a16-4939-47a9-b4d7-3514ee2a8c44", "name": "StrongCryptographicHash" }
                 ]
               }
             ]
@@ -94,7 +94,7 @@
                 "name": "Automatic Updates",
                 "description": "Automatic updates must be enabled by default.",
                 "metrics": [
-                  { "id": "AutomaticUpdatesEnabled" }
+                  { "id": "84eaed86-759d-4419-9954-f3d3ea1f5200", "name": "AutomaticUpdatesEnabled" }
                 ]
               },
               {
@@ -102,7 +102,7 @@
                 "name": "Update Check Interval",
                 "description": "The product must check for updates at appropriate intervals.",
                 "metrics": [
-                  { "id": "AutomaticUpdatesInterval" }
+                  { "id": "50118133-1b49-416c-a052-8bc9221241c2", "name": "AutomaticUpdatesInterval" }
                 ]
               }
             ]
@@ -123,7 +123,7 @@
                 "name": "Activity Logging",
                 "description": "Security activities must be logged.",
                 "metrics": [
-                  { "id": "ActivityLoggingEnabled" }
+                  { "id": "3d2996d0-f41d-4283-b574-71aec7912cd2", "name": "ActivityLoggingEnabled" }
                 ]
               },
               {
