@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -280,6 +281,38 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 				assert.NoError(t, db.List(&states, "id", true, 0, -1))
 				return assert.Equal(t, 1, len(states)) &&
 					assert.Equal(t, CertificateStateNew, states[0].State)
+			},
+		},
+		{
+			name:         "appends 'suspended' when the NOT_COMPLIANT result is beyond the first page",
+			auditScopeId: orchestratortest.MockScopeId1,
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockCertificate1))
+					// Fill more than one default page with compliant parent controls, and add a
+					// non-compliant one whose control ID sorts last, i.e., ends up on a later page.
+					n := int(service.DefaultPaginationOpts.DefaultPageSize)
+					for i := 0; i <= n; i++ {
+						status := evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT
+						if i == n {
+							status = evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT
+						}
+						assert.NoError(t, d.Create(&evaluation.EvaluationResult{
+							Id:           fmt.Sprintf("00000000-0000-0000-0099-%012d", i),
+							AuditScopeId: orchestratortest.MockScopeId1,
+							ControlId:    fmt.Sprintf("%s-%03d", evaluationtest.MockControlId1, i),
+							Status:       status,
+							Timestamp:    timestamppb.Now(),
+						}))
+					}
+				}),
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, _ ...any) bool {
+				var states []*orchestrator.State
+				assert.NoError(t, db.List(&states, "id", true, 0, -1))
+				return assert.Equal(t, 1, len(states)) &&
+					assert.Equal(t, CertificateStateSuspended, states[0].State)
 			},
 		},
 	}

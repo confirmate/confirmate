@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"confirmate.io/core/api"
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
@@ -83,18 +84,28 @@ func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId
 		return err
 	}
 
-	// Fetch the latest parent-level evaluation result per control for this scope.
-	listRes, err := svc.ListEvaluationResults(ctx, connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{
+	// Fetch the latest parent-level evaluation result per control for this scope. The
+	// listing is paginated, so we need to fetch all pages; otherwise only the first page
+	// of controls would decide the certificate state.
+	results, err := api.ListAllPaginated(ctx, &orchestrator.ListEvaluationResultsRequest{
 		Filter: &orchestrator.ListEvaluationResultsRequest_Filter{
 			AuditScopeId: &auditScopeId,
 			ParentsOnly:  new(true),
 		},
 		LatestByControlId: new(true),
-	}))
+	},
+		func(ctx context.Context, req *orchestrator.ListEvaluationResultsRequest) (*orchestrator.ListEvaluationResultsResponse, error) {
+			res, err := svc.ListEvaluationResults(ctx, connect.NewRequest(req))
+			if err != nil {
+				return nil, err
+			}
+			return res.Msg, nil
+		}, func(res *orchestrator.ListEvaluationResultsResponse) []*evaluation.EvaluationResult {
+			return res.Results
+		})
 	if err != nil {
 		return fmt.Errorf("lifecycle: list evaluation results: %w", err)
 	}
-	results := listRes.Msg.GetResults()
 	if len(results) == 0 {
 		return nil
 	}
