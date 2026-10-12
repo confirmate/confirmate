@@ -1075,10 +1075,27 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
 
-					// Create one assessment result
+					// Create three assessment results for three resources, two of them from the same evidence
+					for _, r := range []*assessment.AssessmentResult{
+						orchestratortest.MockAssessmentResult1,
+						orchestratortest.MockAssessmentResult2,
+						orchestratortest.MockAssessmentResult3,
+					} {
+						err = d.Create(&assessment.AssessmentResult{
+							Id:                   r.Id,
+							TargetOfEvaluationId: r.TargetOfEvaluationId,
+							ResourceId:           r.ResourceId,
+							EvidenceId:           r.EvidenceId,
+						})
+						assert.NoError(t, err)
+					}
+
+					// Create one assessment result of another target of evaluation, which must not be counted
 					err = d.Create(&assessment.AssessmentResult{
-						Id:                   orchestratortest.MockAssessmentResult1.Id,
-						TargetOfEvaluationId: orchestratortest.MockAssessmentResult1.TargetOfEvaluationId,
+						Id:                   orchestratortest.MockAssessmentResultToE2.Id,
+						TargetOfEvaluationId: orchestratortest.MockAssessmentResultToE2.TargetOfEvaluationId,
+						ResourceId:           orchestratortest.MockResourceIdNew,
+						EvidenceId:           orchestratortest.MockEvidenceId3,
 					})
 					assert.NoError(t, err)
 
@@ -1094,7 +1111,9 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, int64(1), got.Msg.NumberOfAssessmentResults) &&
+					assert.Equal(t, int64(3), got.Msg.NumberOfAssessmentResults) &&
+					assert.Equal(t, int64(3), got.Msg.NumberOfDiscoveredResources) &&
+					assert.Equal(t, int64(2), got.Msg.NumberOfEvidences) &&
 					assert.Equal(t, int64(1), got.Msg.NumberOfSelectedCatalogs)
 			},
 			wantErr: assert.NoError,

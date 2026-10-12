@@ -1228,6 +1228,16 @@ func TestService_loadCatalogs(t *testing.T) {
 	mockCatalog2Update := proto.Clone(orchestratortest.MockCatalog2).(*orchestrator.Catalog)
 	mockCatalog2Update.Description = "Updated description"
 
+	// MockCatalog1 as a catalog file would yield it on the next load: new control IDs, and the
+	// first sub-control now references MockMetric2 instead of MockMetric1.
+	mockCatalog1Reloaded := proto.Clone(orchestratortest.MockCatalog1).(*orchestrator.Catalog)
+	for _, control := range collectControls(mockCatalog1Reloaded) {
+		control.Id = uuid.NewString()
+		if control.ShortName == orchestratortest.MockSubControlShortName1 {
+			control.Metrics = []*assessment.Metric{orchestratortest.MockMetric2}
+		}
+	}
+
 	type fields struct {
 		db persistence.DB
 	}
@@ -1326,6 +1336,30 @@ func TestService_loadCatalogs(t *testing.T) {
 				catalog2 := assert.InDBGet[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
 				return assert.NotNil(t, catalog1) && assert.Equal(t, mockCatalog2Update.Description, catalog2.Description)
 
+			},
+		},
+		{
+			name: "happy path: existing catalog gets updated metric references, matched by short name",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockCatalog1))
+				}),
+			},
+			loadDefaultCats: false,
+			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{mockCatalog1Reloaded}, nil
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
+				sub1 := assert.InDBGet[orchestrator.Control](t, db, orchestratortest.MockControl1SubControlId1)
+				sub2 := assert.InDBGet[orchestrator.Control](t, db, orchestratortest.MockControl1SubControlId2)
+				count, err := db.Count(&orchestrator.Control{}, "catalog_id = ?", orchestratortest.MockCatalogId1)
+				return assert.NoError(t, err) &&
+					assert.Equal(t, 1, len(sub1.Metrics)) &&
+					assert.Equal(t, orchestratortest.MockMetricId2, sub1.Metrics[0].Id) &&
+					assert.Equal(t, 1, len(sub2.Metrics)) &&
+					assert.Equal(t, orchestratortest.MockMetricId2, sub2.Metrics[0].Id) &&
+					assert.Equal(t, int64(len(collectControls(orchestratortest.MockCatalog1))), count)
 			},
 		},
 		{
@@ -1694,4 +1728,12 @@ func TestService_loadCatalogsFromFolder(t *testing.T) {
 			}
 		})
 	}
+}
+
+// collectControls returns all controls of a catalog, including sub-controls.
+func collectControls(catalog *orchestrator.Catalog) (controls []*orchestrator.Control) {
+	for _, category := range catalog.GetCategories() {
+		controls = appendControlsRecursive(controls, category.GetControls())
+	}
+	return controls
 }

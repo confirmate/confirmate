@@ -327,13 +327,38 @@ func (svc *Service) GetTargetOfEvaluationStatistics(
 	}
 	res.Msg.NumberOfAssessmentResults = count
 
-	// TODO: Get number of discovered resources
-	res.Msg.NumberOfDiscoveredResources = 0
+	// The evidence store keeps resources and evidences in its own database, so we count the distinct
+	// resources and evidences that the assessment results of this target of evaluation refer to.
+	res.Msg.NumberOfDiscoveredResources, err = svc.countDistinctAssessmentResultColumn("resource_id", req.Msg.TargetOfEvaluationId)
+	if err != nil {
+		return nil, service.HandleDatabaseError(err)
+	}
 
-	// TODO: Get number of evidences
-	res.Msg.NumberOfEvidences = 0
+	res.Msg.NumberOfEvidences, err = svc.countDistinctAssessmentResultColumn("evidence_id", req.Msg.TargetOfEvaluationId)
+	if err != nil {
+		return nil, service.HandleDatabaseError(err)
+	}
 
 	return
+}
+
+// countDistinctAssessmentResultColumn returns the number of distinct, non-empty values of column in
+// the assessment results of the given target of evaluation.
+func (svc *Service) countDistinctAssessmentResultColumn(column string, targetOfEvaluationId string) (count int64, err error) {
+	var values []string
+
+	err = svc.db.Pluck(&assessment.AssessmentResult{}, column, &values, "target_of_evaluation_id = ?", targetOfEvaluationId)
+	if err != nil {
+		return 0, err
+	}
+
+	for _, v := range values {
+		if v != "" {
+			count++
+		}
+	}
+
+	return count, nil
 }
 
 // CreateDefaultTargetOfEvaluation creates a new "default" target of evaluation,
