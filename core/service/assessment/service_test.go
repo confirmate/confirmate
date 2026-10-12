@@ -255,28 +255,6 @@ func TestService_AssessEvidence(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
-		// TODO: integrate when authentication is done
-		// {
-		// 	name: "Assess resource of wrong cloud service",
-		// 	args: args{
-		// 		req: &assessment.AssessEvidenceRequest{
-		// 			Evidence: &evidence.Evidence{
-		// 				Id:        evidencetest.MockEvidenceID1,
-		// 				ToolId:    evidencetest.MockEvidenceToolID1,
-		// 				Timestamp: timestamppb.Now(),
-		// 				Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-		// 					Id:   evidencetest.MockVirtualMachineID1,
-		// 					Name: evidencetest.MockVirtualMachineName1,
-		// 				}),
-		// 				TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1},
-		// 		},
-		// 	},
-		// 	want: assert.Nil[*connect.Response[assessment.AssessEvidenceResponse]],
-		// 	wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-		// 		cErr := assert.Is[*connect.Error](t, err)
-		// 		return assert.Equal(t, connect.CodePermissionDenied, cErr.Code())
-		// 	},
-		// },
 		{
 			name: "Assess resource without resource id",
 			fields: fields{
@@ -1579,19 +1557,22 @@ func setupOrchestratorForTesting(t *testing.T) (orchestratorconnect.Orchestrator
 func ValidRego() string {
 	return `package cch.metrics.boot_logging_enabled
 
-	import data.cch.compare
-	import rego.v1
-	import input.bootLogging as logging
+import data.cch.comparison_result
+import rego.v1
+import input.bootLogging as logging
 
-	default applicable = false
+default applicable = false
 
-	default compliant = false
+default compliant = false
 
-	applicable if {
-		logging
-	}
+applicable if {
+	logging
+}
 
-	compliant if {
-		compare(data.operator, data.target_value, logging.enabled)
-	}`
+compliant if {
+	every r in results { r.success }
+}
+
+results := [comparison_result("bootLogging.enabled", logging.enabled)]
+`
 }
