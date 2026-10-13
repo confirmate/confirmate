@@ -71,7 +71,9 @@ func TestRestartableBidiStream_Receive_ReturnsErrorInsteadOfHanging_AfterRestart
 		assert.NoError(t, rs.Close())
 	}()
 
-	assert.NoError(t, rs.Send(&evidence.StoreEvidenceRequest{}))
+	// The server rejects the stream immediately, so Send() may race with that and fail with an EOF (and
+	// trigger a restart). Either outcome is fine; this test is about Receive() not hanging afterwards.
+	_ = rs.Send(&evidence.StoreEvidenceRequest{})
 
 	done := make(chan error, 1)
 	go func() {
