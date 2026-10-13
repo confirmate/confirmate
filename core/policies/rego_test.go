@@ -284,7 +284,9 @@ func Test_regoEval_Eval(t *testing.T) {
 				src:        &mockMetricsSource{t: t},
 			},
 			compliant: map[string]bool{
-				"BootLoggingEnabled":   false,
+				"BootLoggingEnabled": false,
+				// Missing logging service IDs are treated as zero, so BootLoggingOutput is applicable and non-compliant.
+				"BootLoggingOutput":    false,
 				"BootLoggingRetention": false,
 				"OSLoggingEnabled":     false,
 				"OSLoggingOutput":      true,
