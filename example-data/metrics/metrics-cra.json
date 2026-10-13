@@ -1,6 +1,6 @@
 [
   {
-    "id": "AdminMFAEnabled",
+    "id": "2601ddd9-d98b-467d-ad5b-ebe1e333f566",
     "name": "AdminMFAEnabled",
     "description": "This metric is used to assess if MFA for admins is enabled",
     "category": "Identity Management",
@@ -15,7 +15,7 @@
     }
   },
   {
-    "id": "AnomalyDetectionEnabled",
+    "id": "58d9a281-0f05-4a49-a1ef-df5013cc901e",
     "name": "AnomalyDetectionEnabled",
     "description": "This metric is used to assess if Anomaly Detection is enabled",
     "category": "Logging & Monitoring",
@@ -30,7 +30,7 @@
     }
   },
   {
-    "id": "AtRestEncryptionEnabled",
+    "id": "c7121da1-274e-4c6b-b2fe-47df992297a9",
     "name": "AtRestEncryptionEnabled",
     "description": "This metric is used to assess if storage encryption is enabled",
     "category": "Storage Encryption",
@@ -45,7 +45,7 @@
     }
   },
   {
-    "id": "AutomaticUpdatesEnabled",
+    "id": "84eaed86-759d-4419-9954-f3d3ea1f5200",
     "name": "AutomaticUpdatesEnabled",
     "description": "This metric is used to assess if automatic updates are enabled",
     "category": "Endpoint Security",
@@ -60,7 +60,7 @@
     }
   },
   {
-    "id": "AutomaticUpdatesInterval",
+    "id": "50118133-1b49-416c-a052-8bc9221241c2",
     "name": "AutomaticUpdatesInterval",
     "description": "This metric is used to assess if automatic updates are performed with sufficient frequency (hours)",
     "category": "Endpoint Security",
@@ -86,7 +86,7 @@
     }
   },
   {
-    "id": "StrongCryptographicHash",
+    "id": "14f72a16-4939-47a9-b4d7-3514ee2a8c44",
     "name": "StrongCryptographicHash",
     "description": "This rule assesses whether a resource that offers the property CryptographicHash has its algorithm set correctly",
     "category": "Application Security",
@@ -102,7 +102,7 @@
     }
   },
   {
-    "id": "TransportEncryptionEnabled",
+    "id": "642e9b84-4bf9-4853-9c76-555716f0c716",
     "name": "TransportEncryptionEnabled",
     "description": "This metric is used if transport encryption is enabled",
     "category": "Transport Encryption",
@@ -177,7 +177,7 @@
     }
   },
   {
-    "id": "IdentityPasswordPolicyEnabled",
+    "id": "12fc547b-7a33-4d6a-8f9a-cf9ec059a13e",
     "name": "IdentityPasswordPolicyEnabled",
     "description": "This metric is used to assess if a password policy is enabled for identity management",
     "category": "Identity Management",
@@ -282,7 +282,7 @@
     }
   },
   {
-    "id": "BackupEnabled",
+    "id": "c7a4fae4-216a-4440-93e9-637cb08d79a8",
     "name": "BackupEnabled",
     "description": "This metric is used to assess if backup mechanisms are enabled for critical data flows",
     "category": "Data Protection",
@@ -297,7 +297,7 @@
     }
   },
   {
-    "id": "ActivityLoggingEnabled",
+    "id": "3d2996d0-f41d-4283-b574-71aec7912cd2",
     "name": "ActivityLoggingEnabled",
     "description": "This metric is used to assess if activity logging is enabled for security-relevant activities",
     "category": "Logging & Monitoring",
@@ -357,7 +357,7 @@
     }
   },
   {
-    "id": "NoKnownVulnerabilities",
+    "id": "92b4404d-0f00-4e9c-9d1c-52cb970d975b",
     "name": "NoKnownVulnerabilities",
     "description": "Assesses whether a resource has no known vulnerabilities.",
     "category": "ApplicationSecurity",
@@ -372,7 +372,7 @@
     }
   },
   {
-    "id": "VulnerabilitiesNotExploitable",
+    "id": "e0f1b6f2-13f5-482e-924e-c9e29145d7e5",
     "name": "VulnerabilitiesNotExploitable",
     "description": "Assesses whether detected vulnerabilities are not exploitable for the target of evaluation.",
     "category": "ApplicationSecurity",

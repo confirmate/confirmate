@@ -255,28 +255,6 @@ func TestService_AssessEvidence(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
-		// TODO: integrate when authentication is done
-		// {
-		// 	name: "Assess resource of wrong cloud service",
-		// 	args: args{
-		// 		req: &assessment.AssessEvidenceRequest{
-		// 			Evidence: &evidence.Evidence{
-		// 				Id:        evidencetest.MockEvidenceID1,
-		// 				ToolId:    evidencetest.MockEvidenceToolID1,
-		// 				Timestamp: timestamppb.Now(),
-		// 				Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-		// 					Id:   new(evidencetest.MockVirtualMachineID1),
-		// 					Name: new(evidencetest.MockVirtualMachineName1),
-		// 				}),
-		// 				TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1},
-		// 		},
-		// 	},
-		// 	want: assert.Nil[*connect.Response[assessment.AssessEvidenceResponse]],
-		// 	wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-		// 		cErr := assert.Is[*connect.Error](t, err)
-		// 		return assert.Equal(t, connect.CodePermissionDenied, cErr.Code())
-		// 	},
-		// },
 		{
 			name: "Assess resource without resource id",
 			fields: fields{

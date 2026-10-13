@@ -17,6 +17,7 @@ import (
 type mockPermissionHandler struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
 	permissions []*orchestrator.UserPermission
+	auditScopes []*orchestrator.AuditScope
 	listErr     error
 }
 
@@ -41,10 +42,34 @@ func (h *mockPermissionHandler) ListUserPermissions(_ context.Context, req *conn
 	}), nil
 }
 
-func newPermissionStoreForTest(t *testing.T, permissions []*orchestrator.UserPermission, listErr error) *OrchestratorPermissionStore {
+func (h *mockPermissionHandler) GetAuditScope(_ context.Context, req *connect.Request[orchestrator.GetAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error) {
+	for _, scope := range h.auditScopes {
+		if scope.GetId() == req.Msg.GetAuditScopeId() {
+			return connect.NewResponse(scope), nil
+		}
+	}
+
+	return nil, connect.NewError(connect.CodeNotFound, nil)
+}
+
+func (h *mockPermissionHandler) ListAuditScopes(_ context.Context, req *connect.Request[orchestrator.ListAuditScopesRequest]) (*connect.Response[orchestrator.ListAuditScopesResponse], error) {
+	var filtered []*orchestrator.AuditScope
+	for _, scope := range h.auditScopes {
+		if req.Msg.Filter.GetTargetOfEvaluationId() != "" && scope.GetTargetOfEvaluationId() != req.Msg.Filter.GetTargetOfEvaluationId() {
+			continue
+		}
+		filtered = append(filtered, scope)
+	}
+
+	return connect.NewResponse(&orchestrator.ListAuditScopesResponse{
+		AuditScopes: filtered,
+	}), nil
+}
+
+func newPermissionStoreForTest(t *testing.T, permissions []*orchestrator.UserPermission, auditScopes []*orchestrator.AuditScope, listErr error) *OrchestratorPermissionStore {
 	t.Helper()
 
-	handler := &mockPermissionHandler{permissions: permissions, listErr: listErr}
+	handler := &mockPermissionHandler{permissions: permissions, auditScopes: auditScopes, listErr: listErr}
 	_, testSrv := servertest.NewTestConnectServer(t,
 		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
 	)
@@ -65,6 +90,7 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 	tests := []struct {
 		name        string
 		permissions []*orchestrator.UserPermission
+		auditScopes []*orchestrator.AuditScope
 		listErr     error
 		args        args
 		want        bool
@@ -160,11 +186,70 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 			want:    false,
 			wantErr: assert.NoError,
 		},
+		{
+			name: "true: audit scope permission inherited from target of evaluation",
+			permissions: []*orchestrator.UserPermission{
+				{
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockToeId1,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+				},
+			},
+			auditScopes: []*orchestrator.AuditScope{orchestratortest.MockAuditScope1},
+			args: args{
+				userId:     orchestratortest.MockUserId1,
+				objectId:   orchestratortest.MockScopeId1,
+				permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+				objectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+			},
+			want:    true,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "false: inherited permission on target of evaluation is insufficient",
+			permissions: []*orchestrator.UserPermission{
+				{
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockToeId1,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_READER,
+				},
+			},
+			auditScopes: []*orchestrator.AuditScope{orchestratortest.MockAuditScope1},
+			args: args{
+				userId:     orchestratortest.MockUserId1,
+				objectId:   orchestratortest.MockScopeId1,
+				permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+				objectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+			},
+			want:    false,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "false: audit scope does not exist",
+			permissions: []*orchestrator.UserPermission{
+				{
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockToeId1,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+				},
+			},
+			args: args{
+				userId:     orchestratortest.MockUserId1,
+				objectId:   orchestratortest.MockScopeId1,
+				permission: orchestrator.UserPermission_PERMISSION_READER,
+				objectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+			},
+			want:    false,
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ps := newPermissionStoreForTest(t, tt.permissions, tt.listErr)
+			ps := newPermissionStoreForTest(t, tt.permissions, tt.auditScopes, tt.listErr)
 			got, err := ps.HasPermission(context.Background(), tt.args.userId, tt.args.objectId, tt.args.permission, tt.args.reqType, tt.args.objectType)
 			assert.Equal(t, tt.want, got)
 			tt.wantErr(t, err)
@@ -182,6 +267,7 @@ func TestOrchestratorPermissionStore_PermissionForObjects(t *testing.T) {
 	tests := []struct {
 		name        string
 		permissions []*orchestrator.UserPermission
+		auditScopes []*orchestrator.AuditScope
 		listErr     error
 		args        args
 		want        []string
@@ -260,11 +346,36 @@ func TestOrchestratorPermissionStore_PermissionForObjects(t *testing.T) {
 			want:    nil,
 			wantErr: assert.NoError,
 		},
+		{
+			name: "includes audit scopes inherited from targets of evaluation",
+			permissions: []*orchestrator.UserPermission{
+				{
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockScopeId2,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+					Permission: orchestrator.UserPermission_PERMISSION_READER,
+				},
+				{
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockToeId1,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_READER,
+				},
+			},
+			auditScopes: []*orchestrator.AuditScope{orchestratortest.MockAuditScope1, orchestratortest.MockAuditScope2},
+			args: args{
+				userId:     orchestratortest.MockUserId1,
+				permission: orchestrator.UserPermission_PERMISSION_READER,
+				objectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+			},
+			want:    []string{orchestratortest.MockScopeId2, orchestratortest.MockScopeId1},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ps := newPermissionStoreForTest(t, tt.permissions, tt.listErr)
+			ps := newPermissionStoreForTest(t, tt.permissions, tt.auditScopes, tt.listErr)
 			got, err := ps.PermissionForObjects(context.Background(), tt.args.userId, tt.args.permission, tt.args.reqType, tt.args.objectType)
 			assert.Equal(t, tt.want, got)
 			tt.wantErr(t, err)
