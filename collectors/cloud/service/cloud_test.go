@@ -546,6 +546,27 @@ func TestService_StartCollector_AuthRequiredByEvidenceStore(t *testing.T) {
 	}
 }
 
+func TestService_storeEvidence_surfacesServerRejection(t *testing.T) {
+	handler := &mockEvidenceStoreHandler{}
+	_, testSrv := servertest.NewTestConnectServer(t,
+		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(handler,
+			connect.WithInterceptors(&requireBearerInterceptor{token: "test-access-token"}))),
+	)
+	defer testSrv.Close()
+
+	svc := NewService(
+		WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID1),
+		WithCollectorToolID(testdata.MockEvidenceToolID1),
+		WithEvidenceStoreAddress(testSrv.URL, testSrv.Client()),
+	)
+	defer svc.Shutdown()
+
+	err := svc.storeEvidence(&evidence.StoreEvidenceRequest{Evidence: &evidence.Evidence{}})
+
+	assert.Error(t, err)
+	assert.Equal(t, connect.CodeUnauthenticated, connect.CodeOf(err))
+}
+
 func TestService_Shutdown(t *testing.T) {
 	service := NewService()
 	service.Shutdown()

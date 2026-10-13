@@ -488,6 +488,14 @@ func (svc *Service) storeEvidence(req *evidence.StoreEvidenceRequest) (err error
 
 	svc.evidenceStoreStream = svc.GetStream()
 	err = svc.evidenceStoreStream.Send(req)
+	if errors.Is(err, io.EOF) {
+		// Connect reports a server-side termination of a bidi stream as a bare EOF on Send(); the actual
+		// reason (e.g., unauthenticated, permission denied) is only available from Receive(). Surface it,
+		// otherwise every rejection looks like "write envelope: EOF".
+		if _, rerr := svc.evidenceStoreStream.Receive(); rerr != nil && !errors.Is(rerr, io.EOF) {
+			err = rerr
+		}
+	}
 	if err != nil {
 		err = fmt.Errorf("could not send evidence to evidence store service (%s): %w", svc.cloudConfig.evStreamConfig.targetAddress, err)
 		log.Error("send evidence error", "address", svc.cloudConfig.evStreamConfig.targetAddress, tint.Err(err))
