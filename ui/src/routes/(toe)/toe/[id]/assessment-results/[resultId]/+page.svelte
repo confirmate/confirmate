@@ -15,6 +15,7 @@
 	} from '@steeze-ui/heroicons';
 	import { page } from '$app/state';
 	import type { PageProps } from './$types';
+	import { metricName } from '$lib/metrics';
 
 	let { data }: PageProps = $props();
 
@@ -76,7 +77,8 @@
 				<Icon src={Tag} class="h-4 w-4" />
 				Metric
 			</div>
-			<div class="mt-2 font-mono text-sm text-gray-900">{result.metricId}</div>
+			<div class="mt-2 text-sm text-gray-900">{metricName(result.metricId)}</div>
+			<div class="mt-0.5 font-mono text-xs text-gray-400">{result.metricId}</div>
 		</div>
 
 		<div class="rounded-lg border border-gray-200 bg-white px-5 py-4">

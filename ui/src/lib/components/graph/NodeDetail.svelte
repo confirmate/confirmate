@@ -4,6 +4,7 @@
 	import type { SchemaAssessmentResult as AssessmentResult } from '$lib/api/openapi/orchestrator';
 	import { XMark, CheckCircle, XCircle, ShieldExclamation } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
+	import { metricName } from '$lib/metrics';
 
 	interface Props {
 		resource: Resource;
@@ -145,7 +146,7 @@
 									href={resolve(`/toe/${resource.targetOfEvaluationId}/assessment-results/${r.id}/`)}
 									class="text-sm font-medium text-blue-600 hover:underline"
 								>
-									{r.metricId}
+									{metricName(r.metricId)}
 								</a>
 							</div>
 						</li>
