@@ -177,7 +177,9 @@ func Test_azureStorageCollector_collectDiagnosticSettings(t *testing.T) {
 			args: args{
 				resourceURI: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Storage/storageAccounts/account2",
 			},
-			want:    nil,
+			want: &ontology.ActivityLogging{
+				Enabled: new(false),
+			},
 			wantErr: assert.NoError,
 		},
 		{

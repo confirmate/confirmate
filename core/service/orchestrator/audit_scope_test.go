@@ -704,6 +704,40 @@ func TestService_ListAuditScopes(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "happy path: audit scope permissions inherited from target of evaluation",
+			args: args{
+				req: &orchestrator.ListAuditScopesRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+					assert.NoError(t, d.Create(orchestratortest.MockAuditScope2))
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+							assert.NoError(t, d.Create(orchestratortest.MockAuditScope2))
+							assert.NoError(t, d.Create(orchestratortest.MockUserPermissionsToEAdmin))
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAuditScopesResponse], args ...any) bool {
+				// Only the audit scope of the target of evaluation the user has permissions for is returned
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 1, len(got.Msg.AuditScopes)) &&
+					assert.Equal(t, orchestratortest.MockAuditScope1, got.Msg.AuditScopes[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
 			name: "filter by target of evaluation",
 			args: args{
 				req: &orchestrator.ListAuditScopesRequest{

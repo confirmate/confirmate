@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import { base, resolve } from '$app/paths';
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import { invalidate } from '$app/navigation';
@@ -111,7 +111,7 @@
 			// This endpoint returns the file itself (correct Content-Type and Content-Disposition
 			// headers), not a JSON envelope, so it can't go through the typed openapi client.
 			await downloadFile(
-				`/v1/orchestrator/audit_scopes/${data.auditScope.id}/report?format=REPORT_FORMAT_${format}`,
+				`${base}/v1/orchestrator/audit_scopes/${data.auditScope.id}/report?format=REPORT_FORMAT_${format}`,
 				authHeaders(),
 				`audit-scope-report.${format.toLowerCase()}`
 			);
