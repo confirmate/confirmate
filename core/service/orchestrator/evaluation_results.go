@@ -145,27 +145,37 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 		// raw query itself (mirroring ListAssessmentResults' latest_by_resource_id
 		// path) so a catalog with many controls still returns bounded pages.
 		sql := fmt.Sprintf(`
-			SELECT DISTINCT ON (control_id) *
+			SELECT DISTINCT ON (control_id) id
 			FROM evaluation_results
 			%s
 			ORDER BY control_id, timestamp DESC, id DESC
 			LIMIT ? OFFSET ?
 		`, where)
 
+		// Only the IDs are selected by the DISTINCT ON (see loadByIds); the full rows of the page
+		// are loaded afterwards.
 		res.Msg.Results, res.Msg.NextPageToken, err = service.PaginateRaw[*evaluation.EvaluationResult](
 			req.Msg,
 			service.DefaultPaginationOpts,
 			func(start int64, size int32) ([]*evaluation.EvaluationResult, error) {
-				var page []*evaluation.EvaluationResult
+				var (
+					idRows []*evaluation.EvaluationResult
+					ids    []string
+				)
 
 				queryArgs := append([]any(nil), args...)
 				queryArgs = append(queryArgs, int(size), int(start))
 
-				if err := svc.db.Raw(&page, sql, queryArgs...); err != nil {
+				if err := svc.db.Raw(&idRows, sql, queryArgs...); err != nil {
 					return nil, err
 				}
 
-				return page, nil
+				ids = make([]string, 0, len(idRows))
+				for _, r := range idRows {
+					ids = append(ids, r.GetId())
+				}
+
+				return loadByIds[*evaluation.EvaluationResult](svc.db, ids)
 			},
 		)
 		if err = service.HandleDatabaseError(err); err != nil {

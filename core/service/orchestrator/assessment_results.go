@@ -197,8 +197,9 @@ func (svc *Service) ListAssessmentResults(
 			where = "WHERE " + where
 		}
 
+		// Only select the IDs here (see loadByIds), the full rows of the page are loaded afterwards.
 		rawQuery := fmt.Sprintf(`
-				SELECT DISTINCT ON (resource_id, metric_id) *
+				SELECT DISTINCT ON (resource_id, metric_id) id
 				FROM assessment_results
 				%s
 				ORDER BY resource_id, metric_id, created_at DESC, id DESC
@@ -209,16 +210,24 @@ func (svc *Service) ListAssessmentResults(
 			req.Msg,
 			service.DefaultPaginationOpts,
 			func(start int64, size int32) ([]*assessment.AssessmentResult, error) {
-				var page []*assessment.AssessmentResult
+				var (
+					idRows []*assessment.AssessmentResult
+					ids    []string
+				)
 
 				queryArgs := append([]any(nil), args...)
 				queryArgs = append(queryArgs, int(size), int(start))
 
-				if err := svc.db.Raw(&page, rawQuery, queryArgs...); err != nil {
+				if err := svc.db.Raw(&idRows, rawQuery, queryArgs...); err != nil {
 					return nil, err
 				}
 
-				return page, nil
+				ids = make([]string, 0, len(idRows))
+				for _, r := range idRows {
+					ids = append(ids, r.GetId())
+				}
+
+				return loadByIds[*assessment.AssessmentResult](svc.db, ids)
 			},
 		)
 		if err = service.HandleDatabaseError(err); err != nil {
