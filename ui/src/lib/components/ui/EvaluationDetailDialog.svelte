@@ -3,6 +3,7 @@
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import ManualEvaluationDialog from './ManualEvaluationDialog.svelte';
 	import type { SchemaEvaluationResult } from '$lib/api/openapi/orchestrator';
+	import { metricName } from '$lib/metrics';
 
 	let {
 		open = $bindable(false),
@@ -111,7 +112,7 @@
 											<span class="rounded bg-red-50 px-1.5 py-0.5 text-red-600">fail</span>
 										{/if}
 										<span class="font-mono text-gray-600">{arId.slice(0, 8)}...</span>
-										<span class="text-gray-500">{ar?.metricId ?? 'Unknown metric'}</span>
+										<span class="text-gray-500">{ar?.metricId ? metricName(ar.metricId) : 'Unknown metric'}</span>
 									</div>
 								{/each}
 							</div>
