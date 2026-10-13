@@ -98,11 +98,15 @@ func (AssessmentStatus) EnumDescriptor() ([]byte, []int) {
 type AssessmentResult struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Assessment result id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	//
+	// NOTE: id is the last column of idx_assessment_results_resource_metric_created
+	// (see resource_id) to make the ordering of the latest_by_resource_id query
+	// fully index-backed.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" gorm:"index:idx_assessment_results_resource_metric_created,priority:4,sort:desc"`
 	// Time of assessment
-	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty" gorm:"serializer:timestamppb;type:timestamp;index:idx_assessment_results_resource_metric_created,priority:3,sort:desc"`
 	// Reference to the metric the assessment was based on
-	MetricId string `protobuf:"bytes,3,opt,name=metric_id,json=metricId,proto3" json:"metric_id,omitempty"`
+	MetricId string `protobuf:"bytes,3,opt,name=metric_id,json=metricId,proto3" json:"metric_id,omitempty" gorm:"index:idx_assessment_results_resource_metric_created,priority:2"`
 	// Data corresponding to the metric by the given metric id
 	MetricConfiguration *MetricConfiguration `protobuf:"bytes,4,opt,name=metric_configuration,json=metricConfiguration,proto3" json:"metric_configuration,omitempty" gorm:"serializer:json"`
 	// Compliant case: true or false
@@ -110,7 +114,19 @@ type AssessmentResult struct {
 	// Reference to the last assessed evidence
 	EvidenceId string `protobuf:"bytes,6,opt,name=evidence_id,json=evidenceId,proto3" json:"evidence_id,omitempty"`
 	// Reference to the resource of the assessed evidence
-	ResourceId string `protobuf:"bytes,7,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	// The ID of the assessed resource.
+	//
+	// NOTE: idx_assessment_results_resource_metric_created (resource_id,
+	// metric_id, created_at DESC, id DESC) backs the DISTINCT ON of the
+	// latest_by_resource_id query in ListAssessmentResults. Without it, that query
+	// seq-scans and sorts the whole table on disk (~20s at 150k rows; ~135ms with
+	// the index). It is picked up by GORM's AutoMigrate on service startup. On a
+	// large, already-populated table, pre-create it out-of-band to avoid a
+	// blocking CREATE INDEX: `CREATE INDEX CONCURRENTLY
+	// idx_assessment_results_resource_metric_created ON assessment_results
+	// (resource_id, metric_id, created_at DESC, id DESC);` AutoMigrate detects
+	// existing indexes by name and skips them.
+	ResourceId string `protobuf:"bytes,7,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty" gorm:"index:idx_assessment_results_resource_metric_created,priority:1"`
 	// Resource types
 	ResourceTypes []string `protobuf:"bytes,8,rep,name=resource_types,json=resourceTypes,proto3" json:"resource_types,omitempty" gorm:"serializer:json"`
 	// ComplianceComment contains a human readable description on the reason for (non)-compliance.
@@ -405,19 +421,17 @@ var File_api_assessment_result_proto protoreflect.FileDescriptor
 
 const file_api_assessment_result_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/assessment/result.proto\x12\x18confirmate.assessment.v1\x1a\x1bapi/assessment/metric.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\x93\t\n" +
-	"\x10AssessmentResult\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12u\n" +
+	"\x1bapi/assessment/result.proto\x12\x18confirmate.assessment.v1\x1a\x1bapi/assessment/metric.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xca\v\n" +
+	"\x10AssessmentResult\x12p\n" +
+	"\x02id\x18\x01 \x01(\tB`\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03Pgorm:\"index:idx_assessment_results_resource_metric_created,priority:4,sort:desc\"R\x02id\x12\xc0\x01\n" +
 	"\n" +
-	"created_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB:\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tcreatedAt\x12'\n" +
-	"\tmetric_id\x18\x03 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\bmetricId\x12\x86\x01\n" +
+	"created_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x84\x01\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03vgorm:\"serializer:timestamppb;type:timestamp;index:idx_assessment_results_resource_metric_created,priority:3,sort:desc\"R\tcreatedAt\x12r\n" +
+	"\tmetric_id\x18\x03 \x01(\tBU\xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03Fgorm:\"index:idx_assessment_results_resource_metric_created,priority:2\"R\bmetricId\x12\x86\x01\n" +
 	"\x14metric_configuration\x18\x04 \x01(\v2-.confirmate.assessment.v1.MetricConfigurationB$\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x13metricConfiguration\x12\x1c\n" +
 	"\tcompliant\x18\x05 \x01(\bR\tcompliant\x12,\n" +
 	"\vevidence_id\x18\x06 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\n" +
-	"evidenceId\x12+\n" +
-	"\vresource_id\x18\a \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\n" +
+	"evidenceId\x12v\n" +
+	"\vresource_id\x18\a \x01(\tBU\xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03Fgorm:\"index:idx_assessment_results_resource_metric_created,priority:1\"R\n" +
 	"resourceId\x12M\n" +
 	"\x0eresource_types\x18\b \x03(\tB&\xe0A\x02\xbaH\x05\x92\x01\x02\b\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\rresourceTypes\x129\n" +
 	"\x12compliance_comment\x18\t \x01(\tB\n" +

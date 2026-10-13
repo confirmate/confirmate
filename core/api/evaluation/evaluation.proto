@@ -90,8 +90,13 @@ message ListEvaluationJobsResponse {
 // catalog_id are necessary to get the corresponding AuditScope
 message EvaluationResult {
   // Evaluation result id
+  //
+  // NOTE: id is the last column of idx_evaluation_results_control_timestamp_id and idx_evaluation_results_audit_scope_parents, so
+  // the "ORDER BY ..., timestamp DESC, id DESC" of the latest_by_control_id query
+  // is fully index-backed.
   string id = 1 [
     (buf.validate.field).string = {uuid: true},
+    (tagger.tags) = "gorm:\"index:idx_evaluation_results_control_timestamp_id,priority:3,sort:desc;index:idx_evaluation_results_audit_scope_parents,priority:4,sort:desc\"",
     (google.api.field_behavior) = REQUIRED
   ];
 
@@ -106,7 +111,16 @@ message EvaluationResult {
   ];
 
   // The Audit Scope ID the evaluation belongs to
-  string audit_scope_id = 3 [(buf.validate.field).string = {uuid: true}];
+  //
+  // NOTE: idx_evaluation_results_audit_scope_parents is a partial index (audit_scope_id, control_id, timestamp DESC,
+  // id DESC) WHERE parent_control_id IS NULL. It backs the UI-facing
+  // latest_by_control_id query filtered by audit scope with parents_only, which
+  // otherwise walks every sub-control result of the scope. See the note on
+  // control_id for a safe production rollout.
+  string audit_scope_id = 3 [
+    (buf.validate.field).string = {uuid: true},
+    (tagger.tags) = "gorm:\"index:idx_evaluation_results_audit_scope_parents,priority:1\""
+  ];
 
   // The control id the evaluation was based on.
   //
@@ -122,9 +136,17 @@ message EvaluationResult {
   // evaluation_results (target_of_evaluation_id, control_id, timestamp);`
   // before rolling this out; AutoMigrate detects existing indexes by name
   // and skips them.
+  //
+  // The same applies to the indexes backing the latest_by_control_id query
+  // (DISTINCT ON (control_id) ... ORDER BY control_id, timestamp DESC, id DESC):
+  // `CREATE INDEX CONCURRENTLY idx_evaluation_results_control_timestamp_id ON
+  // evaluation_results (control_id, timestamp DESC, id DESC);` and `CREATE INDEX
+  // CONCURRENTLY idx_evaluation_results_audit_scope_parents ON
+  // evaluation_results (audit_scope_id, control_id, timestamp DESC, id DESC)
+  // WHERE parent_control_id IS NULL;`
   string control_id = 4 [
     (buf.validate.field).string.min_len = 1,
-    (tagger.tags) = "gorm:\"index:idx_evaluation_results_control_timestamp,priority:1;index:idx_evaluation_results_toe_control_timestamp,priority:2\""
+    (tagger.tags) = "gorm:\"index:idx_evaluation_results_control_timestamp,priority:1;index:idx_evaluation_results_toe_control_timestamp,priority:2;index:idx_evaluation_results_control_timestamp_id,priority:1;index:idx_evaluation_results_audit_scope_parents,priority:2\""
   ];
 
   reserved 5;
@@ -133,7 +155,10 @@ message EvaluationResult {
   string control_catalog_id = 6 [(buf.validate.field).string.min_len = 1];
 
   // Optionally, specifies the parent control ID, if this is a sub-control
-  optional string parent_control_id = 7;
+  //
+  // NOTE: parent_control_id carries the predicate of the partial index
+  // idx_evaluation_results_audit_scope_parents (WHERE parent_control_id IS NULL).
+  optional string parent_control_id = 7 [(tagger.tags) = "gorm:\"index:idx_evaluation_results_audit_scope_parents,where:parent_control_id IS NULL\""];
 
   // Evaluation status
   EvaluationStatus status = 8 [
@@ -143,7 +168,7 @@ message EvaluationResult {
 
   // Time of evaluation
   google.protobuf.Timestamp timestamp = 9 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp;index:idx_evaluation_results_control_timestamp,priority:2;index:idx_evaluation_results_toe_control_timestamp,priority:3\"",
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp;index:idx_evaluation_results_control_timestamp,priority:2;index:idx_evaluation_results_toe_control_timestamp,priority:3;index:idx_evaluation_results_control_timestamp_id,priority:2,sort:desc;index:idx_evaluation_results_audit_scope_parents,priority:3,sort:desc\"",
     (google.api.field_behavior) = REQUIRED
   ];
 
