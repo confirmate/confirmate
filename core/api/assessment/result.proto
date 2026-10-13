@@ -38,14 +38,19 @@ enum AssessmentStatus {
 // with id resource_id.
 message AssessmentResult {
   // Assessment result id
+  //
+  // NOTE: id is the last column of idx_assessment_results_resource_metric_created
+  // (see resource_id) to make the ordering of the latest_by_resource_id query
+  // fully index-backed.
   string id = 1 [
     (buf.validate.field).string.uuid = true,
+    (tagger.tags) = "gorm:\"index:idx_assessment_results_resource_metric_created,priority:4,sort:desc;index:idx_assessment_results_toe_resource_metric_created,priority:5,sort:desc\"",
     (google.api.field_behavior) = REQUIRED
   ];
 
   // Time of assessment
   google.protobuf.Timestamp created_at = 2 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp;index:idx_assessment_results_resource_metric_created,priority:3,sort:desc;index:idx_assessment_results_toe_resource_metric_created,priority:4,sort:desc\"",
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -53,6 +58,7 @@ message AssessmentResult {
   // Reference to the metric the assessment was based on
   string metric_id = 3 [
     (buf.validate.field).string.min_len = 1,
+    (tagger.tags) = "gorm:\"index:idx_assessment_results_resource_metric_created,priority:2;index:idx_assessment_results_toe_resource_metric_created,priority:3\"",
     (google.api.field_behavior) = REQUIRED
   ];
 
@@ -73,8 +79,21 @@ message AssessmentResult {
   ];
 
   // Reference to the resource of the assessed evidence
+  // The ID of the assessed resource.
+  //
+  // NOTE: idx_assessment_results_resource_metric_created (resource_id,
+  // metric_id, created_at DESC, id DESC) backs the DISTINCT ON of the
+  // latest_by_resource_id query in ListAssessmentResults. Without it, that query
+  // seq-scans and sorts the whole table on disk (~20s at 150k rows; ~135ms with
+  // the index). It is picked up by GORM's AutoMigrate on service startup. On a
+  // large, already-populated table, pre-create it out-of-band to avoid a
+  // blocking CREATE INDEX: `CREATE INDEX CONCURRENTLY
+  // idx_assessment_results_resource_metric_created ON assessment_results
+  // (resource_id, metric_id, created_at DESC, id DESC);` AutoMigrate detects
+  // existing indexes by name and skips them.
   string resource_id = 7 [
     (buf.validate.field).string.min_len = 1,
+    (tagger.tags) = "gorm:\"index:idx_assessment_results_resource_metric_created,priority:1;index:idx_assessment_results_toe_resource_metric_created,priority:2\"",
     (google.api.field_behavior) = REQUIRED
   ];
 
@@ -105,9 +124,19 @@ message AssessmentResult {
   // idx_assessment_results_target_of_evaluation_id ON assessment_results
   // (target_of_evaluation_id);` before rolling this out; AutoMigrate detects
   // the existing index by name and skips it.
+  //
+  // NOTE: idx_assessment_results_toe_resource_metric_created (target_of_evaluation_id,
+  // resource_id, metric_id, created_at DESC, id DESC) lets the latest_by_resource_id
+  // query, which is almost always filtered by target of evaluation, select the IDs of
+  // the latest results with an index-only scan (no heap access). On a table with
+  // ~1,000 results per (resource_id, metric_id), this took the last page of the query
+  // from ~470ms to ~20ms in a local test. Pre-create it out-of-band on large tables:
+  // `CREATE INDEX CONCURRENTLY idx_assessment_results_toe_resource_metric_created ON
+  // assessment_results (target_of_evaluation_id, resource_id, metric_id, created_at
+  // DESC, id DESC);`
   string target_of_evaluation_id = 20 [
     (buf.validate.field).string.uuid = true,
-    (tagger.tags) = "gorm:\"index:idx_assessment_results_target_of_evaluation_id\"",
+    (tagger.tags) = "gorm:\"index:idx_assessment_results_target_of_evaluation_id;index:idx_assessment_results_toe_resource_metric_created,priority:1\"",
     (google.api.field_behavior) = REQUIRED
   ];
 
