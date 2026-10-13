@@ -348,6 +348,7 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch metric configuration for metric %s: %w", metric.Name, err)
 	}
+	slog.Debug("Fetched metric configuration", slog.String("metric_configuration", config.GetMetricId()))
 
 	// We build a key out of the metric and its configuration, so we are creating a new Rego implementation
 	// if the metric configuration (i.e. its hash) for a particular target of evaluation has changed.
@@ -360,6 +361,8 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 			tx   storage.Transaction
 			impl *assessment.MetricImplementation
 		)
+
+		slog.Debug("Creating new prepared query for metric", slog.String("metric_name", metric.Name), slog.String("metric_id", metric.Id), slog.String("target_id", targetID), slog.String("key", key))
 
 		// Create paths for bundle directory and utility functions file
 		bundle := fmt.Sprintf("%s/policies/security-metrics/metrics/%s/%s/", baseDir, metric.Category, metric.Name)
@@ -396,6 +399,7 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 		if err != nil {
 			return nil, fmt.Errorf("could not fetch policy for metric %s: %w", metric.Name, err)
 		}
+		slog.Debug("Fetched metric implementation", slog.String("metric_name", metric.Name), slog.String("metric_id", metric.Id), slog.String("target_id", targetID), slog.String("key", key))
 
 		// Insert/Update the policy. The bundle path depends on the metric ID
 		err = store.UpsertPolicy(context.Background(), tx, bundle+"metric.rego", []byte(impl.Code))
