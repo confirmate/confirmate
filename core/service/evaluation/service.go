@@ -938,8 +938,7 @@ func (svc *Service) assessControl(ctx context.Context, auditScope *orchestrator.
 	if len(metrics) == 0 {
 		slog.Error("Could not get metrics for",
 			slog.String("control id", control.Id),
-			slog.String("target of evaluation id", auditScope.GetTargetOfEvaluationId()),
-			log.Err(err))
+			slog.String("target of evaluation id", auditScope.GetTargetOfEvaluationId()))
 	}
 
 	if len(metrics) != 0 && latest != nil {
