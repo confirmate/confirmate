@@ -1953,6 +1953,139 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/orchestrator/risk_assessments:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists risk assessments, optionally filtered by audit scope or target of evaluation.
+            operationId: Orchestrator_ListRiskAssessments
+            parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. List only risk assessments of a specific audit scope.
+                  schema:
+                    type: string
+                - name: filter.targetOfEvaluationId
+                  in: query
+                  description: Optional. List only risk assessments of a specific target of evaluation.
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  description: |-
+                    The maximum number of risk assessments to return. The default and the maximum are the pagination defaults of the
+                     service.
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListRiskAssessmentsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - Orchestrator
+            description: Stores a risk assessment as a draft. Its scope decisions are applied when it is approved.
+            operationId: Orchestrator_CreateRiskAssessment
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RiskAssessment'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RiskAssessment'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/risk_assessments/{riskAssessmentId}:
+        get:
+            tags:
+                - Orchestrator
+            description: Retrieves a risk assessment by ID.
+            operationId: Orchestrator_GetRiskAssessment
+            parameters:
+                - name: riskAssessmentId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RiskAssessment'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/risk_assessments/{riskAssessmentId}/approve:
+        post:
+            tags:
+                - Orchestrator
+            description: |-
+                Approves a draft risk assessment and applies its scope decisions to the audit scope: controls that are out
+                 of scope are removed from it (with the justification in the audit trail) and controls that are in scope again
+                 are added. The assessment that was approved before is superseded.
+            operationId: Orchestrator_ApproveRiskAssessment
+            parameters:
+                - name: riskAssessmentId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ApproveRiskAssessmentRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RiskAssessment'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/runtime_info:
         get:
             tags:
@@ -3055,6 +3188,14 @@ components:
                     items:
                         type: string
             description: ApplicationLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        ApproveRiskAssessmentRequest:
+            required:
+                - riskAssessmentId
+            type: object
+            properties:
+                riskAssessmentId:
+                    type: string
+            description: Request for ApproveRiskAssessment.
         AssessEvidenceResponse:
             type: object
             properties:
@@ -7146,6 +7287,16 @@ components:
                         $ref: '#/components/schemas/ResourceSnapshot'
                 nextPageToken:
                     type: string
+        ListRiskAssessmentsResponse:
+            type: object
+            properties:
+                riskAssessments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RiskAssessment'
+                nextPageToken:
+                    type: string
+            description: Response of ListRiskAssessments.
         ListSupportedResourceTypesResponse:
             type: object
             properties:
@@ -9287,6 +9438,88 @@ components:
                  discriminated union of all concrete ontology types. ResourceSnapshot carries
                  metadata (id, resourceType, targetOfEvaluationId, toolId) plus the
                  serialised ontology properties.
+        RiskAssessment:
+            required:
+                - id
+                - targetOfEvaluationId
+                - auditScopeId
+                - method
+            type: object
+            properties:
+                id:
+                    type: string
+                targetOfEvaluationId:
+                    type: string
+                auditScopeId:
+                    type: string
+                    description: The audit scope whose controls in scope follow from the assessment.
+                version:
+                    readOnly: true
+                    type: integer
+                    description: The version of the assessment within its audit scope, starting at 1.
+                    format: int32
+                status:
+                    readOnly: true
+                    enum:
+                        - RISK_ASSESSMENT_STATUS_UNSPECIFIED
+                        - RISK_ASSESSMENT_STATUS_DRAFT
+                        - RISK_ASSESSMENT_STATUS_APPROVED
+                        - RISK_ASSESSMENT_STATUS_SUPERSEDED
+                    type: string
+                    format: enum
+                method:
+                    enum:
+                        - RISK_ASSESSMENT_METHOD_UNSPECIFIED
+                        - RISK_ASSESSMENT_METHOD_BUILT_IN
+                        - RISK_ASSESSMENT_METHOD_IMPORT
+                        - RISK_ASSESSMENT_METHOD_DOCUMENT
+                    type: string
+                    format: enum
+                tool:
+                    type: string
+                    description: The tool of an imported assessment, for example "QuBA-libre".
+                toolVersion:
+                    type: string
+                    description: The version of that tool.
+                summary:
+                    type: string
+                    description: A short summary of the assessment in the words of the author.
+                documentEvidenceId:
+                    type: string
+                    description: A document of the assessment, stored as evidence before.
+                answers:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: The answers of the built-in questionnaire by question ID.
+                decisions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ScopeDecision'
+                    description: The decisions about the scope. Controls without a decision stay as they are.
+                createdAt:
+                    readOnly: true
+                    type: string
+                    format: date-time
+                createdBy:
+                    readOnly: true
+                    type: string
+                    description: The ID of the user who created the assessment, if known.
+                approvedAt:
+                    readOnly: true
+                    type: string
+                    format: date-time
+                approvedBy:
+                    readOnly: true
+                    type: string
+                    description: The ID of the user who approved the assessment, if known.
+                reviewDueAt:
+                    type: string
+                    description: The time by which the assessment has to be reviewed. If omitted, it is one year after the approval.
+                    format: date-time
+            description: |-
+                RiskAssessment is the cybersecurity risk assessment of a target of evaluation and the decisions about the scope
+                 that follow from it. Confirmate stores and applies it; it does not replace a full risk assessment tool.
         RobustnessScore:
             type: object
             properties: {}
@@ -9419,6 +9652,30 @@ components:
                     items:
                         $ref: '#/components/schemas/Error'
             description: SchemaValidation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        ScopeDecision:
+            required:
+                - controlId
+            type: object
+            properties:
+                controlId:
+                    type: string
+                    description: The control the decision is about.
+                inScope:
+                    type: boolean
+                    description: Whether the control is in scope.
+                justification:
+                    type: string
+                    description: The reason for the decision. It is required if the control is out of scope.
+                source:
+                    enum:
+                        - SCOPE_DECISION_SOURCE_UNSPECIFIED
+                        - SCOPE_DECISION_SOURCE_RULE
+                        - SCOPE_DECISION_SOURCE_IMPORT
+                        - SCOPE_DECISION_SOURCE_MANUAL
+                    type: string
+                    description: Where the decision comes from.
+                    format: enum
+            description: ScopeDecision says whether a control is in the scope of an audit scope, and why.
         Secret:
             type: object
             properties:
