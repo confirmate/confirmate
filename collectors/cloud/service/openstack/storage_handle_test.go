@@ -28,8 +28,24 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/objectstorage/v1/containers"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
 	"github.com/gophercloud/gophercloud/v2/testhelper/client"
+	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+// volumeTypeHandlers returns the handlers of a block storage service with one volume type "enc-type", whose
+// encryption is the given JSON fragment.
+func volumeTypeHandlers(encryption string) func(mux *http.ServeMux) {
+	return func(mux *http.ServeMux) {
+		mux.HandleFunc("/types", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"volume_types": [{"id": "enc-type-id", "name": "enc-type"}]}`))
+		})
+		mux.HandleFunc("/types/enc-type-id/encryption", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{` + encryption + `}`))
+		})
+	}
+}
 
 func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 	testTime := time.Date(2000, 01, 20, 9, 20, 12, 123, time.UTC)
@@ -41,6 +57,8 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 		region   string
 		domain   *domain
 		project  *project
+		// handlers registers the fake responses of the block storage service
+		handlers func(mux *http.ServeMux)
 	}
 	type args struct {
 		volume *volumes.Volume
@@ -75,7 +93,11 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 					},
 					ParentId:    new(testdata.MockOpenstackVolumeTenantID),
 					Description: new(""),
-					Raw:         new(""),
+					AtRestEncryption: &ontology.AtRestEncryption{
+						Type: &ontology.AtRestEncryption_DiskEncryption{
+							DiskEncryption: &ontology.DiskEncryption{Enabled: new(false)},
+						},
+					},
 					Backups: []*ontology.Backup{
 						{
 							Enabled: new(false),
@@ -84,10 +106,7 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 				}
 
 				gotNew := got.(*ontology.BlockStorage)
-
-				assert.NotEmpty(t, gotNew.GetRaw())
-				gotNew.Raw = new("")
-				return assert.Equal(t, want, gotNew)
+				return assert.NotEmpty(t, gotNew.GetRaw()) && assert.Equal(t, want, gotNew, protocmp.IgnoreFields(&ontology.BlockStorage{}, "raw"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -114,7 +133,11 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 					},
 					ParentId:    new(testdata.MockOpenstackVolumeTenantID),
 					Description: new(""),
-					Raw:         new(""),
+					AtRestEncryption: &ontology.AtRestEncryption{
+						Type: &ontology.AtRestEncryption_DiskEncryption{
+							DiskEncryption: &ontology.DiskEncryption{Enabled: new(false)},
+						},
+					},
 					Backups: []*ontology.Backup{
 						{
 							Enabled: new(false),
@@ -123,10 +146,96 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 				}
 
 				gotNew := got.(*ontology.BlockStorage)
+				return assert.NotEmpty(t, gotNew.GetRaw()) && assert.Equal(t, want, gotNew, protocmp.IgnoreFields(&ontology.BlockStorage{}, "raw"))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Happy path: encrypted volume, volume type lookup fails",
+			fields: fields{
+				region: "test region",
+			},
+			args: args{
+				volume: &volumes.Volume{
+					ID:        testdata.MockOpenstackVolumeID1,
+					Name:      testdata.MockOpenstackVolumeName1,
+					TenantID:  testdata.MockOpenstackVolumeTenantID,
+					CreatedAt: testTime,
+					Encrypted: true,
+				},
+			},
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
+				want := &ontology.BlockStorage{
+					Id:           new(testdata.MockOpenstackVolumeID1),
+					Name:         new(testdata.MockOpenstackVolumeName1),
+					CreationTime: timestamppb.New(testTime),
+					GeoLocation: &ontology.GeoLocation{
+						Region: new("test region"),
+					},
+					ParentId:    new(testdata.MockOpenstackVolumeTenantID),
+					Description: new(""),
+					AtRestEncryption: &ontology.AtRestEncryption{
+						Type: &ontology.AtRestEncryption_DiskEncryption{
+							DiskEncryption: &ontology.DiskEncryption{Enabled: new(true)},
+						},
+					},
+					Backups: []*ontology.Backup{
+						{
+							Enabled: new(false),
+						},
+					},
+				}
 
-				assert.NotEmpty(t, gotNew.GetRaw())
-				gotNew.Raw = new("")
-				return assert.Equal(t, want, gotNew)
+				gotNew := got.(*ontology.BlockStorage)
+				return assert.NotEmpty(t, gotNew.GetRaw()) && assert.Equal(t, want, gotNew, protocmp.IgnoreFields(&ontology.BlockStorage{}, "raw"))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Happy path: encrypted volume type",
+			fields: fields{
+				region:   "test region",
+				handlers: volumeTypeHandlers(`"encryption_id": "enc-id", "cipher": "aes-xts-plain64"`),
+			},
+			args: args{
+				volume: &volumes.Volume{
+					ID:         testdata.MockOpenstackVolumeID1,
+					Name:       testdata.MockOpenstackVolumeName1,
+					TenantID:   testdata.MockOpenstackVolumeTenantID,
+					CreatedAt:  testTime,
+					VolumeType: "enc-type",
+				},
+			},
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
+				return assert.Equal(t, &ontology.AtRestEncryption{
+					Type: &ontology.AtRestEncryption_DiskEncryption{
+						DiskEncryption: &ontology.DiskEncryption{Enabled: new(true), Algorithm: new("aes-xts-plain64")},
+					},
+				}, got.(*ontology.BlockStorage).GetAtRestEncryption())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Happy path: unencrypted volume type",
+			fields: fields{
+				region:   "test region",
+				handlers: volumeTypeHandlers(`"encryption_id": ""`),
+			},
+			args: args{
+				volume: &volumes.Volume{
+					ID:         testdata.MockOpenstackVolumeID1,
+					Name:       testdata.MockOpenstackVolumeName1,
+					TenantID:   testdata.MockOpenstackVolumeTenantID,
+					CreatedAt:  testTime,
+					VolumeType: "enc-type",
+				},
+			},
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
+				return assert.Equal(t, &ontology.AtRestEncryption{
+					Type: &ontology.AtRestEncryption_DiskEncryption{
+						DiskEncryption: &ontology.DiskEncryption{Enabled: new(false)},
+					},
+				}, got.(*ontology.BlockStorage).GetAtRestEncryption())
 			},
 			wantErr: assert.NoError,
 		},
@@ -137,6 +246,9 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 			t.Cleanup(fakeServer.Teardown)
 
 			tt.fields.clients.blockStorageClient = client.ServiceClient(fakeServer)
+			if tt.fields.handlers != nil {
+				tt.fields.handlers(fakeServer.Mux)
+			}
 
 			d := &openstackCollector{
 				ctID:     tt.fields.ctID,

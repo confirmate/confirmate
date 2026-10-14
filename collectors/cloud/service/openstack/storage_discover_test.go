@@ -90,6 +90,11 @@ func Test_openstackCollector_collectBlockStorage(t *testing.T) {
 					ParentId: new("83ec2e3b-4321-422b-8706-a84185f52a0a"),
 					Labels:   map[string]string{},
 					Raw:      new(""),
+					AtRestEncryption: &ontology.AtRestEncryption{
+						Type: &ontology.AtRestEncryption_DiskEncryption{
+							DiskEncryption: &ontology.DiskEncryption{Enabled: new(false)},
+						},
+					},
 					Backups: []*ontology.Backup{
 						{
 							Enabled: new(false),
