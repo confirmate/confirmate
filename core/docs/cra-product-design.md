@@ -46,6 +46,7 @@ know the CRA text.
 | D11 | Integrate through open formats first (CycloneDX, SPDX, VEX, CSAF, SARIF, OSV, in-toto/SLSA attestations, OpenSSF Scorecard results). A system-specific connector is built only where we need state that has no file format (git platform settings, issue timelines, DT project state). | One generic ingest serves many tools; connectors stay few and maintainable. |
 | D13 | The git platform integration is platform-neutral with GitLab (including self-hosted) and GitHub as first providers. The example product is a real public project that is available on both. Reports to authorities are prepared and proven in Confirmate (draft, submission proof upload); there is no integration with an authority platform. | Many customers run their own GitLab; GitHub is common for open source and suppliers. An authority API is not needed to manage compliance. |
 | D14 | We do not ship a git platform in the demo. The cloud versions (gitlab.com, github.com) stand in for self-managed instances: they serve the live profiles and are the source of recordings for a replay server. A real GitLab CE container is an optional heavy profile for self-managed edge cases. | GitLab is too heavy to ship by default; the cloud and self-managed APIs are the same; a different platform (Forgejo) would not test the GitLab connector. |
+| D16 | The example products live as code in the Confirmate repository and are published to their GitHub and GitLab projects by CI, including the project settings. The hosted projects are generated artifacts. | Reproducible, reviewable, one source of truth; the scenario states can be driven by script. |
 | D15 | There are two example products: one hosted on GitHub, one on GitLab. | They show the multi-product view, different classes and stacks, and give each connector a real project. |
 | D12 | The demo stack is self-contained and shows every integration that the product claims, with seeded data and a scripted scenario. | A capability that is not in the demo does not exist for a prospect. |
 
@@ -323,11 +324,61 @@ and the classification have something to show:
 
 Each product contains: source, a CI pipeline with tests, SAST and an SBOM, releases with signed artifacts and
 provenance, `SECURITY.md` and a vulnerability disclosure policy, the CRA documents, and security issues and
-advisories in different states. Each has the pipeline definition of its own platform in the repository; nothing is
-mirrored between the platforms.
+advisories in different states. The source lives in the Confirmate repository (see below) and each product has the
+pipeline definition of its own platform; nothing is mirrored between the two platforms.
 
 Creating the public projects, and applying for GitLab's open-source program (which may give the project a paid tier for
 the demo; conditions to be checked), require an explicit go-ahead.
+
+### Example products as code (D16)
+
+```
+example-products/
+  pythonpass/            source, tests, CRA documents, SECURITY.md, .github/workflows/
+  <product-b>/           source, tests, CRA documents, SECURITY.md, .gitlab-ci.yml
+  platform/
+    github/              OpenTofu/Terraform: repositories, rulesets, security features, Dependabot, teams
+    gitlab/              OpenTofu/Terraform: projects, protected branches, push and approval rules, tokens
+  scenario/              ordered steps (patches and API actions) of the scripted scenario
+  recordings/            recorded API responses for the replay servers
+  tools/                 sync, seed and record commands
+```
+
+A workflow in the Confirmate repository (`example-products.yml`, triggered by changes below `example-products/`):
+
+1. **Publish content:** exports each product directory as the root of its target repository (a filtered export of the
+   path, not the full monorepo history) and pushes it to GitHub or GitLab.
+2. **Apply settings:** runs OpenTofu/Terraform for branch protection, push and approval rules, security features,
+   dependency update bot, access tokens and so on, so that the posture we want to show (and the deliberate gaps of
+   product B) is code and can be rebuilt from nothing.
+3. **Seed activity:** an idempotent seed tool creates what files cannot carry: issues, security issues, pull/merge
+   requests with reviews, releases with signed artifacts and provenance, advisories.
+4. **Record:** exports the API responses used by the replay servers into `recordings/` and opens a pull request when
+   they changed.
+
+Scenario steps (for example "a vulnerable dependency appears", "the fix is released") are patches plus API actions
+that the same tool applies to the hosted projects on demand and that the end-to-end tests apply to the replay data.
+
+Authentication: the publish and settings job uses a GitHub App installed on the organization (push, repository
+administration, security features) and, for GitLab, a bot user with a group access token. Secrets exist only in
+protected environments of the workflow, never for pull requests from forks, with the minimum scopes.
+
+Things to decide or watch:
+
+- **Generated artifacts:** the hosted projects are overwritten by the sync and say so in their README. Because branch
+  protection is part of what is shown, the sync identity has to be a bypass actor (rulesets) or merge through an
+  automatic pull request; plain force-push would contradict the protection.
+- **History and activity realism:** a content export gives a flat history. Signals such as code review, maintained
+  status, contributors and signed commits (OpenSSF Scorecard, repository settings) need seeded pull requests, a few
+  bot or demo accounts and a signing key. The seed tool creates them; some Scorecard checks stay partly artificial,
+  which we say openly.
+- **Noise in the Confirmate repository:** deliberately outdated dependencies of product B would raise Dependabot and
+  code scanning alerts and Scorecard findings for Confirmate itself. The example directory is excluded from
+  Dependabot, code scanning, coverage and the license header check, and the lockfiles are named accordingly.
+- **Workflow files:** `.github/workflows` and `.gitlab-ci.yml` below `example-products/` do not run in the Confirmate
+  repository, which is intended: they only run after the publish step in the target projects.
+- **Settings coverage:** Terraform providers cover most settings; paid-tier-only settings (push rules, approval rules)
+  are applied only if the target project has the tier, and the result is recorded either way.
 
 ### Demo stack (D12)
 
