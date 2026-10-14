@@ -47,6 +47,10 @@ know the CRA text.
 | D13 | The git platform integration is platform-neutral with GitLab (including self-hosted) and GitHub as first providers. The example product is a real public project that is available on both. Reports to authorities are prepared and proven in Confirmate (draft, submission proof upload); there is no integration with an authority platform. | Many customers run their own GitLab; GitHub is common for open source and suppliers. An authority API is not needed to manage compliance. |
 | D14 | We do not ship a git platform in the demo. The cloud versions (gitlab.com, github.com) stand in for self-managed instances: they serve the live profiles and are the source of recordings for a replay server. A real GitLab CE container is an optional heavy profile for self-managed edge cases. | GitLab is too heavy to ship by default; the cloud and self-managed APIs are the same; a different platform (Forgejo) would not test the GitLab connector. |
 | D16 | The example products live as code in the Confirmate repository and are published to their GitHub and GitLab projects by CI, including the project settings. The hosted projects are generated artifacts. | Reproducible, reviewable, one source of truth; the scenario states can be driven by script. |
+| D17 | Customers run Confirmate themselves (self-hosted). Connectors can run on the customer side next to self-managed systems; no SaaS and no inbound access to customer systems is required. | Matches the self-managed GitLab case and keeps credentials with the customer. |
+| D18 | Scope is software. The design must not exclude low-level embedded software (firmware, RTOS, Yocto/Zephyr-style builds). | See "Embedded software" below. |
+| D19 | The pilots (EMERALD) must not break. All CRA work is additive: new resources, tables and endpoints; new behavior sits behind feature flags that are off by default; existing results do not change. | The pilots run on the same code base. |
+| D20 | This document stays on its branch. Individual pieces that are implemented are proposed as normal public PRs against `main`. | Review per piece, no big-bang change. |
 | D15 | There are two example products: one hosted on GitHub, one on GitLab. | They show the multi-product view, different classes and stacks, and give each connector a real project. |
 | D12 | The demo stack is self-contained and shows every integration that the product claims, with seeded data and a scripted scenario. | A capability that is not in the demo does not exist for a prospect. |
 
@@ -246,6 +250,26 @@ directly (see [UX](#7-ux)); both produce the same `Document` evidence types.
   triage, time to fix, advisory for fixed vulnerability, security policy present, branch protection, signed commits,
   scans run on every release.
 
+### Embedded software
+
+Low-level embedded software is part of the scope, which changes some evidence sources and controls:
+
+- **Build systems:** SBOM from the build (Yocto and Zephyr can produce SPDX; CMake/Make projects via the generic ingest),
+  including the C/C++ components that package-manager based tools miss (vendored code, libraries without a package
+  URL). The generic ingest therefore accepts SPDX and CycloneDX with CPE and file-level components.
+- **Controls that matter more:** secure boot and signed firmware, update mechanism (OTA, A/B partitions, rollback
+  protection, signed updates), lock of debug interfaces, memory-safety measures and compiler hardening flags,
+  unique per-device credentials instead of defaults, cryptographic library and key storage, factory reset and secure
+  data removal. These are catalog controls with an evidence definition (document, build configuration, test result),
+  mostly manual or build-derived rather than cloud-derived.
+- **Evidence sources:** build configuration and CI artifacts, binary analysis results (for example hardening checks on
+  the built image), SBOM of the image, release signing and the update server metadata. All of them fit the generic
+  ingest and the manual evidence path; no embedded-specific connector is planned.
+- **Vulnerability matching:** CPE-based matching for components without a package URL is a Dependency-Track and SBOM
+  quality question, noted as a risk.
+- **Example products:** product B is chosen with this in mind (for example a small firmware-like component with a
+  reproducible build), so that the demo does not look web-only.
+
 ## 7. UX
 
 Principles: the product, not the data model, is the entry point; every red item says what to do next; the user never
@@ -296,6 +320,11 @@ engineer, auditor), accessibility and keyboard use, a guided empty state everywh
   collectors submit changes only.
 
 ## 9. Operations and security
+
+- **Feature flags (D19):** every new capability (products, connectors, ingest, clocks, authoring) is enabled by a
+  configuration flag that defaults to off. Database tables and API additions are purely additive and compatible with
+  existing clients. The pilot deployments are checked with their existing data before each release: unchanged
+  evaluation results, unchanged API responses for existing endpoints.
 
 - Persistent database is the default deployment; the in-memory mode stays for demos. A Helm chart and a compose file
   with persistence are part of the product, plus backup and upgrade documentation.
@@ -449,7 +478,7 @@ Each milestone ends with something demonstrable and an automated test.
 
 ## 13. Questions that need input from outside this document
 
-- Who reviews the catalog content against the regulation, and when?
+- Catalog review against the regulation: done by Christian (see D20 for how pieces are proposed).
 - Which conformity routes and product classes do the first customers need?
 - Which GitLab versions and tiers do the first customers run, and do they allow a connector with a read token?
 - Which issue tracker do the first customers use (GitLab issues, Jira, other)?
