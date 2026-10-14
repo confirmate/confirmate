@@ -2,7 +2,7 @@
 	import { Button, Card, Chip, type Tone } from '$lib/ds';
 	import type { Check } from '../source';
 
-	let { check }: { check: Check } = $props();
+	let { check, onaction }: { check: Check; onaction?: (check: Check, actionId: string) => void } = $props();
 
 	const accent: Record<Check['status'], Tone> = { met: 'ok', 'not-met': 'bad', open: 'neutral' };
 	const label: Record<Check['status'], string> = { met: 'Met', 'not-met': 'Not met', open: 'Open' };
@@ -23,7 +23,7 @@
 	{#if check.actions.length}
 		<div class="flex flex-wrap gap-2.5">
 			{#each check.actions as action (action.label)}
-				<Button size="sm" variant={action.primary ? 'primary' : 'quiet'}>{action.label}</Button>
+				<Button size="sm" variant={action.primary ? 'primary' : 'quiet'} onclick={() => onaction?.(check, action.id)}>{action.label}</Button>
 			{/each}
 		</div>
 	{/if}

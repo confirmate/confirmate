@@ -7,6 +7,7 @@ import type { FrameworkProfile } from '../profile';
 export const craProfile: FrameworkProfile = {
 	id: 'cra',
 	name: 'Cyber Resilience Act',
+	catalogId: 'CRA_Catalog',
 	targetType: 'TARGET_TYPE_PRODUCT',
 	typeLabel: 'Product',
 	pitch: {
@@ -87,6 +88,7 @@ export const craProfile: FrameworkProfile = {
 	choices: [
 		{
 			id: 'none',
+			attributes: { classification: 'CLASSIFICATION_DEFAULT' },
 			label: 'A general-purpose product',
 			hint: 'Nothing on the list matches',
 			result: {
@@ -97,6 +99,7 @@ export const craProfile: FrameworkProfile = {
 		},
 		{
 			id: 'password-manager',
+			attributes: { classification: 'CLASSIFICATION_IMPORTANT_I' },
 			label: 'Password manager',
 			hint: 'Stores or generates credentials for users',
 			result: {
@@ -107,6 +110,7 @@ export const craProfile: FrameworkProfile = {
 		},
 		{
 			id: 'vpn',
+			attributes: { classification: 'CLASSIFICATION_IMPORTANT_I' },
 			label: 'VPN or network management software',
 			hint: 'Creates tunnels or manages network devices',
 			result: {
@@ -117,6 +121,7 @@ export const craProfile: FrameworkProfile = {
 		},
 		{
 			id: 'hypervisor',
+			attributes: { classification: 'CLASSIFICATION_IMPORTANT_II' },
 			label: 'Hypervisor or container runtime',
 			hint: 'Isolates and runs other software',
 			result: {
@@ -136,19 +141,19 @@ export const craProfile: FrameworkProfile = {
 			{ id: 'dbg', text: 'Is there a debug, service or manufacturing interface?', help: 'Typical for firmware and devices', defaultAnswer: 'no' }
 		],
 		requirements: [
-			{ id: 'a', title: 'No known exploitable vulnerabilities' },
-			{ id: 'b', title: 'Secure by default' },
-			{ id: 'c', title: 'Security updates' },
-			{ id: 'd', title: 'Protection from unauthorised access' },
-			{ id: 'e', title: 'Confidentiality of data' },
-			{ id: 'f', title: 'Integrity' },
-			{ id: 'g', title: 'Data minimisation' },
-			{ id: 'h', title: 'Availability' },
-			{ id: 'i', title: 'Impact on other services' },
-			{ id: 'j', title: 'Limited attack surface' },
-			{ id: 'k', title: 'Exploitation mitigation' },
-			{ id: 'l', title: 'Logging and monitoring' },
-			{ id: 'm', title: 'Removal and transfer of data' }
+			{ id: 'a', title: 'No known exploitable vulnerabilities', controlShortName: 'CRA-I-1.1.2' },
+			{ id: 'b', title: 'Secure by default', controlShortName: 'CRA-I-1.1.3' },
+			{ id: 'c', title: 'Security updates', controlShortName: 'CRA-I-1.1.4' },
+			{ id: 'd', title: 'Protection from unauthorised access', controlShortName: 'CRA-I-1.1.5' },
+			{ id: 'e', title: 'Confidentiality of data', controlShortName: 'CRA-I-1.1.6' },
+			{ id: 'f', title: 'Integrity', controlShortName: 'CRA-I-1.1.7' },
+			{ id: 'g', title: 'Data minimisation', controlShortName: 'CRA-I-1.1.8' },
+			{ id: 'h', title: 'Availability', controlShortName: 'CRA-I-1.1.9' },
+			{ id: 'i', title: 'Impact on other services', controlShortName: 'CRA-I-1.1.10' },
+			{ id: 'j', title: 'Limited attack surface', controlShortName: 'CRA-I-1.1.11' },
+			{ id: 'k', title: 'Exploitation mitigation', controlShortName: 'CRA-I-1.1.12' },
+			{ id: 'l', title: 'Logging and monitoring', controlShortName: 'CRA-I-1.1.13' },
+			{ id: 'm', title: 'Removal and transfer of data', controlShortName: 'CRA-I-1.1.14' }
 		],
 		effects: [
 			{ when: { data: 'no' }, out: ['e', 'g', 'm'], reason: 'No user data is processed.' },

@@ -9,12 +9,19 @@
 		profile,
 		stepId,
 		nextDisabled = false,
+		onfinish,
+		busy = false,
+		error,
 		children,
 		aside
 	}: {
 		profile: FrameworkProfile;
 		stepId: string;
 		nextDisabled?: boolean;
+		/** Called by the button of the last step instead of following a link. */
+		onfinish?: () => void;
+		busy?: boolean;
+		error?: string | null;
 		children: Snippet;
 		aside?: Snippet;
 	} = $props();
@@ -54,9 +61,14 @@
 		{@render children()}
 
 		<div class="flex flex-wrap items-center gap-3">
-			<Button href={nextHref} disabled={nextDisabled}>{isLast ? 'Finish setup' : 'Continue'}</Button>
+			{#if isLast && onfinish}
+				<Button onclick={onfinish} disabled={nextDisabled || busy}>{busy ? 'Setting up…' : 'Finish setup'}</Button>
+			{:else}
+				<Button href={nextHref} disabled={nextDisabled}>{isLast ? 'Finish setup' : 'Continue'}</Button>
+			{/if}
 			<Button variant="quiet" href={backHref}>Back</Button>
 		</div>
+		{#if error}<p class="text-sm text-bad">{error}</p>{/if}
 	</main>
 
 	{#if aside}

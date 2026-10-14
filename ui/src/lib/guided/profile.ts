@@ -21,6 +21,8 @@ export interface ChoiceOption {
 	id: string;
 	label: string;
 	hint: string;
+	/** What the choice sets on the target of evaluation, for example its classification. */
+	attributes?: Record<string, string>;
 	/** What the choice means, shown next to the options. */
 	result: { title: string; text: string; note?: string };
 }
@@ -36,6 +38,8 @@ export interface Question {
 export interface ScopableRequirement {
 	id: string;
 	title: string;
+	/** Short name of the control in the catalog that the requirement stands for. */
+	controlShortName: string;
 }
 
 /** If all conditions hold, the requirements are out of scope, with the reason. Unknown answers never match "no". */
@@ -85,6 +89,8 @@ export interface FrameworkProfile {
 	id: string;
 	/** Short name of the framework as shown to users. */
 	name: string;
+	/** The catalog that the audit scope of a target of evaluation is created for. */
+	catalogId: string;
 	/** Type of target of evaluation this profile is made for (TargetOfEvaluation.TargetType of the API). */
 	targetType: 'TARGET_TYPE_PRODUCT' | 'TARGET_TYPE_CLOUD' | 'TARGET_TYPE_ORGANIZATION';
 	typeLabel: string;

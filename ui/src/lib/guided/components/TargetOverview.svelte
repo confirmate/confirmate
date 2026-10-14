@@ -35,7 +35,7 @@
 					<h2 class="text-xl font-semibold">What to do next</h2>
 					<a href={resolve(`/guided/${target.id}/todo/`)} class="text-sm">All {target.tasks.length} tasks</a>
 				</div>
-				<TaskList tasks={target.tasks} targetId={target.id} />
+				<TaskList tasks={target.tasks.slice(0, 5)} targetId={target.id} />
 			</Card>
 		</div>
 		<div class="flex min-w-0 flex-[2_1_20rem] flex-col gap-6">

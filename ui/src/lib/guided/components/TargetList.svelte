@@ -23,5 +23,16 @@
 
 	<FilterChips label="Filter by type" options={types} bind:value={type} />
 
-	<TargetTable targets={shown} />
+	{#if targets.length === 0}
+		<div class="flex flex-col items-start gap-4 rounded-card border border-line bg-surface p-8">
+			<h2 class="text-lg font-semibold">No Targets of Evaluation yet</h2>
+			<p class="max-w-xl text-ink-soft">
+				A Target of Evaluation is a product, a cloud service or an organisation that you check against a framework. The
+				setup takes about ten minutes.
+			</p>
+			<Button href={resolve('/guided/new/')}>Add your first Target of Evaluation</Button>
+		</div>
+	{:else}
+		<TargetTable targets={shown} />
+	{/if}
 </main>
