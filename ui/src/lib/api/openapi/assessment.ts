@@ -30,9 +30,21 @@ export interface components {
     schemas: {
         /** @description ABAC is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         ABAC: Record<string, never>;
+        /**
+         * @description AcceptableUsePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an acceptable use policy within a PolicyDocument.
+         */
+        AcceptableUsePolicy: {
+            isDefined?: boolean;
+            /**
+             * Format: float
+             * @description Percentage of mandated control areas explicitly addressed.
+             */
+            mandatedAreaCoveragePercent?: number;
+        };
         /** @description AccessControlTypePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         AccessControlTypePolicy: {
-            authorizationTypes?: string;
+            authorizationTypes?: string[];
         };
         /** @description AccessRestriction is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
         AccessRestriction: {
@@ -64,6 +76,12 @@ export interface components {
             redundancies?: components["schemas"]["Redundancy"][];
             parentId?: string;
             usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description AccountManagementPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        AccountManagementPolicy: {
+            /** Format: int32 */
+            intervalMonths?: number;
+            secretStorage?: string[];
         };
         /** @description ActivityLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         ActivityLogging: {
@@ -201,12 +219,16 @@ export interface components {
              * @description Percentage of completed reviews and updates of asset inventory entries.
              */
             completedReviewPercentage?: number;
+            /** @description Indicates whether an asset inventory is defined. */
+            inventoryDefined?: boolean;
+            /** @description Indicates whether an owner is assigned for each asset class/type. */
+            ownerAssignmentStated?: boolean;
             /** Format: int32 */
             reviewFrequency?: number;
             /** @description Service contains the name of the service (e.g., Asset Management). */
             service?: string;
-            status?: string;
-            storageFacility?: string;
+            status?: string[];
+            storageFacility?: string[];
             type?: string;
             /**
              * Format: int32
@@ -237,6 +259,13 @@ export interface components {
             customerKeyEncryption?: components["schemas"]["CustomerKeyEncryption"];
             diskEncryption?: components["schemas"]["DiskEncryption"];
             managedKeyEncryption?: components["schemas"]["ManagedKeyEncryption"];
+        };
+        /**
+         * @description AuditLogMonitoringPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a policy section within a [PolicyDocument] defining requirements for the periodic monitoring and review of audit logs, including the identification of anomalies, security events, and unusual activity.
+         */
+        AuditLogMonitoringPolicy: {
+            enabled?: boolean;
         };
         /**
          * @description Authenticate is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -285,7 +314,13 @@ export interface components {
         };
         /** @description AwarenessTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         AwarenessTraining: {
+            /** @description Indicates whether the training plan states it is delivered at least annually. */
+            annualCadenceStated?: string[];
             annualUpdateCompleted?: boolean;
+            /** @description Indicates whether a documented training and awareness plan is maintained. */
+            planDocumented?: string[];
+            /** @description Indicates whether the training plan includes role-based tracks adjusted by employee function. */
+            roleAdjustedTracksStated?: string[];
             successfullyCompletedPercentage?: boolean;
         };
         /**
@@ -300,6 +335,8 @@ export interface components {
             interval?: string;
             /** Format: int32 */
             recoveryFrequency?: number;
+            /** @description Indicates whether the resource is stored redundantly. */
+            redundant?: boolean;
             retentionPeriod?: string;
             storageId?: string;
             transportEncryption?: components["schemas"]["TransportEncryption"];
@@ -416,6 +453,7 @@ export interface components {
         CipherSuite: {
             /** @description for example: RSA, ECDSA */
             authenticationMechanism?: string;
+            dhGroup?: string[];
             keyExchangeAlgorithm?: string;
             /** @description naming schema: SHA-256 */
             macAlgorithm?: string;
@@ -492,10 +530,17 @@ export interface components {
              * @description The time needed for an audit.
              */
             auditInterval?: number;
+            /**
+             * Format: int32
+             * @description The number of days elapsed since the last completed external/supervisory audit.
+             */
+            daysSinceLastAudit?: number;
+            /** @description Indicates whether the audit clause grants direct, unrestricted, on-demand access. */
+            unrestrictedAccessGranted?: boolean;
         };
         /** @description ComplianceMethodologyPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         ComplianceMethodologyPolicy: {
-            methodology?: string;
+            methodology?: string[];
         };
         /**
          * @description Configuration is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -781,6 +826,18 @@ export interface components {
             algorithm?: string;
             errors?: components["schemas"]["Error"][];
         };
+        /**
+         * @description CryptographicTransferPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a policy section within a PolicyDocument governing cryptographic protection of transferred information.
+         */
+        CryptographicTransferPolicy: {
+            /** @description Indicates whether encrypted channels (e.g., sFTP/HTTPS) are required for data transmission. */
+            encryptedChannelRequired?: boolean;
+            /** @description Indicates whether transferred file names must not include descriptive content. */
+            nonDescriptiveFilenameRequired?: boolean;
+            /** @description Indicates whether the encryption key used to protect a file must be held by the recipient. */
+            recipientHeldKeyRequired?: boolean;
+        };
         /** @description A custom pattern is used for defining custom HTTP verb. */
         CustomHttpPattern: {
             /** @description The name of this custom HTTP verb. */
@@ -845,6 +902,10 @@ export interface components {
          */
         DataConfidentialitySDNPolicy: {
             isDefined?: boolean;
+            /** @description Indicates whether the policy restricts downloading or extracting information from the organization's systems. */
+            restrictsDownloadAndExtraction?: boolean;
+            /** @description Indicates whether the policy specifically defines rules for information exchange with third parties. */
+            thirdPartyExchangeRulesDefined?: boolean;
         };
         /**
          * @description DataLocation is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -914,6 +975,19 @@ export interface components {
             cipher?: components["schemas"]["Cipher"];
             codeRegion?: components["schemas"]["CodeRegion"];
             secretId?: string;
+        };
+        /**
+         * @description DeviceManagementPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a device management policy section within a PolicyDocument.
+         */
+        DeviceManagementPolicy: {
+            /** @description Indicates whether all mandated device controls are addressed. */
+            allMandatedControlsAddressed?: boolean;
+            /**
+             * Format: float
+             * @description Percentage of the mandated checklist items explicitly present.
+             */
+            checklistCoveragePercent?: number;
         };
         /** @description DeviceProvisioningService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         DeviceProvisioningService: {
@@ -1078,7 +1152,18 @@ export interface components {
              * @description time of evidence creation
              */
             timestamp?: string;
-            /** @description Reference to a target of evaluation (e.g., service, organization) this evidence was gathered from */
+            /**
+             * @description Reference to a target of evaluation (e.g., service, organization) this evidence was gathered from.
+             *
+             *      NOTE: this index is picked up by GORM's AutoMigrate on service startup
+             *      (see persistence.NewDB). Evidence is append-only and can grow very
+             *      large; on an already-populated table, the first startup after this
+             *      index is introduced will run a blocking CREATE INDEX and may stall
+             *      writes for a while. Consider pre-creating it out-of-band with
+             *      `CREATE INDEX CONCURRENTLY idx_evidences_target_of_evaluation_id ON
+             *      evidences (target_of_evaluation_id);` before rolling this out;
+             *      AutoMigrate detects the existing index by name and skips it.
+             */
             targetOfEvaluationId?: string;
             /** @description Reference to the tool which provided the evidence */
             toolId?: string;
@@ -1272,6 +1357,7 @@ export interface components {
             error?: components["schemas"]["Error"];
             contactPerson?: components["schemas"]["ContactPerson"];
             monitoringProcedure?: components["schemas"]["MonitoringProcedure"];
+            securityPolicyReview?: components["schemas"]["SecurityPolicyReview"];
             awarenessTraining?: components["schemas"]["AwarenessTraining"];
             securityTraining?: components["schemas"]["SecurityTraining"];
             httpClient?: components["schemas"]["HttpClient"];
@@ -1323,15 +1409,27 @@ export interface components {
             getSecret?: components["schemas"]["GetSecret"];
             output?: components["schemas"]["Output"];
             padding?: components["schemas"]["Padding"];
+            acceptableUsePolicy?: components["schemas"]["AcceptableUsePolicy"];
             accessControlTypePolicy?: components["schemas"]["AccessControlTypePolicy"];
+            accountManagementPolicy?: components["schemas"]["AccountManagementPolicy"];
+            auditLogMonitoringPolicy?: components["schemas"]["AuditLogMonitoringPolicy"];
             complianceAuditIntervalPolicy?: components["schemas"]["ComplianceAuditIntervalPolicy"];
             complianceMethodologyPolicy?: components["schemas"]["ComplianceMethodologyPolicy"];
+            cryptographicTransferPolicy?: components["schemas"]["CryptographicTransferPolicy"];
             dataConfidentialitySdnPolicy?: components["schemas"]["DataConfidentialitySDNPolicy"];
+            deviceManagementPolicy?: components["schemas"]["DeviceManagementPolicy"];
+            informationSecurityManagementSystem?: components["schemas"]["InformationSecurityManagementSystem"];
             leastPrivilegePolicy?: components["schemas"]["LeastPrivilegePolicy"];
+            liabilityPolicy?: components["schemas"]["LiabilityPolicy"];
             needToKnowPolicy?: components["schemas"]["NeedToKnowPolicy"];
             networkThreatMitigationPolicy?: components["schemas"]["NetworkThreatMitigationPolicy"];
+            outsourcingPolicy?: components["schemas"]["OutsourcingPolicy"];
             sdnFunctionValidationPolicy?: components["schemas"]["SDNFunctionValidationPolicy"];
+            secureDevelopmentPolicy?: components["schemas"]["SecureDevelopmentPolicy"];
             separationOfDutiesPolicy?: components["schemas"]["SeparationOfDutiesPolicy"];
+            teleworkingPolicy?: components["schemas"]["TeleworkingPolicy"];
+            testDataPolicy?: components["schemas"]["TestDataPolicy"];
+            vulnerabilityManagementPolicy?: components["schemas"]["VulnerabilityManagementPolicy"];
             principal?: components["schemas"]["Principal"];
             protectedAsset?: components["schemas"]["ProtectedAsset"];
             requestForChange?: components["schemas"]["RequestForChange"];
@@ -1402,6 +1500,7 @@ export interface components {
         Governance: {
             contactPerson?: components["schemas"]["ContactPerson"];
             monitoringProcedure?: components["schemas"]["MonitoringProcedure"];
+            securityPolicyReview?: components["schemas"]["SecurityPolicyReview"];
             awarenessTraining?: components["schemas"]["AwarenessTraining"];
             securityTraining?: components["schemas"]["SecurityTraining"];
         };
@@ -1864,6 +1963,10 @@ export interface components {
         Immutability: {
             enabled?: boolean;
         };
+        /** @description InformationSecurityManagementSystem is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        InformationSecurityManagementSystem: {
+            iso27001Certified?: string[];
+        };
         /** @description Infrastructure is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
         Infrastructure: {
             account?: components["schemas"]["Account"];
@@ -2084,6 +2187,14 @@ export interface components {
          */
         LeastPrivilegePolicy: {
             isDefined?: boolean;
+        };
+        /**
+         * @description LiabilityPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a liability/cost-assignment clause within a PolicyDocument.
+         */
+        LiabilityPolicy: {
+            /** @description Indicates whether the clause explicitly assigns cost responsibility to the service provider. */
+            costsExplicitlyAssignedToProvider?: boolean;
         };
         /** @description Library is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         Library: {
@@ -2535,7 +2646,13 @@ export interface components {
          *      Represents a policy section within a [PolicyDocument] describing network threat mitigation mechanisms and attack coverage. coveredAttackTypes: the types of network-level attacks mitigated by implemented controls (e.g., DoS, DDoS).
          */
         NetworkThreatMitigationPolicy: {
+            /** @description Indicates whether the policy explicitly requires antispoofing mechanisms on internet-facing routers. */
+            antispoofingRequired?: boolean;
+            /** @description Indicates whether the standard requires authorized-software and controlled-installation controls on network devices. */
+            authorizedSoftwareAndControlledInstallationRequired?: boolean;
             coveredAttackTypes?: string[];
+            /** @description Indicates whether the policy explicitly requires network filtering mechanisms on internet-facing routers. */
+            filteringRequired?: boolean;
         };
         /** @description NoAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         NoAuthentication: {
@@ -2649,6 +2766,16 @@ export interface components {
         /** @description Output is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         Output: Record<string, never>;
         /**
+         * @description OutsourcingPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a subcontractor/outsourcing clause within a PolicyDocument.
+         */
+        OutsourcingPolicy: {
+            /** @description The stated monitoring cadence or mechanism for subcontractor compliance. */
+            monitoringMechanism?: string;
+            /** @description Indicates whether subcontracted/external providers are required to comply with and be monitored against the security policy. */
+            monitoringObligationStated?: boolean;
+        };
+        /**
          * @description POSIX is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
          *      Represents a POSIX architecture, commonly found on Linux systems.
          */
@@ -2704,6 +2831,8 @@ export interface components {
             contextIsChecked?: boolean;
             /** Format: int32 */
             failedAuthenticationAttempts?: number;
+            /** Format: int32 */
+            length?: number;
             /**
              * Format: int32
              * @description Maximum password rotation interval in months
@@ -2744,24 +2873,39 @@ export interface components {
             name?: string;
             /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
             raw?: string;
+            acceptableUsePolicy?: components["schemas"]["AcceptableUsePolicy"];
             accessControlTypePolicy?: components["schemas"]["AccessControlTypePolicy"];
+            accountManagementPolicy?: components["schemas"]["AccountManagementPolicy"];
             assetInventory?: components["schemas"]["AssetInventory"];
+            auditLogMonitoringPolicy?: components["schemas"]["AuditLogMonitoringPolicy"];
+            awarenessTraining?: components["schemas"]["AwarenessTraining"];
             backup?: components["schemas"]["Backup"];
+            complianceAuditIntervalPolicy?: components["schemas"]["ComplianceAuditIntervalPolicy"];
             cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            cryptographicTransferPolicy?: components["schemas"]["CryptographicTransferPolicy"];
             dataConfidentialitySdnPolicy?: components["schemas"]["DataConfidentialitySDNPolicy"];
             dataLocation?: components["schemas"]["DataLocation"];
+            deviceManagementPolicy?: components["schemas"]["DeviceManagementPolicy"];
             documentSignatures?: components["schemas"]["DocumentSignature"][];
             governances?: components["schemas"]["Governance"][];
+            informationSecurityManagementSystem?: components["schemas"]["InformationSecurityManagementSystem"];
             leastPrivilegePolicy?: components["schemas"]["LeastPrivilegePolicy"];
+            liabilityPolicy?: components["schemas"]["LiabilityPolicy"];
             monitoringProcedure?: components["schemas"]["MonitoringProcedure"];
             needToKnowPolicy?: components["schemas"]["NeedToKnowPolicy"];
             networkThreatMitigationPolicy?: components["schemas"]["NetworkThreatMitigationPolicy"];
+            outsourcingPolicy?: components["schemas"]["OutsourcingPolicy"];
             parentId?: string;
             sdnFunctionValidationPolicy?: components["schemas"]["SDNFunctionValidationPolicy"];
             validatedBy?: components["schemas"]["SchemaValidation"];
+            secureDevelopmentPolicy?: components["schemas"]["SecureDevelopmentPolicy"];
             securityFeatures?: components["schemas"]["SecurityFeature"][];
             securityIncident?: components["schemas"]["SecurityIncident"];
+            securityPolicyReview?: components["schemas"]["SecurityPolicyReview"];
             separationOfDutiesPolicy?: components["schemas"]["SeparationOfDutiesPolicy"];
+            teleworkingPolicy?: components["schemas"]["TeleworkingPolicy"];
+            testDataPolicy?: components["schemas"]["TestDataPolicy"];
+            vulnerabilityManagementPolicy?: components["schemas"]["VulnerabilityManagementPolicy"];
         };
         /**
          * @description Principal is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -2854,7 +2998,7 @@ export interface components {
         /** @description QPU is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         QPU: {
             /** Format: float */
-            oneQubitErrorRate?: number;
+            oneQubitGateErrorRate?: number;
             /** Format: float */
             spamErrorRate?: number;
             /**
@@ -2868,7 +3012,7 @@ export interface components {
              */
             t2CoherenceTime?: number;
             /** Format: float */
-            twoQubitErrorRate?: number;
+            twoQubitGateErrorRate?: number;
             /** @description The physical operations shall include a finite set of gates capable of approximating any unitary operation on qubits. This is typically achieved through combinations of one-qubit gates and a two-qubit entangling gate, such as CNOT, enabling the execution of a broad range of quantum algorithms. */
             universalGateSetEnabled?: boolean;
             /** Format: date-time */
@@ -3034,6 +3178,11 @@ export interface components {
         /** @description RequestForChange is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         RequestForChange: {
             approvedBeforeDeployment?: boolean;
+            /**
+             * Format: float
+             * @description Percentage of change register entries with all mandatory fields completed.
+             */
+            mandatoryFieldCompletenessPercent?: number;
         };
         /** @description Resource is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
         Resource: {
@@ -3240,6 +3389,23 @@ export interface components {
             parentId?: string;
             usageStatistics?: components["schemas"]["UsageStatistics"];
         };
+        /**
+         * @description SecureDevelopmentPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a secure development methodology / SDLC policy section within a PolicyDocument.
+         */
+        SecureDevelopmentPolicy: {
+            /**
+             * Format: float
+             * @description Percentage of the mandated checklist items explicitly present.
+             */
+            checklistCoveragePercent?: number;
+            /** @description Indicates whether high/critical findings block the production release. */
+            highCriticalFindingsBlockRelease?: boolean;
+            /** @description Indicates whether a pentest/static-analysis gate is required prior to production release. */
+            pentestGateRequired?: boolean;
+            /** @description Indicates whether the methodology references an industry framework (e.g., OWASP, SANS, CERT). */
+            referencesIndustryFramework?: boolean;
+        };
         /** @description SecurityAdvisoryDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         SecurityAdvisoryDocument: {
             /** Format: date-time */
@@ -3345,11 +3511,39 @@ export interface components {
         };
         /** @description SecurityIncident is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         SecurityIncident: {
+            /**
+             * Format: int32
+             * @description The maximum incident notification window, in hours.
+             */
+            notificationWindowHours?: number;
+            /** @description Indicates whether an incident registry and handling SLA are stated. */
+            registryAndSlaStated?: boolean;
+            /** @description Indicates whether escalation responsibility for critical/high severity incidents is defined. */
+            severityAndEscalationDefined?: boolean;
             team?: string[];
+        };
+        /**
+         * @description SecurityPolicyReview is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents the review cadence of the organization's Information Security Policy. intervalMonths: how often the policy must be reviewed, in months.
+         */
+        SecurityPolicyReview: {
+            /**
+             * Format: int32
+             * @description The interval refers to the interval in months.
+             */
+            intervalMonths?: number;
+            /** @description Indicates whether an accountable owner and an approval date/signature are both stated for the policy. */
+            ownerAndApprovalDefined?: boolean;
         };
         /** @description SecurityTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         SecurityTraining: {
+            /** @description Indicates whether the training plan states it is delivered at least annually. */
+            annualCadenceStated?: string[];
             annualUpdateCompleted?: boolean;
+            /** @description Indicates whether a documented training and awareness plan is maintained. */
+            planDocumented?: string[];
+            /** @description Indicates whether the training plan includes role-based tracks adjusted by employee function. */
+            roleAdjustedTracksStated?: string[];
             successfullyCompletedPercentage?: boolean;
         };
         /**
@@ -3468,6 +3662,28 @@ export interface components {
             modus?: string;
             initializationVector?: components["schemas"]["InitializationVector"];
             padding?: components["schemas"]["Padding"];
+        };
+        /**
+         * @description TeleworkingPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a teleworking / remote access policy section within a PolicyDocument.
+         */
+        TeleworkingPolicy: {
+            /** @description Indicates whether data encryption is required. */
+            encryptionRequired?: boolean;
+            /** @description Indicates whether MFA and federation are required for remote access. */
+            mfaAndFederationRequiredForRemoteAccess?: boolean;
+            /** @description Indicates whether two-factor authentication is required. */
+            twoFactorRequired?: boolean;
+        };
+        /**
+         * @description TestDataPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a policy section within a PolicyDocument governing the use and anonymization of test data.
+         */
+        TestDataPolicy: {
+            /** @description Indicates whether anonymization/pseudonymization is required for non-production environments. */
+            anonymizationRequiredForNonProd?: boolean;
+            /** @description The named anonymization technique or standard used. */
+            technique?: string;
         };
         /** @description Time is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         Time: Record<string, never>;
@@ -3683,6 +3899,20 @@ export interface components {
             url?: string;
         };
         /**
+         * @description VulnerabilityManagementPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a vulnerability management procedure section within a PolicyDocument, covering CVSS scoring and severity-tiered resolution SLAs.
+         */
+        VulnerabilityManagementPolicy: {
+            /** @description Indicates whether the critical/high severity vulnerability resolution SLA is stated. */
+            criticalHighSlaStated?: boolean;
+            /** @description Indicates whether CVSS scoring is used to prioritize vulnerability resolution. */
+            cvssScoringUsed?: boolean;
+            /** @description Indicates whether the low severity vulnerability resolution SLA is stated. */
+            lowSlaStated?: boolean;
+            /** @description Indicates whether the medium severity vulnerability resolution SLA is stated. */
+            mediumSlaStated?: boolean;
+        };
+        /**
          * @description WebApplicationFirewall is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
          *      A WAF is a L7 firewall that includes L3 capabilities
          */
@@ -3743,9 +3973,11 @@ export interface components {
     pathItems: never;
 }
 export type SchemaAbac = components['schemas']['ABAC'];
+export type SchemaAcceptableUsePolicy = components['schemas']['AcceptableUsePolicy'];
 export type SchemaAccessControlTypePolicy = components['schemas']['AccessControlTypePolicy'];
 export type SchemaAccessRestriction = components['schemas']['AccessRestriction'];
 export type SchemaAccount = components['schemas']['Account'];
+export type SchemaAccountManagementPolicy = components['schemas']['AccountManagementPolicy'];
 export type SchemaActivityLogging = components['schemas']['ActivityLogging'];
 export type SchemaAgnostic = components['schemas']['Agnostic'];
 export type SchemaAllocate = components['schemas']['Allocate'];
@@ -3757,6 +3989,7 @@ export type SchemaAssessEvidenceResponse = components['schemas']['AssessEvidence
 export type SchemaAssetInventory = components['schemas']['AssetInventory'];
 export type SchemaAsymmetricCipher = components['schemas']['AsymmetricCipher'];
 export type SchemaAtRestEncryption = components['schemas']['AtRestEncryption'];
+export type SchemaAuditLogMonitoringPolicy = components['schemas']['AuditLogMonitoringPolicy'];
 export type SchemaAuthenticate = components['schemas']['Authenticate'];
 export type SchemaAuthenticity = components['schemas']['Authenticity'];
 export type SchemaAuthorization = components['schemas']['Authorization'];
@@ -3796,6 +4029,7 @@ export type SchemaCoordinatedVulnerabilityDisclosurePolicy = components['schemas
 export type SchemaCreateEncryptedDisk = components['schemas']['CreateEncryptedDisk'];
 export type SchemaCreateSecret = components['schemas']['CreateSecret'];
 export type SchemaCryptographicHash = components['schemas']['CryptographicHash'];
+export type SchemaCryptographicTransferPolicy = components['schemas']['CryptographicTransferPolicy'];
 export type SchemaCustomHttpPattern = components['schemas']['CustomHttpPattern'];
 export type SchemaCustomerKeyEncryption = components['schemas']['CustomerKeyEncryption'];
 export type SchemaCyberSecurityRiskAssessmentDocument = components['schemas']['CyberSecurityRiskAssessmentDocument'];
@@ -3808,6 +4042,7 @@ export type SchemaDatabaseQuery = components['schemas']['DatabaseQuery'];
 export type SchemaDatabaseStorage = components['schemas']['DatabaseStorage'];
 export type SchemaDeAllocate = components['schemas']['DeAllocate'];
 export type SchemaDecryption = components['schemas']['Decryption'];
+export type SchemaDeviceManagementPolicy = components['schemas']['DeviceManagementPolicy'];
 export type SchemaDeviceProvisioningService = components['schemas']['DeviceProvisioningService'];
 export type SchemaDiskEncryption = components['schemas']['DiskEncryption'];
 export type SchemaDistributionOfUpdatesDocument = components['schemas']['DistributionOfUpdatesDocument'];
@@ -3851,6 +4086,7 @@ export type SchemaHttpRule = components['schemas']['HttpRule'];
 export type SchemaHybridCipher = components['schemas']['HybridCipher'];
 export type SchemaIdentity = components['schemas']['Identity'];
 export type SchemaImmutability = components['schemas']['Immutability'];
+export type SchemaInformationSecurityManagementSystem = components['schemas']['InformationSecurityManagementSystem'];
 export type SchemaInfrastructure = components['schemas']['Infrastructure'];
 export type SchemaInitializationVector = components['schemas']['InitializationVector'];
 export type SchemaInput = components['schemas']['Input'];
@@ -3865,6 +4101,7 @@ export type SchemaKeyValueDatabaseService = components['schemas']['KeyValueDatab
 export type SchemaKeyVault = components['schemas']['KeyVault'];
 export type SchemaL3Firewall = components['schemas']['L3Firewall'];
 export type SchemaLeastPrivilegePolicy = components['schemas']['LeastPrivilegePolicy'];
+export type SchemaLiabilityPolicy = components['schemas']['LiabilityPolicy'];
 export type SchemaLibrary = components['schemas']['Library'];
 export type SchemaLibraryEntryPoint = components['schemas']['LibraryEntryPoint'];
 export type SchemaLoadBalancer = components['schemas']['LoadBalancer'];
@@ -3904,6 +4141,7 @@ export type SchemaObjectStorageRequest = components['schemas']['ObjectStorageReq
 export type SchemaObjectStorageService = components['schemas']['ObjectStorageService'];
 export type SchemaOperatingSystemArchitecture = components['schemas']['OperatingSystemArchitecture'];
 export type SchemaOutput = components['schemas']['Output'];
+export type SchemaOutsourcingPolicy = components['schemas']['OutsourcingPolicy'];
 export type SchemaPosix = components['schemas']['POSIX'];
 export type SchemaPackage = components['schemas']['Package'];
 export type SchemaPadding = components['schemas']['Padding'];
@@ -3940,11 +4178,13 @@ export type SchemaSbomDocument = components['schemas']['SBOMDocument'];
 export type SchemaSdnFunctionValidationPolicy = components['schemas']['SDNFunctionValidationPolicy'];
 export type SchemaSchemaValidation = components['schemas']['SchemaValidation'];
 export type SchemaSecret = components['schemas']['Secret'];
+export type SchemaSecureDevelopmentPolicy = components['schemas']['SecureDevelopmentPolicy'];
 export type SchemaSecurityAdvisoryDocument = components['schemas']['SecurityAdvisoryDocument'];
 export type SchemaSecurityAdvisoryFeed = components['schemas']['SecurityAdvisoryFeed'];
 export type SchemaSecurityAdvisoryService = components['schemas']['SecurityAdvisoryService'];
 export type SchemaSecurityFeature = components['schemas']['SecurityFeature'];
 export type SchemaSecurityIncident = components['schemas']['SecurityIncident'];
+export type SchemaSecurityPolicyReview = components['schemas']['SecurityPolicyReview'];
 export type SchemaSecurityTraining = components['schemas']['SecurityTraining'];
 export type SchemaSeparationOfDutiesPolicy = components['schemas']['SeparationOfDutiesPolicy'];
 export type SchemaServiceMetadataDocument = components['schemas']['ServiceMetadataDocument'];
@@ -3954,6 +4194,8 @@ export type SchemaSoftwareAttestation = components['schemas']['SoftwareAttestati
 export type SchemaSourceCodeFile = components['schemas']['SourceCodeFile'];
 export type SchemaStatus = components['schemas']['Status'];
 export type SchemaSymmetricCipher = components['schemas']['SymmetricCipher'];
+export type SchemaTeleworkingPolicy = components['schemas']['TeleworkingPolicy'];
+export type SchemaTestDataPolicy = components['schemas']['TestDataPolicy'];
 export type SchemaTime = components['schemas']['Time'];
 export type SchemaToken = components['schemas']['Token'];
 export type SchemaTransportEncryption = components['schemas']['TransportEncryption'];
@@ -3968,6 +4210,7 @@ export type SchemaVirtualMachine = components['schemas']['VirtualMachine'];
 export type SchemaVirtualNetwork = components['schemas']['VirtualNetwork'];
 export type SchemaVirtualSubNetwork = components['schemas']['VirtualSubNetwork'];
 export type SchemaVulnerability = components['schemas']['Vulnerability'];
+export type SchemaVulnerabilityManagementPolicy = components['schemas']['VulnerabilityManagementPolicy'];
 export type SchemaWebApplicationFirewall = components['schemas']['WebApplicationFirewall'];
 export type SchemaWin32 = components['schemas']['Win32'];
 export type SchemaWorkflow = components['schemas']['Workflow'];
