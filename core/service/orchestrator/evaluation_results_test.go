@@ -247,6 +247,19 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			},
 		},
 		{
+			name: "error: database error when listing without grouping by control",
+			args: args{
+				req: connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{}),
+			},
+			fields: fields{
+				db: persistencetest.ListErrorDB(t, persistence.ErrDatabase, types, []persistence.CustomJoinTable{}),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListEvaluationResultsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, persistence.ErrDatabase.Error())
+			},
+		},
+		{
 			name: "happy path: filter by Audit Scope",
 			args: args{
 				req: connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{
@@ -359,6 +372,61 @@ func TestService_ListEvaluationResults(t *testing.T) {
 				assert.NotNil(t, got)
 				assert.Equal(t, 1, len(got.Msg.Results))
 				return assert.Equal(t, evaluationtest.MockManualEvaluationResult2, got.Msg.Results[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: filter by `valid manual only` and target of evaluation does not return the manual results of other targets of evaluation",
+			args: args{
+				req: connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{
+					Filter: &orchestrator.ListEvaluationResultsRequest_Filter{
+						TargetOfEvaluationId: new(evaluationtest.MockToeId1),
+						ValidManualOnly:      new(true),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+					assert.NoError(t, d.Create(evaluationtest.MockManualEvaluationResult1)) // target of evaluation 1, valid
+					assert.NoError(t, d.Create(evaluationtest.MockManualEvaluationResult2)) // target of evaluation 2, valid
+					assert.NoError(t, d.Create(evaluationtest.MockManualEvaluationResult3)) // target of evaluation 1, valid
+					assert.NoError(t, d.Create(evaluationtest.MockManualEvaluationResult4)) // target of evaluation 1, expired
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
+				ids := make([]string, 0, len(got.Msg.Results))
+				for _, r := range got.Msg.Results {
+					ids = append(ids, r.Id)
+				}
+				want := []string{evaluationtest.MockManualEvaluationResult1.Id, evaluationtest.MockManualEvaluationResult3.Id}
+				slices.Sort(ids)
+				slices.Sort(want)
+				return assert.Equal(t, want, ids)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: filter by `valid manual only` and audit scope does not return the manual results of other audit scopes",
+			args: args{
+				req: connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{
+					// Deliberately no target of evaluation: both results belong to the same one, so only the audit scope
+					// filter can tell them apart.
+					Filter: &orchestrator.ListEvaluationResultsRequest_Filter{
+						AuditScopeId:    new(evaluationtest.MockAuditScopeId1),
+						ValidManualOnly: new(true),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+					assert.NoError(t, d.Create(evaluationtest.MockManualEvaluationResult1)) // audit scope 1, valid
+					assert.NoError(t, d.Create(evaluationtest.MockManualEvaluationResult3)) // audit scope 2, valid
+					assert.NoError(t, d.Create(evaluationtest.MockManualEvaluationResult4)) // audit scope 1, expired
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
+				return assert.Equal(t, 1, len(got.Msg.Results)) &&
+					assert.Equal(t, evaluationtest.MockManualEvaluationResult1.Id, got.Msg.Results[0].Id)
 			},
 			wantErr: assert.NoError,
 		},

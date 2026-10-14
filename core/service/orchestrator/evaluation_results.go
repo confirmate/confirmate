@@ -122,8 +122,10 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 				evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY,
 			})
 
-			// Use parameterized query instead of CURRENT_TIMESTAMP SQL function for compatibility with in-memory test database (ramsql)
-			query = append(query, "valid_until IS NULL OR valid_until >= ?")
+			// Use parameterized query instead of CURRENT_TIMESTAMP SQL function for compatibility with in-memory test database (ramsql).
+			// The parentheses are essential: the clauses are joined with AND, and without them AND binds stronger than
+			// OR, so every result with a future validity would match, regardless of the other filters.
+			query = append(query, "(valid_until IS NULL OR valid_until >= ?)")
 			args = append(args, time.Now())
 		}
 	}

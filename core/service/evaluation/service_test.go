@@ -29,7 +29,10 @@ import (
 	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/auth"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"golang.org/x/oauth2/clientcredentials"
 	"google.golang.org/protobuf/testing/protocmp"
 
 	"confirmate.io/core/server"
@@ -118,6 +121,28 @@ func TestNewService(t *testing.T) {
 				assert.NotEmpty(t, orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, "http:://testhost:8080"), svc.orchestratorClient)
 				assert.Equal(t, make(map[string]map[string]*orchestrator.Control), svc.catalogControls)
 				return assert.NotNil(t, &svc.catalogsMutex)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path with service OAuth2 config: the orchestrator client authenticates",
+			args: args{
+				opts: []service.Option[Service]{
+					WithConfig(Config{
+						OrchestratorClient:  http.DefaultClient,
+						OrchestratorAddress: "http://testhost:8080",
+						ServiceOAuth2Config: &clientcredentials.Config{TokenURL: "http://testhost:8080/token"},
+					}),
+					WithAuthorizationStrategy(&service.AuthorizationStrategyAllowAll{}),
+				},
+			},
+			want: func(t *testing.T, got evaluationconnect.EvaluationHandler, msgAndArgs ...any) bool {
+				svc, ok := got.(*Service)
+				if !assert.True(t, ok) {
+					return false
+				}
+				return assert.NotNil(t, svc.orchestratorClient) &&
+					assert.NotNil(t, svc.authz)
 			},
 			wantErr: assert.NoError,
 		},
@@ -469,6 +494,50 @@ func Test_getMetricIds(t *testing.T) {
 	}
 }
 
+func Test_getMetricsFromControl(t *testing.T) {
+	type args struct {
+		control *orchestrator.Control
+	}
+	tests := []struct {
+		name string
+		args args
+		want assert.Want[[]*assessment.Metric]
+	}{
+		{
+			name: "no metrics",
+			args: args{control: &orchestrator.Control{Id: evaluationtest.MockControlId1}},
+			want: assert.Empty[[]*assessment.Metric],
+		},
+		{
+			name: "metrics of the control itself",
+			args: args{control: &orchestrator.Control{Metrics: []*assessment.Metric{evaluationtest.MockMetric1}}},
+			want: func(t *testing.T, got []*assessment.Metric, msgAndArgs ...any) bool {
+				return assert.Equal(t, 1, len(got))
+			},
+		},
+		{
+			name: "metrics of the control and of its sub-controls",
+			args: args{control: &orchestrator.Control{
+				Metrics: []*assessment.Metric{evaluationtest.MockMetric1},
+				Controls: []*orchestrator.Control{
+					{Metrics: []*assessment.Metric{evaluationtest.MockMetric1}},
+					{Metrics: []*assessment.Metric{evaluationtest.MockMetric1}},
+				},
+			}},
+			want: func(t *testing.T, got []*assessment.Metric, msgAndArgs ...any) bool {
+				return assert.Equal(t, 3, len(got))
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := getMetricsFromControl(tt.args.control)
+
+			tt.want(t, got)
+		})
+	}
+}
+
 func TestService_StopEvaluation(t *testing.T) {
 	type args struct {
 		ctx context.Context
@@ -479,6 +548,21 @@ func TestService_StopEvaluation(t *testing.T) {
 		scheduler          *gocron.Scheduler
 		authz              service.AuthorizationStrategy
 	}
+	// Authorization with the permission store that is backed by the orchestrator, as in a real deployment
+	newPermissionStoreFields := func(permissions []*orchestrator.UserPermission, listError error) fields {
+		client := newOrchestratorClient(t, WithUserPermissions(permissions), func(m *mockOrchestratorHandler) {
+			m.listUserPermissionsError = listError
+		})
+
+		return fields{
+			orchestratorClient: client,
+			scheduler:          gocron.NewScheduler(time.UTC),
+			authz:              &service.AuthorizationStrategyPermissionStore{Permissions: &service.OrchestratorPermissionStore{Client: client}},
+		}
+	}
+	userCtx := auth.WithClaims(context.Background(), &auth.OAuthClaims{
+		RegisteredClaims: jwt.RegisteredClaims{Subject: orchestratortest.MockUserId1, Issuer: orchestratortest.MockUserIssuer1},
+	})
 	tests := []struct {
 		name    string
 		args    args
@@ -581,6 +665,71 @@ func TestService_StopEvaluation(t *testing.T) {
 			wantErr: assert.NoError,
 			want: func(t *testing.T, got *connect.Response[evaluation.StopEvaluationResponse], msgAndArgs ...any) bool {
 				return assert.Empty(t, got.Msg)
+			},
+		},
+		{
+			name: "permission store: user with a permission for the audit scope has access, but no evaluation is running",
+			args: args{
+				ctx: userCtx,
+				req: connect.NewRequest(&evaluation.StopEvaluationRequest{AuditScopeId: evaluationtest.MockAuditScopeId1}),
+			},
+			fields: newPermissionStoreFields([]*orchestrator.UserPermission{orchestratortest.MockUserPermissionsAuditScopeAdmin}, nil),
+			want:   assert.Nil[*connect.Response[evaluation.StopEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeFailedPrecondition)
+			},
+		},
+		{
+			name: "permission store: user without any permission is denied",
+			args: args{
+				ctx: userCtx,
+				req: connect.NewRequest(&evaluation.StopEvaluationRequest{AuditScopeId: evaluationtest.MockAuditScopeId1}),
+			},
+			fields: newPermissionStoreFields(nil, nil),
+			want:   assert.Nil[*connect.Response[evaluation.StopEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
+			name: "permission store: only another user has a permission, the user is denied",
+			args: args{
+				ctx: userCtx,
+				req: connect.NewRequest(&evaluation.StopEvaluationRequest{AuditScopeId: evaluationtest.MockAuditScopeId1}),
+			},
+			fields: newPermissionStoreFields([]*orchestrator.UserPermission{{
+				UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockNonExistentId),
+				ObjectId:   evaluationtest.MockAuditScopeId1,
+				ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+				Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+			}}, nil),
+			want: assert.Nil[*connect.Response[evaluation.StopEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
+			name: "permission store: the permissions cannot be listed, the user is denied",
+			args: args{
+				ctx: userCtx,
+				req: connect.NewRequest(&evaluation.StopEvaluationRequest{AuditScopeId: evaluationtest.MockAuditScopeId1}),
+			},
+			fields: newPermissionStoreFields([]*orchestrator.UserPermission{orchestratortest.MockUserPermissionsAuditScopeAdmin}, errors.New("boom")),
+			want:   assert.Nil[*connect.Response[evaluation.StopEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
+			name: "permission store: a request without a user is denied",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StopEvaluationRequest{AuditScopeId: evaluationtest.MockAuditScopeId1}),
+			},
+			fields: newPermissionStoreFields([]*orchestrator.UserPermission{orchestratortest.MockUserPermissionsAuditScopeAdmin}, nil),
+			want:   assert.Nil[*connect.Response[evaluation.StopEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
 			},
 		},
 	}
@@ -975,6 +1124,37 @@ func TestService_evaluateCatalog(t *testing.T) {
 		orchestratorClient orchestratorconnect.OrchestratorClient
 		catalogControls    map[string]map[string]*orchestrator.Control
 	}
+	// automatedResults returns the stored evaluation results of the given control that were not created manually
+	automatedResults := func(t *testing.T, got *Service, controlId string) (results []*evaluation.EvaluationResult) {
+		res, err := got.orchestratorClient.ListEvaluationResults(context.Background(), connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{}))
+		assert.NoError(t, err)
+
+		for _, r := range res.Msg.Results {
+			if r.GetControlId() == controlId && r.GetStatus() != evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY {
+				results = append(results, r)
+			}
+		}
+
+		return results
+	}
+	catalogControls := map[string]map[string]*orchestrator.Control{
+		evaluationtest.MockCatalog1.Id: {
+			evaluationtest.MockControl1.Id:     evaluationtest.MockControl1,
+			evaluationtest.MockSubcontrol11.Id: evaluationtest.MockSubcontrol11,
+			evaluationtest.MockSubcontrol12.Id: evaluationtest.MockSubcontrol12,
+		},
+	}
+	// The manual result of sub-control 1.1 (audit scope 1) of the mocks, but created in audit scope 2
+	manualSubcontrolOtherScope := &evaluation.EvaluationResult{
+		Id:                   evaluationtest.MockManualEvaluationResult2.Id,
+		TargetOfEvaluationId: evaluationtest.MockToeId1,
+		AuditScopeId:         evaluationtest.MockAuditScopeId2,
+		ControlId:            evaluationtest.MockControl1SubcontrolId11,
+		ControlCatalogId:     evaluationtest.MockCatalogId1,
+		ParentControlId:      new(evaluationtest.MockControlId1),
+		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+		ValidUntil:           evaluationtest.MockManualEvaluationResult2.ValidUntil,
+	}
 	tests := []struct {
 		name    string
 		args    args
@@ -1108,6 +1288,70 @@ func TestService_evaluateCatalog(t *testing.T) {
 				assert.Contains(t, controlIds, evaluationtest.MockControl2SubcontrolID21)
 
 				return true
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			// Several audit scopes can share the same target of evaluation and catalog
+			name: "manual result of a control in another audit scope of the same target of evaluation: the control is evaluated",
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				catalog:    evaluationtest.MockCatalog1,
+				interval:   5,
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithEvaluationResults([]*evaluation.EvaluationResult{evaluationtest.MockManualEvaluationResult3}), // audit scope 2
+				),
+				catalogControls: catalogControls,
+			},
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				results := automatedResults(t, got, evaluationtest.MockControlId1)
+
+				return assert.Equal(t, 1, len(results)) &&
+					assert.Equal(t, evaluationtest.MockAuditScopeId1, results[0].GetAuditScopeId())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "manual result of a sub-control in the same audit scope: the sub-control is not evaluated automatically",
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				catalog:    evaluationtest.MockCatalog1,
+				interval:   5,
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithEvaluationResults([]*evaluation.EvaluationResult{evaluationtest.MockManualEvaluationResult2}), // audit scope 1
+				),
+				catalogControls: catalogControls,
+			},
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				return assert.Equal(t, 0, len(automatedResults(t, got, evaluationtest.MockControl1SubcontrolId11)))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "manual result of a sub-control in another audit scope: the sub-control is evaluated",
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				catalog:    evaluationtest.MockCatalog1,
+				interval:   5,
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithEvaluationResults([]*evaluation.EvaluationResult{manualSubcontrolOtherScope}),
+				),
+				catalogControls: catalogControls,
+			},
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				results := automatedResults(t, got, evaluationtest.MockControl1SubcontrolId11)
+
+				return assert.Equal(t, 1, len(results)) &&
+					assert.Equal(t, evaluationtest.MockAuditScopeId1, results[0].GetAuditScopeId())
 			},
 			wantErr: assert.NoError,
 		},
@@ -2289,6 +2533,46 @@ func TestService_TriggerEvaluation(t *testing.T) {
 				return assert.True(t, got.Msg.GetSuccessful())
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "err: no job and the controls cannot be cached",
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(evaluationtest.MockAuditScope1),
+					WithCatalog(evaluationtest.MockCatalog1),
+					func(m *mockOrchestratorHandler) { m.listError = errors.New("boom") },
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+			},
+			req: connect.NewRequest(&evaluation.TriggerEvaluationRequest{
+				AuditScopeId: evaluationtest.MockAuditScopeId1,
+			}),
+			want: assert.Nil[*connect.Response[evaluation.TriggerEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
+					assert.ErrorContains(t, err, "could not cache controls")
+			},
+		},
+		{
+			name: "err: no job and the evaluation fails",
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(evaluationtest.MockAuditScope1),
+					WithCatalog(evaluationtest.MockCatalog1),
+					WithAdditionalControls(evaluationtest.MockControl1),
+					func(m *mockOrchestratorHandler) { m.listEvalError = errors.New("boom") },
+				),
+				scheduler:       gocron.NewScheduler(time.Local),
+				catalogControls: make(map[string]map[string]*orchestrator.Control),
+			},
+			req: connect.NewRequest(&evaluation.TriggerEvaluationRequest{
+				AuditScopeId: evaluationtest.MockAuditScopeId1,
+			}),
+			want: assert.Nil[*connect.Response[evaluation.TriggerEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
+					assert.ErrorContains(t, err, "evaluation failed")
+			},
 		},
 	}
 	for _, tt := range tests {
