@@ -216,15 +216,22 @@ func (m *mockOrchestratorHandler) StoreEvaluationResult(
 // ListEvaluationResults returns the evaluation results stored via StoreEvaluationResult.
 func (m *mockOrchestratorHandler) ListEvaluationResults(
 	_ context.Context,
-	_ *connect.Request[orchestrator.ListEvaluationResultsRequest],
+	req *connect.Request[orchestrator.ListEvaluationResultsRequest],
 ) (*connect.Response[orchestrator.ListEvaluationResultsResponse], error) {
 	if m.listEvalError != nil {
 		return nil, m.listEvalError
 	}
 
 	m.mu.Lock()
-	out := make([]*evaluation.EvaluationResult, len(m.evaluationResults))
-	copy(out, m.evaluationResults)
+	out := make([]*evaluation.EvaluationResult, 0, len(m.evaluationResults))
+	for _, r := range m.evaluationResults {
+		// Like the real orchestrator, only return the results of the requested audit scope, if one is given
+		if req.Msg.GetFilter() != nil && req.Msg.GetFilter().AuditScopeId != nil && r.GetAuditScopeId() != req.Msg.GetFilter().GetAuditScopeId() {
+			continue
+		}
+
+		out = append(out, r)
+	}
 	m.mu.Unlock()
 
 	return connect.NewResponse(&orchestrator.ListEvaluationResultsResponse{
