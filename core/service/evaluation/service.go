@@ -988,6 +988,8 @@ func (svc *Service) assessControl(ctx context.Context, auditScope *orchestrator.
 			slog.String("audit_scope_id", auditScope.GetId()))
 	}
 
+	assessments = preferAutomaticResults(assessments, time.Now())
+
 	// If no assessment_results are available we are stuck at pending
 	if len(assessments) == 0 {
 		status = evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING
@@ -1006,6 +1008,36 @@ func (svc *Service) assessControl(ctx context.Context, auditScope *orchestrator.
 	}
 
 	return status, resultIds
+}
+
+// preferAutomaticResults drops the manual assessment results that must not count. A manual result is dropped if it
+// expired (valid_until is in the past at the given time) or if an automatic result of the same metric exists: a
+// manual result is additional information only and the automatic result takes precedence.
+func preferAutomaticResults(results []*assessment.AssessmentResult, now time.Time) (filtered []*assessment.AssessmentResult) {
+	var (
+		automatic = make(map[string]struct{})
+	)
+
+	for _, r := range results {
+		if !r.GetManual() {
+			automatic[r.GetMetricId()] = struct{}{}
+		}
+	}
+
+	for _, r := range results {
+		if r.GetManual() {
+			if _, ok := automatic[r.GetMetricId()]; ok {
+				continue
+			}
+			if r.GetValidUntil() != nil && r.GetValidUntil().AsTime().Before(now) {
+				continue
+			}
+		}
+
+		filtered = append(filtered, r)
+	}
+
+	return filtered
 }
 
 // getMetricsFromControl returns all metrics from a given control. If the control has sub-controls, get also all metrics from the sub-controls.

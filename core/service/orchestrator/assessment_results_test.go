@@ -251,6 +251,157 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 	}
 }
 
+func TestService_StoreManualAssessmentResult(t *testing.T) {
+	type args struct {
+		req     *orchestrator.StoreManualAssessmentResultRequest
+		context context.Context
+	}
+	type fields struct {
+		db    persistence.DB
+		authz service.AuthorizationStrategy
+	}
+	seedMetric := func(d persistence.DB) {
+		assert.NoError(t, d.Create(&assessment.Metric{Id: orchestratortest.MockMetricId1, Name: orchestratortest.MockMetricId1, Category: "cat"}))
+	}
+	validUntil := timestamppb.New(time.Now().Add(24 * time.Hour))
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[assessment.AssessmentResult]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "validation error - empty request",
+			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{}},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "authorization failure",
+			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{
+				TargetOfEvaluationId: orchestratortest.MockToeId1,
+				MetricId:             orchestratortest.MockMetricId1,
+				Comment:              "checked",
+			}},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables, seedMetric),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
+			name: "metric not found",
+			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{
+				TargetOfEvaluationId: orchestratortest.MockToeId1,
+				MetricId:             orchestratortest.MockMetricId1,
+				Comment:              "checked",
+			}},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
+		{
+			name: "db error",
+			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{
+				TargetOfEvaluationId: orchestratortest.MockToeId1,
+				MetricId:             orchestratortest.MockMetricId1,
+				Comment:              "checked",
+			}},
+			fields: fields{
+				db:    persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables, seedMetric),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
+			},
+		},
+		{
+			name: "happy path: with evidence, expiry and author",
+			args: args{
+				req: &orchestrator.StoreManualAssessmentResultRequest{
+					TargetOfEvaluationId: orchestratortest.MockToeId1,
+					MetricId:             orchestratortest.MockMetricId1,
+					Compliant:            true,
+					Comment:              "checked the policy",
+					EvidenceId:           new(orchestratortest.MockEvidenceId1),
+					ValidUntil:           validUntil,
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUser1.Id,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables, seedMetric),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.AssessmentResult], msgAndArgs ...any) bool {
+				r := got.Msg
+				return assert.True(t, r.GetManual()) &&
+					assert.True(t, r.GetCompliant()) &&
+					assert.Equal(t, "manual:"+orchestratortest.MockToeId1, r.GetResourceId()) &&
+					assert.Equal(t, "checked the policy", r.GetComplianceComment()) &&
+					assert.Equal(t, orchestratortest.MockEvidenceId1, r.GetEvidenceId()) &&
+					assert.Equal(t, "manual", r.GetToolId()) &&
+					assert.NotNil(t, r.GetValidUntil()) &&
+					assert.NotEmpty(t, r.GetAuthor())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: without evidence and author",
+			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{
+				TargetOfEvaluationId: orchestratortest.MockToeId1,
+				MetricId:             orchestratortest.MockMetricId1,
+				Comment:              "not met",
+			}},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables, seedMetric),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.AssessmentResult], msgAndArgs ...any) bool {
+				r := got.Msg
+				return assert.True(t, r.GetManual()) &&
+					assert.False(t, r.GetCompliant()) &&
+					assert.Empty(t, r.GetEvidenceId()) &&
+					assert.Nil(t, r.Author) &&
+					assert.Nil(t, r.GetValidUntil())
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
+			}
+			res, err := svc.StoreManualAssessmentResult(tt.args.context, connect.NewRequest(tt.args.req))
+			tt.want(t, res)
+			tt.wantErr(t, err)
+		})
+	}
+}
+
 func TestService_GetAssessmentResult(t *testing.T) {
 	type args struct {
 		req     *orchestrator.GetAssessmentResultRequest

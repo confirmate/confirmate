@@ -42,6 +42,22 @@ export const load = (async ({ params, fetch }) => {
 	});
 	const evaluation = evalResp?.results?.find((r) => r.controlId === params.controlId) ?? null;
 
+	// Latest assessment results of the control's metrics (automatic and manual)
+	const metricIds = (control.metrics ?? []).map((m) => m.id ?? '').filter(Boolean);
+	const { data: assessmentResp } = metricIds.length
+		? await client.GET('/v1/orchestrator/assessment_results', {
+				params: {
+					query: {
+						'filter.targetOfEvaluationId': params.id,
+						'filter.metricIds': metricIds,
+						latestByResourceId: true,
+						pageSize: 1000
+					}
+				}
+			})
+		: { data: null };
+	const assessmentResults = assessmentResp?.results ?? [];
+
 	// Audit trail filtered to this control's CIS record
 	const { data: auditTrailResp } = cis?.id
 		? await client.GET('/v1/orchestrator/audit_trail_events', {
@@ -62,6 +78,7 @@ export const load = (async ({ params, fetch }) => {
 		auditScope: auditScope ?? null,
 		cis,
 		evaluation,
+		assessmentResults,
 		auditTrailEvents,
 		users: usersResp?.users ?? []
 	};

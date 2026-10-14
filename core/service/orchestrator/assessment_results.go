@@ -28,6 +28,7 @@ import (
 	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -77,6 +78,91 @@ func (svc *Service) StoreAssessmentResult(
 	})
 
 	res = connect.NewResponse(&orchestrator.StoreAssessmentResultResponse{})
+	return
+}
+
+// manualResourceId returns the ID of the synthetic resource, to which manually supplied assessment results of the
+// given target of evaluation are attached. It is unique per target of evaluation, so that the "latest result per
+// resource and metric" of different targets of evaluation does not collide.
+func manualResourceId(targetOfEvaluationId string) string {
+	return "manual:" + targetOfEvaluationId
+}
+
+// StoreManualAssessmentResult stores an assessment result that was supplied manually for a single metric of a
+// target of evaluation. It is additional information only: the evaluation prefers an automatic result of the same
+// metric over it.
+func (svc *Service) StoreManualAssessmentResult(
+	ctx context.Context,
+	req *connect.Request[orchestrator.StoreManualAssessmentResultRequest],
+) (res *connect.Response[assessment.AssessmentResult], err error) {
+	var (
+		allowed bool
+		metric  assessment.Metric
+		result  *assessment.AssessmentResult
+		now     = timestamppb.Now()
+	)
+
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, req.Msg.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
+	// The metric must exist
+	err = svc.db.Get(&metric, "id = ?", req.Msg.GetMetricId())
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("metric")); err != nil {
+		return nil, err
+	}
+
+	result = &assessment.AssessmentResult{
+		Id:        uuid.NewString(),
+		CreatedAt: now,
+		MetricId:  req.Msg.GetMetricId(),
+		MetricConfiguration: &assessment.MetricConfiguration{
+			MetricId:             req.Msg.GetMetricId(),
+			TargetOfEvaluationId: req.Msg.GetTargetOfEvaluationId(),
+		},
+		Compliant:            req.Msg.GetCompliant(),
+		EvidenceId:           req.Msg.GetEvidenceId(),
+		ResourceId:           manualResourceId(req.Msg.GetTargetOfEvaluationId()),
+		ResourceTypes:        []string{"Manual"},
+		ComplianceComment:    req.Msg.GetComment(),
+		TargetOfEvaluationId: req.Msg.GetTargetOfEvaluationId(),
+		ToolId:               new("manual"),
+		HistoryUpdatedAt:     now,
+		History:              []*assessment.Record{},
+		Manual:               true,
+		ValidUntil:           req.Msg.ValidUntil,
+	}
+	if author := actorFromContext(ctx); author != "" {
+		result.Author = &author
+	}
+
+	err = svc.db.Create(result)
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
+	}
+
+	// Notify subscribers
+	go svc.publishEvent(&orchestrator.ChangeEvent{
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_RESULT,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
+		EntityId:    result.Id,
+		Entity: &orchestrator.ChangeEvent_AssessmentResult{
+			AssessmentResult: result,
+		},
+	})
+
+	res = connect.NewResponse(result)
 	return
 }
 

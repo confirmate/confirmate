@@ -73,6 +73,9 @@ const (
 	// OrchestratorStoreAssessmentResultsProcedure is the fully-qualified name of the Orchestrator's
 	// StoreAssessmentResults RPC.
 	OrchestratorStoreAssessmentResultsProcedure = "/confirmate.orchestrator.v1.Orchestrator/StoreAssessmentResults"
+	// OrchestratorStoreManualAssessmentResultProcedure is the fully-qualified name of the
+	// Orchestrator's StoreManualAssessmentResult RPC.
+	OrchestratorStoreManualAssessmentResultProcedure = "/confirmate.orchestrator.v1.Orchestrator/StoreManualAssessmentResult"
 	// OrchestratorGetAssessmentResultProcedure is the fully-qualified name of the Orchestrator's
 	// GetAssessmentResult RPC.
 	OrchestratorGetAssessmentResultProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetAssessmentResult"
@@ -264,6 +267,10 @@ type OrchestratorClient interface {
 	// Stores stream of assessment results provided by an assessment tool and
 	// returns a response stream. Part of the public API, not exposed as REST.
 	StoreAssessmentResults(context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
+	// Stores a manually supplied assessment result for a single metric of a
+	// target of evaluation, e.g., by an auditor. The result is additional
+	// information: an automatic result of the same metric takes precedence.
+	StoreManualAssessmentResult(context.Context, *connect.Request[orchestrator.StoreManualAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error)
 	// Get an assessment result by ID
 	GetAssessmentResult(context.Context, *connect.Request[orchestrator.GetAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error)
 	// Store the evaluation result provided by the evaluation component.″
@@ -458,6 +465,12 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			httpClient,
 			baseURL+OrchestratorStoreAssessmentResultsProcedure,
 			connect.WithSchema(orchestratorMethods.ByName("StoreAssessmentResults")),
+			connect.WithClientOptions(opts...),
+		),
+		storeManualAssessmentResult: connect.NewClient[orchestrator.StoreManualAssessmentResultRequest, assessment.AssessmentResult](
+			httpClient,
+			baseURL+OrchestratorStoreManualAssessmentResultProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("StoreManualAssessmentResult")),
 			connect.WithClientOptions(opts...),
 		),
 		getAssessmentResult: connect.NewClient[orchestrator.GetAssessmentResultRequest, assessment.AssessmentResult](
@@ -826,6 +839,7 @@ type orchestratorClient struct {
 	deregisterAssessmentTool        *connect.Client[orchestrator.DeregisterAssessmentToolRequest, emptypb.Empty]
 	storeAssessmentResult           *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultResponse]
 	storeAssessmentResults          *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
+	storeManualAssessmentResult     *connect.Client[orchestrator.StoreManualAssessmentResultRequest, assessment.AssessmentResult]
 	getAssessmentResult             *connect.Client[orchestrator.GetAssessmentResultRequest, assessment.AssessmentResult]
 	storeEvaluationResult           *connect.Client[orchestrator.StoreEvaluationResultRequest, evaluation.EvaluationResult]
 	listAssessmentResults           *connect.Client[orchestrator.ListAssessmentResultsRequest, orchestrator.ListAssessmentResultsResponse]
@@ -920,6 +934,12 @@ func (c *orchestratorClient) StoreAssessmentResult(ctx context.Context, req *con
 // StoreAssessmentResults calls confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults.
 func (c *orchestratorClient) StoreAssessmentResults(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
 	return c.storeAssessmentResults.CallBidiStream(ctx)
+}
+
+// StoreManualAssessmentResult calls
+// confirmate.orchestrator.v1.Orchestrator.StoreManualAssessmentResult.
+func (c *orchestratorClient) StoreManualAssessmentResult(ctx context.Context, req *connect.Request[orchestrator.StoreManualAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error) {
+	return c.storeManualAssessmentResult.CallUnary(ctx, req)
 }
 
 // GetAssessmentResult calls confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult.
@@ -1241,6 +1261,10 @@ type OrchestratorHandler interface {
 	// Stores stream of assessment results provided by an assessment tool and
 	// returns a response stream. Part of the public API, not exposed as REST.
 	StoreAssessmentResults(context.Context, *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]) error
+	// Stores a manually supplied assessment result for a single metric of a
+	// target of evaluation, e.g., by an auditor. The result is additional
+	// information: an automatic result of the same metric takes precedence.
+	StoreManualAssessmentResult(context.Context, *connect.Request[orchestrator.StoreManualAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error)
 	// Get an assessment result by ID
 	GetAssessmentResult(context.Context, *connect.Request[orchestrator.GetAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error)
 	// Store the evaluation result provided by the evaluation component.″
@@ -1431,6 +1455,12 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		OrchestratorStoreAssessmentResultsProcedure,
 		svc.StoreAssessmentResults,
 		connect.WithSchema(orchestratorMethods.ByName("StoreAssessmentResults")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorStoreManualAssessmentResultHandler := connect.NewUnaryHandler(
+		OrchestratorStoreManualAssessmentResultProcedure,
+		svc.StoreManualAssessmentResult,
+		connect.WithSchema(orchestratorMethods.ByName("StoreManualAssessmentResult")),
 		connect.WithHandlerOptions(opts...),
 	)
 	orchestratorGetAssessmentResultHandler := connect.NewUnaryHandler(
@@ -1803,6 +1833,8 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorStoreAssessmentResultHandler.ServeHTTP(w, r)
 		case OrchestratorStoreAssessmentResultsProcedure:
 			orchestratorStoreAssessmentResultsHandler.ServeHTTP(w, r)
+		case OrchestratorStoreManualAssessmentResultProcedure:
+			orchestratorStoreManualAssessmentResultHandler.ServeHTTP(w, r)
 		case OrchestratorGetAssessmentResultProcedure:
 			orchestratorGetAssessmentResultHandler.ServeHTTP(w, r)
 		case OrchestratorStoreEvaluationResultProcedure:
@@ -1956,6 +1988,10 @@ func (UnimplementedOrchestratorHandler) StoreAssessmentResult(context.Context, *
 
 func (UnimplementedOrchestratorHandler) StoreAssessmentResults(context.Context, *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) StoreManualAssessmentResult(context.Context, *connect.Request[orchestrator.StoreManualAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.StoreManualAssessmentResult is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) GetAssessmentResult(context.Context, *connect.Request[orchestrator.GetAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error) {

@@ -491,6 +491,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/orchestrator/manual_assessment_results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Stores a manually supplied assessment result for a single metric of a
+         *      target of evaluation, e.g., by an auditor. The result is additional
+         *      information: an automatic result of the same metric takes precedence.
+         */
+        post: operations["Orchestrator_StoreManualAssessmentResult"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/orchestrator/metrics": {
         parameters: {
             query?: never;
@@ -998,6 +1019,21 @@ export interface components {
             historyUpdatedAt: string;
             /** @description Stores the history of evidence IDs and timestamps for evidence that have the same content as the evidence used for this assessment result. */
             history: components["schemas"]["Record"][];
+            /**
+             * @description Whether this result was supplied manually (e.g., by an auditor) instead of
+             *      being derived from evidence by an assessment tool. A manual result is only
+             *      additional information: as soon as an automatic result of the same metric
+             *      exists, the automatic result takes precedence in the evaluation.
+             */
+            manual?: boolean;
+            /**
+             * Format: date-time
+             * @description Optional time until which a manual result is valid. After that, the
+             *      evaluation ignores it.
+             */
+            validUntil?: string;
+            /** @description Author of a manual result (the Confirmate user ID, if known) */
+            author?: string;
         };
         /**
          * @description Represents an external tool or service that offers assessments according to
@@ -1559,6 +1595,24 @@ export interface components {
          *      style convention. Since no return values are required, this is empty.
          */
         StoreAssessmentResultResponse: Record<string, never>;
+        StoreManualAssessmentResultRequest: {
+            targetOfEvaluationId: string;
+            metricId: string;
+            /** @description Whether the metric is met */
+            compliant?: boolean;
+            /** @description Human readable justification, e.g., why the metric is met */
+            comment: string;
+            /**
+             * @description Optional reference to evidence that was stored in the evidence store before,
+             *      e.g., a document
+             */
+            evidenceId?: string;
+            /**
+             * Format: date-time
+             * @description Optional time until which the statement is valid
+             */
+            validUntil?: string;
+        };
         TargetOfEvaluation: {
             id: string;
             name: string;
@@ -1722,6 +1776,7 @@ export type SchemaRuntime = components['schemas']['Runtime'];
 export type SchemaState = components['schemas']['State'];
 export type SchemaStatus = components['schemas']['Status'];
 export type SchemaStoreAssessmentResultResponse = components['schemas']['StoreAssessmentResultResponse'];
+export type SchemaStoreManualAssessmentResultRequest = components['schemas']['StoreManualAssessmentResultRequest'];
 export type SchemaTargetOfEvaluation = components['schemas']['TargetOfEvaluation'];
 export type SchemaTargetOfEvaluationMetadata = components['schemas']['TargetOfEvaluation_Metadata'];
 export type SchemaTargetOfEvaluationOrganization = components['schemas']['TargetOfEvaluation_Organization'];
@@ -2997,6 +3052,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvaluationResult"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_StoreManualAssessmentResult: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreManualAssessmentResultRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssessmentResult"];
                 };
             };
             /** @description Default error response */

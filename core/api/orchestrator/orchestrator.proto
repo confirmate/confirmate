@@ -78,6 +78,16 @@ service Orchestrator {
   // returns a response stream. Part of the public API, not exposed as REST.
   rpc StoreAssessmentResults(stream StoreAssessmentResultRequest) returns (stream StoreAssessmentResultsResponse);
 
+  // Stores a manually supplied assessment result for a single metric of a
+  // target of evaluation, e.g., by an auditor. The result is additional
+  // information: an automatic result of the same metric takes precedence.
+  rpc StoreManualAssessmentResult(StoreManualAssessmentResultRequest) returns (confirmate.assessment.v1.AssessmentResult) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/manual_assessment_results"
+      body: "*"
+    };
+  }
+
   // Get an assessment result by ID
   rpc GetAssessmentResult(GetAssessmentResultRequest) returns (confirmate.assessment.v1.AssessmentResult) {
     option (google.api.http) = {get: "/v1/orchestrator/assessment_results/{id}"};
@@ -511,6 +521,34 @@ message StoreAssessmentResultRequest {
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
+}
+
+message StoreManualAssessmentResultRequest {
+  string target_of_evaluation_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string metric_id = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Whether the metric is met
+  bool compliant = 3;
+
+  // Human readable justification, e.g., why the metric is met
+  string comment = 4 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Optional reference to evidence that was stored in the evidence store before,
+  // e.g., a document
+  optional string evidence_id = 5 [(buf.validate.field).string.uuid = true];
+
+  // Optional time until which the statement is valid
+  optional google.protobuf.Timestamp valid_until = 6;
 }
 
 // StoreAssessmentResultReponse belongs to StoreAssessmentResult, which uses a

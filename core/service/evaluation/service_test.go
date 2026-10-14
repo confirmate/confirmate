@@ -34,6 +34,7 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"golang.org/x/oauth2/clientcredentials"
 	"google.golang.org/protobuf/testing/protocmp"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
@@ -489,6 +490,57 @@ func Test_getMetricIds(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := getMetricIds(tt.args.metrics)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func Test_preferAutomaticResults(t *testing.T) {
+	now := time.Now()
+	auto := &assessment.AssessmentResult{Id: "auto", MetricId: "m1"}
+	manual := &assessment.AssessmentResult{Id: "manual", MetricId: "m1", Manual: true}
+	manualOtherMetric := &assessment.AssessmentResult{Id: "manual2", MetricId: "m2", Manual: true}
+	manualExpired := &assessment.AssessmentResult{Id: "expired", MetricId: "m2", Manual: true, ValidUntil: timestamppb.New(now.Add(-time.Hour))}
+	manualValid := &assessment.AssessmentResult{Id: "valid", MetricId: "m3", Manual: true, ValidUntil: timestamppb.New(now.Add(time.Hour))}
+
+	type args struct {
+		results []*assessment.AssessmentResult
+	}
+	tests := []struct {
+		name string
+		args args
+		want []*assessment.AssessmentResult
+	}{
+		{
+			name: "no results",
+			args: args{},
+			want: nil,
+		},
+		{
+			name: "only automatic results",
+			args: args{results: []*assessment.AssessmentResult{auto}},
+			want: []*assessment.AssessmentResult{auto},
+		},
+		{
+			name: "manual result is dropped if an automatic result of the same metric exists",
+			args: args{results: []*assessment.AssessmentResult{manual, auto}},
+			want: []*assessment.AssessmentResult{auto},
+		},
+		{
+			name: "manual result of another metric is kept",
+			args: args{results: []*assessment.AssessmentResult{auto, manualOtherMetric}},
+			want: []*assessment.AssessmentResult{auto, manualOtherMetric},
+		},
+		{
+			name: "expired manual result is dropped, valid one is kept",
+			args: args{results: []*assessment.AssessmentResult{manualExpired, manualValid}},
+			want: []*assessment.AssessmentResult{manualValid},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := preferAutomaticResults(tt.args.results, now)
+
 			assert.Equal(t, tt.want, got)
 		})
 	}
