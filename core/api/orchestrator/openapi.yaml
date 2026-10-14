@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.3.0-15-g0ea40ef2
+    version: core/v0.3.0-26-g954c3a92
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -2363,7 +2363,12 @@ components:
             properties:
                 id:
                     type: string
-                    description: Assessment result id
+                    description: |-
+                        Assessment result id
+
+                         NOTE: id is the last column of idx_assessment_results_resource_metric_created
+                         (see resource_id) to make the ordering of the latest_by_resource_id query
+                         fully index-backed.
                 createdAt:
                     type: string
                     description: Time of assessment
@@ -2383,7 +2388,20 @@ components:
                     description: Reference to the last assessed evidence
                 resourceId:
                     type: string
-                    description: Reference to the resource of the assessed evidence
+                    description: |-
+                        Reference to the resource of the assessed evidence
+                         The ID of the assessed resource.
+
+                         NOTE: idx_assessment_results_resource_metric_created (resource_id,
+                         metric_id, created_at DESC, id DESC) backs the DISTINCT ON of the
+                         latest_by_resource_id query in ListAssessmentResults. Without it, that query
+                         seq-scans and sorts the whole table on disk (~20s at 150k rows; ~135ms with
+                         the index). It is picked up by GORM's AutoMigrate on service startup. On a
+                         large, already-populated table, pre-create it out-of-band to avoid a
+                         blocking CREATE INDEX: `CREATE INDEX CONCURRENTLY
+                         idx_assessment_results_resource_metric_created ON assessment_results
+                         (resource_id, metric_id, created_at DESC, id DESC);` AutoMigrate detects
+                         existing indexes by name and skips them.
                 resourceTypes:
                     type: array
                     items:
@@ -2411,6 +2429,16 @@ components:
                          idx_assessment_results_target_of_evaluation_id ON assessment_results
                          (target_of_evaluation_id);` before rolling this out; AutoMigrate detects
                          the existing index by name and skips it.
+
+                         NOTE: idx_assessment_results_toe_resource_metric_created (target_of_evaluation_id,
+                         resource_id, metric_id, created_at DESC, id DESC) lets the latest_by_resource_id
+                         query, which is almost always filtered by target of evaluation, select the IDs of
+                         the latest results with an index-only scan (no heap access). On a table with
+                         ~1,000 results per (resource_id, metric_id), this took the last page of the query
+                         from ~470ms to ~20ms in a local test. Pre-create it out-of-band on large tables:
+                         `CREATE INDEX CONCURRENTLY idx_assessment_results_toe_resource_metric_created ON
+                         assessment_results (target_of_evaluation_id, resource_id, metric_id, created_at
+                         DESC, id DESC);`
                 toolId:
                     type: string
                     description: Reference to the tool which provided the assessment result
@@ -2694,7 +2722,13 @@ components:
                          meta-data, most likely returned by the database.
                 parentControlId:
                     type: string
-                    description: Unique ID of the parent control, if this is a sub-control.
+                    description: |-
+                        Unique ID of the parent control, if this is a sub-control.
+
+                         NOTE: idx_controls_parent_control_id backs the lookup of the children of a control, which ListControls does per
+                         level of the control tree. Without it, each of these queries is a sequential scan of the controls table. It is
+                         picked up by GORM's AutoMigrate on service startup; the controls table is small (a few thousand rows), so no
+                         out-of-band CREATE INDEX CONCURRENTLY is needed.
                 assuranceLevel:
                     type: string
                     description: |-
@@ -2805,7 +2839,12 @@ components:
             properties:
                 id:
                     type: string
-                    description: Evaluation result id
+                    description: |-
+                        Evaluation result id
+
+                         NOTE: id is the last column of idx_evaluation_results_control_timestamp_id and idx_evaluation_results_audit_scope_parents, so
+                         the "ORDER BY ..., timestamp DESC, id DESC" of the latest_by_control_id query
+                         is fully index-backed.
                 targetOfEvaluationId:
                     type: string
                     description: |-
@@ -2816,7 +2855,22 @@ components:
                          note on control_id below regarding a safe production rollout.
                 auditScopeId:
                     type: string
-                    description: The Audit Scope ID the evaluation belongs to
+                    description: |-
+                        The Audit Scope ID the evaluation belongs to
+
+                         NOTE: idx_evaluation_results_audit_scope_parents is a partial index (audit_scope_id, control_id, timestamp DESC,
+                         id DESC) WHERE parent_control_id IS NULL. It backs the UI-facing
+                         latest_by_control_id query filtered by audit scope with parents_only, which
+                         otherwise walks every sub-control result of the scope. See the note on
+                         control_id for a safe production rollout.
+
+                         NOTE: idx_evaluation_results_audit_scope_control (audit_scope_id, control_id,
+                         timestamp DESC, id DESC) backs the "latest result per control of an audit scope"
+                         query of GetAuditScopeStatistics, which has no parent_control_id filter and so
+                         cannot use the partial index above. Without it, that query seq-scans the whole
+                         table (~6s on 4.5M rows; ~0.4s with the index). Pre-create it out-of-band on
+                         large tables: `CREATE INDEX CONCURRENTLY idx_evaluation_results_audit_scope_control
+                         ON evaluation_results (audit_scope_id, control_id, timestamp DESC, id DESC);`
                 controlId:
                     type: string
                     description: |-
@@ -2834,12 +2888,24 @@ components:
                          evaluation_results (target_of_evaluation_id, control_id, timestamp);`
                          before rolling this out; AutoMigrate detects existing indexes by name
                          and skips them.
+
+                         The same applies to the indexes backing the latest_by_control_id query
+                         (DISTINCT ON (control_id) ... ORDER BY control_id, timestamp DESC, id DESC):
+                         `CREATE INDEX CONCURRENTLY idx_evaluation_results_control_timestamp_id ON
+                         evaluation_results (control_id, timestamp DESC, id DESC);` and `CREATE INDEX
+                         CONCURRENTLY idx_evaluation_results_audit_scope_parents ON
+                         evaluation_results (audit_scope_id, control_id, timestamp DESC, id DESC)
+                         WHERE parent_control_id IS NULL;`
                 controlCatalogId:
                     type: string
                     description: The catalog the evaluated control belongs to
                 parentControlId:
                     type: string
-                    description: Optionally, specifies the parent control ID, if this is a sub-control
+                    description: |-
+                        Optionally, specifies the parent control ID, if this is a sub-control
+
+                         NOTE: parent_control_id carries the predicate of the partial index
+                         idx_evaluation_results_audit_scope_parents (WHERE parent_control_id IS NULL).
                 status:
                     enum:
                         - EVALUATION_STATUS_UNSPECIFIED
