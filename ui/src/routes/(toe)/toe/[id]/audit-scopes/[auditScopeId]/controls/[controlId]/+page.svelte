@@ -4,6 +4,7 @@
 	import { orchestratorClient } from '$lib/api/client';
 	import WorkflowDialog from '$lib/components/ui/WorkflowDialog.svelte';
 	import AuditTrail from '$lib/components/ui/AuditTrail.svelte';
+	import ManualMetricResultDialog from '$lib/components/metrics/ManualMetricResultDialog.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -83,6 +84,24 @@
 	const evalCfg = $derived(
 		data.evaluation?.status ? (EVAL_CONFIG[data.evaluation.status] ?? null) : null
 	);
+
+	// Manual metric results
+	let manualMetric = $state<{ id?: string; name?: string } | null>(null);
+	let showManualMetricDialog = $state(false);
+
+	// The automatic result takes precedence over a manual one, mirroring the evaluation
+	function metricStatus(metricId: string | undefined) {
+		const results = data.assessmentResults.filter((r) => r.metricId === metricId);
+		const automatic = results.filter((r) => !r.manual);
+		const manual = results.filter((r) => r.manual);
+		if (automatic.length) {
+			return { source: 'automatic', compliant: automatic.every((r) => r.compliant), superseded: manual.length > 0 };
+		}
+		if (manual.length) {
+			return { source: 'manual', compliant: manual.every((r) => r.compliant), superseded: false };
+		}
+		return null;
+	}
 
 	const assignee = $derived(data.users.find((u) => u.id === data.cis?.assigneeId));
 	const assigneeName = $derived(
@@ -215,6 +234,7 @@
 					<h2 class="mb-3 text-sm font-semibold text-gray-700">Metrics</h2>
 					<div class="space-y-1">
 						{#each data.control.metrics as metric}
+							{@const status = metricStatus(metric.id)}
 							<div class="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-gray-50">
 								<a
 									href={resolve(`/toe/${data.auditScope?.targetOfEvaluationId}/assessment-results/`) + `?metric=${encodeURIComponent(metric.id ?? '')}`}
@@ -223,6 +243,28 @@
 									{metric.id}
 								</a>
 								<span class="text-sm text-gray-700">{metric.name}</span>
+								<span class="ml-auto flex items-center gap-2">
+									{#if status}
+										<span
+											class="rounded-full px-2 py-0.5 text-xs font-medium {status.compliant ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}"
+											title={status.superseded ? 'A manual result exists, but the automatic result takes precedence' : undefined}
+										>
+											{status.compliant ? 'Compliant' : 'Not compliant'} ({status.source})
+										</span>
+									{:else}
+										<span class="text-xs text-gray-400">No result</span>
+									{/if}
+									<button
+										type="button"
+										class="rounded-lg border border-gray-200 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-100"
+										onclick={() => {
+											manualMetric = metric;
+											showManualMetricDialog = true;
+										}}
+									>
+										Add manual result
+									</button>
+								</span>
 							</div>
 						{/each}
 					</div>
@@ -232,6 +274,15 @@
 		<AuditTrail events={data.auditTrailEvents} users={data.users} />
 	</div>
 </div>
+
+{#if manualMetric && data.auditScope}
+	<ManualMetricResultDialog
+		bind:open={showManualMetricDialog}
+		metric={manualMetric}
+		targetId={data.auditScope.targetOfEvaluationId ?? ''}
+		resources={data.resources}
+	/>
+{/if}
 
 {#if data.cis}
 	<WorkflowDialog

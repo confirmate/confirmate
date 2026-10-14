@@ -41,7 +41,10 @@ const (
 
 	// Mock IDs for target of evaluations
 	MockToeId1 = "00000000-0000-0000-0000-000000000001"
-	MockToeId2 = "00000000-0000-0000-0000-000000000002"
+
+	// MockResourceId1 is the ID of a resource, e.g., a manual assessment result is about.
+	MockResourceId1 = "mock-resource-1"
+	MockToeId2      = "00000000-0000-0000-0000-000000000002"
 
 	// Mock Catalogs
 	MockCatalogId1 = "Catalog 1"

@@ -168,7 +168,8 @@ export interface components {
          *      Represents an acceptable use policy within a PolicyDocument.
          */
         AcceptableUsePolicy: {
-            isDefined?: boolean;
+            /** @description Statements of the purpose and scope of the acceptable use procedure, as extracted from the document. */
+            documentPurpose?: string[];
             /**
              * Format: float
              * @description Percentage of mandated control areas explicitly addressed.
@@ -341,9 +342,9 @@ export interface components {
              */
             completedReviewPercentage?: number;
             /** @description Indicates whether an asset inventory is defined. */
-            inventoryDefined?: boolean;
+            inventoryDefined?: string[];
             /** @description Indicates whether an owner is assigned for each asset class/type. */
-            ownerAssignmentStated?: boolean;
+            ownerAssignmentStated?: string[];
             /** Format: int32 */
             reviewFrequency?: number;
             /** @description Service contains the name of the service (e.g., Asset Management). */
@@ -387,6 +388,8 @@ export interface components {
          */
         AuditLogMonitoringPolicy: {
             enabled?: boolean;
+            /** @description Mechanisms the log management procedure uses to monitor audit logs and review detected anomalies, as extracted from the document. */
+            monitoringMechanisms?: string[];
         };
         /**
          * @description Authenticate is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -657,7 +660,7 @@ export interface components {
              */
             daysSinceLastAudit?: number;
             /** @description Indicates whether the audit clause grants direct, unrestricted, on-demand access. */
-            unrestrictedAccessGranted?: boolean;
+            unrestrictedAccessGranted?: string[];
         };
         /** @description ComplianceMethodologyPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         ComplianceMethodologyPolicy: {
@@ -953,11 +956,11 @@ export interface components {
          */
         CryptographicTransferPolicy: {
             /** @description Indicates whether encrypted channels (e.g., sFTP/HTTPS) are required for data transmission. */
-            encryptedChannelRequired?: boolean;
+            encryptedChannelRequired?: string[];
             /** @description Indicates whether transferred file names must not include descriptive content. */
-            nonDescriptiveFilenameRequired?: boolean;
+            nonDescriptiveFilenameRequired?: string[];
             /** @description Indicates whether the encryption key used to protect a file must be held by the recipient. */
-            recipientHeldKeyRequired?: boolean;
+            recipientHeldKeyRequired?: string[];
         };
         /** @description A custom pattern is used for defining custom HTTP verb. */
         CustomHttpPattern: {
@@ -1024,9 +1027,9 @@ export interface components {
         DataConfidentialitySDNPolicy: {
             isDefined?: boolean;
             /** @description Indicates whether the policy restricts downloading or extracting information from the organization's systems. */
-            restrictsDownloadAndExtraction?: boolean;
+            restrictsDownloadAndExtraction?: string[];
             /** @description Indicates whether the policy specifically defines rules for information exchange with third parties. */
-            thirdPartyExchangeRulesDefined?: boolean;
+            thirdPartyExchangeRulesDefined?: string[];
         };
         /**
          * @description DataLocation is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -1102,13 +1105,11 @@ export interface components {
          *      Represents a device management policy section within a PolicyDocument.
          */
         DeviceManagementPolicy: {
-            /** @description Indicates whether all mandated device controls are addressed. */
-            allMandatedControlsAddressed?: boolean;
             /**
-             * Format: float
-             * @description Percentage of the mandated checklist items explicitly present.
+             * Format: int32
+             * @description Number of the 7 mandated device security controls explicitly present in the procedure.
              */
-            checklistCoveragePercent?: number;
+            mandatedControlsCount?: number;
         };
         /** @description DeviceProvisioningService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         DeviceProvisioningService: {
@@ -2337,7 +2338,7 @@ export interface components {
          */
         LiabilityPolicy: {
             /** @description Indicates whether the clause explicitly assigns cost responsibility to the service provider. */
-            costsExplicitlyAssignedToProvider?: boolean;
+            costsExplicitlyAssignedToProvider?: string[];
         };
         /** @description Library is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         Library: {
@@ -2817,12 +2818,12 @@ export interface components {
          */
         NetworkThreatMitigationPolicy: {
             /** @description Indicates whether the policy explicitly requires antispoofing mechanisms on internet-facing routers. */
-            antispoofingRequired?: boolean;
+            antispoofingRequired?: string[];
             /** @description Indicates whether the standard requires authorized-software and controlled-installation controls on network devices. */
-            authorizedSoftwareAndControlledInstallationRequired?: boolean;
+            authorizedSoftwareAndControlledInstallationRequired?: string[];
             coveredAttackTypes?: string[];
             /** @description Indicates whether the policy explicitly requires network filtering mechanisms on internet-facing routers. */
-            filteringRequired?: boolean;
+            filteringRequired?: string[];
         };
         /** @description NoAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         NoAuthentication: {
@@ -2943,7 +2944,7 @@ export interface components {
             /** @description The stated monitoring cadence or mechanism for subcontractor compliance. */
             monitoringMechanism?: string;
             /** @description Indicates whether subcontracted/external providers are required to comply with and be monitored against the security policy. */
-            monitoringObligationStated?: boolean;
+            monitoringObligationStated?: string[];
         };
         /**
          * @description POSIX is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -3608,11 +3609,11 @@ export interface components {
              */
             checklistCoveragePercent?: number;
             /** @description Indicates whether high/critical findings block the production release. */
-            highCriticalFindingsBlockRelease?: boolean;
+            highCriticalFindingsBlockRelease?: string[];
             /** @description Indicates whether a pentest/static-analysis gate is required prior to production release. */
-            pentestGateRequired?: boolean;
+            pentestGateRequired?: string[];
             /** @description Indicates whether the methodology references an industry framework (e.g., OWASP, SANS, CERT). */
-            referencesIndustryFramework?: boolean;
+            referencesIndustryFramework?: string[];
         };
         /** @description SecurityAdvisoryDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         SecurityAdvisoryDocument: {
@@ -3721,13 +3722,18 @@ export interface components {
         SecurityIncident: {
             /**
              * Format: int32
+             * @description Notification/handling period, in hours, stated by the incident management procedure.
+             */
+            handlingPeriodHours?: number;
+            /**
+             * Format: int32
              * @description The maximum incident notification window, in hours.
              */
             notificationWindowHours?: number;
-            /** @description Indicates whether an incident registry and handling SLA are stated. */
-            registryAndSlaStated?: boolean;
+            /** @description Contacts or channels named for reporting a cybersecurity incident, as extracted from the document. */
+            reportingContacts?: string[];
             /** @description Indicates whether escalation responsibility for critical/high severity incidents is defined. */
-            severityAndEscalationDefined?: boolean;
+            severityAndEscalationDefined?: string[];
             team?: string[];
         };
         /**
@@ -3741,7 +3747,7 @@ export interface components {
              */
             intervalMonths?: number;
             /** @description Indicates whether an accountable owner and an approval date/signature are both stated for the policy. */
-            ownerAndApprovalDefined?: boolean;
+            ownerAndApprovalDefined?: string[];
         };
         /** @description SecurityTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         SecurityTraining: {
@@ -3879,11 +3885,11 @@ export interface components {
          */
         TeleworkingPolicy: {
             /** @description Indicates whether data encryption is required. */
-            encryptionRequired?: boolean;
+            encryptionRequired?: string[];
             /** @description Indicates whether MFA and federation are required for remote access. */
-            mfaAndFederationRequiredForRemoteAccess?: boolean;
+            mfaAndFederationRequiredForRemoteAccess?: string[];
             /** @description Indicates whether two-factor authentication is required. */
-            twoFactorRequired?: boolean;
+            twoFactorRequired?: string[];
         };
         /**
          * @description TestDataPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -3891,7 +3897,7 @@ export interface components {
          */
         TestDataPolicy: {
             /** @description Indicates whether anonymization/pseudonymization is required for non-production environments. */
-            anonymizationRequiredForNonProd?: boolean;
+            anonymizationRequiredForNonProd?: string[];
             /** @description The named anonymization technique or standard used. */
             technique?: string;
         };
@@ -4128,14 +4134,23 @@ export interface components {
          *      Represents a vulnerability management procedure section within a PolicyDocument, covering CVSS scoring and severity-tiered resolution SLAs.
          */
         VulnerabilityManagementPolicy: {
-            /** @description Indicates whether the critical/high severity vulnerability resolution SLA is stated. */
-            criticalHighSlaStated?: boolean;
+            /**
+             * Format: int32
+             * @description Maximum resolution time, in days, stated for Critical/High severity vulnerabilities.
+             */
+            criticalHighSlaDays?: number;
             /** @description Indicates whether CVSS scoring is used to prioritize vulnerability resolution. */
-            cvssScoringUsed?: boolean;
-            /** @description Indicates whether the low severity vulnerability resolution SLA is stated. */
-            lowSlaStated?: boolean;
-            /** @description Indicates whether the medium severity vulnerability resolution SLA is stated. */
-            mediumSlaStated?: boolean;
+            cvssScoringUsed?: string[];
+            /**
+             * Format: int32
+             * @description Maximum resolution time, in days, stated for Low severity vulnerabilities.
+             */
+            lowSlaDays?: number;
+            /**
+             * Format: int32
+             * @description Maximum resolution time, in days, stated for Medium severity vulnerabilities.
+             */
+            mediumSlaDays?: number;
         };
         /**
          * @description WebApplicationFirewall is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.

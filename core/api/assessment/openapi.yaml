@@ -7,7 +7,7 @@ info:
     description: |-
         Representing the link between orchestrator and discovery: Assessing evidences
          from discovery and sending results to orchestrator
-    version: core/v0.3.0-31-g3d0d094b
+    version: core/v0.3.0-32-gba5341e2
 paths:
     /v1/assessment/evidences:
         post:
@@ -45,8 +45,11 @@ components:
         AcceptableUsePolicy:
             type: object
             properties:
-                isDefined:
-                    type: boolean
+                documentPurpose:
+                    type: array
+                    items:
+                        type: string
+                    description: Statements of the purpose and scope of the acceptable use procedure, as extracted from the document.
                 mandatedAreaCoveragePercent:
                     type: number
                     description: Percentage of mandated control areas explicitly addressed.
@@ -336,10 +339,14 @@ components:
                     description: Percentage of completed reviews and updates of asset inventory entries.
                     format: float
                 inventoryDefined:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether an asset inventory is defined.
                 ownerAssignmentStated:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether an owner is assigned for each asset class/type.
                 reviewFrequency:
                     type: integer
@@ -405,6 +412,11 @@ components:
             properties:
                 enabled:
                     type: boolean
+                monitoringMechanisms:
+                    type: array
+                    items:
+                        type: string
+                    description: Mechanisms the log management procedure uses to monitor audit logs and review detected anomalies, as extracted from the document.
             description: |-
                 AuditLogMonitoringPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a policy section within a [PolicyDocument] defining requirements for the periodic monitoring and review of audit logs, including the identification of anomalies, security events, and unusual activity.
@@ -841,7 +853,9 @@ components:
                     description: The number of days elapsed since the last completed external/supervisory audit.
                     format: int32
                 unrestrictedAccessGranted:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether the audit clause grants direct, unrestricted, on-demand access.
             description: ComplianceAuditIntervalPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         ComplianceMethodologyPolicy:
@@ -1346,13 +1360,19 @@ components:
             type: object
             properties:
                 encryptedChannelRequired:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether encrypted channels (e.g., sFTP/HTTPS) are required for data transmission.
                 nonDescriptiveFilenameRequired:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether transferred file names must not include descriptive content.
                 recipientHeldKeyRequired:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether the encryption key used to protect a file must be held by the recipient.
             description: |-
                 CryptographicTransferPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -1469,10 +1489,14 @@ components:
                 isDefined:
                     type: boolean
                 restrictsDownloadAndExtraction:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether the policy restricts downloading or extracting information from the organization's systems.
                 thirdPartyExchangeRulesDefined:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether the policy specifically defines rules for information exchange with third parties.
             description: |-
                 DataConfidentialitySDNPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -1603,13 +1627,10 @@ components:
         DeviceManagementPolicy:
             type: object
             properties:
-                allMandatedControlsAddressed:
-                    type: boolean
-                    description: Indicates whether all mandated device controls are addressed.
-                checklistCoveragePercent:
-                    type: number
-                    description: Percentage of the mandated checklist items explicitly present.
-                    format: float
+                mandatedControlsCount:
+                    type: integer
+                    description: Number of the 7 mandated device security controls explicitly present in the procedure.
+                    format: int32
             description: |-
                 DeviceManagementPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a device management policy section within a PolicyDocument.
@@ -3517,7 +3538,9 @@ components:
             type: object
             properties:
                 costsExplicitlyAssignedToProvider:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether the clause explicitly assigns cost responsibility to the service provider.
             description: |-
                 LiabilityPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -4316,17 +4339,23 @@ components:
             type: object
             properties:
                 antispoofingRequired:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether the policy explicitly requires antispoofing mechanisms on internet-facing routers.
                 authorizedSoftwareAndControlledInstallationRequired:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether the standard requires authorized-software and controlled-installation controls on network devices.
                 coveredAttackTypes:
                     type: array
                     items:
                         type: string
                 filteringRequired:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether the policy explicitly requires network filtering mechanisms on internet-facing routers.
             description: |-
                 NetworkThreatMitigationPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -4539,7 +4568,9 @@ components:
                     type: string
                     description: The stated monitoring cadence or mechanism for subcontractor compliance.
                 monitoringObligationStated:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether subcontracted/external providers are required to comply with and be monitored against the security policy.
             description: |-
                 OutsourcingPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -5639,13 +5670,19 @@ components:
                     description: Percentage of the mandated checklist items explicitly present.
                     format: float
                 highCriticalFindingsBlockRelease:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether high/critical findings block the production release.
                 pentestGateRequired:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether a pentest/static-analysis gate is required prior to production release.
                 referencesIndustryFramework:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether the methodology references an industry framework (e.g., OWASP, SANS, CERT).
             description: |-
                 SecureDevelopmentPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -5864,15 +5901,23 @@ components:
         SecurityIncident:
             type: object
             properties:
+                handlingPeriodHours:
+                    type: integer
+                    description: Notification/handling period, in hours, stated by the incident management procedure.
+                    format: int32
                 notificationWindowHours:
                     type: integer
                     description: The maximum incident notification window, in hours.
                     format: int32
-                registryAndSlaStated:
-                    type: boolean
-                    description: Indicates whether an incident registry and handling SLA are stated.
+                reportingContacts:
+                    type: array
+                    items:
+                        type: string
+                    description: Contacts or channels named for reporting a cybersecurity incident, as extracted from the document.
                 severityAndEscalationDefined:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether escalation responsibility for critical/high severity incidents is defined.
                 team:
                     type: array
@@ -5887,7 +5932,9 @@ components:
                     description: The interval refers to the interval in months.
                     format: int32
                 ownerAndApprovalDefined:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether an accountable owner and an approval date/signature are both stated for the policy.
             description: |-
                 SecurityPolicyReview is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -6092,13 +6139,19 @@ components:
             type: object
             properties:
                 encryptionRequired:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether data encryption is required.
                 mfaAndFederationRequiredForRemoteAccess:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether MFA and federation are required for remote access.
                 twoFactorRequired:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether two-factor authentication is required.
             description: |-
                 TeleworkingPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -6107,7 +6160,9 @@ components:
             type: object
             properties:
                 anonymizationRequiredForNonProd:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether anonymization/pseudonymization is required for non-production environments.
                 technique:
                     type: string
@@ -6486,18 +6541,23 @@ components:
         VulnerabilityManagementPolicy:
             type: object
             properties:
-                criticalHighSlaStated:
-                    type: boolean
-                    description: Indicates whether the critical/high severity vulnerability resolution SLA is stated.
+                criticalHighSlaDays:
+                    type: integer
+                    description: Maximum resolution time, in days, stated for Critical/High severity vulnerabilities.
+                    format: int32
                 cvssScoringUsed:
-                    type: boolean
+                    type: array
+                    items:
+                        type: string
                     description: Indicates whether CVSS scoring is used to prioritize vulnerability resolution.
-                lowSlaStated:
-                    type: boolean
-                    description: Indicates whether the low severity vulnerability resolution SLA is stated.
-                mediumSlaStated:
-                    type: boolean
-                    description: Indicates whether the medium severity vulnerability resolution SLA is stated.
+                lowSlaDays:
+                    type: integer
+                    description: Maximum resolution time, in days, stated for Low severity vulnerabilities.
+                    format: int32
+                mediumSlaDays:
+                    type: integer
+                    description: Maximum resolution time, in days, stated for Medium severity vulnerabilities.
+                    format: int32
             description: |-
                 VulnerabilityManagementPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a vulnerability management procedure section within a PolicyDocument, covering CVSS scoring and severity-tiered resolution SLAs.

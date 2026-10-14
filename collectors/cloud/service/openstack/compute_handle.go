@@ -81,6 +81,7 @@ func (d *openstackCollector) handleServer(server *servers.Server) (ontology.IsRe
 		ActivityLogging: &ontology.ActivityLogging{
 			Enabled: new(activityLogEnabled),
 		},
+		InternetAccessibleEndpoint: new(hasFloatingIP(server.Addresses)),
 	}
 
 	// Get attached block storage IDs
@@ -97,4 +98,26 @@ func (d *openstackCollector) handleServer(server *servers.Server) (ontology.IsRe
 	log.Info("Adding server", slog.String("name", server.Name))
 
 	return r, nil
+}
+
+// hasFloatingIP reports whether any address of a server is a floating IP, as indicated by the
+// "OS-EXT-IPS:type" attribute of the Nova addresses. Floating IPs are the usual way to expose a server to
+// the internet. Fixed addresses on provider networks that are publicly routable are not detected, and
+// servers without any address (e.g., shelved ones) are reported as not accessible.
+func hasFloatingIP(addresses map[string]any) bool {
+	for _, network := range addresses {
+		entries, ok := network.([]any)
+		if !ok {
+			continue
+		}
+
+		for _, entry := range entries {
+			addr, ok := entry.(map[string]any)
+			if ok && addr["OS-EXT-IPS:type"] == "floating" {
+				return true
+			}
+		}
+	}
+
+	return false
 }

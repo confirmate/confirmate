@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.3.0-26-g954c3a92
+    version: core/v0.3.0-32-gba5341e2
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -1279,6 +1279,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/orchestrator/manual_assessment_results:
+        post:
+            tags:
+                - Orchestrator
+            description: |-
+                Stores a manually supplied assessment result for a single metric of a
+                 target of evaluation, e.g., by an auditor. The result is additional
+                 information: an automatic result of the same metric takes precedence.
+            operationId: Orchestrator_StoreManualAssessmentResult
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/StoreManualAssessmentResultRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AssessmentResult'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/metrics:
         get:
             tags:
@@ -2451,6 +2479,23 @@ components:
                     items:
                         $ref: '#/components/schemas/Record'
                     description: Stores the history of evidence IDs and timestamps for evidence that have the same content as the evidence used for this assessment result.
+                manual:
+                    type: boolean
+                    description: |-
+                        Indicates that the result was supplied manually (e.g., by an auditor)
+                         instead of being derived from evidence by an assessment tool. A manual
+                         result is only additional information: as soon as an automatic result of
+                         the same metric exists, the automatic result takes precedence in the
+                         evaluation.
+                validUntil:
+                    type: string
+                    description: |-
+                        Time until which a manual result is valid. After that, the evaluation
+                         ignores it.
+                    format: date-time
+                author:
+                    type: string
+                    description: Confirmate user ID of the author of a manual result, if known.
             description: |-
                 A result resource, representing the result after assessing the cloud resource
                  with id resource_id.
@@ -3335,6 +3380,41 @@ components:
                 StoreAssessmentResultReponse belongs to StoreAssessmentResult, which uses a
                  custom unary RPC and therefore requires a response message according to the
                  style convention. Since no return values are required, this is empty.
+        StoreManualAssessmentResultRequest:
+            required:
+                - targetOfEvaluationId
+                - metricId
+                - comment
+            type: object
+            properties:
+                targetOfEvaluationId:
+                    type: string
+                metricId:
+                    type: string
+                compliant:
+                    type: boolean
+                    description: Indicates whether the metric is met.
+                comment:
+                    type: string
+                    description: Human readable justification, e.g., why the metric is met.
+                evidenceId:
+                    type: string
+                    description: |-
+                        References evidence that was stored in the evidence store before, e.g., a
+                         document.
+                validUntil:
+                    type: string
+                    description: Time until which the statement is valid.
+                    format: date-time
+                resourceId:
+                    type: string
+                    description: |-
+                        ID of the resource the metric is assessed for, e.g., if the metric cannot be
+                         collected automatically for this resource. If omitted, the result is about
+                         the target of evaluation as a whole, e.g., for organizational metrics. It
+                         is rejected, if an automatic result of the metric already exists for the
+                         resource.
+            description: Request for StoreManualAssessmentResult.
         TargetOfEvaluation:
             required:
                 - id
