@@ -53,13 +53,18 @@ func (svc *Service) fetchLatestAssessments(ctx context.Context, targetOfEvaluati
 		// Ask for the largest page possible: every additional page makes the orchestrator walk further into the
 		// result set again (offset pagination), so fewer, larger pages are cheaper than many small ones.
 		PageSize: service.DefaultPaginationOpts.MaxPageSize,
-	}, func(ctx context.Context, req *orchestrator.ListAssessmentResultsRequest) (*orchestrator.ListAssessmentResultsResponse, error) {
-		res, err := svc.orchestratorClient.ListAssessmentResults(ctx, connect.NewRequest(req))
+	}, func(ctx context.Context, req *orchestrator.ListAssessmentResultsRequest) (msg *orchestrator.ListAssessmentResultsResponse, err error) {
+		var (
+			res *connect.Response[orchestrator.ListAssessmentResultsResponse]
+		)
+
+		res, err = svc.orchestratorClient.ListAssessmentResults(ctx, connect.NewRequest(req))
 		if err != nil {
 			return nil, err
 		}
+
 		return res.Msg, nil
-	}, func(res *orchestrator.ListAssessmentResultsResponse) []*assessment.AssessmentResult {
+	}, func(res *orchestrator.ListAssessmentResultsResponse) (results []*assessment.AssessmentResult) {
 		return res.Results
 	})
 	if err != nil {

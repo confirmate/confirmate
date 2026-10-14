@@ -23,7 +23,6 @@ import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/evaluation/evaluationtest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
@@ -85,6 +84,21 @@ func Test_latestAssessments_forMetrics(t *testing.T) {
 			},
 			want: func(t *testing.T, got []*assessment.AssessmentResult, args ...any) bool {
 				return assert.Equal(t, 1, len(got))
+			},
+		},
+		{
+			name: "results of the same metric are ordered by resource id",
+			args: args{
+				results: []*assessment.AssessmentResult{
+					{Id: orchestratortest.MockResultId2, MetricId: orchestratortest.MockMetricId1, ResourceId: orchestratortest.MockResourceId2},
+					orchestratortest.MockAssessmentResult1, // resource 1, metric 1
+				},
+				metricIds: []string{orchestratortest.MockMetricId1},
+			},
+			want: func(t *testing.T, got []*assessment.AssessmentResult, args ...any) bool {
+				return assert.Equal(t, 2, len(got)) &&
+					assert.Equal(t, orchestratortest.MockResourceId1, got[0].GetResourceId()) &&
+					assert.Equal(t, orchestratortest.MockResourceId2, got[1].GetResourceId())
 			},
 		},
 		{
@@ -178,6 +192,8 @@ func TestService_fetchLatestAssessments(t *testing.T) {
 		opts    []func(*mockOrchestratorHandler)
 		want    assert.Want[*latestAssessments]
 		wantErr assert.WantErr
+		// wantCalls checks how the orchestrator was asked
+		wantCalls assert.Want[[]listAssessmentResultsCall]
 	}{
 		{
 			name: "fetches the results of the target of evaluation, indexed by metric",
@@ -194,6 +210,14 @@ func TestService_fetchLatestAssessments(t *testing.T) {
 					assert.Equal(t, 1, len(got.byMetric[orchestratortest.MockMetricId2]))
 			},
 			wantErr: assert.NoError,
+			// once, for the latest result per resource and metric of the whole target of evaluation (no metric
+			// filter), with the largest page size
+			wantCalls: func(t *testing.T, got []listAssessmentResultsCall, args ...any) bool {
+				return assert.Equal(t, 1, len(got)) &&
+					assert.Equal(t, service.DefaultPaginationOpts.MaxPageSize, got[0].pageSize) &&
+					assert.True(t, got[0].latestByResourceId) &&
+					assert.Equal(t, 0, len(got[0].metricIds))
+			},
 		},
 		{
 			name: "results of other targets of evaluation are not included",
@@ -204,7 +228,8 @@ func TestService_fetchLatestAssessments(t *testing.T) {
 			want: func(t *testing.T, got *latestAssessments, args ...any) bool {
 				return assert.Equal(t, 0, len(got.byMetric))
 			},
-			wantErr: assert.NoError,
+			wantErr:   assert.NoError,
+			wantCalls: assert.AnyValue[[]listAssessmentResultsCall],
 		},
 		{
 			name: "orchestrator error",
@@ -216,45 +241,22 @@ func TestService_fetchLatestAssessments(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "boom")
 			},
+			wantCalls: assert.AnyValue[[]listAssessmentResultsCall],
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{orchestratorClient: newOrchestratorClient(t, tt.opts...)}
+			client, handler := newOrchestratorClientWithHandler(t, tt.opts...)
+			svc := &Service{orchestratorClient: client}
 
 			got, err := svc.fetchLatestAssessments(context.Background(), tt.args.targetOfEvaluationId)
 
 			tt.want(t, got)
 			tt.wantErr(t, err)
+			handler.mu.Lock()
+			defer handler.mu.Unlock()
+			tt.wantCalls(t, handler.assessmentResultCalls)
 		})
-	}
-}
-
-// TestService_fetchLatestAssessments_request checks how the orchestrator is asked: once, for the latest result per
-// resource and metric of the whole target of evaluation (no metric filter), with the largest page size.
-func TestService_fetchLatestAssessments_request(t *testing.T) {
-	var (
-		handler *mockOrchestratorHandler
-		client  orchestratorconnect.OrchestratorClient
-	)
-
-	client, handler = newOrchestratorClientWithHandler(t, func(m *mockOrchestratorHandler) {
-		m.assessmentResults = []*assessment.AssessmentResult{
-			orchestratortest.MockAssessmentResult1,
-			orchestratortest.MockAssessmentResult2,
-		}
-	})
-	svc := &Service{orchestratorClient: client}
-
-	_, err := svc.fetchLatestAssessments(context.Background(), evaluationtest.MockToeId1)
-
-	assert.NoError(t, err)
-	handler.mu.Lock()
-	defer handler.mu.Unlock()
-	if assert.Equal(t, 1, len(handler.assessmentResultCalls)) {
-		assert.Equal(t, service.DefaultPaginationOpts.MaxPageSize, handler.assessmentResultCalls[0].pageSize)
-		assert.True(t, handler.assessmentResultCalls[0].latestByResourceId)
-		assert.Equal(t, 0, len(handler.assessmentResultCalls[0].metricIds))
 	}
 }
 
