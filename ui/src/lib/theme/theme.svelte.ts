@@ -3,6 +3,7 @@ import { browser } from '$app/environment';
 /** The themes that are defined in theme.css. */
 export const themes = [
 	{ id: 'console', label: 'Console' },
+	{ id: 'console-inter', label: 'Console (Inter)' },
 	{ id: 'editorial', label: 'Editorial' },
 	{ id: 'night', label: 'Night' }
 ] as const;
