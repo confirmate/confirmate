@@ -44,6 +44,7 @@ know the CRA text.
 | D9 | Documents and statements without automatic evidence are authored or uploaded in Confirmate and stored as evidence with versions and approval. | The user manages compliance in the tool, not next to it. |
 | D10 | Evidence history is append-only and snapshots are first class (state at a release or a date). | Audits ask "what was true when you shipped 2.3". |
 | D11 | Integrate through open formats first (CycloneDX, SPDX, VEX, CSAF, SARIF, OSV, in-toto/SLSA attestations, OpenSSF Scorecard results). A system-specific connector is built only where we need state that has no file format (git platform settings, issue timelines, DT project state). | One generic ingest serves many tools; connectors stay few and maintainable. |
+| D13 | The example product is a real public GitHub project. Reports to authorities are prepared and proven in Confirmate (draft, submission proof upload); there is no integration with an authority platform. | GitHub is what most customers use and tests the connector that matters; an authority API is not needed to manage compliance. |
 | D12 | The demo stack is self-contained and shows every integration that the product claims, with seeded data and a scripted scenario. | A capability that is not in the demo does not exist for a prospect. |
 
 ## 3. CRA obligations and how they are served
@@ -163,7 +164,7 @@ later or on demand. "Auto" fills controls; "trigger" starts a workflow (for exam
 | Issues | Jira, GitLab issues, Linear | respective APIs | Part II (2) | P2 | connector |
 | Documents | Documents in the repository (docs-as-code), uploaded files, Confluence/SharePoint | Markdown/PDF, APIs | Annex VII, Art. 13 | P1 repo+upload / P3 wikis | analyser + authoring |
 | Infrastructure | Cloud and Kubernetes the product runs on | existing cloud collectors | Part I (2)(d),(e),(h),(l) | exists | existing |
-| Reporting | ENISA single reporting platform | to be checked whether an API exists; otherwise assisted manual submission with proof upload | Art. 14 | P1 for drafts and proof, API later | output |
+| Reporting | Authority reporting platform | no integration: report drafts are prepared in Confirmate, the user submits them and uploads the proof | Art. 14 | P1 | output |
 | Notification | Email, Slack/Teams, outgoing webhooks | SMTP, webhooks | tasks, clocks | P1 | output |
 | Identity | OIDC provider (Keycloak, Entra, Okta) | OIDC | access | P2 | existing basis |
 
@@ -302,18 +303,19 @@ Creating the public repository requires an explicit go-ahead.
 ### Demo stack (D12)
 
 `docker compose --profile cra up` starts everything below. Data is seeded so that the first screen already tells a
-story; no internet access is needed after the images are pulled (a GitHub-backed profile can be added on top).
+story; no internet access and no token are needed after the images are pulled. A second profile, `cra-github`, runs
+the GitHub connector live against the real example repository with a token, for demos that should show real changes.
+Forgejo or Gitea would only be added together with a connector for them.
 
 | Component | Role in the demo | Integration shown |
 |-----------|------------------|-------------------|
 | Confirmate core, UI, connector runtime | the product, with a persistent PostgreSQL | everything |
 | Dependency-Track v5 (+ its PostgreSQL) | holds the SBOM of the example product | DT connector, VEX, webhook refresh |
-| Git platform with issues and actions | Forgejo or Gitea seeded with the example repository (offline-friendly stand-in for GitHub) | git connector contract; GitHub tested separately |
+| GitHub API replay server | serves recorded GitHub API responses (settings, workflows, issues, advisories, alerts) of the example repository, offline and without a token | GitHub connector |
 | CI job (seed container) | runs Syft/cdxgen, Trivy or OSV-Scanner, Semgrep, Scorecard against the example repo and uploads results | generic ingest: CycloneDX, SARIF, OSV, Scorecard |
 | CPG/Codyze collector, document analyser | code and document facts | existing collectors |
 | CSAF provider and validator | serves the product's advisories (from the `cra-demo` CSAF generator) | CSAF discovery and validation |
 | Exploitation feed mock | serves a KEV-style feed that lists a component of the example product | Art. 14 clock suggestion |
-| Reporting sink mock | stands in for the ENISA platform and accepts draft submissions | reporting workflow and proof |
 | Mailpit and a webhook sink | receive notifications | notifications |
 | Keycloak (optional profile) | external OIDC login | identity |
 | Prometheus/Grafana (optional profile) | operations view | observability |
@@ -322,8 +324,8 @@ story; no internet access is needed after the images are pulled (a GitHub-backed
 
 1. A fresh start shows the example product with a partial compliance picture and a work queue.
 2. A new vulnerability appears in a component: DT updates, Confirmate shows the failing control and a task; the KEV
-   mock lists it, the 24 h clock is suggested, a person confirms and the report draft is created and "submitted" to
-   the sink.
+   mock lists it, the 24 h clock is suggested, a person confirms, the report draft is created and the user uploads
+   the submission proof.
 3. The fix is released: new release, SBOM and provenance arrive, the control turns green, an advisory is published and
    validated.
 4. The user adds a manual statement and a document for a control without automatic evidence.
@@ -340,10 +342,10 @@ Each milestone ends with something demonstrable and an automated test.
 | M1 | CRA catalog v1 (Part I and II, Art. 13/14 obligations that can be evidenced), metric gaps closed or marked manual, `Product` resource, product page and work queue (without connectors) | A product can be created in the UI, the catalog scope is generated, manual statements and documents can be added, the work queue shows open items |
 | M2 | Generic evidence ingest (CycloneDX, SPDX, VEX, SARIF, CSAF, Scorecard), git platform connector (GitHub first), example product, first demo profile | The example product's repository settings, workflows, SBOM and scan results appear as evidence and drive controls |
 | M3 | DT connector, SBOM and vulnerability metrics, KEV/EPSS signals, onboarding wizard, demo stack with DT | A DT project is linked in the wizard, SBOM and findings drive the Part II controls, webhook refresh works, scenario steps 1 to 2 run |
-| M4 | Clocks and reporting (with reporting sink), issue tracker (Jira), tasks and deadlines, notifications | A simulated exploited vulnerability starts the 24 h/72 h clocks, drafts the report and notifies the assignee |
+| M4 | Clocks and report drafts with proof upload, issue tracker (Jira), tasks and deadlines, notifications | A simulated exploited vulnerability starts the 24 h/72 h clocks, drafts the report and notifies the assignee |
 | M5 | Authoring, snapshots, technical file and declaration of conformity | A release produces a verifiable technical file bundle |
 | M6 | Persistent deployment, Helm chart, notifications, observability, docs | A new user installs and reaches a first picture following the quickstart only |
-| M7 | CSAF through DT, signing and provenance evidence, GitLab/Gitea connector, Keycloak profile | Advisories for fixed vulnerabilities are checked automatically; the full scenario runs in CI |
+| M7 | CSAF through DT, signing and provenance evidence, GitLab connector (Forgejo/Gitea on demand), Keycloak profile | Advisories for fixed vulnerabilities are checked automatically; the full scenario runs in CI |
 
 ## 12. Risks
 
@@ -361,4 +363,3 @@ Each milestone ends with something demonstrable and an automated test.
 - Who reviews the catalog content against the regulation, and when?
 - Which conformity routes and product classes do the first customers need?
 - Which git platform and issue tracker do the first customers use (GitHub, GitHub Enterprise Server, GitLab, Jira)?
-- Does an API of the ENISA single reporting platform exist, and under which conditions?
