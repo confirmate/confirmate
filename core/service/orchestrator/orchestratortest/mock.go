@@ -19,6 +19,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"strconv"
+	"time"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
@@ -46,6 +47,7 @@ const (
 	MockToeId1            = "00000000-0000-0000-0000-000000000001"
 	MockToeId2            = "00000000-0000-0000-0000-000000000002"
 	MockToeId3            = "00000000-0000-0000-0000-000000000003"
+	MockToeId4            = "00000000-0000-0000-0000-000000000004"
 	MockUserId1           = "00000000-0000-0000-0000-000000000001"
 	MockUserId2           = "00000000-0000-0000-0000-000000000002"
 	MockControlInScopeId1 = "00000000-0000-0000-0004-000000000001"
@@ -118,6 +120,7 @@ const (
 	MockToolDescription2              = "Mock assessment tool"
 	MockToolIdConcurrent              = "tool-concurrent"
 	MockUserIssuer1                   = "test-issuer"
+	MockProductRelease1               = "1.4.0"
 	MockOrgName1                      = "Mock Organization 1"
 	MockOrgStreet1                    = "Mock Street 1"
 	MockOrgCity1                      = "Mock City 1"
@@ -240,6 +243,19 @@ var (
 			},
 			ContactEmail: MockOrgContactEmail1,
 			Website:      MockOrgWebsite1,
+		},
+	}
+
+	// MockTargetOfEvaluationWithProduct is a target of evaluation that includes product details.
+	MockTargetOfEvaluationWithProduct = &orchestrator.TargetOfEvaluation{
+		Id:         MockToeId4,
+		Name:       "Mock TOE with Product",
+		TargetType: orchestrator.TargetOfEvaluation_TARGET_TYPE_PRODUCT,
+		Product: &orchestrator.TargetOfEvaluation_Product{
+			Classification: orchestrator.TargetOfEvaluation_Product_CLASSIFICATION_IMPORTANT_I,
+			ProductType:    orchestrator.TargetOfEvaluation_Product_PRODUCT_TYPE_SOFTWARE_APPLICATION,
+			CurrentRelease: MockProductRelease1,
+			SupportUntil:   timestamppb.New(time.Date(2031, 10, 1, 0, 0, 0, 0, time.UTC)),
 		},
 	}
 

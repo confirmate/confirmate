@@ -178,6 +178,54 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 			},
 		},
 		{
+			name: "happy path: with product details",
+			args: args{
+				req: &orchestrator.CreateTargetOfEvaluationRequest{
+					TargetOfEvaluation: orchestratortest.MockTargetOfEvaluationWithProduct,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluationWithProduct, got.Msg,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at"))
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
+				assert.NotNil(t, res)
+
+				toe := assert.InDBGet[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
+
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluationWithProduct, toe,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at"))
+			},
+		},
+		{
+			name: "validation error - product details for a target that is not a product",
+			args: args{
+				req: &orchestrator.CreateTargetOfEvaluationRequest{
+					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
+						Name:       orchestratortest.MockTargetOfEvaluation1.Name,
+						TargetType: orchestrator.TargetOfEvaluation_TARGET_TYPE_CLOUD,
+						Product:    orchestratortest.MockTargetOfEvaluationWithProduct.Product,
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "product details are only allowed")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
 			name: "happy path: with authorization strategy with permission store and admin token",
 			args: args{
 				req: &orchestrator.CreateTargetOfEvaluationRequest{
@@ -693,6 +741,39 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 					assert.ErrorContains(t, err, "invalid request")
 			},
 			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "happy path: updates product details",
+			args: args{
+				req: &orchestrator.UpdateTargetOfEvaluationRequest{
+					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
+						Id:         orchestratortest.MockTargetOfEvaluationWithProduct.Id,
+						Name:       orchestratortest.MockTargetOfEvaluationWithProduct.Name,
+						TargetType: orchestrator.TargetOfEvaluation_TARGET_TYPE_PRODUCT,
+						Product: &orchestrator.TargetOfEvaluation_Product{
+							Classification: orchestrator.TargetOfEvaluation_Product_CLASSIFICATION_IMPORTANT_II,
+							ProductType:    orchestrator.TargetOfEvaluation_Product_PRODUCT_TYPE_FIRMWARE,
+							CurrentRelease: "2.0.0",
+						},
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockTargetOfEvaluationWithProduct))
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], msgAndArgs ...any) bool {
+				return assert.Equal(t, orchestrator.TargetOfEvaluation_Product_CLASSIFICATION_IMPORTANT_II, got.Msg.GetProduct().GetClassification()) &&
+					assert.Equal(t, "2.0.0", got.Msg.GetProduct().GetCurrentRelease())
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				toe := assert.InDBGet[orchestrator.TargetOfEvaluation](t, db, orchestratortest.MockToeId4)
+
+				return assert.Equal(t, orchestrator.TargetOfEvaluation_Product_PRODUCT_TYPE_FIRMWARE, toe.GetProduct().GetProductType())
+			},
 		},
 		{
 			name: "happy path: with allow-all authorization strategy",
