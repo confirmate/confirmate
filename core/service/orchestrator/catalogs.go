@@ -485,7 +485,13 @@ func (svc *Service) GetControl(
 	}
 
 	// Metrics can be attached to the control itself (if it does not have sub-controls) as well as to its sub-controls
-	err = svc.db.Get(&control, persistence.WithPreload("Metrics"), persistence.WithPreload("Controls.Metrics"), "id = ?", req.Msg.ControlId)
+	err = svc.db.Get(
+		&control,
+		persistence.WithPreload("Metrics"),
+		persistence.WithPreload("Controls.Metrics"),
+		"id = ?",
+		req.Msg.ControlId,
+	)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("control")); err != nil {
 		return nil, err
 	}
