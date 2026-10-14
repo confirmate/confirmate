@@ -596,6 +596,9 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	// First, look for any manual evaluation results that are still within their validity period, to see whether we need to ignore some of the automated ones
 	results, err := api.ListAllPaginated(ctx, &orchestrator.ListEvaluationResultsRequest{
 		Filter: &orchestrator.ListEvaluationResultsRequest_Filter{
+			// Manual results only apply within the audit scope they were created in. Several audit scopes can share
+			// the same target of evaluation and catalog.
+			AuditScopeId:         &auditScope.Id,
 			TargetOfEvaluationId: &auditScope.TargetOfEvaluationId,
 			CatalogId:            &auditScope.CatalogId,
 			ValidManualOnly:      new(true),
