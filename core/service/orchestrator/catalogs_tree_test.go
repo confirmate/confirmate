@@ -26,6 +26,11 @@ import (
 	"confirmate.io/core/util/assert"
 )
 
+// wantAnyError expects any error.
+func wantAnyError(t *testing.T, err error, msgAndArgs ...any) bool {
+	return assert.Error(t, err)
+}
+
 func TestService_loadControlTrees(t *testing.T) {
 	var (
 		// root -> {leafA, sub -> {leafB}}; leafA sorts before sub by its short name
@@ -59,8 +64,13 @@ func TestService_loadControlTrees(t *testing.T) {
 		roots           []*orchestrator.Control
 		withLeafMetrics bool
 	}
+	type fields struct {
+		// db creates the database; the default one contains the tree above
+		db func(t *testing.T) persistence.DB
+	}
 	tests := []struct {
 		name    string
+		fields  fields
 		args    args
 		want    assert.Want[[]*orchestrator.Control]
 		wantErr assert.WantErr
@@ -103,6 +113,41 @@ func TestService_loadControlTrees(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "database error while loading the children",
+			fields: fields{
+				db: func(t *testing.T) persistence.DB { return persistencetest.NewInMemoryDB(t, []any{}, nil) },
+			},
+			args: args{
+				roots: []*orchestrator.Control{{Id: root.Id}},
+			},
+			want:    assert.AnyValue[[]*orchestrator.Control],
+			wantErr: wantAnyError,
+		},
+		{
+			name: "a cycle in the data does not loop forever",
+			fields: fields{
+				db: func(t *testing.T) persistence.DB {
+					// a -> b -> a, i.e. both are each other's parent
+					return persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+						assert.NoError(t, d.Create(&orchestrator.Catalog{Id: orchestratortest.MockCatalogId1, Name: orchestratortest.MockCatalog1.Name}))
+						assert.NoError(t, d.Create(&orchestrator.Control{Id: root.Id, ShortName: "A", CatalogId: root.CatalogId}))
+						assert.NoError(t, d.Create(&orchestrator.Control{Id: sub.Id, ShortName: "B", CatalogId: root.CatalogId, ParentControlId: new(root.Id)}))
+						assert.NoError(t, d.Save(&orchestrator.Control{Id: root.Id, ShortName: "A", CatalogId: root.CatalogId, ParentControlId: new(sub.Id)}))
+					})
+				},
+			},
+			args: args{
+				roots: []*orchestrator.Control{{Id: root.Id}},
+			},
+			want: func(t *testing.T, got []*orchestrator.Control, args ...any) bool {
+				// root -> sub, and the way back to root is not followed
+				return assert.Equal(t, 1, len(got[0].Controls)) &&
+					assert.Equal(t, sub.Id, got[0].Controls[0].Id) &&
+					assert.Equal(t, 0, len(got[0].Controls[0].Controls))
+			},
+			wantErr: assert.NoError,
+		},
+		{
 			name: "a control without children is a leaf",
 			args: args{
 				roots:           []*orchestrator.Control{{Id: leafB.Id}},
@@ -117,21 +162,67 @@ func TestService_loadControlTrees(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(&orchestrator.Catalog{Id: orchestratortest.MockCatalogId1, Name: orchestratortest.MockCatalog1.Name}))
-					assert.NoError(t, d.Create(orchestratortest.MockMetric1))
-					assert.NoError(t, d.Create(root))
-					assert.NoError(t, d.Create(sub))
-					assert.NoError(t, d.Create(leafA))
-					assert.NoError(t, d.Create(leafB))
-				}),
+			var newDB = tt.fields.db
+			if newDB == nil {
+				newDB = func(t *testing.T) persistence.DB {
+					return persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+						assert.NoError(t, d.Create(&orchestrator.Catalog{Id: orchestratortest.MockCatalogId1, Name: orchestratortest.MockCatalog1.Name}))
+						assert.NoError(t, d.Create(orchestratortest.MockMetric1))
+						assert.NoError(t, d.Create(root))
+						assert.NoError(t, d.Create(sub))
+						assert.NoError(t, d.Create(leafA))
+						assert.NoError(t, d.Create(leafB))
+					})
+				}
 			}
+			svc := &Service{db: newDB(t)}
 
 			err := svc.loadControlTrees(tt.args.roots, tt.args.withLeafMetrics)
 
 			tt.wantErr(t, err)
 			tt.want(t, tt.args.roots)
+		})
+	}
+}
+
+func TestService_loadLeafMetrics(t *testing.T) {
+	type args struct {
+		leaves []*orchestrator.Control
+	}
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr assert.WantErr
+	}{
+		{
+			name: "no leaves",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "database error",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, []any{}, nil),
+			},
+			args: args{
+				leaves: []*orchestrator.Control{{Id: orchestratortest.MockControlId1}},
+			},
+			wantErr: wantAnyError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{db: tt.fields.db}
+
+			err := svc.loadLeafMetrics(tt.args.leaves)
+
+			tt.wantErr(t, err)
 		})
 	}
 }
