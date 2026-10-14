@@ -45,7 +45,8 @@ know the CRA text.
 | D10 | Evidence history is append-only and snapshots are first class (state at a release or a date). | Audits ask "what was true when you shipped 2.3". |
 | D11 | Integrate through open formats first (CycloneDX, SPDX, VEX, CSAF, SARIF, OSV, in-toto/SLSA attestations, OpenSSF Scorecard results). A system-specific connector is built only where we need state that has no file format (git platform settings, issue timelines, DT project state). | One generic ingest serves many tools; connectors stay few and maintainable. |
 | D13 | The git platform integration is platform-neutral with GitLab (including self-hosted) and GitHub as first providers. The example product is a real public project that is available on both. Reports to authorities are prepared and proven in Confirmate (draft, submission proof upload); there is no integration with an authority platform. | Many customers run their own GitLab; GitHub is common for open source and suppliers. An authority API is not needed to manage compliance. |
-| D14 | We do not ship a git platform in the demo. Self-hosted platforms are represented by a replay server with responses recorded from a real project. | GitLab is too heavy to ship; a different platform (Forgejo) would not test the GitLab connector. |
+| D14 | We do not ship a git platform in the demo. The cloud versions (gitlab.com, github.com) stand in for self-managed instances: they serve the live profiles and are the source of recordings for a replay server. A real GitLab CE container is an optional heavy profile for self-managed edge cases. | GitLab is too heavy to ship by default; the cloud and self-managed APIs are the same; a different platform (Forgejo) would not test the GitLab connector. |
+| D15 | There are two example products: one hosted on GitHub, one on GitLab. | They show the multi-product view, different classes and stacks, and give each connector a real project. |
 | D12 | The demo stack is self-contained and shows every integration that the product claims, with seeded data and a scripted scenario. | A capability that is not in the demo does not exist for a prospect. |
 
 ## 3. CRA obligations and how they are served
@@ -212,7 +213,9 @@ update bot), pipelines/workflows and their recent runs, releases and their asset
 Fills `CodeRepository`, `Workflow`, `Job`. Authentication: GitHub App installation; GitLab project or group access
 token with read scopes.
 
-Self-managed GitLab is the main case, so the provider has to cope with:
+Self-managed GitLab is the main case. The provider is part of the product; adapting it to a specific customer
+instance (version, certificates, tiers, network, access policy) is a service engagement, and most of the work is
+already done by then. The provider has to cope with:
 
 - **Editions and tiers:** several settings (approval rules, push rules, vulnerability report, dependency list) exist
   only in paid tiers or in some versions. A missing feature is reported as "not available in this edition", which
@@ -304,31 +307,48 @@ engineer, auditor), accessibility and keyboard use, a guided empty state everywh
 
 ## 10. Example product and demo stack
 
-### Example product
+### Example products (D15)
 
-A public project based on the `pythonpass` demo (`cra-demo`), in the Confirmate organization on GitHub and mirrored to
-gitlab.com so that both connectors have a real project to record and test against. It is a complete, small product:
+Two small, complete products with the same pipeline templates but different properties, so that the organization view
+and the classification have something to show:
 
-- source, CI pipeline (GitHub Actions and GitLab CI) with tests, SAST and an SBOM, releases with signed artifacts and
-  provenance,
-- `SECURITY.md`, vulnerability disclosure policy and the CRA documents,
-- security issues and an advisory in different states.
+| | Product A | Product B |
+|---|-----------|-----------|
+| Based on | `pythonpass` (`cra-demo`), a password manager | a second small product, for example a web service in Go or Node with a container image |
+| Hosted on | GitHub (Confirmate organization) | gitlab.com (Confirmate group) |
+| CI | GitHub Actions | GitLab CI |
+| CRA class | likely important class I (password managers are listed in Annex III; to be verified), so a stricter conformity route is shown | default class |
+| Ecosystem | PyPI | different one (Go modules or npm), plus container image and its SBOM |
+| Compliance picture | mostly compliant with a few visible gaps | deliberately problematic: stale dependency, no signed releases, missing policy |
 
-Creating the public repositories requires an explicit go-ahead.
+Each product contains: source, a CI pipeline with tests, SAST and an SBOM, releases with signed artifacts and
+provenance, `SECURITY.md` and a vulnerability disclosure policy, the CRA documents, and security issues and
+advisories in different states. Each has the pipeline definition of its own platform in the repository; nothing is
+mirrored between the platforms.
+
+Creating the public projects, and applying for GitLab's open-source program (which may give the project a paid tier for
+the demo; conditions to be checked), require an explicit go-ahead.
 
 ### Demo stack (D12)
 
 `docker compose --profile cra up` starts everything below. Data is seeded so that the first screen already tells a
 story; no internet access and no token are needed after the images are pulled. Further profiles `cra-gitlab` and
-`cra-github` run the connectors live against the real example project with a token, for demos that should show real
-changes. We do not ship a git platform (D14). Forgejo or Gitea would only be added together with a connector for them;
-they cannot stand in for GitLab, because their API differs.
+`cra-github` run the connectors live against the cloud-hosted example products with a token, for demos that should
+show real changes. A heavy profile `cra-gitlab-selfmanaged` starts a real GitLab CE container with a runner and a
+seed container, for self-managed edge cases (older version, custom CA, features missing in the edition); it takes
+minutes to start and needs several GB of memory, so it is not part of the default. We do not ship a git platform by
+default (D14). Forgejo or Gitea would only be added together with a connector for them; they cannot stand in for
+GitLab, because their API differs.
+
+Testing: end-to-end tests run against the recorded replay data, which is fast and deterministic. A scheduled contract
+test against gitlab.com and github.com detects API drift and triggers a re-recording; the self-managed profile runs
+per release.
 
 | Component | Role in the demo | Integration shown |
 |-----------|------------------|-------------------|
 | Confirmate core, UI, connector runtime | the product, with a persistent PostgreSQL | everything |
 | Dependency-Track v5 (+ its PostgreSQL) | holds the SBOM of the example product | DT connector, VEX, webhook refresh |
-| Git platform replay servers (GitLab and GitHub) | serve responses recorded from the real example project (settings, pipelines, issues, advisories, alerts), offline and without a token; the GitLab replay stands for a self-managed instance | GitLab and GitHub connectors |
+| Git platform replay servers (GitLab and GitHub) | serve responses recorded from the two example products (settings, pipelines, issues, advisories, alerts), offline and without a token | GitLab and GitHub connectors, organization view with two products |
 | CI job (seed container) | runs Syft/cdxgen, Trivy or OSV-Scanner, Semgrep, Scorecard against the example repo and uploads results | generic ingest: CycloneDX, SARIF, OSV, Scorecard |
 | CPG/Codyze collector, document analyser | code and document facts | existing collectors |
 | CSAF provider and validator | serves the product's advisories (from the `cra-demo` CSAF generator) | CSAF discovery and validation |
@@ -339,7 +359,8 @@ they cannot stand in for GitLab, because their API differs.
 
 ### Scripted scenario
 
-1. A fresh start shows the example product with a partial compliance picture and a work queue.
+1. A fresh start shows the organization with both example products, each with a different compliance picture, and a
+   work queue. Product A shows the stricter conformity route of its class.
 2. A new vulnerability appears in a component: DT updates, Confirmate shows the failing control and a task; the KEV
    mock lists it, the 24 h clock is suggested, a person confirms, the report draft is created and the user uploads
    the submission proof.
@@ -357,12 +378,12 @@ Each milestone ends with something demonstrable and an automated test.
 | M | Content | Done when |
 |---|---------|-----------|
 | M1 | CRA catalog v1 (Part I and II, Art. 13/14 obligations that can be evidenced), metric gaps closed or marked manual, `Product` resource, product page and work queue (without connectors) | A product can be created in the UI, the catalog scope is generated, manual statements and documents can be added, the work queue shows open items |
-| M2 | Generic evidence ingest (CycloneDX, SPDX, VEX, SARIF, CSAF, Scorecard), platform-neutral git connector with GitLab and GitHub providers, example product, first demo profile | The example product's repository settings, workflows, SBOM and scan results appear as evidence and drive controls |
+| M2 | Generic evidence ingest (CycloneDX, SPDX, VEX, SARIF, CSAF, Scorecard), platform-neutral git connector with GitLab and GitHub providers, both example products, first demo profile with replay data | The example product's repository settings, workflows, SBOM and scan results appear as evidence and drive controls |
 | M3 | DT connector, SBOM and vulnerability metrics, KEV/EPSS signals, onboarding wizard, demo stack with DT | A DT project is linked in the wizard, SBOM and findings drive the Part II controls, webhook refresh works, scenario steps 1 to 2 run |
 | M4 | Clocks and report drafts with proof upload, issue tracker (Jira), tasks and deadlines, notifications | A simulated exploited vulnerability starts the 24 h/72 h clocks, drafts the report and notifies the assignee |
 | M5 | Authoring, snapshots, technical file and declaration of conformity | A release produces a verifiable technical file bundle |
 | M6 | Persistent deployment, Helm chart, notifications, observability, docs | A new user installs and reaches a first picture following the quickstart only |
-| M7 | CSAF through DT, signing and provenance evidence, Forgejo/Gitea provider on demand, Keycloak profile | Advisories for fixed vulnerabilities are checked automatically; the full scenario runs in CI |
+| M7 | CSAF through DT, signing and provenance evidence, self-managed GitLab profile and contract tests, Forgejo/Gitea provider on demand, Keycloak profile | Advisories for fixed vulnerabilities are checked automatically; the full scenario runs in CI |
 
 ## 12. Risks
 
