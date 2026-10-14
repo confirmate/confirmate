@@ -149,8 +149,10 @@ and the framework-specific parts are separated like this:
 - Without a profile a catalog behaves exactly as today. All existing deployments (the EMERALD pilots) keep the current
   screens; the guided experience is opt-in per catalog and behind a feature flag (D19).
 
-Mapping of the generic terms in the user interface: "target" is the neutral word, shown as product, service or
-organisation depending on the kind; the CRA profile calls the controls "requirements" and the metrics "checks".
+Terminology in the user interface: **Target of Evaluation** (ToE) stays the neutral term, because it is established in
+the compliance domain. The kind is shown next to it (product, cloud service, organisation), and a profile may add its
+own word where that reads better, for example "product" on the CRA pages. The CRA profile calls the controls
+"requirements" and the metrics "checks"; the expert area keeps the technical names.
 
 ## 5. CRA catalog
 
