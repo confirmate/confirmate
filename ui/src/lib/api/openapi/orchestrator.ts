@@ -177,6 +177,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/orchestrator/audit_scopes/{auditScopeId}/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Retrieves aggregated statistics for an audit scope: the number of top-level controls in
+         *      scope grouped by workflow (implementation) state, and the number of controls grouped by
+         *      their latest compliance (evaluation) status.
+         */
+        get: operations["Orchestrator_GetAuditScopeStatistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/orchestrator/audit_trail_events": {
         parameters: {
             query?: never;
@@ -901,7 +922,13 @@ export interface components {
          *      with id resource_id.
          */
         AssessmentResult: {
-            /** @description Assessment result id */
+            /**
+             * @description Assessment result id
+             *
+             *      NOTE: id is the last column of idx_assessment_results_resource_metric_created
+             *      (see resource_id) to make the ordering of the latest_by_resource_id query
+             *      fully index-backed.
+             */
             id: string;
             /**
              * Format: date-time
@@ -916,7 +943,21 @@ export interface components {
             compliant?: boolean;
             /** @description Reference to the last assessed evidence */
             evidenceId: string;
-            /** @description Reference to the resource of the assessed evidence */
+            /**
+             * @description Reference to the resource of the assessed evidence
+             *      The ID of the assessed resource.
+             *
+             *      NOTE: idx_assessment_results_resource_metric_created (resource_id,
+             *      metric_id, created_at DESC, id DESC) backs the DISTINCT ON of the
+             *      latest_by_resource_id query in ListAssessmentResults. Without it, that query
+             *      seq-scans and sorts the whole table on disk (~20s at 150k rows; ~135ms with
+             *      the index). It is picked up by GORM's AutoMigrate on service startup. On a
+             *      large, already-populated table, pre-create it out-of-band to avoid a
+             *      blocking CREATE INDEX: `CREATE INDEX CONCURRENTLY
+             *      idx_assessment_results_resource_metric_created ON assessment_results
+             *      (resource_id, metric_id, created_at DESC, id DESC);` AutoMigrate detects
+             *      existing indexes by name and skips them.
+             */
             resourceId: string;
             /** @description Resource types */
             resourceTypes: string[];
@@ -924,7 +965,29 @@ export interface components {
             complianceComment: string;
             /** @description ComplianceDetails contains machine-readable details about which comparisons lead to a (non)-compliance. */
             complianceDetails?: components["schemas"]["ComparisonResult"][];
-            /** @description The target of evaluation which this assessment result belongs to */
+            /**
+             * @description The target of evaluation which this assessment result belongs to.
+             *
+             *      NOTE: idx_assessment_results_target_of_evaluation_id is picked up by
+             *      GORM's AutoMigrate on service startup (see persistence.NewDB). On a
+             *      large, already-populated assessment_results table, the first startup
+             *      after this index is introduced will run a blocking CREATE INDEX and may
+             *      stall writes for a while. Consider pre-creating the index out-of-band
+             *      with `CREATE INDEX CONCURRENTLY
+             *      idx_assessment_results_target_of_evaluation_id ON assessment_results
+             *      (target_of_evaluation_id);` before rolling this out; AutoMigrate detects
+             *      the existing index by name and skips it.
+             *
+             *      NOTE: idx_assessment_results_toe_resource_metric_created (target_of_evaluation_id,
+             *      resource_id, metric_id, created_at DESC, id DESC) lets the latest_by_resource_id
+             *      query, which is almost always filtered by target of evaluation, select the IDs of
+             *      the latest results with an index-only scan (no heap access). On a table with
+             *      ~1,000 results per (resource_id, metric_id), this took the last page of the query
+             *      from ~470ms to ~20ms in a local test. Pre-create it out-of-band on large tables:
+             *      `CREATE INDEX CONCURRENTLY idx_assessment_results_toe_resource_metric_created ON
+             *      assessment_results (target_of_evaluation_id, resource_id, metric_id, created_at
+             *      DESC, id DESC);`
+             */
             targetOfEvaluationId: string;
             /** @description Reference to the tool which provided the assessment result */
             toolId: string;
@@ -1092,7 +1155,14 @@ export interface components {
              *      meta-data, most likely returned by the database.
              */
             metrics: components["schemas"]["Metric"][];
-            /** @description Unique ID of the parent control, if this is a sub-control. */
+            /**
+             * @description Unique ID of the parent control, if this is a sub-control.
+             *
+             *      NOTE: idx_controls_parent_control_id backs the lookup of the children of a control, which ListControls does per
+             *      level of the control tree. Without it, each of these queries is a sequential scan of the controls table. It is
+             *      picked up by GORM's AutoMigrate on service startup; the controls table is small (a few thousand rows), so no
+             *      out-of-band CREATE INDEX CONCURRENTLY is needed.
+             */
             parentControlId?: string;
             /**
              * @description An assurance level is not offered by every catalog, therefore it is
@@ -1164,17 +1234,73 @@ export interface components {
          *      catalog_id are necessary to get the corresponding AuditScope
          */
         EvaluationResult: {
-            /** @description Evaluation result id */
+            /**
+             * @description Evaluation result id
+             *
+             *      NOTE: id is the last column of idx_evaluation_results_control_timestamp_id and idx_evaluation_results_audit_scope_parents, so
+             *      the "ORDER BY ..., timestamp DESC, id DESC" of the latest_by_control_id query
+             *      is fully index-backed.
+             */
             id: string;
-            /** @description The Target of Evaluation ID the evaluation belongs to */
+            /**
+             * @description The Target of Evaluation ID the evaluation belongs to.
+             *
+             *      NOTE: idx_evaluation_results_toe_control_timestamp is picked up by
+             *      GORM's AutoMigrate on service startup (see persistence.NewDB). See the
+             *      note on control_id below regarding a safe production rollout.
+             */
             targetOfEvaluationId?: string;
-            /** @description The Audit Scope ID the evaluation belongs to */
+            /**
+             * @description The Audit Scope ID the evaluation belongs to
+             *
+             *      NOTE: idx_evaluation_results_audit_scope_parents is a partial index (audit_scope_id, control_id, timestamp DESC,
+             *      id DESC) WHERE parent_control_id IS NULL. It backs the UI-facing
+             *      latest_by_control_id query filtered by audit scope with parents_only, which
+             *      otherwise walks every sub-control result of the scope. See the note on
+             *      control_id for a safe production rollout.
+             *
+             *      NOTE: idx_evaluation_results_audit_scope_control (audit_scope_id, control_id,
+             *      timestamp DESC, id DESC) backs the "latest result per control of an audit scope"
+             *      query of GetAuditScopeStatistics, which has no parent_control_id filter and so
+             *      cannot use the partial index above. Without it, that query seq-scans the whole
+             *      table (~6s on 4.5M rows; ~0.4s with the index). Pre-create it out-of-band on
+             *      large tables: `CREATE INDEX CONCURRENTLY idx_evaluation_results_audit_scope_control
+             *      ON evaluation_results (audit_scope_id, control_id, timestamp DESC, id DESC);`
+             */
             auditScopeId?: string;
-            /** @description The control id the evaluation was based on */
+            /**
+             * @description The control id the evaluation was based on.
+             *
+             *      NOTE: idx_evaluation_results_control_timestamp and
+             *      idx_evaluation_results_toe_control_timestamp are picked up by GORM's
+             *      AutoMigrate on service startup (see persistence.NewDB). On a large,
+             *      already-populated evaluation_results table, the first startup after
+             *      these indexes are introduced will run blocking CREATE INDEX statements
+             *      and may stall writes for a while. Consider pre-creating them out-of-band
+             *      with `CREATE INDEX CONCURRENTLY idx_evaluation_results_control_timestamp
+             *      ON evaluation_results (control_id, timestamp);` and `CREATE INDEX
+             *      CONCURRENTLY idx_evaluation_results_toe_control_timestamp ON
+             *      evaluation_results (target_of_evaluation_id, control_id, timestamp);`
+             *      before rolling this out; AutoMigrate detects existing indexes by name
+             *      and skips them.
+             *
+             *      The same applies to the indexes backing the latest_by_control_id query
+             *      (DISTINCT ON (control_id) ... ORDER BY control_id, timestamp DESC, id DESC):
+             *      `CREATE INDEX CONCURRENTLY idx_evaluation_results_control_timestamp_id ON
+             *      evaluation_results (control_id, timestamp DESC, id DESC);` and `CREATE INDEX
+             *      CONCURRENTLY idx_evaluation_results_audit_scope_parents ON
+             *      evaluation_results (audit_scope_id, control_id, timestamp DESC, id DESC)
+             *      WHERE parent_control_id IS NULL;`
+             */
             controlId?: string;
             /** @description The catalog the evaluated control belongs to */
             controlCatalogId?: string;
-            /** @description Optionally, specifies the parent control ID, if this is a sub-control */
+            /**
+             * @description Optionally, specifies the parent control ID, if this is a sub-control
+             *
+             *      NOTE: parent_control_id carries the predicate of the partial index
+             *      idx_evaluation_results_audit_scope_parents (WHERE parent_control_id IS NULL).
+             */
             parentControlId?: string;
             /**
              * Format: enum
@@ -1203,6 +1329,27 @@ export interface components {
              *      creation, such as a large file like a policy in PDF format.
              */
             data?: string;
+        };
+        GetAuditScopeStatisticsResponse: {
+            /**
+             * @description Number of top-level controls in scope, keyed by the name of their ControlInScopeState (e.g.
+             *      "CONTROL_IN_SCOPE_STATE_OPEN"). Only counts controls without a parent control:
+             *      ControlInScope records exist for every control including sub-controls, so counting all of
+             *      them would inflate the numbers beyond what a single row in the UI represents.
+             */
+            countsByControlState?: {
+                [key: string]: string;
+            };
+            /**
+             * @description Number of controls, keyed by the name of their latest confirmate.evaluation.v1.EvaluationStatus
+             *      (e.g. "EVALUATION_STATUS_COMPLIANT"), for controls that have at least one evaluation result.
+             *      Unless the request set top_level_controls_only, this counts controls at whatever depth they
+             *      were actually evaluated at, since metrics are typically attached to sub-controls rather than
+             *      their top-level parent.
+             */
+            countsByComplianceStatus?: {
+                [key: string]: string;
+            };
         };
         GetTargetOfEvaluationStatisticsResponse: {
             /** @description number of discovered resources per target of evaluation */
@@ -1546,6 +1693,7 @@ export type SchemaControlInScope = components['schemas']['ControlInScope'];
 export type SchemaCreateControlInScopeRequest = components['schemas']['CreateControlInScopeRequest'];
 export type SchemaDependency = components['schemas']['Dependency'];
 export type SchemaEvaluationResult = components['schemas']['EvaluationResult'];
+export type SchemaGetAuditScopeStatisticsResponse = components['schemas']['GetAuditScopeStatisticsResponse'];
 export type SchemaGetTargetOfEvaluationStatisticsResponse = components['schemas']['GetTargetOfEvaluationStatisticsResponse'];
 export type SchemaGoogleProtobufAny = components['schemas']['GoogleProtobufAny'];
 export type SchemaGoogleProtobufValue = components['schemas']['GoogleProtobufValue'];
@@ -2043,6 +2191,46 @@ export interface operations {
                 };
                 content: {
                     "*/*": unknown;
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetAuditScopeStatistics: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Optional. If true, restrict counts_by_compliance_status to top-level controls only, so its
+                 *      total matches counts_by_control_state instead of also including sub-control results. If false
+                 *      or unset (the default), compliance status is counted at whatever depth each control was
+                 *      actually evaluated at, since metrics are typically attached to sub-controls rather than their
+                 *      top-level parent.
+                 */
+                topLevelControlsOnly?: boolean;
+            };
+            header?: never;
+            path: {
+                auditScopeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetAuditScopeStatisticsResponse"];
                 };
             };
             /** @description Default error response */
