@@ -4,6 +4,7 @@
 	import type { SchemaUser } from '$lib/api/openapi/orchestrator';
 	import { logout } from '$lib/auth';
 	import { roleLabel } from '$lib/roles';
+	import { guidedEnabled } from '$lib/features';
 
 	let { currentUser = null }: { currentUser?: SchemaUser | null } = $props();
 
@@ -11,7 +12,9 @@
 		{ name: 'Dashboard', href: resolve('/dashboard/') },
 		{ name: 'Targets', href: resolve('/toe/') },
 		{ name: 'Metrics', href: resolve('/metrics/') },
-		{ name: 'Users', href: resolve('/users/') }
+		{ name: 'Users', href: resolve('/users/') },
+		// Preview of the guided experience, only shown if the feature is switched on.
+		...(guidedEnabled() ? [{ name: 'Guided (preview)', href: resolve('/guided/') }] : [])
 	];
 
 	const displayName = $derived(() => {

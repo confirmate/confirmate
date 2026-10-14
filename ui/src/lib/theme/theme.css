@@ -1,0 +1,116 @@
+/*
+ * Design tokens of the guided experience.
+ *
+ * Components use only the semantic utilities defined at the bottom (bg-surface, text-ink, border-line, bg-brand,
+ * text-ok, rounded-card, font-display, font-body, ...), never raw palette colors. A theme is a set of values for the --cf-*
+ * variables, selected by the data-theme attribute of the <html> element. To change the design language, add or
+ * edit a theme here; no component changes.
+ */
+
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/source-serif-4/600.css';
+
+/* Default theme */
+:root,
+[data-theme='confirmate'] {
+	--cf-canvas: #f6f6f3;
+	--cf-surface: #ffffff;
+	--cf-surface-sunken: #f0f2f4;
+	--cf-ink: #14202b;
+	--cf-ink-soft: #3c4854;
+	--cf-ink-muted: #5b6773;
+	--cf-line: #dde1e5;
+	--cf-line-strong: #c9cfd5;
+
+	--cf-brand: #005b99;
+	--cf-brand-strong: #004a7d;
+	--cf-brand-soft: #e6f0f7;
+	--cf-brand-ink: #003f6b;
+	--cf-on-brand: #ffffff;
+
+	--cf-ok: #0b6e5b;
+	--cf-ok-soft: #e3f2ee;
+	--cf-ok-ink: #0b5444;
+	--cf-warn: #9a5300;
+	--cf-warn-soft: #fdf0dd;
+	--cf-warn-ink: #7a4200;
+	--cf-bad: #a3262a;
+	--cf-bad-soft: #fbe9e9;
+	--cf-bad-ink: #7a1d20;
+	--cf-neutral-soft: #edeff1;
+
+	--cf-font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+	--cf-font-display: 'Source Serif 4', Georgia, serif;
+	--cf-font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+	--cf-radius-control: 0.5rem;
+	--cf-radius-card: 0.75rem;
+}
+
+/* A second theme proves that the design language is swappable. */
+[data-theme='night'] {
+	--cf-canvas: #0f161d;
+	--cf-surface: #17212b;
+	--cf-surface-sunken: #1e2a36;
+	--cf-ink: #eef2f5;
+	--cf-ink-soft: #c5ced6;
+	--cf-ink-muted: #9aa8b4;
+	--cf-line: #2a3744;
+	--cf-line-strong: #3a4a59;
+
+	--cf-brand: #5eb1ea;
+	--cf-brand-strong: #86c6f0;
+	--cf-brand-soft: #16354b;
+	--cf-brand-ink: #b9defa;
+	--cf-on-brand: #06121b;
+
+	--cf-ok: #4fc9ab;
+	--cf-ok-soft: #123a31;
+	--cf-ok-ink: #9be3cf;
+	--cf-warn: #f0a74a;
+	--cf-warn-soft: #3d2c10;
+	--cf-warn-ink: #f6cf95;
+	--cf-bad: #f07f82;
+	--cf-bad-soft: #43191b;
+	--cf-bad-ink: #f7b4b6;
+	--cf-neutral-soft: #26323e;
+}
+
+/* Semantic utilities. */
+@theme inline {
+	--color-canvas: var(--cf-canvas);
+	--color-surface: var(--cf-surface);
+	--color-sunken: var(--cf-surface-sunken);
+	--color-ink: var(--cf-ink);
+	--color-ink-soft: var(--cf-ink-soft);
+	--color-ink-muted: var(--cf-ink-muted);
+	--color-line: var(--cf-line);
+	--color-line-strong: var(--cf-line-strong);
+
+	--color-brand: var(--cf-brand);
+	--color-brand-strong: var(--cf-brand-strong);
+	--color-brand-soft: var(--cf-brand-soft);
+	--color-brand-ink: var(--cf-brand-ink);
+	--color-on-brand: var(--cf-on-brand);
+
+	--color-ok: var(--cf-ok);
+	--color-ok-soft: var(--cf-ok-soft);
+	--color-ok-ink: var(--cf-ok-ink);
+	--color-warn: var(--cf-warn);
+	--color-warn-soft: var(--cf-warn-soft);
+	--color-warn-ink: var(--cf-warn-ink);
+	--color-bad: var(--cf-bad);
+	--color-bad-soft: var(--cf-bad-soft);
+	--color-bad-ink: var(--cf-bad-ink);
+	--color-neutral-soft: var(--cf-neutral-soft);
+
+	/* Own names, so that the fonts of the existing pages do not change. */
+	--font-body: var(--cf-font-sans);
+	--font-display: var(--cf-font-display);
+	--font-code: var(--cf-font-mono);
+
+	--radius-control: var(--cf-radius-control);
+	--radius-card: var(--cf-radius-card);
+}
