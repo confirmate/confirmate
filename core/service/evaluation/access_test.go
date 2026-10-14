@@ -44,6 +44,7 @@ func TestService_StopEvaluation_permissionStore(t *testing.T) {
 	tests := []struct {
 		name        string
 		permissions []*orchestrator.UserPermission
+		listError   error
 		args        args
 		wantErr     assert.WantErr
 	}{
@@ -67,6 +68,34 @@ func TestService_StopEvaluation_permissionStore(t *testing.T) {
 			},
 		},
 		{
+			name: "user without a permission for the audit scope, only another user has one: access is denied",
+			permissions: []*orchestrator.UserPermission{
+				{
+					UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockNonExistentId),
+					ObjectId:   evaluationtest.MockAuditScopeId1,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+					Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+				},
+			},
+			args: args{ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+				RegisteredClaims: jwt.RegisteredClaims{Subject: orchestratortest.MockUserId1, Issuer: orchestratortest.MockUserIssuer1},
+			})},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
+			name:        "the permissions cannot be listed: access is denied",
+			permissions: []*orchestrator.UserPermission{orchestratortest.MockUserPermissionsAuditScopeAdmin},
+			listError:   errors.New("boom"),
+			args: args{ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+				RegisteredClaims: jwt.RegisteredClaims{Subject: orchestratortest.MockUserId1, Issuer: orchestratortest.MockUserIssuer1},
+			})},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name:        "no user at all: access is denied",
 			permissions: []*orchestrator.UserPermission{orchestratortest.MockUserPermissionsAuditScopeAdmin},
 			args:        args{ctx: context.Background()},
@@ -77,7 +106,9 @@ func TestService_StopEvaluation_permissionStore(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := newOrchestratorClient(t, WithUserPermissions(tt.permissions))
+			client := newOrchestratorClient(t, WithUserPermissions(tt.permissions), func(m *mockOrchestratorHandler) {
+				m.listUserPermissionsError = tt.listError
+			})
 			svc := Service{
 				orchestratorClient: client,
 				scheduler:          gocron.NewScheduler(time.UTC),
@@ -128,6 +159,57 @@ func TestService_StartEvaluation_orchestratorErrors(t *testing.T) {
 			_, err := svc.StartEvaluation(context.Background(), connect.NewRequest(&evaluation.StartEvaluationRequest{
 				AuditScopeId: evaluationtest.MockAuditScopeId1,
 			}))
+
+			tt.wantErr(t, err)
+		})
+	}
+}
+
+// TestService_triggerEvaluation_oneShotErrors covers an immediate evaluation without a scheduled job (a one-shot run)
+// that fails because of the orchestrator.
+func TestService_triggerEvaluation_oneShotErrors(t *testing.T) {
+	tests := []struct {
+		name    string
+		opts    []func(*mockOrchestratorHandler)
+		wantErr assert.WantErr
+	}{
+		{
+			name: "the controls cannot be cached",
+			opts: []func(*mockOrchestratorHandler){
+				WithAuditScope(evaluationtest.MockAuditScope1),
+				WithCatalog(evaluationtest.MockCatalog1),
+				func(m *mockOrchestratorHandler) { m.listError = errors.New("boom") },
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
+					assert.ErrorContains(t, err, "could not cache controls")
+			},
+		},
+		{
+			name: "the evaluation fails",
+			opts: []func(*mockOrchestratorHandler){
+				WithAuditScope(evaluationtest.MockAuditScope1),
+				WithCatalog(evaluationtest.MockCatalog1),
+				WithAdditionalControls(evaluationtest.MockControl1),
+				func(m *mockOrchestratorHandler) { m.listEvalError = errors.New("boom") },
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
+					assert.ErrorContains(t, err, "evaluation failed")
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := Service{
+				orchestratorClient: newOrchestratorClient(t, tt.opts...),
+				scheduler:          gocron.NewScheduler(time.UTC),
+				catalogControls:    make(map[string]map[string]*orchestrator.Control),
+				evaluating:         make(map[string]struct{}),
+			}
+			t.Cleanup(svc.Shutdown)
+
+			err := svc.triggerEvaluation(context.Background(), evaluationtest.MockAuditScopeId1)
 
 			tt.wantErr(t, err)
 		})
