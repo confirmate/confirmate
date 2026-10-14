@@ -28,7 +28,7 @@ const (
 	exampleCatalogsPath = "../example-data/catalogs"
 	exampleMetricsPath  = "../example-data/metrics"
 	securityMetricsPath = "./policies/security-metrics/metrics"
-	craCatalogId        = "CRA"
+	craCatalogId        = "CRA_Catalog"
 )
 
 // loadCraCatalog loads the CRA catalog from the example data.
