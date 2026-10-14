@@ -18,6 +18,7 @@ package ontology
 import (
 	"encoding/json"
 	"errors"
+	"strconv"
 	"strings"
 
 	"google.golang.org/protobuf/encoding/protojson"
@@ -200,6 +201,106 @@ func (x *Resource) MarshalJSON() (b []byte, err error) {
 
 // UnmarshalJSON is a custom JSON unmarshaller for the [Resource] type that delegates JSON unmarshalling to the
 // [protojson] package.
+//
+// Resources are persisted as JSON, so stored resources can outlive the version of the ontology they were written
+// with. If a stored resource does not match the current ontology, it is read leniently instead of failing the whole
+// read, see [migrateLegacyJSON]: unknown fields are dropped and legacy boolean values of properties that became
+// lists of strings are converted. The values that are read this way are best-effort only.
 func (x *Resource) UnmarshalJSON(b []byte) (err error) {
-	return protojson.Unmarshal(b, x)
+	var (
+		legacy []byte
+		strict = protojson.Unmarshal(b, x)
+	)
+
+	if strict == nil {
+		return nil
+	}
+
+	legacy, err = migrateLegacyJSON(b, x.ProtoReflect().Descriptor())
+	if err != nil {
+		return strict
+	}
+
+	proto.Reset(x)
+	err = protojson.UnmarshalOptions{DiscardUnknown: true}.Unmarshal(legacy, x)
+	if err != nil {
+		return strict
+	}
+
+	return nil
+}
+
+// migrateLegacyJSON converts the JSON of a message that was written with an older version of the ontology, so that
+// it can be read with the current one. A property that is a list of strings in the current ontology, but is still a
+// boolean in the given JSON, is converted: true becomes the single value "true" (the information that the property
+// was stated is kept, but not what was stated), false becomes an empty list. Other scalars are wrapped into a
+// single-element list. Everything that does not match the descriptor is left untouched.
+func migrateLegacyJSON(b []byte, md protoreflect.MessageDescriptor) (migrated []byte, err error) {
+	var (
+		v any
+	)
+
+	err = json.Unmarshal(b, &v)
+	if err != nil {
+		return nil, err
+	}
+
+	return json.Marshal(migrateLegacyValue(v, md))
+}
+
+// migrateLegacyValue walks the decoded JSON object of a message along its descriptor, see [migrateLegacyJSON].
+func migrateLegacyValue(v any, md protoreflect.MessageDescriptor) any {
+	var (
+		obj map[string]any
+		fd  protoreflect.FieldDescriptor
+		ok  bool
+	)
+
+	obj, ok = v.(map[string]any)
+	if !ok {
+		return v
+	}
+
+	for key, value := range obj {
+		fd = md.Fields().ByJSONName(key)
+		if fd == nil {
+			fd = md.Fields().ByName(protoreflect.Name(key))
+		}
+		if fd == nil || fd.IsMap() {
+			continue
+		}
+
+		switch {
+		case fd.Kind() == protoreflect.StringKind && fd.IsList():
+			obj[key] = legacyStringList(value)
+		case fd.Kind() == protoreflect.MessageKind && !strings.HasPrefix(string(fd.Message().FullName()), "google.protobuf."):
+			if list, isList := value.([]any); isList && fd.IsList() {
+				for i := range list {
+					list[i] = migrateLegacyValue(list[i], fd.Message())
+				}
+			} else {
+				obj[key] = migrateLegacyValue(value, fd.Message())
+			}
+		}
+	}
+
+	return obj
+}
+
+// legacyStringList converts a legacy scalar value of a property that is a list of strings now, see
+// [migrateLegacyJSON].
+func legacyStringList(v any) any {
+	switch value := v.(type) {
+	case bool:
+		if value {
+			return []any{"true"}
+		}
+		return []any{}
+	case string:
+		return []any{value}
+	case float64:
+		return []any{strconv.FormatFloat(value, 'f', -1, 64)}
+	default:
+		return v
+	}
 }
