@@ -7,8 +7,8 @@ import type { FrameworkProfile } from '../profile';
 export const craProfile: FrameworkProfile = {
 	id: 'cra',
 	name: 'Cyber Resilience Act',
-	kind: 'PRODUCT',
-	kindLabel: 'Product',
+	targetType: 'TARGET_TYPE_PRODUCT',
+	typeLabel: 'Product',
 	pitch: {
 		title: 'A product',
 		text: 'Software or firmware that you place on the EU market. We guide you through classification, risk assessment and conformity.'

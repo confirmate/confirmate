@@ -7,10 +7,10 @@
 	const p = $derived(target.progress);
 </script>
 
-<article class="flex flex-col gap-5 rounded-card border border-line bg-surface p-7 font-body">
+<article class="flex flex-col gap-5 rounded-card border border-line bg-surface p-(--cf-card-pad) font-body">
 	<div class="flex items-start justify-between gap-4">
 		<div class="flex flex-col gap-1.5">
-			<h2 class="font-display text-[1.75rem] leading-tight text-ink">{target.name}</h2>
+			<h2 class="font-display text-heading font-(--cf-display-weight) leading-tight text-ink">{target.name}</h2>
 			<p class="text-ink-muted">{target.subtitle}</p>
 		</div>
 		<span class="flex flex-wrap justify-end gap-2">
@@ -21,7 +21,7 @@
 
 	<div class="flex flex-col gap-2.5">
 		<div class="flex items-baseline gap-2.5">
-			<span class="font-display text-[2.75rem] leading-none text-ink">{p.met}</span>
+			<span class="font-display text-figure font-(--cf-display-weight) leading-none text-ink">{p.met}</span>
 			<span class="text-ink-soft">of {p.total} requirements met</span>
 		</div>
 		<StackedProgress

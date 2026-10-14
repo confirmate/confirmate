@@ -12,8 +12,8 @@
 <span
 	class="inline-flex items-center gap-1.5 whitespace-nowrap font-body font-medium {softTone[tone]} {size ===
 	'sm'
-		? 'rounded-full px-2 py-0.5 text-xs font-semibold'
-		: 'h-[1.625rem] rounded-full px-2.5 text-[0.8125rem]'}"
+		? 'rounded-pill px-2 py-0.5 text-xs font-semibold'
+		: 'h-[1.625rem] rounded-pill px-2.5 text-[0.8125rem]'}"
 >
 	{@render children()}
 </span>

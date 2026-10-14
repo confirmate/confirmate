@@ -2,7 +2,8 @@ import { browser } from '$app/environment';
 
 /** The themes that are defined in theme.css. */
 export const themes = [
-	{ id: 'confirmate', label: 'Confirmate' },
+	{ id: 'console', label: 'Console' },
+	{ id: 'editorial', label: 'Editorial' },
 	{ id: 'night', label: 'Night' }
 ] as const;
 
@@ -11,14 +12,14 @@ export type ThemeId = (typeof themes)[number]['id'];
 const storageKey = 'cf.theme';
 
 function load(): ThemeId {
-	if (!browser) return 'confirmate';
+	if (!browser) return 'console';
 	try {
 		const stored = localStorage.getItem(storageKey);
 		if (themes.some((t) => t.id === stored)) return stored as ThemeId;
 	} catch {
 		// Storage can be unavailable, the default theme is fine then.
 	}
-	return 'confirmate';
+	return 'console';
 }
 
 class ThemeState {

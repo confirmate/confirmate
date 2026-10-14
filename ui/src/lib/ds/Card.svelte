@@ -8,7 +8,7 @@
 		children
 	}: { accent?: Tone; padding?: 'sm' | 'md' | 'lg'; children: Snippet } = $props();
 
-	const pad = { sm: 'p-4', md: 'p-6', lg: 'p-7' };
+	const pad = { sm: 'p-3.5', md: 'p-(--cf-card-pad)', lg: 'p-[calc(var(--cf-card-pad)*1.25)]' };
 </script>
 
 <div
