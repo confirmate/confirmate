@@ -32,6 +32,7 @@ func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 	var (
 		bootLogging              = []string{}
 		osLoggingEnabled         bool
+		malwareProtectionFound   bool
 		autoUpdates              *ontology.AutomaticUpdates
 		monitoringLogDataEnabled bool
 		securityAlertsEnabled    bool
@@ -63,6 +64,10 @@ func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 		if strings.Contains(*extension.ID, "OmsAgentForLinux") || strings.Contains(*extension.ID, "MicrosoftMonitoringAgent") || strings.Contains(*extension.ID, "AzureMonitoringWindowsAgent") || strings.Contains(*extension.ID, "AzureMonitoringLinuxAgent") {
 			osLoggingEnabled = true
 		}
+
+		if isMalwareProtectionExtension(pointer.Deref(extension.ID)) {
+			malwareProtectionFound = true
+		}
 	}
 
 	r := &ontology.VirtualMachine{
@@ -77,7 +82,7 @@ func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 		Raw:                 new(collector.Raw(vm)),
 		NetworkInterfaceIds: []string{}, // TODO(all): Collect network interface IDs
 		BlockStorageIds:     []string{},
-		MalwareProtection:   &ontology.MalwareProtection{},
+		MalwareProtection:   malwareProtection(vm, malwareProtectionFound),
 		BootLogging: &ontology.BootLogging{
 			Enabled:                  new(isBootDiagnosticEnabled(vm)),
 			LoggingServiceIds:        bootLogging,
@@ -119,6 +124,50 @@ func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 	}
 
 	return r, nil
+}
+
+// malwareProtectionExtensions are the names of the Azure virtual machine extensions that provide malware protection:
+//   - IaaSAntimalware: Microsoft Antimalware for Azure (Windows)
+//   - MDE.Windows and MDE.Linux: Microsoft Defender for Endpoint, installed e.g. by Defender for Servers
+//
+// Third-party anti-malware products are not detected, because they are not visible as a VM extension in a uniform way.
+var malwareProtectionExtensions = []string{"/extensions/IaaSAntimalware", "/extensions/MDE.Windows", "/extensions/MDE.Linux"}
+
+// malwareProtection returns the malware protection of a virtual machine, based on its extensions.
+//
+//   - If a malware protection extension was found, the protection is enabled.
+//   - If the virtual machine has other extensions, but none of them is a malware protection extension, it is reported
+//     as not enabled.
+//   - If the virtual machine does not report any extension, nothing is known about its malware protection, because it
+//     is not visible whether the extension list is complete (or at all available); the "enabled" property is then left
+//     unset, so that the virtual machine is not assessed instead of being reported as unprotected.
+//
+// Note that anti-malware that does not show up as one of the extensions (e.g. third-party products or the Microsoft
+// Defender Antivirus that is built into Windows Server 2016 and later) is not detected.
+func malwareProtection(vm *armcompute.VirtualMachine, found bool) (mp *ontology.MalwareProtection) {
+	mp = &ontology.MalwareProtection{}
+
+	if found {
+		mp.Enabled = new(true)
+	} else if len(vm.Resources) > 0 {
+		mp.Enabled = new(false)
+	}
+
+	return mp
+}
+
+// isMalwareProtectionExtension returns true if the ID of the given virtual machine extension belongs to a malware
+// protection extension. Azure resource IDs are case-insensitive.
+func isMalwareProtectionExtension(extensionID string) (ok bool) {
+	var id = strings.ToLower(extensionID)
+
+	for _, name := range malwareProtectionExtensions {
+		if strings.HasSuffix(id, strings.ToLower(name)) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (d *azureCollector) handleBlockStorage(disk *armcompute.Disk) (*ontology.BlockStorage, error) {
