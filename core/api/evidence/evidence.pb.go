@@ -46,7 +46,12 @@ type Evidence struct {
 	// the ID in a uuid format
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// time of evidence creation
-	Timestamp *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	//
+	// NOTE: together with tool_id, the timestamp is part of the index
+	// idx_evidences_tool_timestamp (tool_id, timestamp DESC) that backs the lookup
+	// of the latest evidence of a tool in ListTools. See the note on tool_id for a
+	// safe production rollout.
+	Timestamp *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp,omitempty" gorm:"serializer:timestamppb;type:timestamp;index:idx_evidences_tool_timestamp,priority:2,sort:desc"`
 	// Reference to a target of evaluation (e.g., service, organization) this evidence was gathered from.
 	//
 	// NOTE: this index is picked up by GORM's AutoMigrate on service startup
@@ -59,7 +64,16 @@ type Evidence struct {
 	// AutoMigrate detects the existing index by name and skips it.
 	TargetOfEvaluationId string `protobuf:"bytes,3,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty" gorm:"index"`
 	// Reference to the tool which provided the evidence
-	ToolId string `protobuf:"bytes,4,opt,name=tool_id,json=toolId,proto3" json:"tool_id,omitempty"`
+	//
+	// NOTE: idx_evidences_tool_timestamp (tool_id, timestamp DESC) is picked up by
+	// GORM's AutoMigrate on service startup (see persistence.NewDB). Evidence is
+	// append-only and can grow very large (100k+ rows); on an already-populated
+	// table, the first startup after this index is introduced will run a blocking
+	// CREATE INDEX and may stall writes for a while. Consider pre-creating it
+	// out-of-band with `CREATE INDEX CONCURRENTLY idx_evidences_tool_timestamp ON
+	// evidences (tool_id, timestamp DESC);` before rolling this out; AutoMigrate
+	// detects the existing index by name and skips it.
+	ToolId string `protobuf:"bytes,4,opt,name=tool_id,json=toolId,proto3" json:"tool_id,omitempty" gorm:"index:idx_evidences_tool_timestamp,priority:1"`
 	// Semantic representation of the Cloud resource according to our defined ontology
 	Resource *ontology.Resource `protobuf:"bytes,6,opt,name=resource,proto3" json:"resource,omitempty" gorm:"serializer:json"`
 	// Very experimental property. Use at own risk. This property will be deleted again.
@@ -479,12 +493,12 @@ var File_api_evidence_evidence_proto protoreflect.FileDescriptor
 
 const file_api_evidence_evidence_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/evidence/evidence.proto\x12\x16confirmate.evidence.v1\x1a4policies/security-metrics/ontology/v1/ontology.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xcf\x03\n" +
+	"\x1bapi/evidence/evidence.proto\x12\x16confirmate.evidence.v1\x1a4policies/security-metrics/ontology/v1/ontology.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xc1\x04\n" +
 	"\bEvidence\x12\x18\n" +
-	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12q\n" +
-	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB7\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\ttimestamp\x12P\n" +
-	"\x17target_of_evaluation_id\x18\x03 \x01(\tB\x19\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\fgorm:\"index\"R\x14targetOfEvaluationId\x12 \n" +
-	"\atool_id\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06toolId\x12Y\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\xa9\x01\n" +
+	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampBo\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03dgorm:\"serializer:timestamppb;type:timestamp;index:idx_evidences_tool_timestamp,priority:2,sort:desc\"R\ttimestamp\x12P\n" +
+	"\x17target_of_evaluation_id\x18\x03 \x01(\tB\x19\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\fgorm:\"index\"R\x14targetOfEvaluationId\x12Y\n" +
+	"\atool_id\x18\x04 \x01(\tB@\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x034gorm:\"index:idx_evidences_tool_timestamp,priority:1\"R\x06toolId\x12Y\n" +
 	"\bresource\x18\x06 \x01(\v2 .confirmate.ontology.v1.ResourceB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\bresource\x12g\n" +
 	"!experimental_related_resource_ids\x18\xe7\a \x03(\tB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x1eexperimentalRelatedResourceIds\"\xb4\x02\n" +
 	"\x10ResourceSnapshot\x12\x1a\n" +

@@ -24,15 +24,27 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-// EvidenceListToolsCommand returns a CLI command that lists all evidence
-// collecting tool IDs that have provided evidence to the evidence store.
+// EvidenceListToolsCommand returns a CLI command that lists all evidence collecting tools that have provided
+// evidence to the evidence store, together with the timestamp of their latest evidence.
 func EvidenceListToolsCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "list-tools",
-		Usage: "List all evidence collecting tool IDs seen by the evidence store",
+		Usage: "List all evidence collecting tools seen by the evidence store and the time of their latest evidence",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "target",
+				Aliases: []string{"t"},
+				Usage:   "Filter by target of evaluation ID",
+			},
+		},
 		Action: func(ctx context.Context, c *cli.Command) error {
+			req := &evidence.ListToolsRequest{}
+			if targetID := c.String("target"); targetID != "" {
+				req.Filter = &evidence.ListToolsRequest_Filter{TargetOfEvaluationId: &targetID}
+			}
+
 			client := EvidenceStoreClient(ctx, c)
-			resp, err := client.ListTools(ctx, connect.NewRequest(&evidence.ListToolsRequest{}))
+			resp, err := client.ListTools(ctx, connect.NewRequest(req))
 			if err != nil {
 				return err
 			}

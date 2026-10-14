@@ -86,8 +86,9 @@ type EvidenceStoreClient interface {
 	ListSupportedResourceTypes(context.Context, *connect.Request[evidence.ListSupportedResourceTypesRequest]) (*connect.Response[evidence.ListSupportedResourceTypesResponse], error)
 	// Lists all resources collected in the last run, exposed as REST.
 	ListResources(context.Context, *connect.Request[evidence.ListResourcesRequest]) (*connect.Response[evidence.ListResourcesResponse], error)
-	// Returns the IDs of all evidence collecting tools that have provided
-	// evidence so far. Part of the public API, also exposed as REST.
+	// Lists all evidence collecting tools that have provided evidence so far,
+	// together with the timestamp of their latest evidence. Part of the public
+	// API, also exposed as REST.
 	ListTools(context.Context, *connect.Request[evidence.ListToolsRequest]) (*connect.Response[evidence.ListToolsResponse], error)
 }
 
@@ -210,8 +211,9 @@ type EvidenceStoreHandler interface {
 	ListSupportedResourceTypes(context.Context, *connect.Request[evidence.ListSupportedResourceTypesRequest]) (*connect.Response[evidence.ListSupportedResourceTypesResponse], error)
 	// Lists all resources collected in the last run, exposed as REST.
 	ListResources(context.Context, *connect.Request[evidence.ListResourcesRequest]) (*connect.Response[evidence.ListResourcesResponse], error)
-	// Returns the IDs of all evidence collecting tools that have provided
-	// evidence so far. Part of the public API, also exposed as REST.
+	// Lists all evidence collecting tools that have provided evidence so far,
+	// together with the timestamp of their latest evidence. Part of the public
+	// API, also exposed as REST.
 	ListTools(context.Context, *connect.Request[evidence.ListToolsRequest]) (*connect.Response[evidence.ListToolsResponse], error)
 }
 

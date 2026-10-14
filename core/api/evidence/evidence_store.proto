@@ -20,6 +20,7 @@ import "api/evidence/evidence.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "confirmate.io/core/api/evidence";
 
@@ -61,8 +62,9 @@ service EvidenceStore {
     option (google.api.http) = {get: "/v1/evidence_store/resources"};
   }
 
-  // Returns the IDs of all evidence collecting tools that have provided
-  // evidence so far. Part of the public API, also exposed as REST.
+  // Lists all evidence collecting tools that have provided evidence so far,
+  // together with the timestamp of their latest evidence. Part of the public
+  // API, also exposed as REST.
   rpc ListTools(ListToolsRequest) returns (ListToolsResponse) {
     option (google.api.http) = {get: "/v1/evidence_store/tools"};
   }
@@ -138,9 +140,36 @@ message ListResourcesResponse {
   string next_page_token = 2;
 }
 
-message ListToolsRequest {}
+message ListToolsRequest {
+  message Filter {
+    // Optional. Lists only the tools that provided evidence for a specific
+    // target of evaluation.
+    optional string target_of_evaluation_id = 1 [(buf.validate.field).string.uuid = true];
+  }
+
+  optional Filter filter = 1;
+}
+
+// An evidence collecting tool.
+message Tool {
+  // The unique ID of the tool.
+  string id = 1;
+
+  // The timestamp of the most recent evidence that the tool provided. If the
+  // request was filtered by a target of evaluation, it only considers the
+  // evidence of this target of evaluation.
+  google.protobuf.Timestamp latest_evidence_timestamp = 2;
+}
 
 message ListToolsResponse {
-  repeated string tool_ids = 1;
+  // The IDs of the tools.
+  //
+  // Deprecated: Use tools instead, which also contains the ID.
+  repeated string tool_ids = 1 [deprecated = true];
+
+  // Not used, because all tools are returned at once.
   string next_page_token = 2;
+
+  // The tools, ordered by their ID.
+  repeated Tool tools = 3;
 }

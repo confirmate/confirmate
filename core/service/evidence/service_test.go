@@ -37,6 +37,7 @@ import (
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestMain(m *testing.M) {
@@ -918,6 +919,28 @@ func TestService_ListTools(t *testing.T) {
 		ctx context.Context
 		req *connect.Request[evidence.ListToolsRequest]
 	}
+	var (
+		toe1  = evidencetest.MockEvidenceListA.TargetOfEvaluationId // target of evaluation of tool-a (and tool-b)
+		toe2  = evidencetest.MockEvidenceListB.TargetOfEvaluationId // another target of evaluation of tool-a
+		start = time.Date(2026, 10, 14, 8, 0, 0, 0, time.UTC)
+	)
+	// newEvidence creates evidence of the given tool and target of evaluation, which is created the given time after start
+	newEvidence := func(toolId string, targetOfEvaluationId string, after time.Duration) *evidence.Evidence {
+		return &evidence.Evidence{
+			Id:                   uuid.NewString(),
+			Timestamp:            timestamppb.New(start.Add(after)),
+			TargetOfEvaluationId: targetOfEvaluationId,
+			ToolId:               toolId,
+		}
+	}
+	// seed stores the following evidence: tool-a provided evidence for both targets of evaluation (the latest one at
+	// start+2h for target 2), tool-b only for target 1 (at start+1h)
+	seed := func(db persistence.DB) {
+		assert.NoError(t, db.Create(newEvidence("tool-a", toe1, 0)))
+		assert.NoError(t, db.Create(newEvidence("tool-a", toe2, 2*time.Hour)))
+		assert.NoError(t, db.Create(newEvidence("tool-a", toe1, time.Minute)))
+		assert.NoError(t, db.Create(newEvidence("tool-b", toe1, time.Hour)))
+	}
 	tests := []struct {
 		name    string
 		args    args
@@ -989,6 +1012,121 @@ func TestService_ListTools(t *testing.T) {
 				return true
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - returns the latest evidence timestamp of each tool, ordered by tool ID",
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil, seed),
+			},
+			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
+				if !assert.Equal(t, 2, len(got.Msg.Tools)) {
+					return false
+				}
+				return assert.Equal(t, "tool-a", got.Msg.Tools[0].Id) &&
+					assert.Equal(t, start.Add(2*time.Hour), got.Msg.Tools[0].LatestEvidenceTimestamp.AsTime()) &&
+					assert.Equal(t, "tool-b", got.Msg.Tools[1].Id) &&
+					assert.Equal(t, start.Add(time.Hour), got.Msg.Tools[1].LatestEvidenceTimestamp.AsTime()) &&
+					// the deprecated list of IDs is still filled
+					assert.Equal(t, []string{"tool-a", "tool-b"}, got.Msg.ToolIds)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - filtered by target of evaluation: only its tools and its latest evidence",
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{
+					Filter: &evidence.ListToolsRequest_Filter{TargetOfEvaluationId: &toe1},
+				}},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil, seed),
+			},
+			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
+				if !assert.Equal(t, 2, len(got.Msg.Tools)) {
+					return false
+				}
+				// tool-a also provided later evidence for the other target of evaluation, which must not count here
+				return assert.Equal(t, start.Add(time.Minute), got.Msg.Tools[0].LatestEvidenceTimestamp.AsTime()) &&
+					assert.Equal(t, start.Add(time.Hour), got.Msg.Tools[1].LatestEvidenceTimestamp.AsTime())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - filtered by a target of evaluation that a tool did not provide evidence for",
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{
+					Filter: &evidence.ListToolsRequest_Filter{TargetOfEvaluationId: &toe2},
+				}},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil, seed),
+			},
+			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
+				// only tool-a provided evidence for the second target of evaluation, tool-b is not listed
+				return assert.Equal(t, 1, len(got.Msg.Tools)) &&
+					assert.Equal(t, "tool-a", got.Msg.Tools[0].Id) &&
+					assert.Equal(t, start.Add(2*time.Hour), got.Msg.Tools[0].LatestEvidenceTimestamp.AsTime())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - filtered by a target of evaluation without any evidence",
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{
+					Filter: &evidence.ListToolsRequest_Filter{TargetOfEvaluationId: new(uuid.NewString())},
+				}},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil, seed),
+			},
+			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
+				return assert.Equal(t, 0, len(got.Msg.Tools))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "error - the target of evaluation filter is not a UUID",
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{
+					Filter: &evidence.ListToolsRequest_Filter{TargetOfEvaluationId: new("not-a-uuid")},
+				}},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil),
+			},
+			want: assert.Nil[*connect.Response[evidence.ListToolsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "error - the tools cannot be listed",
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			},
+			fields: fields{
+				db: persistencetest.PluckErrorDB(t, persistence.ErrDatabase, types, nil),
+			},
+			want: assert.Nil[*connect.Response[evidence.ListToolsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, persistence.ErrDatabase.Error())
+			},
+		},
+		{
+			name: "error - the latest evidence of a tool cannot be read",
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			},
+			fields: fields{
+				db: persistencetest.RawErrorDB(t, persistence.ErrDatabase, types, nil, seed),
+			},
+			want: assert.Nil[*connect.Response[evidence.ListToolsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, persistence.ErrDatabase.Error())
+			},
 		},
 	}
 

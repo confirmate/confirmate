@@ -1150,6 +1150,11 @@ export interface components {
             /**
              * Format: date-time
              * @description time of evidence creation
+             *
+             *      NOTE: together with tool_id, the timestamp is part of the index
+             *      idx_evidences_tool_timestamp (tool_id, timestamp DESC) that backs the lookup
+             *      of the latest evidence of a tool in ListTools. See the note on tool_id for a
+             *      safe production rollout.
              */
             timestamp?: string;
             /**
@@ -1165,7 +1170,18 @@ export interface components {
              *      AutoMigrate detects the existing index by name and skips it.
              */
             targetOfEvaluationId?: string;
-            /** @description Reference to the tool which provided the evidence */
+            /**
+             * @description Reference to the tool which provided the evidence
+             *
+             *      NOTE: idx_evidences_tool_timestamp (tool_id, timestamp DESC) is picked up by
+             *      GORM's AutoMigrate on service startup (see persistence.NewDB). Evidence is
+             *      append-only and can grow very large (100k+ rows); on an already-populated
+             *      table, the first startup after this index is introduced will run a blocking
+             *      CREATE INDEX and may stall writes for a while. Consider pre-creating it
+             *      out-of-band with `CREATE INDEX CONCURRENTLY idx_evidences_tool_timestamp ON
+             *      evidences (tool_id, timestamp DESC);` before rolling this out; AutoMigrate
+             *      detects the existing index by name and skips it.
+             */
             toolId?: string;
             /** @description Semantic representation of the Cloud resource according to our defined ontology */
             resource?: components["schemas"]["Resource"];

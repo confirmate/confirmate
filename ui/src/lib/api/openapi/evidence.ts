@@ -144,8 +144,9 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Returns the IDs of all evidence collecting tools that have provided
-         *      evidence so far. Part of the public API, also exposed as REST.
+         * @description Lists all evidence collecting tools that have provided evidence so far,
+         *      together with the timestamp of their latest evidence. Part of the public
+         *      API, also exposed as REST.
          */
         get: operations["EvidenceStore_ListTools"];
         put?: never;
@@ -1270,6 +1271,11 @@ export interface components {
             /**
              * Format: date-time
              * @description time of evidence creation
+             *
+             *      NOTE: together with tool_id, the timestamp is part of the index
+             *      idx_evidences_tool_timestamp (tool_id, timestamp DESC) that backs the lookup
+             *      of the latest evidence of a tool in ListTools. See the note on tool_id for a
+             *      safe production rollout.
              */
             timestamp?: string;
             /**
@@ -1285,7 +1291,18 @@ export interface components {
              *      AutoMigrate detects the existing index by name and skips it.
              */
             targetOfEvaluationId?: string;
-            /** @description Reference to the tool which provided the evidence */
+            /**
+             * @description Reference to the tool which provided the evidence
+             *
+             *      NOTE: idx_evidences_tool_timestamp (tool_id, timestamp DESC) is picked up by
+             *      GORM's AutoMigrate on service startup (see persistence.NewDB). Evidence is
+             *      append-only and can grow very large (100k+ rows); on an already-populated
+             *      table, the first startup after this index is introduced will run a blocking
+             *      CREATE INDEX and may stall writes for a while. Consider pre-creating it
+             *      out-of-band with `CREATE INDEX CONCURRENTLY idx_evidences_tool_timestamp ON
+             *      evidences (tool_id, timestamp DESC);` before rolling this out; AutoMigrate
+             *      detects the existing index by name and skips it.
+             */
             toolId?: string;
             /** @description Semantic representation of the Cloud resource according to our defined ontology */
             resource?: components["schemas"]["Resource"];
@@ -2365,8 +2382,16 @@ export interface components {
             resourceType?: string[];
         };
         ListToolsResponse: {
+            /**
+             * @description The IDs of the tools.
+             *
+             *      Deprecated: Use tools instead, which also contains the ID.
+             */
             toolIds?: string[];
+            /** @description Not used, because all tools are returned at once. */
             nextPageToken?: string;
+            /** @description The tools, ordered by their ID. */
+            tools?: components["schemas"]["Tool"][];
         };
         /**
          * @description LoadBalancer is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -3890,6 +3915,18 @@ export interface components {
             dataLocation?: components["schemas"]["DataLocation"];
             parentId?: string;
         };
+        /** @description An evidence collecting tool. */
+        Tool: {
+            /** @description The unique ID of the tool. */
+            id?: string;
+            /**
+             * Format: date-time
+             * @description The timestamp of the most recent evidence that the tool provided. If the
+             *      request was filtered by a target of evaluation, it only considers the
+             *      evidence of this target of evaluation.
+             */
+            latestEvidenceTimestamp?: string;
+        };
         /**
          * @description TransportEncryption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
          *      enabled means the resource _can_ be reached via https, while enforced means it _can only_ be reached via https (or http traffic is redirected)
@@ -4393,6 +4430,7 @@ export type SchemaTeleworkingPolicy = components['schemas']['TeleworkingPolicy']
 export type SchemaTestDataPolicy = components['schemas']['TestDataPolicy'];
 export type SchemaTime = components['schemas']['Time'];
 export type SchemaToken = components['schemas']['Token'];
+export type SchemaTool = components['schemas']['Tool'];
 export type SchemaTransportEncryption = components['schemas']['TransportEncryption'];
 export type SchemaUnlockEncryptedDisk = components['schemas']['UnlockEncryptedDisk'];
 export type SchemaUpdateResourceRequest = components['schemas']['UpdateResourceRequest'];
@@ -4651,7 +4689,13 @@ export interface operations {
     };
     EvidenceStore_ListTools: {
         parameters: {
-            query?: never;
+            query?: {
+                /**
+                 * @description Optional. Lists only the tools that provided evidence for a specific
+                 *      target of evaluation.
+                 */
+                "filter.targetOfEvaluationId"?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;

@@ -25,6 +25,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -655,7 +656,8 @@ func (x *ListResourcesResponse) GetNextPageToken() string {
 }
 
 type ListToolsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Filter        *ListToolsRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3,oneof" json:"filter,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -690,17 +692,89 @@ func (*ListToolsRequest) Descriptor() ([]byte, []int) {
 	return file_api_evidence_evidence_store_proto_rawDescGZIP(), []int{11}
 }
 
+func (x *ListToolsRequest) GetFilter() *ListToolsRequest_Filter {
+	if x != nil {
+		return x.Filter
+	}
+	return nil
+}
+
+// An evidence collecting tool.
+type Tool struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The unique ID of the tool.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// The timestamp of the most recent evidence that the tool provided. If the
+	// request was filtered by a target of evaluation, it only considers the
+	// evidence of this target of evaluation.
+	LatestEvidenceTimestamp *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=latest_evidence_timestamp,json=latestEvidenceTimestamp,proto3" json:"latest_evidence_timestamp,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *Tool) Reset() {
+	*x = Tool{}
+	mi := &file_api_evidence_evidence_store_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Tool) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Tool) ProtoMessage() {}
+
+func (x *Tool) ProtoReflect() protoreflect.Message {
+	mi := &file_api_evidence_evidence_store_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Tool.ProtoReflect.Descriptor instead.
+func (*Tool) Descriptor() ([]byte, []int) {
+	return file_api_evidence_evidence_store_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *Tool) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Tool) GetLatestEvidenceTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LatestEvidenceTimestamp
+	}
+	return nil
+}
+
 type ListToolsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ToolIds       []string               `protobuf:"bytes,1,rep,name=tool_ids,json=toolIds,proto3" json:"tool_ids,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The IDs of the tools.
+	//
+	// Deprecated: Use tools instead, which also contains the ID.
+	//
+	// Deprecated: Marked as deprecated in api/evidence/evidence_store.proto.
+	ToolIds []string `protobuf:"bytes,1,rep,name=tool_ids,json=toolIds,proto3" json:"tool_ids,omitempty"`
+	// Not used, because all tools are returned at once.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	// The tools, ordered by their ID.
+	Tools         []*Tool `protobuf:"bytes,3,rep,name=tools,proto3" json:"tools,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListToolsResponse) Reset() {
 	*x = ListToolsResponse{}
-	mi := &file_api_evidence_evidence_store_proto_msgTypes[12]
+	mi := &file_api_evidence_evidence_store_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -712,7 +786,7 @@ func (x *ListToolsResponse) String() string {
 func (*ListToolsResponse) ProtoMessage() {}
 
 func (x *ListToolsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_evidence_evidence_store_proto_msgTypes[12]
+	mi := &file_api_evidence_evidence_store_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -725,9 +799,10 @@ func (x *ListToolsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListToolsResponse.ProtoReflect.Descriptor instead.
 func (*ListToolsResponse) Descriptor() ([]byte, []int) {
-	return file_api_evidence_evidence_store_proto_rawDescGZIP(), []int{12}
+	return file_api_evidence_evidence_store_proto_rawDescGZIP(), []int{13}
 }
 
+// Deprecated: Marked as deprecated in api/evidence/evidence_store.proto.
 func (x *ListToolsResponse) GetToolIds() []string {
 	if x != nil {
 		return x.ToolIds
@@ -742,6 +817,13 @@ func (x *ListToolsResponse) GetNextPageToken() string {
 	return ""
 }
 
+func (x *ListToolsResponse) GetTools() []*Tool {
+	if x != nil {
+		return x.Tools
+	}
+	return nil
+}
+
 type ListResourcesRequest_Filter struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	Type                 *string                `protobuf:"bytes,1,opt,name=type,proto3,oneof" json:"type,omitempty"`
@@ -753,7 +835,7 @@ type ListResourcesRequest_Filter struct {
 
 func (x *ListResourcesRequest_Filter) Reset() {
 	*x = ListResourcesRequest_Filter{}
-	mi := &file_api_evidence_evidence_store_proto_msgTypes[13]
+	mi := &file_api_evidence_evidence_store_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -765,7 +847,7 @@ func (x *ListResourcesRequest_Filter) String() string {
 func (*ListResourcesRequest_Filter) ProtoMessage() {}
 
 func (x *ListResourcesRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_evidence_evidence_store_proto_msgTypes[13]
+	mi := &file_api_evidence_evidence_store_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -802,11 +884,57 @@ func (x *ListResourcesRequest_Filter) GetToolId() string {
 	return ""
 }
 
+type ListToolsRequest_Filter struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Lists only the tools that provided evidence for a specific
+	// target of evaluation.
+	TargetOfEvaluationId *string `protobuf:"bytes,1,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3,oneof" json:"target_of_evaluation_id,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *ListToolsRequest_Filter) Reset() {
+	*x = ListToolsRequest_Filter{}
+	mi := &file_api_evidence_evidence_store_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListToolsRequest_Filter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListToolsRequest_Filter) ProtoMessage() {}
+
+func (x *ListToolsRequest_Filter) ProtoReflect() protoreflect.Message {
+	mi := &file_api_evidence_evidence_store_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListToolsRequest_Filter.ProtoReflect.Descriptor instead.
+func (*ListToolsRequest_Filter) Descriptor() ([]byte, []int) {
+	return file_api_evidence_evidence_store_proto_rawDescGZIP(), []int{11, 0}
+}
+
+func (x *ListToolsRequest_Filter) GetTargetOfEvaluationId() string {
+	if x != nil && x.TargetOfEvaluationId != nil {
+		return *x.TargetOfEvaluationId
+	}
+	return ""
+}
+
 var File_api_evidence_evidence_store_proto protoreflect.FileDescriptor
 
 const file_api_evidence_evidence_store_proto_rawDesc = "" +
 	"\n" +
-	"!api/evidence/evidence_store.proto\x12\x16confirmate.evidence.v1\x1a\x1bapi/evidence/evidence.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\\\n" +
+	"!api/evidence/evidence_store.proto\x12\x16confirmate.evidence.v1\x1a\x1bapi/evidence/evidence.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\\\n" +
 	"\x14StoreEvidenceRequest\x12D\n" +
 	"\bevidence\x18\x01 \x01(\v2 .confirmate.evidence.v1.EvidenceB\x06\xbaH\x03\xc8\x01\x01R\bevidence\"\x17\n" +
 	"\x15StoreEvidenceResponse\"\x7f\n" +
@@ -856,11 +984,20 @@ const file_api_evidence_evidence_store_proto_rawDesc = "" +
 	"\a_filter\"\x88\x01\n" +
 	"\x15ListResourcesResponse\x12G\n" +
 	"\aresults\x18\x01 \x03(\v2(.confirmate.evidence.v1.ResourceSnapshotB\x03\xe0A\x02R\aresults\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x12\n" +
-	"\x10ListToolsRequest\"V\n" +
-	"\x11ListToolsResponse\x12\x19\n" +
-	"\btool_ids\x18\x01 \x03(\tR\atoolIds\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken*d\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xd7\x01\n" +
+	"\x10ListToolsRequest\x12L\n" +
+	"\x06filter\x18\x01 \x01(\v2/.confirmate.evidence.v1.ListToolsRequest.FilterH\x00R\x06filter\x88\x01\x01\x1aj\n" +
+	"\x06Filter\x12D\n" +
+	"\x17target_of_evaluation_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x14targetOfEvaluationId\x88\x01\x01B\x1a\n" +
+	"\x18_target_of_evaluation_idB\t\n" +
+	"\a_filter\"n\n" +
+	"\x04Tool\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12V\n" +
+	"\x19latest_evidence_timestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x17latestEvidenceTimestamp\"\x8e\x01\n" +
+	"\x11ListToolsResponse\x12\x1d\n" +
+	"\btool_ids\x18\x01 \x03(\tB\x02\x18\x01R\atoolIds\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x122\n" +
+	"\x05tools\x18\x03 \x03(\v2\x1c.confirmate.evidence.v1.ToolR\x05tools*d\n" +
 	"\x0eEvidenceStatus\x12\x1f\n" +
 	"\x1bEVIDENCE_STATUS_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12EVIDENCE_STATUS_OK\x10\x01\x12\x19\n" +
@@ -887,7 +1024,7 @@ func file_api_evidence_evidence_store_proto_rawDescGZIP() []byte {
 }
 
 var file_api_evidence_evidence_store_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_evidence_evidence_store_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_api_evidence_evidence_store_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_api_evidence_evidence_store_proto_goTypes = []any{
 	(EvidenceStatus)(0),                        // 0: confirmate.evidence.v1.EvidenceStatus
 	(*StoreEvidenceRequest)(nil),               // 1: confirmate.evidence.v1.StoreEvidenceRequest
@@ -902,37 +1039,43 @@ var file_api_evidence_evidence_store_proto_goTypes = []any{
 	(*ListResourcesRequest)(nil),               // 10: confirmate.evidence.v1.ListResourcesRequest
 	(*ListResourcesResponse)(nil),              // 11: confirmate.evidence.v1.ListResourcesResponse
 	(*ListToolsRequest)(nil),                   // 12: confirmate.evidence.v1.ListToolsRequest
-	(*ListToolsResponse)(nil),                  // 13: confirmate.evidence.v1.ListToolsResponse
-	(*ListResourcesRequest_Filter)(nil),        // 14: confirmate.evidence.v1.ListResourcesRequest.Filter
-	(*Evidence)(nil),                           // 15: confirmate.evidence.v1.Evidence
-	(*ResourceSnapshot)(nil),                   // 16: confirmate.evidence.v1.ResourceSnapshot
+	(*Tool)(nil),                               // 13: confirmate.evidence.v1.Tool
+	(*ListToolsResponse)(nil),                  // 14: confirmate.evidence.v1.ListToolsResponse
+	(*ListResourcesRequest_Filter)(nil),        // 15: confirmate.evidence.v1.ListResourcesRequest.Filter
+	(*ListToolsRequest_Filter)(nil),            // 16: confirmate.evidence.v1.ListToolsRequest.Filter
+	(*Evidence)(nil),                           // 17: confirmate.evidence.v1.Evidence
+	(*ResourceSnapshot)(nil),                   // 18: confirmate.evidence.v1.ResourceSnapshot
+	(*timestamppb.Timestamp)(nil),              // 19: google.protobuf.Timestamp
 }
 var file_api_evidence_evidence_store_proto_depIdxs = []int32{
-	15, // 0: confirmate.evidence.v1.StoreEvidenceRequest.evidence:type_name -> confirmate.evidence.v1.Evidence
+	17, // 0: confirmate.evidence.v1.StoreEvidenceRequest.evidence:type_name -> confirmate.evidence.v1.Evidence
 	0,  // 1: confirmate.evidence.v1.StoreEvidencesResponse.status:type_name -> confirmate.evidence.v1.EvidenceStatus
 	5,  // 2: confirmate.evidence.v1.ListEvidencesRequest.filter:type_name -> confirmate.evidence.v1.Filter
-	15, // 3: confirmate.evidence.v1.ListEvidencesResponse.evidences:type_name -> confirmate.evidence.v1.Evidence
-	14, // 4: confirmate.evidence.v1.ListResourcesRequest.filter:type_name -> confirmate.evidence.v1.ListResourcesRequest.Filter
-	16, // 5: confirmate.evidence.v1.ListResourcesResponse.results:type_name -> confirmate.evidence.v1.ResourceSnapshot
-	1,  // 6: confirmate.evidence.v1.EvidenceStore.StoreEvidence:input_type -> confirmate.evidence.v1.StoreEvidenceRequest
-	1,  // 7: confirmate.evidence.v1.EvidenceStore.StoreEvidences:input_type -> confirmate.evidence.v1.StoreEvidenceRequest
-	4,  // 8: confirmate.evidence.v1.EvidenceStore.ListEvidences:input_type -> confirmate.evidence.v1.ListEvidencesRequest
-	7,  // 9: confirmate.evidence.v1.EvidenceStore.GetEvidence:input_type -> confirmate.evidence.v1.GetEvidenceRequest
-	8,  // 10: confirmate.evidence.v1.EvidenceStore.ListSupportedResourceTypes:input_type -> confirmate.evidence.v1.ListSupportedResourceTypesRequest
-	10, // 11: confirmate.evidence.v1.EvidenceStore.ListResources:input_type -> confirmate.evidence.v1.ListResourcesRequest
-	12, // 12: confirmate.evidence.v1.EvidenceStore.ListTools:input_type -> confirmate.evidence.v1.ListToolsRequest
-	2,  // 13: confirmate.evidence.v1.EvidenceStore.StoreEvidence:output_type -> confirmate.evidence.v1.StoreEvidenceResponse
-	3,  // 14: confirmate.evidence.v1.EvidenceStore.StoreEvidences:output_type -> confirmate.evidence.v1.StoreEvidencesResponse
-	6,  // 15: confirmate.evidence.v1.EvidenceStore.ListEvidences:output_type -> confirmate.evidence.v1.ListEvidencesResponse
-	15, // 16: confirmate.evidence.v1.EvidenceStore.GetEvidence:output_type -> confirmate.evidence.v1.Evidence
-	9,  // 17: confirmate.evidence.v1.EvidenceStore.ListSupportedResourceTypes:output_type -> confirmate.evidence.v1.ListSupportedResourceTypesResponse
-	11, // 18: confirmate.evidence.v1.EvidenceStore.ListResources:output_type -> confirmate.evidence.v1.ListResourcesResponse
-	13, // 19: confirmate.evidence.v1.EvidenceStore.ListTools:output_type -> confirmate.evidence.v1.ListToolsResponse
-	13, // [13:20] is the sub-list for method output_type
-	6,  // [6:13] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	17, // 3: confirmate.evidence.v1.ListEvidencesResponse.evidences:type_name -> confirmate.evidence.v1.Evidence
+	15, // 4: confirmate.evidence.v1.ListResourcesRequest.filter:type_name -> confirmate.evidence.v1.ListResourcesRequest.Filter
+	18, // 5: confirmate.evidence.v1.ListResourcesResponse.results:type_name -> confirmate.evidence.v1.ResourceSnapshot
+	16, // 6: confirmate.evidence.v1.ListToolsRequest.filter:type_name -> confirmate.evidence.v1.ListToolsRequest.Filter
+	19, // 7: confirmate.evidence.v1.Tool.latest_evidence_timestamp:type_name -> google.protobuf.Timestamp
+	13, // 8: confirmate.evidence.v1.ListToolsResponse.tools:type_name -> confirmate.evidence.v1.Tool
+	1,  // 9: confirmate.evidence.v1.EvidenceStore.StoreEvidence:input_type -> confirmate.evidence.v1.StoreEvidenceRequest
+	1,  // 10: confirmate.evidence.v1.EvidenceStore.StoreEvidences:input_type -> confirmate.evidence.v1.StoreEvidenceRequest
+	4,  // 11: confirmate.evidence.v1.EvidenceStore.ListEvidences:input_type -> confirmate.evidence.v1.ListEvidencesRequest
+	7,  // 12: confirmate.evidence.v1.EvidenceStore.GetEvidence:input_type -> confirmate.evidence.v1.GetEvidenceRequest
+	8,  // 13: confirmate.evidence.v1.EvidenceStore.ListSupportedResourceTypes:input_type -> confirmate.evidence.v1.ListSupportedResourceTypesRequest
+	10, // 14: confirmate.evidence.v1.EvidenceStore.ListResources:input_type -> confirmate.evidence.v1.ListResourcesRequest
+	12, // 15: confirmate.evidence.v1.EvidenceStore.ListTools:input_type -> confirmate.evidence.v1.ListToolsRequest
+	2,  // 16: confirmate.evidence.v1.EvidenceStore.StoreEvidence:output_type -> confirmate.evidence.v1.StoreEvidenceResponse
+	3,  // 17: confirmate.evidence.v1.EvidenceStore.StoreEvidences:output_type -> confirmate.evidence.v1.StoreEvidencesResponse
+	6,  // 18: confirmate.evidence.v1.EvidenceStore.ListEvidences:output_type -> confirmate.evidence.v1.ListEvidencesResponse
+	17, // 19: confirmate.evidence.v1.EvidenceStore.GetEvidence:output_type -> confirmate.evidence.v1.Evidence
+	9,  // 20: confirmate.evidence.v1.EvidenceStore.ListSupportedResourceTypes:output_type -> confirmate.evidence.v1.ListSupportedResourceTypesResponse
+	11, // 21: confirmate.evidence.v1.EvidenceStore.ListResources:output_type -> confirmate.evidence.v1.ListResourcesResponse
+	14, // 22: confirmate.evidence.v1.EvidenceStore.ListTools:output_type -> confirmate.evidence.v1.ListToolsResponse
+	16, // [16:23] is the sub-list for method output_type
+	9,  // [9:16] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_api_evidence_evidence_store_proto_init() }
@@ -944,14 +1087,16 @@ func file_api_evidence_evidence_store_proto_init() {
 	file_api_evidence_evidence_store_proto_msgTypes[3].OneofWrappers = []any{}
 	file_api_evidence_evidence_store_proto_msgTypes[4].OneofWrappers = []any{}
 	file_api_evidence_evidence_store_proto_msgTypes[9].OneofWrappers = []any{}
-	file_api_evidence_evidence_store_proto_msgTypes[13].OneofWrappers = []any{}
+	file_api_evidence_evidence_store_proto_msgTypes[11].OneofWrappers = []any{}
+	file_api_evidence_evidence_store_proto_msgTypes[14].OneofWrappers = []any{}
+	file_api_evidence_evidence_store_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_evidence_evidence_store_proto_rawDesc), len(file_api_evidence_evidence_store_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   14,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

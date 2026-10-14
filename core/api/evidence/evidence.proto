@@ -31,8 +31,13 @@ message Evidence {
   string id = 1 [(buf.validate.field).string.uuid = true];
 
   // time of evidence creation
+  //
+  // NOTE: together with tool_id, the timestamp is part of the index
+  // idx_evidences_tool_timestamp (tool_id, timestamp DESC) that backs the lookup
+  // of the latest evidence of a tool in ListTools. See the note on tool_id for a
+  // safe production rollout.
   google.protobuf.Timestamp timestamp = 2 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp;index:idx_evidences_tool_timestamp,priority:2,sort:desc\"",
     (buf.validate.field).required = true
   ];
 
@@ -52,7 +57,19 @@ message Evidence {
   ];
 
   // Reference to the tool which provided the evidence
-  string tool_id = 4 [(buf.validate.field).string.min_len = 1];
+  //
+  // NOTE: idx_evidences_tool_timestamp (tool_id, timestamp DESC) is picked up by
+  // GORM's AutoMigrate on service startup (see persistence.NewDB). Evidence is
+  // append-only and can grow very large (100k+ rows); on an already-populated
+  // table, the first startup after this index is introduced will run a blocking
+  // CREATE INDEX and may stall writes for a while. Consider pre-creating it
+  // out-of-band with `CREATE INDEX CONCURRENTLY idx_evidences_tool_timestamp ON
+  // evidences (tool_id, timestamp DESC);` before rolling this out; AutoMigrate
+  // detects the existing index by name and skips it.
+  string tool_id = 4 [
+    (buf.validate.field).string.min_len = 1,
+    (tagger.tags) = "gorm:\"index:idx_evidences_tool_timestamp,priority:1\""
+  ];
 
   // Semantic representation of the Cloud resource according to our defined ontology
   confirmate.ontology.v1.Resource resource = 6 [(tagger.tags) = "gorm:\"serializer:json\""];

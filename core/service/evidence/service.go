@@ -21,6 +21,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"slices"
 	"strings"
 	"sync"
 
@@ -38,6 +39,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/lmittmann/tint"
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -444,28 +446,81 @@ func (svc *Service) ListSupportedResourceTypes(_ context.Context, req *connect.R
 	return
 }
 
-// ListTools returns the IDs of all evidence collecting tools that have provided evidence so far.
+// ListTools returns all evidence collecting tools that have provided evidence so far, together with the timestamp of
+// their latest evidence, ordered by their ID. It can be filtered by target of evaluation, in which case only the
+// tools that provided evidence for it are returned and the latest evidence timestamp refers to this target of
+// evaluation as well. All tools are returned at once, there is no pagination.
 // This implements the [evidenceconnect.EvidenceStoreHandler.ListTools] RPC method.
 func (svc *Service) ListTools(_ context.Context, req *connect.Request[evidence.ListToolsRequest]) (
 	res *connect.Response[evidence.ListToolsResponse], err error) {
 
-	var toolIds []string
+	var (
+		query                []string
+		args                 []any
+		targetOfEvaluationId string
+		toolIds              []string
+		tools                []*evidence.Tool
+		latest               *timestamppb.Timestamp
+	)
 
 	// Validate request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	err = svc.db.Pluck(&evidence.Evidence{}, "tool_id", &toolIds)
+	// The (optional) filter is validated to be a UUID if set, so it is never empty then
+	targetOfEvaluationId = req.Msg.GetFilter().GetTargetOfEvaluationId()
+	if targetOfEvaluationId != "" {
+		query = append(query, "target_of_evaluation_id = ?")
+		args = append(args, targetOfEvaluationId)
+	}
+
+	err = svc.db.Pluck(&evidence.Evidence{}, "tool_id", &toolIds, persistence.BuildConds(query, args)...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
+	slices.Sort(toolIds)
+
+	tools = make([]*evidence.Tool, 0, len(toolIds))
+	for _, toolId := range toolIds {
+		latest, err = svc.latestEvidenceTimestamp(toolId, targetOfEvaluationId)
+		if err = service.HandleDatabaseError(err); err != nil {
+			return nil, err
+		}
+
+		tools = append(tools, &evidence.Tool{Id: toolId, LatestEvidenceTimestamp: latest})
+	}
+
 	res = connect.NewResponse(&evidence.ListToolsResponse{
-		ToolIds:       toolIds,
-		NextPageToken: "",
+		ToolIds: toolIds,
+		Tools:   tools,
 	})
 	return
+}
+
+// latestEvidenceTimestamp returns the timestamp of the latest evidence of the given tool, optionally only of the given
+// target of evaluation. It only reads the timestamp column and is backed by the index idx_evidences_tool_timestamp.
+// It returns nil if the tool has no evidence (for the target of evaluation).
+func (svc *Service) latestEvidenceTimestamp(toolId string, targetOfEvaluationId string) (latest *timestamppb.Timestamp, err error) {
+	var (
+		query     = "SELECT timestamp FROM evidences WHERE tool_id = ?"
+		args      = []any{toolId}
+		evidences []*evidence.Evidence
+	)
+
+	if targetOfEvaluationId != "" {
+		query += " AND target_of_evaluation_id = ?"
+		args = append(args, targetOfEvaluationId)
+	}
+	query += " ORDER BY timestamp DESC LIMIT 1"
+
+	err = svc.db.Raw(&evidences, query, args...)
+	if err != nil || len(evidences) == 0 {
+		return nil, err
+	}
+
+	return evidences[0].GetTimestamp(), nil
 }
 
 // ListResources returns the list of resources, a pagination token, or an error if the operation fails.

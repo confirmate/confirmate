@@ -393,9 +393,18 @@ paths:
             tags:
                 - EvidenceStore
             description: |-
-                Returns the IDs of all evidence collecting tools that have provided
-                 evidence so far. Part of the public API, also exposed as REST.
+                Lists all evidence collecting tools that have provided evidence so far,
+                 together with the timestamp of their latest evidence. Part of the public
+                 API, also exposed as REST.
             operationId: EvidenceStore_ListTools
+            parameters:
+                - name: filter.targetOfEvaluationId
+                  in: query
+                  description: |-
+                    Optional. Lists only the tools that provided evidence for a specific
+                     target of evaluation.
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -5197,7 +5206,13 @@ components:
                     description: the ID in a uuid format
                 timestamp:
                     type: string
-                    description: time of evidence creation
+                    description: |-
+                        time of evidence creation
+
+                         NOTE: together with tool_id, the timestamp is part of the index
+                         idx_evidences_tool_timestamp (tool_id, timestamp DESC) that backs the lookup
+                         of the latest evidence of a tool in ListTools. See the note on tool_id for a
+                         safe production rollout.
                     format: date-time
                 targetOfEvaluationId:
                     type: string
@@ -5214,7 +5229,17 @@ components:
                          AutoMigrate detects the existing index by name and skips it.
                 toolId:
                     type: string
-                    description: Reference to the tool which provided the evidence
+                    description: |-
+                        Reference to the tool which provided the evidence
+
+                         NOTE: idx_evidences_tool_timestamp (tool_id, timestamp DESC) is picked up by
+                         GORM's AutoMigrate on service startup (see persistence.NewDB). Evidence is
+                         append-only and can grow very large (100k+ rows); on an already-populated
+                         table, the first startup after this index is introduced will run a blocking
+                         CREATE INDEX and may stall writes for a while. Consider pre-creating it
+                         out-of-band with `CREATE INDEX CONCURRENTLY idx_evidences_tool_timestamp ON
+                         evidences (tool_id, timestamp DESC);` before rolling this out; AutoMigrate
+                         detects the existing index by name and skips it.
                 resource:
                     allOf:
                         - $ref: '#/components/schemas/Resource'
@@ -7078,8 +7103,18 @@ components:
                     type: array
                     items:
                         type: string
+                    description: |-
+                        The IDs of the tools.
+
+                         Deprecated: Use tools instead, which also contains the ID.
                 nextPageToken:
                     type: string
+                    description: Not used, because all tools are returned at once.
+                tools:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Tool'
+                    description: The tools, ordered by their ID.
         ListUserPermissionsResponse:
             type: object
             properties:
@@ -9973,6 +10008,20 @@ components:
             description: |-
                 Token is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  A Token used for TokenBasedAuthentication.
+        Tool:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: The unique ID of the tool.
+                latestEvidenceTimestamp:
+                    type: string
+                    description: |-
+                        The timestamp of the most recent evidence that the tool provided. If the
+                         request was filtered by a target of evaluation, it only considers the
+                         evidence of this target of evaluation.
+                    format: date-time
+            description: An evidence collecting tool.
         TransitionControlInScopeStateRequest:
             required:
                 - id
