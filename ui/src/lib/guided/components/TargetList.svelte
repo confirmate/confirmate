@@ -6,9 +6,9 @@
 
 	let { targets }: { targets: TargetSummary[] } = $props();
 
-	const kinds = $derived(['All', ...new Set(targets.map((t) => t.kindLabel))]);
-	let kind = $state('All');
-	const shown = $derived(kind === 'All' ? targets : targets.filter((t) => t.kindLabel === kind));
+	const types = $derived(['All', ...new Set(targets.map((t) => t.typeLabel))]);
+	let type = $state('All');
+	const shown = $derived(type === 'All' ? targets : targets.filter((t) => t.typeLabel === type));
 </script>
 
 <main class="mx-auto flex w-full max-w-310 flex-col gap-10 px-10 pt-14 pb-20">
@@ -21,7 +21,7 @@
 		{/snippet}
 	</PageHeading>
 
-	<FilterChips label="Filter by kind" options={kinds} bind:value={kind} />
+	<FilterChips label="Filter by type" options={types} bind:value={type} />
 
 	<section class="grid grid-cols-[repeat(auto-fit,minmax(min(32rem,100%),1fr))] gap-6">
 		{#each shown as target, i (target.id)}

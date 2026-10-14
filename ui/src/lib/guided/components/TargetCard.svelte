@@ -15,7 +15,7 @@
 			<p class="text-ink-muted">{target.subtitle}</p>
 		</div>
 		<span class="flex flex-wrap justify-end gap-2">
-			<Chip>{target.kindLabel}</Chip>
+			<Chip>{target.typeLabel}</Chip>
 			<Chip tone="brand">{target.frameworkLabel}</Chip>
 		</span>
 	</div>
