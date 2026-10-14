@@ -312,10 +312,37 @@ func TestResource_UnmarshalJSON(t *testing.T) {
 		},
 		{
 			name: "legacy string and number are wrapped, unknown fields are dropped",
-			args: args{data: `{"policyDocument":{"id":"doc","removedField":1,"dataConfidentialitySdnPolicy":{"restrictsDownloadAndExtraction":"stated","encryptionRequired":3}}}`},
+			args: args{data: `{"policyDocument":{"id":"doc","removedField":1,"dataConfidentialitySdnPolicy":{"restrictsDownloadAndExtraction":"stated","thirdPartyExchangeRulesDefined":3}}}`},
 			want: func(t *testing.T, got *Resource, msgAndArgs ...any) bool {
 				return assert.Equal(t, "doc", got.GetPolicyDocument().GetId()) &&
-					assert.Equal(t, []string{"stated"}, got.GetPolicyDocument().GetDataConfidentialitySdnPolicy().GetRestrictsDownloadAndExtraction())
+					assert.Equal(t, []string{"stated"}, got.GetPolicyDocument().GetDataConfidentialitySdnPolicy().GetRestrictsDownloadAndExtraction()) &&
+					assert.Equal(t, []string{"3"}, got.GetPolicyDocument().GetDataConfidentialitySdnPolicy().GetThirdPartyExchangeRulesDefined())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "already converted list next to an unknown field",
+			args: args{data: `{"policyDocument":{"removedField":1,"dataConfidentialitySdnPolicy":{"restrictsDownloadAndExtraction":["a","b"]}}}`},
+			want: func(t *testing.T, got *Resource, msgAndArgs ...any) bool {
+				return assert.Equal(t, []string{"a", "b"}, got.GetPolicyDocument().GetDataConfidentialitySdnPolicy().GetRestrictsDownloadAndExtraction())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "maps and lists of messages are kept while unknown fields are dropped",
+			args: args{data: `{"virtualMachine":{"id":"vm","labels":{"a":"b"},"removed":1}}`},
+			want: func(t *testing.T, got *Resource, msgAndArgs ...any) bool {
+				return assert.Equal(t, "vm", got.GetVirtualMachine().GetId()) &&
+					assert.Equal(t, map[string]string{"a": "b"}, got.GetVirtualMachine().GetLabels())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "list of messages with an unknown field",
+			args: args{data: `{"blockStorage":{"id":"bs","backups":[{"enabled":true,"removed":1}]}}`},
+			want: func(t *testing.T, got *Resource, msgAndArgs ...any) bool {
+				return assert.Equal(t, 1, len(got.GetBlockStorage().GetBackups())) &&
+					assert.True(t, got.GetBlockStorage().GetBackups()[0].GetEnabled())
 			},
 			wantErr: assert.NoError,
 		},

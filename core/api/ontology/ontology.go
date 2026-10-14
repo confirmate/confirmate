@@ -235,6 +235,9 @@ func (x *Resource) UnmarshalJSON(b []byte) (err error) {
 // boolean in the given JSON, is converted: true becomes the single value "true" (the information that the property
 // was stated is kept, but not what was stated), false becomes an empty list. Other scalars are wrapped into a
 // single-element list. Everything that does not match the descriptor is left untouched.
+//
+// False must not become a value, because the metrics treat a non-empty list as "stated": converting false to
+// "false" would turn a property that was explicitly not stated into one that is stated.
 func migrateLegacyJSON(b []byte, md protoreflect.MessageDescriptor) (migrated []byte, err error) {
 	var (
 		v any
