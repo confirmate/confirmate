@@ -954,7 +954,7 @@ func TestService_evaluateControl(t *testing.T) {
 				catalogControls:    tt.fields.catalogControls,
 			}
 
-			gotErr := svc.evaluateControl(tt.args.ctx, tt.args.auditScope, tt.args.catalog, tt.args.control, tt.args.manual)
+			gotErr := svc.evaluateControl(tt.args.ctx, tt.args.auditScope, tt.args.catalog, tt.args.control, tt.args.manual, nil)
 
 			tt.wantErr(t, gotErr)
 			tt.wantSvc(t, &svc)
@@ -1586,7 +1586,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				catalogControls:    tt.fields.catalogControls,
 			}
 
-			got, gotErr := svc.evaluateSubcontrol(tt.args.ctx, tt.args.auditScope, tt.args.control)
+			got, gotErr := svc.evaluateSubcontrol(tt.args.ctx, tt.args.auditScope, tt.args.control, nil)
 
 			tt.want(t, got)
 			tt.wantErr(t, gotErr)

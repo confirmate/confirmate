@@ -562,6 +562,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		ignored    []string
 		manual     map[string][]*evaluation.EvaluationResult
 		inScopeIds map[string]struct{}
+		latest     *latestAssessments
 		err        error
 		cancel     context.CancelFunc
 	)
@@ -663,10 +664,20 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	ctx, cancel = context.WithTimeout(context.Background(), time.Duration(interval)*time.Minute)
 	defer cancel()
 
+	// Fetch the latest assessment results of the target of evaluation once, instead of once per (sub-)control. If this
+	// fails, latest stays nil and every sub-control falls back to asking the orchestrator itself.
+	latest, err = svc.fetchLatestAssessments(ctx, auditScope.GetTargetOfEvaluationId())
+	if err != nil {
+		slog.Warn("Could not fetch the latest assessment results once, falling back to fetching them per control",
+			slog.String("target of evaluation id", auditScope.GetTargetOfEvaluationId()),
+			log.Err(err))
+		latest = nil
+	}
+
 	g, gctx := errgroup.WithContext(ctx)
 	for _, control := range relevant {
 		g.Go(func() error {
-			err := svc.evaluateControl(gctx, auditScope, catalog, control, manual[control.Id])
+			err := svc.evaluateControl(gctx, auditScope, catalog, control, manual[control.Id], latest)
 			if err != nil {
 				return err
 			}
@@ -731,7 +742,7 @@ func (svc *Service) fetchInScopeControlIds(ctx context.Context, auditScopeId str
 
 // evaluateControl evaluates a control, e.g., OPS-13. Therefore, the method needs to wait till all sub-controls (e.g.,
 // OPS-13.1) are evaluated.
-func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, control *orchestrator.Control, manual []*evaluation.EvaluationResult) (err error) {
+func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, control *orchestrator.Control, manual []*evaluation.EvaluationResult, latest *latestAssessments) (err error) {
 	var (
 		status              = evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING
 		result              *evaluation.EvaluationResult
@@ -773,7 +784,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	g, gctx := errgroup.WithContext(ctx)
 	for i, sub := range relevantSubcontrol {
 		g.Go(func() error {
-			r, err := svc.evaluateSubcontrol(gctx, auditScope, sub)
+			r, err := svc.evaluateSubcontrol(gctx, auditScope, sub, latest)
 			if err != nil {
 				return err
 			}
@@ -854,7 +865,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 }
 
 // evaluateSubcontrol evaluates the sub-controls, e.g., OPS-13.2
-func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestrator.AuditScope, control *orchestrator.Control) (eval *evaluation.EvaluationResult, err error) {
+func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestrator.AuditScope, control *orchestrator.Control, latest *latestAssessments) (eval *evaluation.EvaluationResult, err error) {
 	var (
 		assessments []*assessment.AssessmentResult
 		status      evaluation.EvaluationStatus
@@ -880,7 +891,11 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 			log.Err(err))
 	}
 
-	if len(metrics) != 0 {
+	if len(metrics) != 0 && latest != nil {
+		// Use the snapshot of the latest assessment results of the target of evaluation that was fetched once for the
+		// whole evaluation of the audit scope.
+		assessments = latest.forMetrics(getMetricIds(metrics))
+	} else if len(metrics) != 0 {
 		// Get latest assessment_results by resource_id filtered by
 		// * target of evaluation id
 		// * metric ids
