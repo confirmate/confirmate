@@ -81,25 +81,24 @@ func (svc *Service) StoreAssessmentResult(
 	return
 }
 
-// manualResourceId returns the ID of the synthetic resource, to which manually supplied assessment results of the
-// given target of evaluation are attached. It is unique per target of evaluation, so that the "latest result per
-// resource and metric" of different targets of evaluation does not collide.
-func manualResourceId(targetOfEvaluationId string) string {
-	return "manual:" + targetOfEvaluationId
-}
-
 // StoreManualAssessmentResult stores an assessment result that was supplied manually for a single metric of a
-// target of evaluation. It is additional information only: the evaluation prefers an automatic result of the same
-// metric over it.
+// target of evaluation, optionally for a specific resource. It is additional information only: the evaluation prefers
+// an automatic result over it. Because the latest result per resource and metric counts, a manual result for a
+// resource is rejected if an automatic result of the metric exists for it already. A newer automatic result replaces
+// a manual one on its own.
 func (svc *Service) StoreManualAssessmentResult(
 	ctx context.Context,
 	req *connect.Request[orchestrator.StoreManualAssessmentResultRequest],
 ) (res *connect.Response[assessment.AssessmentResult], err error) {
 	var (
-		allowed bool
-		metric  assessment.Metric
-		result  *assessment.AssessmentResult
-		now     = timestamppb.Now()
+		allowed       bool
+		metric        assessment.Metric
+		result        *assessment.AssessmentResult
+		resourceId    = assessment.ManualTargetOfEvaluationResourceId(req.Msg.GetTargetOfEvaluationId())
+		resourceTypes = []string{"Manual"}
+		existing      assessment.AssessmentResult
+		count         int64
+		now           = timestamppb.Now()
 	)
 
 	// Validate the request
@@ -122,6 +121,29 @@ func (svc *Service) StoreManualAssessmentResult(
 		return nil, err
 	}
 
+	if req.Msg.ResourceId != nil {
+		resourceId = req.Msg.GetResourceId()
+
+		// An automatic result of the same resource and metric takes precedence, but it would be hidden by a newer
+		// manual result, since only the latest result per resource and metric counts.
+		count, err = svc.db.Count(&assessment.AssessmentResult{}, "target_of_evaluation_id = ? AND resource_id = ? AND metric_id = ? AND manual = ?",
+			req.Msg.GetTargetOfEvaluationId(), resourceId, req.Msg.GetMetricId(), false)
+		if err = service.HandleDatabaseError(err); err != nil {
+			return nil, err
+		}
+		if count > 0 {
+			return nil, connect.NewError(connect.CodeFailedPrecondition, errors.New("an automatic result of the metric exists for the resource already"))
+		}
+
+		// Take over the types of the resource from another result of it, if there is one
+		err = svc.db.Get(&existing, "target_of_evaluation_id = ? AND resource_id = ?", req.Msg.GetTargetOfEvaluationId(), resourceId)
+		if err == nil {
+			resourceTypes = existing.GetResourceTypes()
+		} else if !errors.Is(err, persistence.ErrRecordNotFound) {
+			return nil, service.HandleDatabaseError(err)
+		}
+	}
+
 	result = &assessment.AssessmentResult{
 		Id:        uuid.NewString(),
 		CreatedAt: now,
@@ -132,8 +154,8 @@ func (svc *Service) StoreManualAssessmentResult(
 		},
 		Compliant:            req.Msg.GetCompliant(),
 		EvidenceId:           req.Msg.GetEvidenceId(),
-		ResourceId:           manualResourceId(req.Msg.GetTargetOfEvaluationId()),
-		ResourceTypes:        []string{"Manual"},
+		ResourceId:           resourceId,
+		ResourceTypes:        resourceTypes,
 		ComplianceComment:    req.Msg.GetComment(),
 		TargetOfEvaluationId: req.Msg.GetTargetOfEvaluationId(),
 		ToolId:               new("manual"),

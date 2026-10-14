@@ -7,13 +7,16 @@
 	let {
 		open = $bindable(false),
 		metric,
-		targetId
+		targetId,
+		resources = []
 	}: {
 		open: boolean;
 		metric: { id?: string; name?: string };
 		targetId: string;
+		resources?: { id?: string; name?: string; resourceType?: string }[];
 	} = $props();
 
+	let resourceId = $state('');
 	let compliant = $state(true);
 	let comment = $state('');
 	let evidenceId = $state('');
@@ -22,6 +25,7 @@
 	let errorMsg = $state<string | null>(null);
 
 	function reset() {
+		resourceId = '';
 		compliant = true;
 		comment = '';
 		evidenceId = '';
@@ -42,6 +46,7 @@
 				body: {
 					targetOfEvaluationId: targetId,
 					metricId: metric.id ?? '',
+					resourceId: resourceId || undefined,
 					compliant,
 					comment: comment.trim(),
 					evidenceId: evidenceId.trim() || undefined,
@@ -81,9 +86,28 @@
 			</div>
 
 			<p class="mb-4 text-sm text-gray-500">
-				A manual result is additional information. As soon as an automatic result exists for this
-				metric, the automatic result takes precedence.
+				A manual result is additional information. Automatic results take precedence: it is rejected
+				if an automatic result exists for the chosen resource, and ignored for the whole target of
+				evaluation as soon as the metric has an automatic result.
 			</p>
+
+			<div class="mb-4">
+				<label class="mb-2 block text-sm font-medium text-gray-700" for="manual-resource">
+					Resource <span class="font-normal text-gray-500">(optional)</span>
+				</label>
+				<select
+					id="manual-resource"
+					bind:value={resourceId}
+					class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+				>
+					<option value="">Whole target of evaluation</option>
+					{#each resources as resource}
+						<option value={resource.id}>
+							{resource.name || resource.id}{resource.resourceType ? ` (${resource.resourceType})` : ''}
+						</option>
+					{/each}
+				</select>
+			</div>
 
 			<div class="mb-4">
 				<label class="mb-2 block text-sm font-medium text-gray-700">Is the metric met?</label>

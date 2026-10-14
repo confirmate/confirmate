@@ -1,4 +1,4 @@
-import { orchestratorClient } from '$lib/api/client';
+import { evidenceClient, orchestratorClient } from '$lib/api/client';
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 
@@ -58,6 +58,19 @@ export const load = (async ({ params, fetch }) => {
 		: { data: null };
 	const assessmentResults = assessmentResp?.results ?? [];
 
+	// Resources of the target of evaluation, a manual metric result can be about one of them
+	const { data: resourcesResp } = await evidenceClient(fetch).GET('/v1/evidence_store/resources', {
+		params: {
+			query: {
+				'filter.targetOfEvaluationId': params.id,
+				pageSize: 1500,
+				orderBy: 'resource_type',
+				asc: true
+			}
+		}
+	});
+	const resources = resourcesResp?.results ?? [];
+
 	// Audit trail filtered to this control's CIS record
 	const { data: auditTrailResp } = cis?.id
 		? await client.GET('/v1/orchestrator/audit_trail_events', {
@@ -79,6 +92,7 @@ export const load = (async ({ params, fetch }) => {
 		cis,
 		evaluation,
 		assessmentResults,
+		resources,
 		auditTrailEvents,
 		users: usersResp?.users ?? []
 	};

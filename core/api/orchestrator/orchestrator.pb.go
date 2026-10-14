@@ -717,7 +717,13 @@ type StoreManualAssessmentResultRequest struct {
 	// document.
 	EvidenceId *string `protobuf:"bytes,5,opt,name=evidence_id,json=evidenceId,proto3,oneof" json:"evidence_id,omitempty"`
 	// Time until which the statement is valid.
-	ValidUntil    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=valid_until,json=validUntil,proto3,oneof" json:"valid_until,omitempty"`
+	ValidUntil *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=valid_until,json=validUntil,proto3,oneof" json:"valid_until,omitempty"`
+	// ID of the resource the metric is assessed for, e.g., if the metric cannot be
+	// collected automatically for this resource. If omitted, the result is about
+	// the target of evaluation as a whole, e.g., for organizational metrics. It
+	// is rejected, if an automatic result of the metric already exists for the
+	// resource.
+	ResourceId    *string `protobuf:"bytes,7,opt,name=resource_id,json=resourceId,proto3,oneof" json:"resource_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -792,6 +798,13 @@ func (x *StoreManualAssessmentResultRequest) GetValidUntil() *timestamppb.Timest
 		return x.ValidUntil
 	}
 	return nil
+}
+
+func (x *StoreManualAssessmentResultRequest) GetResourceId() string {
+	if x != nil && x.ResourceId != nil {
+		return *x.ResourceId
+	}
+	return ""
 }
 
 // StoreAssessmentResultReponse belongs to StoreAssessmentResult, which uses a
@@ -6420,7 +6433,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\atool_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06toolId\"m\n" +
 	"\x1cStoreAssessmentResultRequest\x12M\n" +
-	"\x06result\x18\x01 \x01(\v2*.confirmate.assessment.v1.AssessmentResultB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06result\"\xef\x02\n" +
+	"\x06result\x18\x01 \x01(\v2*.confirmate.assessment.v1.AssessmentResultB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06result\"\xb1\x03\n" +
 	"\"StoreManualAssessmentResultRequest\x12B\n" +
 	"\x17target_of_evaluation_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12'\n" +
 	"\tmetric_id\x18\x02 \x01(\tB\n" +
@@ -6431,9 +6444,13 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\vevidence_id\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\xb0\x01\x01H\x00R\n" +
 	"evidenceId\x88\x01\x01\x12E\n" +
 	"\vvalid_until\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x01R\n" +
-	"validUntil\x88\x01\x01B\x0e\n" +
+	"validUntil\x88\x01\x01\x120\n" +
+	"\vresource_id\x18\a \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x10\x01H\x02R\n" +
+	"resourceId\x88\x01\x01B\x0e\n" +
 	"\f_evidence_idB\x0e\n" +
-	"\f_valid_until\"\x1f\n" +
+	"\f_valid_untilB\x0e\n" +
+	"\f_resource_id\"\x1f\n" +
 	"\x1dStoreAssessmentResultResponse\"_\n" +
 	"\x1eStoreAssessmentResultsResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\bR\x06status\x12%\n" +

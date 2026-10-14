@@ -553,6 +553,16 @@ message StoreManualAssessmentResultRequest {
 
   // Time until which the statement is valid.
   optional google.protobuf.Timestamp valid_until = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // ID of the resource the metric is assessed for, e.g., if the metric cannot be
+  // collected automatically for this resource. If omitted, the result is about
+  // the target of evaluation as a whole, e.g., for organizational metrics. It
+  // is rejected, if an automatic result of the metric already exists for the
+  // resource.
+  optional string resource_id = 7 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = OPTIONAL
+  ];
 }
 
 // StoreAssessmentResultReponse belongs to StoreAssessmentResult, which uses a

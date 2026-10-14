@@ -1614,6 +1614,14 @@ export interface components {
              * @description Time until which the statement is valid.
              */
             validUntil?: string;
+            /**
+             * @description ID of the resource the metric is assessed for, e.g., if the metric cannot be
+             *      collected automatically for this resource. If omitted, the result is about
+             *      the target of evaluation as a whole, e.g., for organizational metrics. It
+             *      is rejected, if an automatic result of the metric already exists for the
+             *      resource.
+             */
+            resourceId?: string;
         };
         TargetOfEvaluation: {
             id: string;

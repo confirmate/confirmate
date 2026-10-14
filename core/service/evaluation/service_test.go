@@ -498,8 +498,9 @@ func Test_getMetricIds(t *testing.T) {
 func Test_preferAutomaticResults(t *testing.T) {
 	now := time.Now()
 	auto := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1}
-	manual := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1, Manual: true}
-	manualOtherMetric := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true}
+	manual := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1, Manual: true, ResourceId: assessment.ManualTargetOfEvaluationResourceId(evaluationtest.MockToeId1)}
+	manualOfResource := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1, Manual: true, ResourceId: evaluationtest.MockResourceId1}
+	manualOtherMetric := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true, ResourceId: assessment.ManualTargetOfEvaluationResourceId(evaluationtest.MockToeId1)}
 	manualExpired := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true, ValidUntil: timestamppb.New(now.Add(-time.Hour))}
 	manualValid := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId3, Manual: true, ValidUntil: timestamppb.New(now.Add(time.Hour))}
 
@@ -522,9 +523,14 @@ func Test_preferAutomaticResults(t *testing.T) {
 			want: []*assessment.AssessmentResult{auto},
 		},
 		{
-			name: "manual result is dropped if an automatic result of the same metric exists",
+			name: "manual result of the target of evaluation is dropped if an automatic result of the same metric exists",
 			args: args{results: []*assessment.AssessmentResult{manual, auto}},
 			want: []*assessment.AssessmentResult{auto},
+		},
+		{
+			name: "manual result of a resource is kept, because a newer automatic result of the resource replaces it on its own",
+			args: args{results: []*assessment.AssessmentResult{manualOfResource, auto}},
+			want: []*assessment.AssessmentResult{manualOfResource, auto},
 		},
 		{
 			name: "manual result of another metric is kept",

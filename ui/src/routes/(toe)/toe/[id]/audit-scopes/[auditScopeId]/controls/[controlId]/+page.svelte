@@ -280,6 +280,7 @@
 		bind:open={showManualMetricDialog}
 		metric={manualMetric}
 		targetId={data.auditScope.targetOfEvaluationId ?? ''}
+		resources={data.resources}
 	/>
 {/if}
 

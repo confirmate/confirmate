@@ -9932,6 +9932,14 @@ components:
                     type: string
                     description: Time until which the statement is valid.
                     format: date-time
+                resourceId:
+                    type: string
+                    description: |-
+                        ID of the resource the metric is assessed for, e.g., if the metric cannot be
+                         collected automatically for this resource. If omitted, the result is about
+                         the target of evaluation as a whole, e.g., for organizational metrics. It
+                         is rejected, if an automatic result of the metric already exists for the
+                         resource.
             description: Request for StoreManualAssessmentResult.
         SymmetricCipher:
             type: object

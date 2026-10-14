@@ -33,6 +33,7 @@ import (
 	"confirmate.io/core/util/assert"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/go-cmp/cmp"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -362,7 +363,7 @@ func TestService_StoreManualAssessmentResult(t *testing.T) {
 				r := got.Msg
 				return assert.True(t, r.GetManual()) &&
 					assert.True(t, r.GetCompliant()) &&
-					assert.Equal(t, "manual:"+orchestratortest.MockToeId1, r.GetResourceId()) &&
+					assert.Equal(t, assessment.ManualTargetOfEvaluationResourceId(orchestratortest.MockToeId1), r.GetResourceId()) &&
 					assert.Equal(t, orchestratortest.MockCompliantComment, r.GetComplianceComment()) &&
 					assert.Equal(t, orchestratortest.MockEvidenceId1, r.GetEvidenceId()) &&
 					assert.Equal(t, "manual", r.GetToolId()) &&
@@ -372,6 +373,94 @@ func TestService_StoreManualAssessmentResult(t *testing.T) {
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				count, err := db.Count(&assessment.AssessmentResult{}, "metric_id = ? AND manual = ?", orchestratortest.MockMetricId1, true)
+				return assert.NoError(t, err) && assert.Equal(t, int64(1), count)
+			},
+		},
+		{
+			name: "automatic result of the resource and metric exists",
+			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{
+				TargetOfEvaluationId: orchestratortest.MockToeId1,
+				MetricId:             orchestratortest.MockMetricId1,
+				Comment:              orchestratortest.MockCompliantComment,
+				ResourceId:           new(orchestratortest.MockResourceId1),
+			}},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, seedMetric, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockAssessmentResult1))
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeFailedPrecondition)
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "db error when looking for an automatic result",
+			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{
+				TargetOfEvaluationId: orchestratortest.MockToeId1,
+				MetricId:             orchestratortest.MockMetricId1,
+				Comment:              orchestratortest.MockCompliantComment,
+				ResourceId:           new(orchestratortest.MockResourceId1),
+			}},
+			fields: fields{
+				db:    persistencetest.CountErrorDB(t, persistence.ErrDatabase, types, joinTables, seedMetric),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal)
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "happy path: for a resource without other results",
+			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{
+				TargetOfEvaluationId: orchestratortest.MockToeId1,
+				MetricId:             orchestratortest.MockMetricId1,
+				Comment:              orchestratortest.MockCompliantComment,
+				ResourceId:           new(orchestratortest.MockResourceId1),
+			}},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables, seedMetric),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.AssessmentResult], msgAndArgs ...any) bool {
+				r := got.Msg
+				return assert.True(t, r.GetManual()) &&
+					assert.False(t, r.IsManualForTargetOfEvaluation()) &&
+					assert.Equal(t, orchestratortest.MockResourceId1, r.GetResourceId()) &&
+					assert.Equal(t, []string{"Manual"}, r.GetResourceTypes())
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				count, err := db.Count(&assessment.AssessmentResult{}, "resource_id = ? AND manual = ?", orchestratortest.MockResourceId1, true)
+				return assert.NoError(t, err) && assert.Equal(t, int64(1), count)
+			},
+		},
+		{
+			name: "happy path: for a resource that has results of other metrics",
+			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{
+				TargetOfEvaluationId: orchestratortest.MockToeId1,
+				MetricId:             orchestratortest.MockMetricId1,
+				Comment:              orchestratortest.MockNotCompliantComment,
+				ResourceId:           new(orchestratortest.MockResourceId1),
+			}},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, seedMetric, func(d persistence.DB) {
+					other := proto.Clone(orchestratortest.MockAssessmentResult1).(*assessment.AssessmentResult)
+					other.MetricId = orchestratortest.MockMetricId2
+					assert.NoError(t, d.Create(other))
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.AssessmentResult], msgAndArgs ...any) bool {
+				return assert.Equal(t, orchestratortest.MockAssessmentResult1.GetResourceTypes(), got.Msg.GetResourceTypes())
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				count, err := db.Count(&assessment.AssessmentResult{}, "manual = ?", true)
 				return assert.NoError(t, err) && assert.Equal(t, int64(1), count)
 			},
 		},

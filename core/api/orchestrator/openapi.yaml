@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.3.0-37-gcd3e4755
+    version: core/v0.3.0-38-gd02bb4fa
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -3406,6 +3406,14 @@ components:
                     type: string
                     description: Time until which the statement is valid.
                     format: date-time
+                resourceId:
+                    type: string
+                    description: |-
+                        ID of the resource the metric is assessed for, e.g., if the metric cannot be
+                         collected automatically for this resource. If omitted, the result is about
+                         the target of evaluation as a whole, e.g., for organizational metrics. It
+                         is rejected, if an automatic result of the metric already exists for the
+                         resource.
             description: Request for StoreManualAssessmentResult.
         TargetOfEvaluation:
             required:

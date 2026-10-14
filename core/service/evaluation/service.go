@@ -1011,8 +1011,11 @@ func (svc *Service) assessControl(ctx context.Context, auditScope *orchestrator.
 }
 
 // preferAutomaticResults drops the manual assessment results that must not count. A manual result is dropped if it
-// expired (valid_until is in the past at the given time) or if an automatic result of the same metric exists: a
-// manual result is additional information only and the automatic result takes precedence.
+// expired (valid_until is in the past at the given time). A manual result about a target of evaluation as a whole is
+// also dropped if an automatic result of the same metric exists for any resource: a manual result is additional
+// information only and the automatic result takes precedence. A manual result about a specific resource needs no
+// such check, because it is replaced by a newer automatic result of the same resource and metric on its own, since
+// only the latest result per resource and metric is evaluated.
 func preferAutomaticResults(results []*assessment.AssessmentResult, now time.Time) (filtered []*assessment.AssessmentResult) {
 	var (
 		automatic = make(map[string]struct{})
@@ -1026,7 +1029,7 @@ func preferAutomaticResults(results []*assessment.AssessmentResult, now time.Tim
 
 	for _, r := range results {
 		if r.GetManual() {
-			if _, ok := automatic[r.GetMetricId()]; ok {
+			if _, ok := automatic[r.GetMetricId()]; ok && r.IsManualForTargetOfEvaluation() {
 				continue
 			}
 			if r.GetValidUntil() != nil && r.GetValidUntil().AsTime().Before(now) {
