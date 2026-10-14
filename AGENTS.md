@@ -49,19 +49,17 @@ Route files (`+page.svelte`, `+layout.svelte`) should be **minimal** — they re
 
 The guided experience lives under `ui/src/routes/guided/` and is a preview that is off by default (feature flag
 `VITE_FEATURE_GUIDED=true` at build time, or `localStorage.setItem('cf.feature.guided', 'true')` in the browser).
-Existing screens do not change.
+Existing screens do not change. Read [ui/docs/design-guide.md](ui/docs/design-guide.md) before you change it. The rules
+that always apply:
 
-- **Design tokens and themes:** `ui/src/lib/theme/theme.css` defines semantic tokens (`--cf-*`) per theme
-  (`data-theme` on `<html>`). New components use only the semantic utilities (`bg-surface`, `text-ink`, `border-line`,
-  `bg-brand`, `text-ok`, `rounded-card`, `font-display`, ...), never raw palette colors, so the design language can be
-  changed by editing a theme.
-- **Design system:** `ui/src/lib/ds/` holds the primitives (button, chip, card, fields, stepper, progress, banner).
-  The older `$lib/components/ui` stays for the existing screens until they are replaced.
-- **Framework profiles:** the setup wizard is driven by a profile (`ui/src/lib/guided/profiles/`), plain data with
-  the steps, questions and scoping effects of a framework. The components are generic; do not put CRA specifics
-  into them.
-- **Data:** the screens read through `GuidedSource` (`ui/src/lib/guided/source.ts`). It is a mock until the backend
-  pieces exist; do not call the API from the guided components directly.
+- Route files contain no markup of their own: they pass loaded data to one component. Reuse components from
+  `ui/src/lib/ds` and `ui/src/lib/guided/components` before you write new markup.
+- Use only the semantic design tokens (`bg-surface`, `text-ink`, `border-line`, `bg-brand`, `text-ok`,
+  `rounded-card`, ...) defined in `ui/src/lib/theme/theme.css`, never raw palette classes or hex colors.
+- Keep `ui/src/lib/ds` free of domain knowledge, and keep framework specifics (CRA, C5, NIS-2) in a profile under
+  `ui/src/lib/guided/profiles/`, not in components.
+- Read data only through `GuidedSource`; do not call the API from guided components.
+- Use "Target of Evaluation" (ToE), "requirement" and "check" in the UI, not "control" and "metric".
 
 ### Tech Stack
 
