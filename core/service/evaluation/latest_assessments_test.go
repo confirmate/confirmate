@@ -257,3 +257,58 @@ func TestService_fetchLatestAssessments_request(t *testing.T) {
 		assert.Equal(t, 0, len(handler.assessmentResultCalls[0].metricIds))
 	}
 }
+
+// TestService_evaluateCatalog_latestAssessments checks how often the orchestrator is asked for assessment results while
+// evaluating a catalog: once for the whole audit scope, and only if that fails once per sub-control as a fallback.
+func TestService_evaluateCatalog_latestAssessments(t *testing.T) {
+	tests := []struct {
+		name    string
+		opts    []func(*mockOrchestratorHandler)
+		wantAll assert.Want[[]listAssessmentResultsCall]
+	}{
+		{
+			name: "fetched once for all controls",
+			opts: []func(*mockOrchestratorHandler){func(m *mockOrchestratorHandler) {
+				m.assessmentResults = []*assessment.AssessmentResult{orchestratortest.MockAssessmentResult1}
+			}},
+			wantAll: func(t *testing.T, got []listAssessmentResultsCall, args ...any) bool {
+				return assert.Equal(t, 1, len(got)) &&
+					assert.Equal(t, 0, len(got[0].metricIds))
+			},
+		},
+		{
+			name: "falls back to one request per sub-control if the one-time fetch fails",
+			opts: []func(*mockOrchestratorHandler){func(m *mockOrchestratorHandler) {
+				m.listAssessmentResultError = errors.New("boom")
+			}},
+			wantAll: func(t *testing.T, got []listAssessmentResultsCall, args ...any) bool {
+				// the failed one-time fetch + at least one fallback request that is filtered by the metrics of a control
+				return assert.True(t, len(got) > 1) &&
+					assert.Equal(t, 0, len(got[0].metricIds)) &&
+					assert.True(t, len(got[1].metricIds) > 0)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client, handler := newOrchestratorClientWithHandler(t, tt.opts...)
+			svc := Service{
+				orchestratorClient: client,
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						evaluationtest.MockControl1.Id:     evaluationtest.MockControl1,
+						evaluationtest.MockSubcontrol11.Id: evaluationtest.MockSubcontrol11,
+						evaluationtest.MockSubcontrol12.Id: evaluationtest.MockSubcontrol12,
+					},
+				},
+			}
+
+			err := svc.evaluateCatalog(context.Background(), evaluationtest.MockAuditScope1, evaluationtest.MockCatalog1, 5)
+
+			assert.NoError(t, err)
+			handler.mu.Lock()
+			defer handler.mu.Unlock()
+			tt.wantAll(t, handler.assessmentResultCalls)
+		})
+	}
+}
