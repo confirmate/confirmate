@@ -704,18 +704,19 @@ func (x *StoreAssessmentResultRequest) GetResult() *assessment.AssessmentResult 
 	return nil
 }
 
+// Request for StoreManualAssessmentResult.
 type StoreManualAssessmentResultRequest struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	TargetOfEvaluationId string                 `protobuf:"bytes,1,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
 	MetricId             string                 `protobuf:"bytes,2,opt,name=metric_id,json=metricId,proto3" json:"metric_id,omitempty"`
-	// Whether the metric is met
+	// Indicates whether the metric is met.
 	Compliant bool `protobuf:"varint,3,opt,name=compliant,proto3" json:"compliant,omitempty"`
-	// Human readable justification, e.g., why the metric is met
+	// Human readable justification, e.g., why the metric is met.
 	Comment string `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`
-	// Optional reference to evidence that was stored in the evidence store before,
-	// e.g., a document
+	// References evidence that was stored in the evidence store before, e.g., a
+	// document.
 	EvidenceId *string `protobuf:"bytes,5,opt,name=evidence_id,json=evidenceId,proto3,oneof" json:"evidence_id,omitempty"`
-	// Optional time until which the statement is valid
+	// Time until which the statement is valid.
 	ValidUntil    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=valid_until,json=validUntil,proto3,oneof" json:"valid_until,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6419,17 +6420,17 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\atool_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06toolId\"m\n" +
 	"\x1cStoreAssessmentResultRequest\x12M\n" +
-	"\x06result\x18\x01 \x01(\v2*.confirmate.assessment.v1.AssessmentResultB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06result\"\xe7\x02\n" +
+	"\x06result\x18\x01 \x01(\v2*.confirmate.assessment.v1.AssessmentResultB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06result\"\xef\x02\n" +
 	"\"StoreManualAssessmentResultRequest\x12B\n" +
 	"\x17target_of_evaluation_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12'\n" +
 	"\tmetric_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\bmetricId\x12\x1c\n" +
 	"\tcompliant\x18\x03 \x01(\bR\tcompliant\x12$\n" +
 	"\acomment\x18\x04 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\acomment\x12.\n" +
-	"\vevidence_id\x18\x05 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\n" +
-	"evidenceId\x88\x01\x01\x12@\n" +
-	"\vvalid_until\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\acomment\x121\n" +
+	"\vevidence_id\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\xb0\x01\x01H\x00R\n" +
+	"evidenceId\x88\x01\x01\x12E\n" +
+	"\vvalid_until\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x01R\n" +
 	"validUntil\x88\x01\x01B\x0e\n" +
 	"\f_evidence_idB\x0e\n" +
 	"\f_valid_until\"\x1f\n" +

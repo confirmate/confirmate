@@ -261,7 +261,7 @@ func TestService_StoreManualAssessmentResult(t *testing.T) {
 		authz service.AuthorizationStrategy
 	}
 	seedMetric := func(d persistence.DB) {
-		assert.NoError(t, d.Create(&assessment.Metric{Id: orchestratortest.MockMetricId1, Name: orchestratortest.MockMetricId1, Category: "cat"}))
+		assert.NoError(t, d.Create(orchestratortest.MockMetric1))
 	}
 	validUntil := timestamppb.New(time.Now().Add(24 * time.Hour))
 	tests := []struct {
@@ -270,6 +270,7 @@ func TestService_StoreManualAssessmentResult(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[assessment.AssessmentResult]]
 		wantErr assert.WantErr
+		wantDB  assert.Want[persistence.DB]
 	}{
 		{
 			name: "validation error - empty request",
@@ -281,13 +282,14 @@ func TestService_StoreManualAssessmentResult(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name: "authorization failure",
 			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{
 				TargetOfEvaluationId: orchestratortest.MockToeId1,
 				MetricId:             orchestratortest.MockMetricId1,
-				Comment:              "checked",
+				Comment:              orchestratortest.MockCompliantComment,
 			}},
 			fields: fields{
 				db:    persistencetest.NewInMemoryDB(t, types, joinTables, seedMetric),
@@ -297,13 +299,14 @@ func TestService_StoreManualAssessmentResult(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
 			},
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name: "metric not found",
 			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{
 				TargetOfEvaluationId: orchestratortest.MockToeId1,
 				MetricId:             orchestratortest.MockMetricId1,
-				Comment:              "checked",
+				Comment:              orchestratortest.MockCompliantComment,
 			}},
 			fields: fields{
 				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
@@ -313,13 +316,14 @@ func TestService_StoreManualAssessmentResult(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name: "db error",
 			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{
 				TargetOfEvaluationId: orchestratortest.MockToeId1,
 				MetricId:             orchestratortest.MockMetricId1,
-				Comment:              "checked",
+				Comment:              orchestratortest.MockCompliantComment,
 			}},
 			fields: fields{
 				db:    persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables, seedMetric),
@@ -329,6 +333,7 @@ func TestService_StoreManualAssessmentResult(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
 			},
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name: "happy path: with evidence, expiry and author",
@@ -337,7 +342,7 @@ func TestService_StoreManualAssessmentResult(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockToeId1,
 					MetricId:             orchestratortest.MockMetricId1,
 					Compliant:            true,
-					Comment:              "checked the policy",
+					Comment:              orchestratortest.MockCompliantComment,
 					EvidenceId:           new(orchestratortest.MockEvidenceId1),
 					ValidUntil:           validUntil,
 				},
@@ -358,20 +363,24 @@ func TestService_StoreManualAssessmentResult(t *testing.T) {
 				return assert.True(t, r.GetManual()) &&
 					assert.True(t, r.GetCompliant()) &&
 					assert.Equal(t, "manual:"+orchestratortest.MockToeId1, r.GetResourceId()) &&
-					assert.Equal(t, "checked the policy", r.GetComplianceComment()) &&
+					assert.Equal(t, orchestratortest.MockCompliantComment, r.GetComplianceComment()) &&
 					assert.Equal(t, orchestratortest.MockEvidenceId1, r.GetEvidenceId()) &&
 					assert.Equal(t, "manual", r.GetToolId()) &&
 					assert.NotNil(t, r.GetValidUntil()) &&
 					assert.NotEmpty(t, r.GetAuthor())
 			},
 			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				count, err := db.Count(&assessment.AssessmentResult{}, "metric_id = ? AND manual = ?", orchestratortest.MockMetricId1, true)
+				return assert.NoError(t, err) && assert.Equal(t, int64(1), count)
+			},
 		},
 		{
 			name: "happy path: without evidence and author",
 			args: args{req: &orchestrator.StoreManualAssessmentResultRequest{
 				TargetOfEvaluationId: orchestratortest.MockToeId1,
 				MetricId:             orchestratortest.MockMetricId1,
-				Comment:              "not met",
+				Comment:              orchestratortest.MockNotCompliantComment,
 			}},
 			fields: fields{
 				db:    persistencetest.NewInMemoryDB(t, types, joinTables, seedMetric),
@@ -386,6 +395,10 @@ func TestService_StoreManualAssessmentResult(t *testing.T) {
 					assert.Nil(t, r.GetValidUntil())
 			},
 			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				count, err := db.Count(&assessment.AssessmentResult{}, "metric_id = ? AND manual = ?", orchestratortest.MockMetricId1, true)
+				return assert.NoError(t, err) && assert.Equal(t, int64(1), count)
+			},
 		},
 	}
 
@@ -398,6 +411,7 @@ func TestService_StoreManualAssessmentResult(t *testing.T) {
 			res, err := svc.StoreManualAssessmentResult(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
+			tt.wantDB(t, tt.fields.db)
 		})
 	}
 }

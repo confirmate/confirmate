@@ -497,11 +497,11 @@ func Test_getMetricIds(t *testing.T) {
 
 func Test_preferAutomaticResults(t *testing.T) {
 	now := time.Now()
-	auto := &assessment.AssessmentResult{Id: "auto", MetricId: "m1"}
-	manual := &assessment.AssessmentResult{Id: "manual", MetricId: "m1", Manual: true}
-	manualOtherMetric := &assessment.AssessmentResult{Id: "manual2", MetricId: "m2", Manual: true}
-	manualExpired := &assessment.AssessmentResult{Id: "expired", MetricId: "m2", Manual: true, ValidUntil: timestamppb.New(now.Add(-time.Hour))}
-	manualValid := &assessment.AssessmentResult{Id: "valid", MetricId: "m3", Manual: true, ValidUntil: timestamppb.New(now.Add(time.Hour))}
+	auto := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1}
+	manual := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1, Manual: true}
+	manualOtherMetric := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true}
+	manualExpired := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true, ValidUntil: timestamppb.New(now.Add(-time.Hour))}
+	manualValid := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId3, Manual: true, ValidUntil: timestamppb.New(now.Add(time.Hour))}
 
 	type args struct {
 		results []*assessment.AssessmentResult

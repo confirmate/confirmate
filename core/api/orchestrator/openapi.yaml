@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.3.0-35-g82dec5e9
+    version: core/v0.3.0-37-gcd3e4755
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -2482,19 +2482,20 @@ components:
                 manual:
                     type: boolean
                     description: |-
-                        Whether this result was supplied manually (e.g., by an auditor) instead of
-                         being derived from evidence by an assessment tool. A manual result is only
-                         additional information: as soon as an automatic result of the same metric
-                         exists, the automatic result takes precedence in the evaluation.
+                        Indicates that the result was supplied manually (e.g., by an auditor)
+                         instead of being derived from evidence by an assessment tool. A manual
+                         result is only additional information: as soon as an automatic result of
+                         the same metric exists, the automatic result takes precedence in the
+                         evaluation.
                 validUntil:
                     type: string
                     description: |-
-                        Optional time until which a manual result is valid. After that, the
-                         evaluation ignores it.
+                        Time until which a manual result is valid. After that, the evaluation
+                         ignores it.
                     format: date-time
                 author:
                     type: string
-                    description: Author of a manual result (the Confirmate user ID, if known)
+                    description: Confirmate user ID of the author of a manual result, if known.
             description: |-
                 A result resource, representing the result after assessing the cloud resource
                  with id resource_id.
@@ -3392,19 +3393,20 @@ components:
                     type: string
                 compliant:
                     type: boolean
-                    description: Whether the metric is met
+                    description: Indicates whether the metric is met.
                 comment:
                     type: string
-                    description: Human readable justification, e.g., why the metric is met
+                    description: Human readable justification, e.g., why the metric is met.
                 evidenceId:
                     type: string
                     description: |-
-                        Optional reference to evidence that was stored in the evidence store before,
-                         e.g., a document
+                        References evidence that was stored in the evidence store before, e.g., a
+                         document.
                 validUntil:
                     type: string
-                    description: Optional time until which the statement is valid
+                    description: Time until which the statement is valid.
                     format: date-time
+            description: Request for StoreManualAssessmentResult.
         TargetOfEvaluation:
             required:
                 - id

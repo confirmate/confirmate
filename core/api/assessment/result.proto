@@ -160,20 +160,22 @@ message AssessmentResult {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Whether this result was supplied manually (e.g., by an auditor) instead of
-  // being derived from evidence by an assessment tool. A manual result is only
-  // additional information: as soon as an automatic result of the same metric
-  // exists, the automatic result takes precedence in the evaluation.
-  bool manual = 24;
+  // Indicates that the result was supplied manually (e.g., by an auditor)
+  // instead of being derived from evidence by an assessment tool. A manual
+  // result is only additional information: as soon as an automatic result of
+  // the same metric exists, the automatic result takes precedence in the
+  // evaluation.
+  bool manual = 24 [(google.api.field_behavior) = OPTIONAL];
 
-  // Optional time until which a manual result is valid. After that, the
-  // evaluation ignores it.
+  // Time until which a manual result is valid. After that, the evaluation
+  // ignores it.
   optional google.protobuf.Timestamp valid_until = 25 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
+    (google.api.field_behavior) = OPTIONAL
   ];
 
-  // Author of a manual result (the Confirmate user ID, if known)
-  optional string author = 26;
+  // Confirmate user ID of the author of a manual result, if known.
+  optional string author = 26 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // An optional structure containing more details how a comparison inside an assessment result was done and if it was successful.

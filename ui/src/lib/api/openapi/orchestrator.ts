@@ -1020,19 +1020,20 @@ export interface components {
             /** @description Stores the history of evidence IDs and timestamps for evidence that have the same content as the evidence used for this assessment result. */
             history: components["schemas"]["Record"][];
             /**
-             * @description Whether this result was supplied manually (e.g., by an auditor) instead of
-             *      being derived from evidence by an assessment tool. A manual result is only
-             *      additional information: as soon as an automatic result of the same metric
-             *      exists, the automatic result takes precedence in the evaluation.
+             * @description Indicates that the result was supplied manually (e.g., by an auditor)
+             *      instead of being derived from evidence by an assessment tool. A manual
+             *      result is only additional information: as soon as an automatic result of
+             *      the same metric exists, the automatic result takes precedence in the
+             *      evaluation.
              */
             manual?: boolean;
             /**
              * Format: date-time
-             * @description Optional time until which a manual result is valid. After that, the
-             *      evaluation ignores it.
+             * @description Time until which a manual result is valid. After that, the evaluation
+             *      ignores it.
              */
             validUntil?: string;
-            /** @description Author of a manual result (the Confirmate user ID, if known) */
+            /** @description Confirmate user ID of the author of a manual result, if known. */
             author?: string;
         };
         /**
@@ -1595,21 +1596,22 @@ export interface components {
          *      style convention. Since no return values are required, this is empty.
          */
         StoreAssessmentResultResponse: Record<string, never>;
+        /** @description Request for StoreManualAssessmentResult. */
         StoreManualAssessmentResultRequest: {
             targetOfEvaluationId: string;
             metricId: string;
-            /** @description Whether the metric is met */
+            /** @description Indicates whether the metric is met. */
             compliant?: boolean;
-            /** @description Human readable justification, e.g., why the metric is met */
+            /** @description Human readable justification, e.g., why the metric is met. */
             comment: string;
             /**
-             * @description Optional reference to evidence that was stored in the evidence store before,
-             *      e.g., a document
+             * @description References evidence that was stored in the evidence store before, e.g., a
+             *      document.
              */
             evidenceId?: string;
             /**
              * Format: date-time
-             * @description Optional time until which the statement is valid
+             * @description Time until which the statement is valid.
              */
             validUntil?: string;
         };

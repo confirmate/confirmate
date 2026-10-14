@@ -161,15 +161,16 @@ type AssessmentResult struct {
 	HistoryUpdatedAt *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=history_updated_at,json=historyUpdatedAt,proto3" json:"history_updated_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	// Stores the history of evidence IDs and timestamps for evidence that have the same content as the evidence used for this assessment result.
 	History []*Record `protobuf:"bytes,23,rep,name=history,proto3" json:"history,omitempty" gorm:"serializer:json;constraint:OnDelete:CASCADE"`
-	// Whether this result was supplied manually (e.g., by an auditor) instead of
-	// being derived from evidence by an assessment tool. A manual result is only
-	// additional information: as soon as an automatic result of the same metric
-	// exists, the automatic result takes precedence in the evaluation.
+	// Indicates that the result was supplied manually (e.g., by an auditor)
+	// instead of being derived from evidence by an assessment tool. A manual
+	// result is only additional information: as soon as an automatic result of
+	// the same metric exists, the automatic result takes precedence in the
+	// evaluation.
 	Manual bool `protobuf:"varint,24,opt,name=manual,proto3" json:"manual,omitempty"`
-	// Optional time until which a manual result is valid. After that, the
-	// evaluation ignores it.
+	// Time until which a manual result is valid. After that, the evaluation
+	// ignores it.
 	ValidUntil *timestamppb.Timestamp `protobuf:"bytes,25,opt,name=valid_until,json=validUntil,proto3,oneof" json:"valid_until,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
-	// Author of a manual result (the Confirmate user ID, if known)
+	// Confirmate user ID of the author of a manual result, if known.
 	Author        *string `protobuf:"bytes,26,opt,name=author,proto3,oneof" json:"author,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -462,7 +463,7 @@ var File_api_assessment_result_proto protoreflect.FileDescriptor
 
 const file_api_assessment_result_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/assessment/result.proto\x12\x18confirmate.assessment.v1\x1a\x1bapi/assessment/metric.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\x82\x10\n" +
+	"\x1bapi/assessment/result.proto\x12\x18confirmate.assessment.v1\x1a\x1bapi/assessment/metric.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\x8f\x10\n" +
 	"\x10AssessmentResult\x12\xc0\x01\n" +
 	"\x02id\x18\x01 \x01(\tB\xaf\x01\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x9e\x01gorm:\"index:idx_assessment_results_resource_metric_created,priority:4,sort:desc;index:idx_assessment_results_toe_resource_metric_created,priority:5,sort:desc\"R\x02id\x12\x8f\x02\n" +
 	"\n" +
@@ -483,11 +484,11 @@ const file_api_assessment_result_proto_rawDesc = "" +
 	"\atool_id\x18\x15 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01H\x00R\x06toolId\x88\x01\x01\x12\x84\x01\n" +
 	"\x12history_updated_at\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampB:\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x10historyUpdatedAt\x12|\n" +
-	"\ahistory\x18\x17 \x03(\v2 .confirmate.assessment.v1.RecordB@\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x032gorm:\"serializer:json;constraint:OnDelete:CASCADE\"R\ahistory\x12\x16\n" +
-	"\x06manual\x18\x18 \x01(\bR\x06manual\x12s\n" +
-	"\vvalid_until\x18\x19 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"H\x01R\n" +
-	"validUntil\x88\x01\x01\x12\x1b\n" +
-	"\x06author\x18\x1a \x01(\tH\x02R\x06author\x88\x01\x01B\n" +
+	"\ahistory\x18\x17 \x03(\v2 .confirmate.assessment.v1.RecordB@\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x032gorm:\"serializer:json;constraint:OnDelete:CASCADE\"R\ahistory\x12\x1b\n" +
+	"\x06manual\x18\x18 \x01(\bB\x03\xe0A\x01R\x06manual\x12v\n" +
+	"\vvalid_until\x18\x19 \x01(\v2\x1a.google.protobuf.TimestampB4\xe0A\x01\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"H\x01R\n" +
+	"validUntil\x88\x01\x01\x12 \n" +
+	"\x06author\x18\x1a \x01(\tB\x03\xe0A\x01H\x02R\x06author\x88\x01\x01B\n" +
 	"\n" +
 	"\b_tool_idB\x0e\n" +
 	"\f_valid_untilB\t\n" +
