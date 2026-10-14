@@ -40,6 +40,8 @@ func (svc *Service) GetAuditScopeStatistics(
 		topLevelControlIds map[string]bool
 		controlsInScope    []*orchestrator.ControlInScope
 		latestResults      []*evaluation.EvaluationResult
+		latestIdRows       []*evaluation.EvaluationResult
+		latestIds          []string
 	)
 
 	// Validate the request
@@ -97,13 +99,25 @@ func (svc *Service) GetAuditScopeStatistics(
 	// caller requested top_level_controls_only, this counts controls at whatever depth they were
 	// actually evaluated at (regardless of depth: metrics are typically attached to sub-controls
 	// rather than their top-level parent). Uses PostgreSQL's DISTINCT ON, mirroring
-	// ListEvaluationResults' latest_by_control_id path.
-	err = svc.db.Raw(&latestResults, `
-		SELECT DISTINCT ON (control_id) *
+	// ListEvaluationResults' latest_by_control_id path: only the IDs are selected (so that the
+	// database can answer it from the index alone), the few resulting rows are loaded afterwards
+	// (see loadByIds).
+	err = svc.db.Raw(&latestIdRows, `
+		SELECT DISTINCT ON (control_id) id
 		FROM evaluation_results
 		WHERE audit_scope_id = ?
 		ORDER BY control_id, timestamp DESC, id DESC
 	`, req.Msg.GetAuditScopeId())
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
+	}
+
+	latestIds = make([]string, 0, len(latestIdRows))
+	for _, r := range latestIdRows {
+		latestIds = append(latestIds, r.GetId())
+	}
+
+	latestResults, err = loadByIds[*evaluation.EvaluationResult](svc.db, latestIds)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
