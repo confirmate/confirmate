@@ -23,6 +23,7 @@ import (
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
 )
@@ -49,6 +50,9 @@ func (svc *Service) fetchLatestAssessments(ctx context.Context, targetOfEvaluati
 			TargetOfEvaluationId: &targetOfEvaluationId,
 		},
 		LatestByResourceId: new(true),
+		// Ask for the largest page possible: every additional page makes the orchestrator walk further into the
+		// result set again (offset pagination), so fewer, larger pages are cheaper than many small ones.
+		PageSize: service.DefaultPaginationOpts.MaxPageSize,
 	}, func(ctx context.Context, req *orchestrator.ListAssessmentResultsRequest) (*orchestrator.ListAssessmentResultsResponse, error) {
 		res, err := svc.orchestratorClient.ListAssessmentResults(ctx, connect.NewRequest(req))
 		if err != nil {

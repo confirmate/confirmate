@@ -35,6 +35,13 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// listAssessmentResultsCall holds the parts of a ListAssessmentResults request that tests want to assert on.
+type listAssessmentResultsCall struct {
+	pageSize           int32
+	latestByResourceId bool
+	metricIds          []string
+}
+
 // mockOrchestratorHandler is a mock implementation of the orchestrator service for testing
 type mockOrchestratorHandler struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
@@ -45,6 +52,8 @@ type mockOrchestratorHandler struct {
 	// ListAssessmentResults support
 	assessmentResults         []*assessment.AssessmentResult
 	listAssessmentResultError error
+	// assessmentResultCalls records the (relevant parts of the) ListAssessmentResults requests received
+	assessmentResultCalls []listAssessmentResultsCall
 
 	// GetAuditScope support
 	auditScope                 *orchestrator.AuditScope
@@ -109,6 +118,14 @@ func (m *mockOrchestratorHandler) ListAssessmentResults(
 	_ context.Context,
 	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
 ) (*connect.Response[orchestrator.ListAssessmentResultsResponse], error) {
+	m.mu.Lock()
+	m.assessmentResultCalls = append(m.assessmentResultCalls, listAssessmentResultsCall{
+		pageSize:           req.Msg.GetPageSize(),
+		latestByResourceId: req.Msg.GetLatestByResourceId(),
+		metricIds:          req.Msg.GetFilter().GetMetricIds(),
+	})
+	m.mu.Unlock()
+
 	if m.listAssessmentResultError != nil {
 		return nil, m.listAssessmentResultError
 	}

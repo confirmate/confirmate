@@ -23,6 +23,8 @@ import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/evaluation/evaluationtest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
@@ -225,5 +227,33 @@ func TestService_fetchLatestAssessments(t *testing.T) {
 			tt.want(t, got)
 			tt.wantErr(t, err)
 		})
+	}
+}
+
+// TestService_fetchLatestAssessments_request checks how the orchestrator is asked: once, for the latest result per
+// resource and metric of the whole target of evaluation (no metric filter), with the largest page size.
+func TestService_fetchLatestAssessments_request(t *testing.T) {
+	var (
+		handler *mockOrchestratorHandler
+		client  orchestratorconnect.OrchestratorClient
+	)
+
+	client, handler = newOrchestratorClientWithHandler(t, func(m *mockOrchestratorHandler) {
+		m.assessmentResults = []*assessment.AssessmentResult{
+			orchestratortest.MockAssessmentResult1,
+			orchestratortest.MockAssessmentResult2,
+		}
+	})
+	svc := &Service{orchestratorClient: client}
+
+	_, err := svc.fetchLatestAssessments(context.Background(), evaluationtest.MockToeId1)
+
+	assert.NoError(t, err)
+	handler.mu.Lock()
+	defer handler.mu.Unlock()
+	if assert.Equal(t, 1, len(handler.assessmentResultCalls)) {
+		assert.Equal(t, service.DefaultPaginationOpts.MaxPageSize, handler.assessmentResultCalls[0].pageSize)
+		assert.True(t, handler.assessmentResultCalls[0].latestByResourceId)
+		assert.Equal(t, 0, len(handler.assessmentResultCalls[0].metricIds))
 	}
 }
