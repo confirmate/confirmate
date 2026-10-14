@@ -33,7 +33,7 @@ know the CRA text.
 
 | # | Decision | Reason |
 |---|----------|--------|
-| D1 | The product is the central object; it maps 1:1 to a target of evaluation (ToE) and its CRA audit scope. | Reuses orchestrator, evaluation, permissions and reports unchanged. |
+| D1 | Confirmate stays a general compliance platform. The central object is the target of evaluation (ToE), which gets a **kind** (product, cloud service, organisation, ...). A framework (CRA, BSI C5, NIS-2, ...) supplies a **profile** that turns the generic screens into a guided experience for its kind. A product is a ToE of kind product that is checked against the CRA. | CRA is one framework among others. Reuses orchestrator, evaluation, permissions and reports unchanged. |
 | D2 | One organization per installation. Several products per organization. | Smallest model that serves the pilots; permissions per product already exist. |
 | D3 | Confirmate does not maintain SBOM or vulnerability tooling. It reads SBOMs, vulnerabilities and VEX from where they live: Dependency-Track (DT) as the first system, or directly from standard files. Confirmate never writes to these systems. | We do not maintain an SBOM solution; read-only keeps the trust boundary simple. |
 | D4 | Target DT v5 (`DependencyTrack/dependency-track` `main`). v4 is out of scope. | v5 is GA and the future; v4 is in maintenance. |
@@ -122,6 +122,35 @@ Snapshot           id, product_id, taken_at, label, content_hash   // references
 
 API: standard resource-oriented methods (`CreateProduct`, `GetProduct`, `ListProducts`, `UpdateProduct`,
 `CreateConnection`, `ListTasks`, ...) following the API guidelines in `CONTRIBUTING.md`.
+
+### Generality: kinds and framework profiles
+
+The same platform has to serve the CRA (a product), BSI C5 (a cloud service), NIS-2 (an organisation), and the
+catalogs that are in use today. They all are targets of evaluation, only with different semantics. The generic
+and the framework-specific parts are separated like this:
+
+| Generic (every framework) | Provided by the framework profile |
+|---------------------------|-----------------------------------|
+| Target of evaluation with a kind, catalog, audit scope (the checking of one framework for one target), controls in scope, evidence, assessment and evaluation results, manual results, tasks, deadlines, reports, audit trail, permissions | Terminology (product or service or organisation, requirement or control), the setup wizard steps and their questions, scoping rules, deadline and clock rules, document templates, the outputs that matter (technical file and declaration of conformity, attestation report), recommended sources |
+| Screens: target list, overview with to-do list and progress, requirement view, sources, documents, reports | Which of these steps and panels appear, and with which texts |
+
+- A **kind** is a small enumeration on the ToE (`PRODUCT`, `CLOUD_SERVICE`, `ORGANISATION`, `OTHER`). Attributes that only
+  make sense for one kind (product class, support period, release) live in a kind-specific extension, not in the
+  generic ToE.
+- A ToE can be checked against several frameworks (a cloud service under C5 and the client software under the CRA);
+  each is an audit scope and appears as a tab on the target.
+- A **profile** is declarative data that ships with the catalog (next to the catalog in the metrics repository):
+  wizard steps from a fixed set of step types (details, questionnaire, scope review, connect sources, upload
+  documents), the questionnaires with their effects on the scope, clock rules, templates, and the vocabulary. The UI
+  contains generic components for every step type and clock; it has no CRA code. The CRA specifics (Annex III
+  classification, Art. 14 clocks, Annex VII output) are data and a few output generators.
+- The profile's questionnaire generalises today's catalog `assurance_levels`: answering it can set an assurance level
+  or switch controls in or out of scope, always with a recorded reason.
+- Without a profile a catalog behaves exactly as today. All existing deployments (the EMERALD pilots) keep the current
+  screens; the guided experience is opt-in per catalog and behind a feature flag (D19).
+
+Mapping of the generic terms in the user interface: "target" is the neutral word, shown as product, service or
+organisation depending on the kind; the CRA profile calls the controls "requirements" and the metrics "checks".
 
 ## 5. CRA catalog
 
