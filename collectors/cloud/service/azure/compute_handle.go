@@ -32,6 +32,7 @@ func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 	var (
 		bootLogging              = []string{}
 		osLoggingEnabled         bool
+		malwareProtection        bool
 		autoUpdates              *ontology.AutomaticUpdates
 		monitoringLogDataEnabled bool
 		securityAlertsEnabled    bool
@@ -63,6 +64,10 @@ func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 		if strings.Contains(*extension.ID, "OmsAgentForLinux") || strings.Contains(*extension.ID, "MicrosoftMonitoringAgent") || strings.Contains(*extension.ID, "AzureMonitoringWindowsAgent") || strings.Contains(*extension.ID, "AzureMonitoringLinuxAgent") {
 			osLoggingEnabled = true
 		}
+
+		if isMalwareProtectionExtension(pointer.Deref(extension.ID)) {
+			malwareProtection = true
+		}
 	}
 
 	r := &ontology.VirtualMachine{
@@ -77,7 +82,9 @@ func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 		Raw:                 new(collector.Raw(vm)),
 		NetworkInterfaceIds: []string{}, // TODO(all): Collect network interface IDs
 		BlockStorageIds:     []string{},
-		MalwareProtection:   &ontology.MalwareProtection{},
+		MalwareProtection: &ontology.MalwareProtection{
+			Enabled: new(malwareProtection),
+		},
 		BootLogging: &ontology.BootLogging{
 			Enabled:                  new(isBootDiagnosticEnabled(vm)),
 			LoggingServiceIds:        bootLogging,
@@ -119,6 +126,27 @@ func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 	}
 
 	return r, nil
+}
+
+// malwareProtectionExtensions are the names of the Azure virtual machine extensions that provide malware protection:
+//   - IaaSAntimalware: Microsoft Antimalware for Azure (Windows)
+//   - MDE.Windows and MDE.Linux: Microsoft Defender for Endpoint, installed e.g. by Defender for Servers
+//
+// Third-party anti-malware products are not detected, because they are not visible as a VM extension in a uniform way.
+var malwareProtectionExtensions = []string{"/extensions/IaaSAntimalware", "/extensions/MDE.Windows", "/extensions/MDE.Linux"}
+
+// isMalwareProtectionExtension returns true if the ID of the given virtual machine extension belongs to a malware
+// protection extension. Azure resource IDs are case-insensitive.
+func isMalwareProtectionExtension(extensionID string) (ok bool) {
+	var id = strings.ToLower(extensionID)
+
+	for _, name := range malwareProtectionExtensions {
+		if strings.HasSuffix(id, strings.ToLower(name)) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (d *azureCollector) handleBlockStorage(disk *armcompute.Disk) (*ontology.BlockStorage, error) {

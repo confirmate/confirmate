@@ -295,6 +295,64 @@ func Test_regoEval_Eval(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "VM: malware protection enabled",
+			fields: fields{
+				qc:   newQueryCache(),
+				mrtc: &metricsCache{m: make(map[string][]*assessment.Metric)},
+				pkg:  DefaultRegoPackage,
+			},
+			args: args{
+				resource: &ontology.VirtualMachine{
+					Id:                new(mockVM2ResourceID),
+					MalwareProtection: &ontology.MalwareProtection{Enabled: new(true)},
+				},
+				evidenceID: mockVM2EvidenceID,
+				src:        &mockMetricsSource{t: t},
+			},
+			compliant: map[string]bool{
+				"MalwareProtectionEnabled": true,
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "VM: malware protection disabled",
+			fields: fields{
+				qc:   newQueryCache(),
+				mrtc: &metricsCache{m: make(map[string][]*assessment.Metric)},
+				pkg:  DefaultRegoPackage,
+			},
+			args: args{
+				resource: &ontology.VirtualMachine{
+					Id:                new(mockVM2ResourceID),
+					MalwareProtection: &ontology.MalwareProtection{Enabled: new(false)},
+				},
+				evidenceID: mockVM2EvidenceID,
+				src:        &mockMetricsSource{t: t},
+			},
+			compliant: map[string]bool{
+				"MalwareProtectionEnabled": false,
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "VM: malware protection without any information is not assessed",
+			fields: fields{
+				qc:   newQueryCache(),
+				mrtc: &metricsCache{m: make(map[string][]*assessment.Metric)},
+				pkg:  DefaultRegoPackage,
+			},
+			args: args{
+				resource: &ontology.VirtualMachine{
+					Id:                new(mockVM2ResourceID),
+					MalwareProtection: &ontology.MalwareProtection{},
+				},
+				evidenceID: mockVM2EvidenceID,
+				src:        &mockMetricsSource{t: t},
+			},
+			compliant: map[string]bool{},
+			wantErr:   assert.NoError,
+		},
+		{
 			name: "VM: Related Evidence: non-compliant VMDiskEncryptionEnabled",
 			fields: fields{
 				qc:   newQueryCache(),

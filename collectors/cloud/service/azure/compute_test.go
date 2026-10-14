@@ -407,7 +407,7 @@ func Test_azureComputeCollector_collectVirtualMachines(t *testing.T) {
 						Enabled:  new(true),
 						Interval: durationpb.New(Duration30Days),
 					},
-					MalwareProtection: &ontology.MalwareProtection{},
+					MalwareProtection: &ontology.MalwareProtection{Enabled: new(false)},
 					ActivityLogging: &ontology.ActivityLogging{
 						Enabled:           new(true),
 						RetentionPeriod:   durationpb.New(RetentionPeriod90Days),
@@ -444,7 +444,7 @@ func Test_azureComputeCollector_collectVirtualMachines(t *testing.T) {
 						Enabled:  new(true),
 						Interval: durationpb.New(Duration30Days),
 					},
-					MalwareProtection: &ontology.MalwareProtection{},
+					MalwareProtection: &ontology.MalwareProtection{Enabled: new(false)},
 					ActivityLogging: &ontology.ActivityLogging{
 						Enabled:           new(true),
 						RetentionPeriod:   durationpb.New(RetentionPeriod90Days),
@@ -478,7 +478,7 @@ func Test_azureComputeCollector_collectVirtualMachines(t *testing.T) {
 						SecurityAlertsEnabled:    new(false),
 					},
 					AutomaticUpdates:  &ontology.AutomaticUpdates{},
-					MalwareProtection: &ontology.MalwareProtection{},
+					MalwareProtection: &ontology.MalwareProtection{Enabled: new(false)},
 					ActivityLogging: &ontology.ActivityLogging{
 						Enabled:           new(true),
 						RetentionPeriod:   durationpb.New(RetentionPeriod90Days),
@@ -608,7 +608,7 @@ func Test_azureComputeCollector_handleVirtualMachines(t *testing.T) {
 					SecurityAlertsEnabled:    new(true),
 				},
 				AutomaticUpdates:  &ontology.AutomaticUpdates{},
-				MalwareProtection: &ontology.MalwareProtection{},
+				MalwareProtection: &ontology.MalwareProtection{Enabled: new(false)},
 				ActivityLogging: &ontology.ActivityLogging{
 					Enabled:           new(true),
 					RetentionPeriod:   durationpb.New(RetentionPeriod90Days),
@@ -1893,6 +1893,96 @@ func Test_getVirtualNetworkSubnetId(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := getVirtualNetworkSubnetId(tt.args.site)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func Test_azureComputeCollector_handleVirtualMachines_malwareProtection(t *testing.T) {
+	vmID := "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Compute/virtualMachines/vm1"
+
+	type args struct {
+		extensions []*armcompute.VirtualMachineExtension
+	}
+	tests := []struct {
+		name string
+		args args
+		want assert.Want[*ontology.MalwareProtection]
+	}{
+		{
+			name: "no extensions: malware protection is not enabled",
+			args: args{},
+			want: func(t *testing.T, got *ontology.MalwareProtection, msgAndArgs ...any) bool {
+				return assert.NotNil(t, got.Enabled) && assert.False(t, got.GetEnabled())
+			},
+		},
+		{
+			name: "only a monitoring agent: malware protection is not enabled",
+			args: args{extensions: []*armcompute.VirtualMachineExtension{{ID: new(vmID + "/extensions/OmsAgentForLinux")}}},
+			want: func(t *testing.T, got *ontology.MalwareProtection, msgAndArgs ...any) bool {
+				return assert.False(t, got.GetEnabled())
+			},
+		},
+		{
+			name: "Microsoft Antimalware extension",
+			args: args{extensions: []*armcompute.VirtualMachineExtension{{ID: new(vmID + "/extensions/IaaSAntimalware")}}},
+			want: func(t *testing.T, got *ontology.MalwareProtection, msgAndArgs ...any) bool {
+				return assert.True(t, got.GetEnabled())
+			},
+		},
+		{
+			name: "Microsoft Defender for Endpoint extension next to a monitoring agent",
+			args: args{extensions: []*armcompute.VirtualMachineExtension{
+				{ID: new(vmID + "/extensions/AzureMonitoringLinuxAgent")},
+				{ID: new(vmID + "/extensions/MDE.Linux")},
+			}},
+			want: func(t *testing.T, got *ontology.MalwareProtection, msgAndArgs ...any) bool {
+				return assert.True(t, got.GetEnabled())
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := NewMockAzureCollector(newMockSender())
+
+			got, err := d.handleVirtualMachines(&armcompute.VirtualMachine{
+				ID:         new(vmID),
+				Name:       new("vm1"),
+				Location:   new("eastus"),
+				Properties: &armcompute.VirtualMachineProperties{},
+				Resources:  tt.args.extensions,
+			})
+
+			assert.NoError(t, err)
+			vm, ok := got.(*ontology.VirtualMachine)
+			if assert.True(t, ok) {
+				tt.want(t, vm.GetMalwareProtection())
+			}
+		})
+	}
+}
+
+func Test_isMalwareProtectionExtension(t *testing.T) {
+	type args struct {
+		extensionID string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{name: "empty", args: args{}, want: false},
+		{name: "monitoring agent", args: args{extensionID: "/virtualMachines/vm1/extensions/AzureMonitoringWindowsAgent"}, want: false},
+		{name: "Microsoft Antimalware", args: args{extensionID: "/virtualMachines/vm1/extensions/IaaSAntimalware"}, want: true},
+		{name: "Defender for Endpoint (Windows)", args: args{extensionID: "/virtualMachines/vm1/extensions/MDE.Windows"}, want: true},
+		{name: "Defender for Endpoint (Linux)", args: args{extensionID: "/virtualMachines/vm1/extensions/MDE.Linux"}, want: true},
+		{name: "resource IDs are case-insensitive", args: args{extensionID: "/VIRTUALMACHINES/VM1/EXTENSIONS/iaasantimalware"}, want: true},
+		{name: "a different extension that merely contains the name", args: args{extensionID: "/virtualMachines/vm1/extensions/IaaSAntimalwareHelper"}, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := isMalwareProtectionExtension(tt.args.extensionID)
+
 			assert.Equal(t, tt.want, got)
 		})
 	}
