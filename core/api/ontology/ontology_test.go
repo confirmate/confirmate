@@ -274,3 +274,108 @@ func TestResourceJSONRoundTrip(t *testing.T) {
 
 	assert.Equal(t, want, got)
 }
+
+func TestResource_UnmarshalJSON(t *testing.T) {
+	type args struct {
+		data string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    assert.Want[*Resource]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "current format",
+			args: args{data: `{"policyDocument":{"dataConfidentialitySdnPolicy":{"restrictsDownloadAndExtraction":["only via VPN"]}}}`},
+			want: func(t *testing.T, got *Resource, msgAndArgs ...any) bool {
+				return assert.Equal(t, []string{"only via VPN"}, got.GetPolicyDocument().GetDataConfidentialitySdnPolicy().GetRestrictsDownloadAndExtraction())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "legacy boolean true becomes a single value",
+			args: args{data: `{"policyDocument":{"dataConfidentialitySdnPolicy":{"restrictsDownloadAndExtraction":true}}}`},
+			want: func(t *testing.T, got *Resource, msgAndArgs ...any) bool {
+				return assert.Equal(t, []string{"true"}, got.GetPolicyDocument().GetDataConfidentialitySdnPolicy().GetRestrictsDownloadAndExtraction())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "legacy boolean false becomes an empty list",
+			args: args{data: `{"policyDocument":{"dataConfidentialitySdnPolicy":{"restrictsDownloadAndExtraction":false}}}`},
+			want: func(t *testing.T, got *Resource, msgAndArgs ...any) bool {
+				return assert.NotNil(t, got.GetPolicyDocument().GetDataConfidentialitySdnPolicy()) &&
+					assert.Empty(t, got.GetPolicyDocument().GetDataConfidentialitySdnPolicy().GetRestrictsDownloadAndExtraction())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "legacy string and number are wrapped, unknown fields are dropped",
+			args: args{data: `{"policyDocument":{"id":"doc","removedField":1,"dataConfidentialitySdnPolicy":{"restrictsDownloadAndExtraction":"stated","thirdPartyExchangeRulesDefined":3}}}`},
+			want: func(t *testing.T, got *Resource, msgAndArgs ...any) bool {
+				return assert.Equal(t, "doc", got.GetPolicyDocument().GetId()) &&
+					assert.Equal(t, []string{"stated"}, got.GetPolicyDocument().GetDataConfidentialitySdnPolicy().GetRestrictsDownloadAndExtraction()) &&
+					assert.Equal(t, []string{"3"}, got.GetPolicyDocument().GetDataConfidentialitySdnPolicy().GetThirdPartyExchangeRulesDefined())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "already converted list next to an unknown field",
+			args: args{data: `{"policyDocument":{"removedField":1,"dataConfidentialitySdnPolicy":{"restrictsDownloadAndExtraction":["a","b"]}}}`},
+			want: func(t *testing.T, got *Resource, msgAndArgs ...any) bool {
+				return assert.Equal(t, []string{"a", "b"}, got.GetPolicyDocument().GetDataConfidentialitySdnPolicy().GetRestrictsDownloadAndExtraction())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "maps and lists of messages are kept while unknown fields are dropped",
+			args: args{data: `{"virtualMachine":{"id":"vm","labels":{"a":"b"},"removed":1}}`},
+			want: func(t *testing.T, got *Resource, msgAndArgs ...any) bool {
+				return assert.Equal(t, "vm", got.GetVirtualMachine().GetId()) &&
+					assert.Equal(t, map[string]string{"a": "b"}, got.GetVirtualMachine().GetLabels())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "list of messages with an unknown field",
+			args: args{data: `{"blockStorage":{"id":"bs","backups":[{"enabled":true,"removed":1}]}}`},
+			want: func(t *testing.T, got *Resource, msgAndArgs ...any) bool {
+				return assert.Equal(t, 1, len(got.GetBlockStorage().GetBackups())) &&
+					assert.True(t, got.GetBlockStorage().GetBackups()[0].GetEnabled())
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "invalid JSON",
+			args: args{data: `{`},
+			want: assert.Nil[*Resource],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.Error(t, err)
+			},
+		},
+		{
+			name: "mismatch that cannot be migrated",
+			args: args{data: `{"policyDocument":{"id":{"a":1}}}`},
+			want: assert.Nil[*Resource],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.Error(t, err)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var (
+				got = new(Resource)
+				err = got.UnmarshalJSON([]byte(tt.args.data))
+			)
+
+			tt.wantErr(t, err)
+			if err == nil {
+				tt.want(t, got)
+			} else {
+				tt.want(t, nil)
+			}
+		})
+	}
+}
