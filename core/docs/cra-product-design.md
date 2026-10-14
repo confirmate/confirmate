@@ -33,7 +33,7 @@ know the CRA text.
 
 | # | Decision | Reason |
 |---|----------|--------|
-| D1 | Confirmate stays a general compliance platform. The central object is the target of evaluation (ToE), which already has a **type** (`target_type`: cloud, product, organization). A framework (CRA, BSI C5, NIS-2, ...) supplies a **profile** that turns the generic screens into a guided experience for its kind. A product is a ToE of type product that is checked against the CRA. | CRA is one framework among others. Reuses orchestrator, evaluation, permissions and reports unchanged. |
+| D1 | Confirmate stays a general compliance platform. The central object is the target of evaluation (ToE), which already has a **type** (`target_type`: cloud, product, organization). A framework (CRA, BSI C5, NIS-2, ...) supplies a **profile** that turns the generic screens into a guided experience for its type. A product is a ToE of type product that is checked against the CRA. | CRA is one framework among others. Reuses orchestrator, evaluation, permissions and reports unchanged. |
 | D2 | One organization per installation. Several products per organization. | Smallest model that serves the pilots; permissions per product already exist. |
 | D3 | Confirmate does not maintain SBOM or vulnerability tooling. It reads SBOMs, vulnerabilities and VEX from where they live: Dependency-Track (DT) as the first system, or directly from standard files. Confirmate never writes to these systems. | We do not maintain an SBOM solution; read-only keeps the trust boundary simple. |
 | D4 | Target DT v5 (`DependencyTrack/dependency-track` `main`). v4 is out of scope. | v5 is GA and the future; v4 is in maintenance. |
@@ -125,7 +125,7 @@ Snapshot           id, target_of_evaluation_id, taken_at, label, content_hash   
 API: standard resource-oriented methods (`CreateProduct`, `GetProduct`, `ListProducts`, `UpdateProduct`,
 `CreateConnection`, `ListTasks`, ...) following the API guidelines in `CONTRIBUTING.md`.
 
-### Generality: kinds and framework profiles
+### Generality: types and framework profiles
 
 The same platform has to serve the CRA (a product), BSI C5 (a cloud service), NIS-2 (an organisation), and the
 catalogs that are in use today. They all are targets of evaluation, only with different semantics. The generic
