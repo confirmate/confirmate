@@ -934,7 +934,7 @@ func (svc *Service) assessControl(ctx context.Context, auditScope *orchestrator.
 
 	// Get metrics from control and sub-controls
 	metrics = getMetricsFromControl(control)
-	slog.Debug("Evaluate subcontrol",
+	slog.Debug("Assess control",
 		slog.String("control_name", control.GetName()),
 		slog.String("audit_scope_id", auditScope.GetId()),
 		slog.Int("number of metrics", len(metrics)))
