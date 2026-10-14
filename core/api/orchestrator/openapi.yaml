@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.3.0-32-gba5341e2
+    version: core/v0.3.0-40-g95ce07d8
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -3458,6 +3458,10 @@ components:
                     allOf:
                         - $ref: '#/components/schemas/TargetOfEvaluation_Organization'
                     description: Organization details for this target of evaluation.
+                product:
+                    allOf:
+                        - $ref: '#/components/schemas/TargetOfEvaluation_Product'
+                    description: Product details for this target of evaluation.
         TargetOfEvaluation_Metadata:
             type: object
             properties:
@@ -3489,6 +3493,40 @@ components:
                     type: string
                     description: Website URL of the organization.
             description: Organization contains details about the organization responsible for this target of evaluation.
+        TargetOfEvaluation_Product:
+            type: object
+            properties:
+                classification:
+                    enum:
+                        - CLASSIFICATION_UNSPECIFIED
+                        - CLASSIFICATION_DEFAULT
+                        - CLASSIFICATION_IMPORTANT_I
+                        - CLASSIFICATION_IMPORTANT_II
+                        - CLASSIFICATION_CRITICAL
+                    type: string
+                    description: Classification of the product.
+                    format: enum
+                productType:
+                    enum:
+                        - PRODUCT_TYPE_UNSPECIFIED
+                        - PRODUCT_TYPE_SOFTWARE_APPLICATION
+                        - PRODUCT_TYPE_LIBRARY
+                        - PRODUCT_TYPE_FIRMWARE
+                        - PRODUCT_TYPE_ONLINE_SERVICE_WITH_CLIENT
+                    type: string
+                    description: The kind of product.
+                    format: enum
+                currentRelease:
+                    type: string
+                    description: The currently supported release, for example "1.4.0".
+                supportUntil:
+                    type: string
+                    description: The time until which the product is supported with security updates.
+                    format: date-time
+                responsibleUserId:
+                    type: string
+                    description: The ID of the user who is responsible for the product.
+            description: Product contains details of a product. It is only used if the target type is TARGET_TYPE_PRODUCT.
         TransitionControlInScopeStateRequest:
             required:
                 - id
