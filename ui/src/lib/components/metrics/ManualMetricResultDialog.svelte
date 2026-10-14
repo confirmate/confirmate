@@ -45,7 +45,8 @@
 					compliant,
 					comment: comment.trim(),
 					evidenceId: evidenceId.trim() || undefined,
-					validUntil: validUntil ? new Date(validUntil).toISOString() : undefined
+					// the chosen day is still valid, so the result expires at the end of that day
+					validUntil: validUntil ? new Date(`${validUntil}T23:59:59`).toISOString() : undefined
 				}
 			});
 			if (error) {
