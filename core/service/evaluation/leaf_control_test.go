@@ -82,6 +82,9 @@ func TestService_evaluateControl_leafControl(t *testing.T) {
 		catalog    *orchestrator.Catalog
 		control    *orchestrator.Control
 		results    []*assessment.AssessmentResult
+		// withoutSnapshot evaluates without the snapshot of the latest assessment results, i.e. every control asks the
+		// orchestrator for its assessment results itself
+		withoutSnapshot bool
 	}
 	tests := []struct {
 		name string
@@ -104,7 +107,16 @@ func TestService_evaluateControl_leafControl(t *testing.T) {
 			want: func(t *testing.T, got []*evaluation.EvaluationResult, msgAndArgs ...any) bool {
 				return assert.Equal(t, 1, len(got)) &&
 					assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, got[0].GetStatus()) &&
-					assert.Equal(t, 2, len(got[0].GetAssessmentResultIds()))
+					assert.Equal(t, []string{compliantResult.Id, nonCompliantResult.Id}, got[0].GetAssessmentResultIds())
+			},
+		},
+		{
+			name: "without the snapshot of the assessment results the orchestrator is asked: not compliant",
+			args: args{control: leafWithMetrics, results: []*assessment.AssessmentResult{compliantResult, nonCompliantResult}, withoutSnapshot: true},
+			want: func(t *testing.T, got []*evaluation.EvaluationResult, msgAndArgs ...any) bool {
+				return assert.Equal(t, 1, len(got)) &&
+					assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, got[0].GetStatus()) &&
+					assert.Equal(t, []string{compliantResult.Id, nonCompliantResult.Id}, got[0].GetAssessmentResultIds())
 			},
 		},
 		{
@@ -137,6 +149,9 @@ func TestService_evaluateControl_leafControl(t *testing.T) {
 			client, handler := newOrchestratorClientWithHandler(t, WithAssessmentResults(tt.args.results))
 			svc := Service{orchestratorClient: client}
 			latest := newLatestAssessments(tt.args.results)
+			if tt.args.withoutSnapshot {
+				latest = nil
+			}
 
 			auditScope, catalog := tt.args.auditScope, tt.args.catalog
 			if auditScope == nil {
