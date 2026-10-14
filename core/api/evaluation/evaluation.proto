@@ -96,7 +96,7 @@ message EvaluationResult {
   // is fully index-backed.
   string id = 1 [
     (buf.validate.field).string = {uuid: true},
-    (tagger.tags) = "gorm:\"index:idx_evaluation_results_control_timestamp_id,priority:3,sort:desc;index:idx_evaluation_results_audit_scope_parents,priority:4,sort:desc\"",
+    (tagger.tags) = "gorm:\"index:idx_evaluation_results_control_timestamp_id,priority:3,sort:desc;index:idx_evaluation_results_audit_scope_parents,priority:4,sort:desc;index:idx_evaluation_results_audit_scope_control,priority:4,sort:desc\"",
     (google.api.field_behavior) = REQUIRED
   ];
 
@@ -117,9 +117,17 @@ message EvaluationResult {
   // latest_by_control_id query filtered by audit scope with parents_only, which
   // otherwise walks every sub-control result of the scope. See the note on
   // control_id for a safe production rollout.
+  //
+  // NOTE: idx_evaluation_results_audit_scope_control (audit_scope_id, control_id,
+  // timestamp DESC, id DESC) backs the "latest result per control of an audit scope"
+  // query of GetAuditScopeStatistics, which has no parent_control_id filter and so
+  // cannot use the partial index above. Without it, that query seq-scans the whole
+  // table (~6s on 4.5M rows; ~0.4s with the index). Pre-create it out-of-band on
+  // large tables: `CREATE INDEX CONCURRENTLY idx_evaluation_results_audit_scope_control
+  // ON evaluation_results (audit_scope_id, control_id, timestamp DESC, id DESC);`
   string audit_scope_id = 3 [
     (buf.validate.field).string = {uuid: true},
-    (tagger.tags) = "gorm:\"index:idx_evaluation_results_audit_scope_parents,priority:1\""
+    (tagger.tags) = "gorm:\"index:idx_evaluation_results_audit_scope_parents,priority:1;index:idx_evaluation_results_audit_scope_control,priority:1\""
   ];
 
   // The control id the evaluation was based on.
@@ -146,7 +154,7 @@ message EvaluationResult {
   // WHERE parent_control_id IS NULL;`
   string control_id = 4 [
     (buf.validate.field).string.min_len = 1,
-    (tagger.tags) = "gorm:\"index:idx_evaluation_results_control_timestamp,priority:1;index:idx_evaluation_results_toe_control_timestamp,priority:2;index:idx_evaluation_results_control_timestamp_id,priority:1;index:idx_evaluation_results_audit_scope_parents,priority:2\""
+    (tagger.tags) = "gorm:\"index:idx_evaluation_results_control_timestamp,priority:1;index:idx_evaluation_results_toe_control_timestamp,priority:2;index:idx_evaluation_results_control_timestamp_id,priority:1;index:idx_evaluation_results_audit_scope_parents,priority:2;index:idx_evaluation_results_audit_scope_control,priority:2\""
   ];
 
   reserved 5;
@@ -168,7 +176,7 @@ message EvaluationResult {
 
   // Time of evaluation
   google.protobuf.Timestamp timestamp = 9 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp;index:idx_evaluation_results_control_timestamp,priority:2;index:idx_evaluation_results_toe_control_timestamp,priority:3;index:idx_evaluation_results_control_timestamp_id,priority:2,sort:desc;index:idx_evaluation_results_audit_scope_parents,priority:3,sort:desc\"",
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp;index:idx_evaluation_results_control_timestamp,priority:2;index:idx_evaluation_results_toe_control_timestamp,priority:3;index:idx_evaluation_results_control_timestamp_id,priority:2,sort:desc;index:idx_evaluation_results_audit_scope_parents,priority:3,sort:desc;index:idx_evaluation_results_audit_scope_control,priority:3,sort:desc\"",
     (google.api.field_behavior) = REQUIRED
   ];
 
