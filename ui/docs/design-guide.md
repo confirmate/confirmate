@@ -74,6 +74,9 @@ All colors, fonts and radii of the guided experience come from tokens in `ui/src
   in new components, and do not write colors in hex.
 - Tones (neutral, brand, ok, warn, bad) are expressed through `tones.ts`, so that a status looks the same everywhere.
 - Fonts are self-hosted through npm packages (the product runs self-hosted and offline); do not load fonts from a CDN.
+  Their licenses (SIL Open Font License) require the notice to travel with the fonts: it is in
+  `ui/static/THIRD_PARTY_NOTICES.txt`, served as `/THIRD_PARTY_NOTICES.txt` and linked in the footer. Update it when you add
+  or remove a font.
 - Spacing and size use the Tailwind scale. Keep line length of body text below about 70 characters.
 
 ## Building blocks
