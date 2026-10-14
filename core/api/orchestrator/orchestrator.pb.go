@@ -2677,7 +2677,12 @@ type Control struct {
 	// meta-data, most likely returned by the database.
 	Metrics []*assessment.Metric `protobuf:"bytes,7,rep,name=metrics,proto3" json:"metrics,omitempty" gorm:"many2many:control_metrics;constraint:OnDelete:CASCADE"`
 	// Unique ID of the parent control, if this is a sub-control.
-	ParentControlId *string `protobuf:"bytes,8,opt,name=parent_control_id,json=parentControlId,proto3,oneof" json:"parent_control_id,omitempty"`
+	//
+	// NOTE: idx_controls_parent_control_id backs the lookup of the children of a control, which ListControls does per
+	// level of the control tree. Without it, each of these queries is a sequential scan of the controls table. It is
+	// picked up by GORM's AutoMigrate on service startup; the controls table is small (a few thousand rows), so no
+	// out-of-band CREATE INDEX CONCURRENTLY is needed.
+	ParentControlId *string `protobuf:"bytes,8,opt,name=parent_control_id,json=parentControlId,proto3,oneof" json:"parent_control_id,omitempty" gorm:"index:idx_controls_parent_control_id"`
 	// An assurance level is not offered by every catalog, therefore it is
 	// optional.
 	AssuranceLevel *string `protobuf:"bytes,11,opt,name=assurance_level,json=assuranceLevel,proto3,oneof" json:"assurance_level,omitempty"`
@@ -6544,14 +6549,14 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"catalog_id\x18\x02 \x01(\tB \xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\tcatalogId\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\xdf\x01\n" +
-	"\bcontrols\x18\x04 \x03(\v2#.confirmate.orchestrator.v1.ControlB\x9d\x01\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03\x89\x01gorm:\"many2many:category_controls;joinForeignKey:category_name,category_catalog_id;joinReferences:control_id;constraint:OnDelete:CASCADE\"R\bcontrols\"\xbb\x06\n" +
+	"\bcontrols\x18\x04 \x03(\v2#.confirmate.orchestrator.v1.ControlB\x9d\x01\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03\x89\x01gorm:\"many2many:category_controls;joinForeignKey:category_name,category_catalog_id;joinReferences:control_id;constraint:OnDelete:CASCADE\"R\bcontrols\"\xeb\x06\n" +
 	"\aControl\x121\n" +
 	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12\x17\n" +
 	"\x04name\x18\x04 \x01(\tB\x03\xe0A\x02R\x04name\x12 \n" +
 	"\vdescription\x18\x05 \x01(\tR\vdescription\x12\xa1\x01\n" +
 	"\bcontrols\x18\x06 \x03(\v2#.confirmate.orchestrator.v1.ControlB`\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03Mgorm:\"foreignKey:parent_control_id;references:id;constraint:OnDelete:CASCADE\"R\bcontrols\x12\x8b\x01\n" +
-	"\ametrics\x18\a \x03(\v2 .confirmate.assessment.v1.MetricBO\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03<gorm:\"many2many:control_metrics;constraint:OnDelete:CASCADE\"R\ametrics\x129\n" +
-	"\x11parent_control_id\x18\b \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x0fparentControlId\x88\x01\x01\x12,\n" +
+	"\ametrics\x18\a \x03(\v2 .confirmate.assessment.v1.MetricBO\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03<gorm:\"many2many:control_metrics;constraint:OnDelete:CASCADE\"R\ametrics\x12i\n" +
+	"\x11parent_control_id\x18\b \x01(\tB8\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03+gorm:\"index:idx_controls_parent_control_id\"H\x00R\x0fparentControlId\x88\x01\x01\x12,\n" +
 	"\x0fassurance_level\x18\v \x01(\tH\x01R\x0eassuranceLevel\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"short_name\x18\f \x01(\tB\x03\xe0A\x02R\tshortName\x12\x95\x01\n" +

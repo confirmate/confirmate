@@ -1045,7 +1045,15 @@ message Control {
   ];
 
   // Unique ID of the parent control, if this is a sub-control.
-  optional string parent_control_id = 8 [(buf.validate.field).string.uuid = true];
+  //
+  // NOTE: idx_controls_parent_control_id backs the lookup of the children of a control, which ListControls does per
+  // level of the control tree. Without it, each of these queries is a sequential scan of the controls table. It is
+  // picked up by GORM's AutoMigrate on service startup; the controls table is small (a few thousand rows), so no
+  // out-of-band CREATE INDEX CONCURRENTLY is needed.
+  optional string parent_control_id = 8 [
+    (buf.validate.field).string.uuid = true,
+    (tagger.tags) = "gorm:\"index:idx_controls_parent_control_id\""
+  ];
 
   reserved 9;
   reserved 10;
