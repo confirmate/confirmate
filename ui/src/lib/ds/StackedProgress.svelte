@@ -8,7 +8,7 @@
 </script>
 
 <div
-	class="flex h-2.5 overflow-hidden rounded-full bg-neutral-soft"
+	class="flex h-2.5 overflow-hidden rounded-pill bg-neutral-soft"
 	role="img"
 	aria-label={segments.map((s) => `${s.value} ${s.label}`).join(', ')}
 >

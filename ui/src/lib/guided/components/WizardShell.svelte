@@ -47,7 +47,7 @@
 
 	<main class="box-border flex min-w-0 max-w-3xl flex-[999_1_34rem] flex-col gap-7 px-14 py-14">
 		<div class="flex flex-col gap-2">
-			<h1 class="font-display text-4xl leading-tight">{step.title}</h1>
+			<h1 class="font-display text-title font-(--cf-display-weight) leading-tight">{step.title}</h1>
 			<p class="text-[1.0625rem] text-ink-muted">{step.intro}</p>
 		</div>
 

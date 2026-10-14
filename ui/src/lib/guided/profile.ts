@@ -85,9 +85,9 @@ export interface FrameworkProfile {
 	id: string;
 	/** Short name of the framework as shown to users. */
 	name: string;
-	/** Kind of target of evaluation this profile is made for. */
-	kind: 'PRODUCT' | 'CLOUD_SERVICE' | 'ORGANISATION';
-	kindLabel: string;
+	/** Type of target of evaluation this profile is made for (TargetOfEvaluation.TargetType of the API). */
+	targetType: 'TARGET_TYPE_PRODUCT' | 'TARGET_TYPE_CLOUD' | 'TARGET_TYPE_ORGANIZATION';
+	typeLabel: string;
 	/** What the person wants to check, shown on the first screen. */
 	pitch: { title: string; text: string };
 	steps: ProfileStep[];

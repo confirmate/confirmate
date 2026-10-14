@@ -26,7 +26,7 @@ The guided experience (`ui/src/routes/guided/`) follows this guide. The older sc
 
 | Shown to the user | In the backend |
 |-------------------|----------------|
-| Target of Evaluation (ToE) with a kind (product, cloud service, organisation) | target of evaluation |
+| Target of Evaluation (ToE) with a type (product, cloud service, organisation) | target of evaluation with `target_type` |
 | Requirement | control |
 | Check | metric |
 | Check result | assessment result |

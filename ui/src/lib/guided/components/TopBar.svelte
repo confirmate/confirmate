@@ -24,7 +24,7 @@
 
 <header class="flex min-h-16 flex-wrap items-center gap-x-8 gap-y-2 border-b border-line bg-surface px-10 font-body">
 	<a href={resolve('/guided/')} class="flex items-baseline gap-2.5 no-underline">
-		<span class="font-display text-2xl text-brand">confirmate</span>
+		<span class="font-display text-2xl font-(--cf-display-weight) text-brand">confirmate</span>
 		<span class="text-[0.8125rem] text-ink-muted">Compliance</span>
 	</a>
 	<nav class="flex gap-2">

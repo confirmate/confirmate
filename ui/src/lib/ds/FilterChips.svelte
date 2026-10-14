@@ -12,7 +12,7 @@
 			type="button"
 			aria-pressed={value === option}
 			onclick={() => (value = option)}
-			class="h-9 cursor-pointer rounded-full px-4 font-body font-medium {value === option
+			class="h-9 cursor-pointer rounded-pill px-4 font-body font-medium {value === option
 				? 'bg-brand text-on-brand'
 				: 'border border-line-strong bg-surface text-ink hover:bg-sunken'}"
 		>

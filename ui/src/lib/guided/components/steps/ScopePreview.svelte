@@ -12,7 +12,7 @@
 <div class="sticky top-6 flex flex-col gap-3.5 rounded-card border border-line bg-surface p-6">
 	<div class="flex flex-col gap-1">
 		<span class="text-[0.8125rem] uppercase tracking-wider text-ink-muted">{profile.questionnaire.heading}</span>
-		<span class="font-display text-[1.625rem]">{scope.applyCount} of {scope.requirements.length} apply</span>
+		<span class="font-display text-heading font-(--cf-display-weight)">{scope.applyCount} of {scope.requirements.length} apply</span>
 		<span class="text-[0.8125rem] text-ink-muted">
 			You see why a requirement drops out, and you approve it in the next step. Unknown answers keep it in.
 		</span>
