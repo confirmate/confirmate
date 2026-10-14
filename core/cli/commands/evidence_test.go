@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"confirmate.io/core/cli/commandstest"
+	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/util/assert"
 )
 
@@ -27,6 +28,12 @@ func TestEvidenceCommands(t *testing.T) {
 		// The cache starts empty on a fresh server, so the response is an
 		// empty JSON object. We verify the command succeeds and produces output.
 		output, err := commandstest.RunCLI(t, "evidence", "list-tools")
+		assert.NoError(t, err)
+		assert.NotEmpty(t, output)
+	})
+
+	t.Run("list-tools filtered by target of evaluation", func(t *testing.T) {
+		output, err := commandstest.RunCLI(t, "evidence", "list-tools", "--target", evidencetest.MockEvidenceListA.TargetOfEvaluationId)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, output)
 	})
