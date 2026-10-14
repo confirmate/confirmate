@@ -76,6 +76,11 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 					ParentId:    new(testdata.MockOpenstackVolumeTenantID),
 					Description: new(""),
 					Raw:         new(""),
+					AtRestEncryption: &ontology.AtRestEncryption{
+						Type: &ontology.AtRestEncryption_DiskEncryption{
+							DiskEncryption: &ontology.DiskEncryption{Enabled: new(false)},
+						},
+					},
 					Backups: []*ontology.Backup{
 						{
 							Enabled: new(false),
@@ -115,6 +120,56 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 					ParentId:    new(testdata.MockOpenstackVolumeTenantID),
 					Description: new(""),
 					Raw:         new(""),
+					AtRestEncryption: &ontology.AtRestEncryption{
+						Type: &ontology.AtRestEncryption_DiskEncryption{
+							DiskEncryption: &ontology.DiskEncryption{Enabled: new(false)},
+						},
+					},
+					Backups: []*ontology.Backup{
+						{
+							Enabled: new(false),
+						},
+					},
+				}
+
+				gotNew := got.(*ontology.BlockStorage)
+
+				assert.NotEmpty(t, gotNew.GetRaw())
+				gotNew.Raw = new("")
+				return assert.Equal(t, want, gotNew)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Happy path: encrypted volume, volume type lookup fails",
+			fields: fields{
+				region: "test region",
+			},
+			args: args{
+				volume: &volumes.Volume{
+					ID:        testdata.MockOpenstackVolumeID1,
+					Name:      testdata.MockOpenstackVolumeName1,
+					TenantID:  testdata.MockOpenstackVolumeTenantID,
+					CreatedAt: testTime,
+					Encrypted: true,
+				},
+			},
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
+				want := &ontology.BlockStorage{
+					Id:           new(testdata.MockOpenstackVolumeID1),
+					Name:         new(testdata.MockOpenstackVolumeName1),
+					CreationTime: timestamppb.New(testTime),
+					GeoLocation: &ontology.GeoLocation{
+						Region: new("test region"),
+					},
+					ParentId:    new(testdata.MockOpenstackVolumeTenantID),
+					Description: new(""),
+					Raw:         new(""),
+					AtRestEncryption: &ontology.AtRestEncryption{
+						Type: &ontology.AtRestEncryption_DiskEncryption{
+							DiskEncryption: &ontology.DiskEncryption{Enabled: new(true)},
+						},
+					},
 					Backups: []*ontology.Backup{
 						{
 							Enabled: new(false),

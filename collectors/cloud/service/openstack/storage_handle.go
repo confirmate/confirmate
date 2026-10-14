@@ -78,6 +78,17 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 		}
 	}
 
+	// If the volume type lookup failed, fall back to the encryption flag reported by the volume itself.
+	if are == nil {
+		are = &ontology.AtRestEncryption{
+			Type: &ontology.AtRestEncryption_DiskEncryption{
+				DiskEncryption: &ontology.DiskEncryption{
+					Enabled: new(volume.Encrypted),
+				},
+			},
+		}
+	}
+
 	if d.volumeTypeEncryption == nil {
 		d.volumeTypeEncryption = make(map[string]*ontology.AtRestEncryption)
 	}

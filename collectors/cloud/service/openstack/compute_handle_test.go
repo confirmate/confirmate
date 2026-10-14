@@ -141,13 +141,81 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("test region"),
 					},
-					Labels:              map[string]string{},
-					ParentId:            new("fcad67a6189847c4aecfa3c81a05783b"),
-					BlockStorageIds:     []string{"2bdbc40f-a277-45d4-94ac-d9881c777d33"},
-					NetworkInterfaceIds: []string{"8a5fe506-7e9f-4091-899b-96336909d93c"},
-					BootLogging:         &ontology.BootLogging{Enabled: new(true)},
-					Raw:                 new(""),
-					ActivityLogging:     &ontology.ActivityLogging{Enabled: new(true)},
+					Labels:                     map[string]string{},
+					ParentId:                   new("fcad67a6189847c4aecfa3c81a05783b"),
+					BlockStorageIds:            []string{"2bdbc40f-a277-45d4-94ac-d9881c777d33"},
+					NetworkInterfaceIds:        []string{"8a5fe506-7e9f-4091-899b-96336909d93c"},
+					BootLogging:                &ontology.BootLogging{Enabled: new(true)},
+					Raw:                        new(""),
+					ActivityLogging:            &ontology.ActivityLogging{Enabled: new(true)},
+					InternetAccessibleEndpoint: new(false),
+				}
+
+				gotNew := got.(*ontology.VirtualMachine)
+
+				assert.NotEmpty(t, gotNew.GetRaw())
+				gotNew.Raw = new("")
+				return assert.Equal(t, want, gotNew)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Happy path: floating IP",
+			fields: fields{
+				authOpts: &gophercloud.AuthOptions{
+					IdentityEndpoint: testdata.MockOpenstackIdentityEndpoint,
+					Username:         testdata.MockOpenstackUsername,
+					Password:         testdata.MockOpenstackPassword,
+					TenantName:       testdata.MockOpenstackTenantName,
+				},
+				clients: clients{
+					provider: &gophercloud.ProviderClient{
+						TokenID: client.TokenID,
+						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
+							return fakeServer.Endpoint(), nil
+						},
+					},
+					computeClient: client.ServiceClient(fakeServer),
+				},
+				region: "test region",
+			},
+			args: args{
+				server: &servers.Server{
+					ID:       "ef079b0c-e610-4dfb-b1aa-b49f07ac48e5",
+					Name:     "herp",
+					TenantID: "fcad67a6189847c4aecfa3c81a05783b",
+					AttachedVolumes: []servers.AttachedVolume{
+						{
+							ID: "2bdbc40f-a277-45d4-94ac-d9881c777d33",
+						},
+					},
+					Created: t1,
+					Addresses: map[string]any{
+						"private": []any{
+							map[string]any{"OS-EXT-IPS:type": "fixed"},
+							map[string]any{"OS-EXT-IPS:type": "floating"},
+						},
+					},
+				},
+			},
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
+				assert.NotEmpty(t, got)
+
+				want := &ontology.VirtualMachine{
+					Id:           new("ef079b0c-e610-4dfb-b1aa-b49f07ac48e5"),
+					Name:         new("herp"),
+					CreationTime: timestamppb.New(t1),
+					GeoLocation: &ontology.GeoLocation{
+						Region: new("test region"),
+					},
+					Labels:                     map[string]string{},
+					ParentId:                   new("fcad67a6189847c4aecfa3c81a05783b"),
+					BlockStorageIds:            []string{"2bdbc40f-a277-45d4-94ac-d9881c777d33"},
+					NetworkInterfaceIds:        []string{"8a5fe506-7e9f-4091-899b-96336909d93c"},
+					BootLogging:                &ontology.BootLogging{Enabled: new(true)},
+					Raw:                        new(""),
+					ActivityLogging:            &ontology.ActivityLogging{Enabled: new(true)},
+					InternetAccessibleEndpoint: new(true),
 				}
 
 				gotNew := got.(*ontology.VirtualMachine)
@@ -172,6 +240,53 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 
 			tt.want(t, got)
 			tt.wantErr(t, err)
+		})
+	}
+}
+
+func Test_hasFloatingIP(t *testing.T) {
+	type args struct {
+		addresses map[string]any
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "no addresses",
+			args: args{},
+			want: false,
+		},
+		{
+			name: "only fixed address",
+			args: args{addresses: map[string]any{
+				"private": []any{map[string]any{"OS-EXT-IPS:type": "fixed"}},
+			}},
+			want: false,
+		},
+		{
+			name: "unexpected address format",
+			args: args{addresses: map[string]any{
+				"broken": "foo",
+				"mixed":  []any{"foo"},
+			}},
+			want: false,
+		},
+		{
+			name: "floating address",
+			args: args{addresses: map[string]any{
+				"private": []any{
+					map[string]any{"OS-EXT-IPS:type": "fixed"},
+					map[string]any{"OS-EXT-IPS:type": "floating"},
+				},
+			}},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, hasFloatingIP(tt.args.addresses))
 		})
 	}
 }
