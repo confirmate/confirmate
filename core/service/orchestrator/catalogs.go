@@ -23,6 +23,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
@@ -312,13 +313,9 @@ func (svc *Service) ListControls(
 	}
 
 	// If fullCatalog is requested, load the full control tree for each top-level control.
-	for _, control := range controls {
-		err = svc.loadControlTree(control, fullCatalog)
-		if err != nil {
-			if err = service.HandleDatabaseError(err); err != nil {
-				return nil, err
-			}
-		}
+	err = svc.loadControlTrees(controls, fullCatalog)
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListControlsResponse{
@@ -328,48 +325,144 @@ func (svc *Service) ListControls(
 	return
 }
 
-// loadControlTree recursively loads the full control tree for a given control, including its sub-controls and optionally its metrics if it is a leaf control. It populates the `Controls` field of the provided control with its child controls and, if `withLeafMetrics` is true, it also loads the metrics for leaf controls.
-func (svc *Service) loadControlTree(ctrl *orchestrator.Control, withLeafMetrics bool) error {
-	var children []*orchestrator.Control
+// controlTreeChunkSize is the maximum number of IDs that are used in a single IN (...) condition when loading the
+// control tree.
+const controlTreeChunkSize = 500
 
-	err := svc.db.List(
-		&children,
-		"short_name",
-		true,
-		0,
-		-1,
-		persistence.WithPreload(""),
-		"parent_control_id = ?",
-		ctrl.Id,
+// loadControlTrees loads the full control trees below the given top-level controls, i.e. it populates the `Controls`
+// field of each control (recursively) with its child controls and, if `withLeafMetrics` is true, the `Metrics` of the
+// leaf controls.
+//
+// It issues one query per level of the tree (plus one for the metrics of the leaves) instead of one query per control,
+// so the number of queries depends on the depth of the catalog and not on its size.
+func (svc *Service) loadControlTrees(roots []*orchestrator.Control, withLeafMetrics bool) (err error) {
+	var (
+		level    = roots
+		next     []*orchestrator.Control
+		children []*orchestrator.Control
+		byParent map[string][]*orchestrator.Control
+		leaves   []*orchestrator.Control
+		seen     = make(map[string]struct{}, len(roots))
 	)
-	if err != nil {
-		return err
+
+	for _, root := range roots {
+		seen[root.GetId()] = struct{}{}
 	}
 
-	ctrl.Controls = children
-
-	if len(children) == 0 {
-		if withLeafMetrics {
-			var loaded orchestrator.Control
-			err := svc.db.Get(
-				&loaded,
-				persistence.WithPreload("Metrics"),
-				"id = ?",
-				ctrl.Id,
-			)
-			if err != nil {
-				return err
-			}
-			ctrl.Metrics = loaded.Metrics
-		}
-		return nil
-	}
-
-	for _, child := range children {
-		err := svc.loadControlTree(child, withLeafMetrics)
+	for len(level) > 0 {
+		children, err = svc.listChildControls(level)
 		if err != nil {
 			return err
 		}
+
+		byParent = make(map[string][]*orchestrator.Control, len(level))
+		next = nil
+		for _, child := range children {
+			// Guard against cycles in (corrupt) data, which would otherwise never terminate
+			if _, ok := seen[child.GetId()]; ok {
+				continue
+			}
+			seen[child.GetId()] = struct{}{}
+
+			byParent[child.GetParentControlId()] = append(byParent[child.GetParentControlId()], child)
+			next = append(next, child)
+		}
+
+		for _, parent := range level {
+			parent.Controls = byParent[parent.GetId()]
+			if len(parent.Controls) == 0 {
+				leaves = append(leaves, parent)
+			}
+		}
+
+		level = next
+	}
+
+	if withLeafMetrics {
+		return svc.loadLeafMetrics(leaves)
+	}
+
+	return nil
+}
+
+// listChildControls returns the direct children of all given controls (without any preloaded associations), ordered by
+// their short name.
+func (svc *Service) listChildControls(parents []*orchestrator.Control) (children []*orchestrator.Control, err error) {
+	var (
+		page  []*orchestrator.Control
+		ids   []string
+		query []string
+		args  []any
+	)
+
+	for chunk := range slices.Chunk(parents, controlTreeChunkSize) {
+		ids = ids[:0]
+		for _, parent := range chunk {
+			ids = append(ids, parent.GetId())
+		}
+
+		query, args = persistence.AppendObjectIds(ids, nil, nil, "parent_control_id")
+		page = nil
+
+		err = svc.db.List(
+			&page,
+			"short_name",
+			true,
+			0,
+			-1,
+			append([]any{persistence.WithPreload("")}, persistence.BuildConds(query, args)...)...,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// All children of a parent are in the same chunk, so their order by short name is preserved per parent.
+		children = append(children, page...)
+	}
+
+	return children, nil
+}
+
+// loadLeafMetrics loads the metrics of the given (leaf) controls into their `Metrics` field.
+func (svc *Service) loadLeafMetrics(leaves []*orchestrator.Control) (err error) {
+	var (
+		loaded    []*orchestrator.Control
+		metricsBy map[string][]*assessment.Metric
+		ids       []string
+		query     []string
+		args      []any
+	)
+
+	metricsBy = make(map[string][]*assessment.Metric, len(leaves))
+
+	for chunk := range slices.Chunk(leaves, controlTreeChunkSize) {
+		ids = ids[:0]
+		for _, leaf := range chunk {
+			ids = append(ids, leaf.GetId())
+		}
+
+		query, args = persistence.AppendObjectIds(ids, nil, nil, "id")
+		loaded = nil
+
+		err = svc.db.List(
+			&loaded,
+			"",
+			true,
+			0,
+			-1,
+			append([]any{persistence.WithPreload("Metrics")}, persistence.BuildConds(query, args)...)...,
+		)
+		if err != nil {
+			return err
+		}
+
+		for _, c := range loaded {
+			metricsBy[c.GetId()] = c.GetMetrics()
+		}
+	}
+
+	for _, leaf := range leaves {
+		leaf.Metrics = metricsBy[leaf.GetId()]
 	}
 
 	return nil
