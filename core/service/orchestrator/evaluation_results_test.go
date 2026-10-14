@@ -396,10 +396,11 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			name: "happy path: filter by `valid manual only` and audit scope does not return the manual results of other audit scopes",
 			args: args{
 				req: connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{
+					// Deliberately no target of evaluation: both results belong to the same one, so only the audit scope
+					// filter can tell them apart.
 					Filter: &orchestrator.ListEvaluationResultsRequest_Filter{
-						TargetOfEvaluationId: new(evaluationtest.MockToeId1),
-						AuditScopeId:         new(evaluationtest.MockAuditScopeId1),
-						ValidManualOnly:      new(true),
+						AuditScopeId:    new(evaluationtest.MockAuditScopeId1),
+						ValidManualOnly: new(true),
 					},
 				}),
 			},
