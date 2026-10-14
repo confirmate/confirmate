@@ -11,6 +11,7 @@
 @import '@fontsource/ibm-plex-sans/500.css';
 @import '@fontsource/ibm-plex-sans/600.css';
 @import '@fontsource/source-serif-4/600.css';
+@import '@fontsource-variable/inter/wght.css';
 
 /*
  * Default theme "console": a neutral, dense application look with a sans-serif display face, small radii and
@@ -44,8 +45,9 @@
 	--cf-bad-ink: #7a1d20;
 	--cf-neutral-soft: #e9edf0;
 
-	--cf-font-sans: 'IBM Plex Sans', system-ui, sans-serif;
-	--cf-font-display: 'IBM Plex Sans', system-ui, sans-serif;
+	/* The system font, as the existing screens use it (San Francisco on macOS, Segoe UI on Windows). */
+	--cf-font-sans: ui-sans-serif, system-ui, sans-serif;
+	--cf-font-display: ui-sans-serif, system-ui, sans-serif;
 	--cf-font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
 	--cf-radius-control: 0.375rem;
@@ -57,6 +59,12 @@
 	--cf-text-figure: 1.875rem;
 	--cf-card-pad: 1.125rem;
 	--cf-display-weight: 600;
+}
+
+/* Console with Inter instead of the system font. Only the fonts differ. */
+[data-theme='console-inter'] {
+	--cf-font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+	--cf-font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* The earlier editorial look: warm ground, serif display face, large rounded cards. */
@@ -74,6 +82,7 @@
 	--cf-bad-soft: #fbe9e9;
 	--cf-neutral-soft: #edeff1;
 
+	--cf-font-sans: 'IBM Plex Sans', system-ui, sans-serif;
 	--cf-font-display: 'Source Serif 4', Georgia, serif;
 
 	--cf-radius-control: 0.5rem;
