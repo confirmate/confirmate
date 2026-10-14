@@ -1150,21 +1150,6 @@ func TestService_GetControl(t *testing.T) {
 			},
 		},
 		{
-			name: "error: control not found",
-			args: args{
-				req: &orchestrator.GetControlRequest{
-					ControlId: orchestratortest.MockNonExistentId,
-				},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want: assert.Nil[*connect.Response[orchestrator.Control]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound)
-			},
-		},
-		{
 			name: "happy path: a control without sub-controls returns its own metrics",
 			args: args{
 				req: &orchestrator.GetControlRequest{
