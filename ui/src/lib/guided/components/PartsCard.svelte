@@ -7,7 +7,7 @@
 
 <Card>
 	<div class="flex items-baseline gap-2.5">
-		<span class="font-display text-[2.5rem] leading-none">{progress.met}</span>
+		<span class="font-display text-figure font-(--cf-display-weight) leading-none">{progress.met}</span>
 		<span class="text-ink-soft">of {progress.total} requirements met</span>
 	</div>
 	<StackedProgress

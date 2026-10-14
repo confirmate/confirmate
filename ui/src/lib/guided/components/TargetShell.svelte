@@ -17,8 +17,8 @@
 <div class="flex min-h-[calc(100vh-4rem)] flex-wrap">
 	<aside class="box-border flex w-62 shrink-0 flex-col gap-6 border-r border-line bg-surface px-5 py-8">
 		<div class="flex flex-col gap-0.5 px-3.5">
-			<span class="text-xs uppercase tracking-wider text-ink-muted">ToE, {target.kindLabel.toLowerCase()}, {target.frameworkLabel.split(',')[0]}</span>
-			<strong class="font-display text-xl">{target.name}</strong>
+			<span class="text-xs uppercase tracking-wider text-ink-muted">ToE, {target.typeLabel.toLowerCase()}, {target.frameworkLabel.split(',')[0]}</span>
+			<strong class="font-display text-xl font-(--cf-display-weight)">{target.name}</strong>
 		</div>
 		<nav class="flex flex-col gap-0.5" aria-label="{target.name} sections">
 			{#each links as link (link.name)}

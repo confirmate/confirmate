@@ -5,7 +5,7 @@ export interface TargetSummary {
 	id: string;
 	name: string;
 	subtitle: string;
-	kindLabel: string;
+	typeLabel: string;
 	frameworkLabel: string;
 	tags: string[];
 	progress: Progress;
