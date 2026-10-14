@@ -777,6 +777,14 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		slog.String("control id", control.Id),
 		slog.Int("number of relevant controls for the audit scope", len(relevantSubcontrol)))
 
+	// A control that does not have any sub-controls in the catalog is a leaf: its metrics are attached to the control
+	// itself, so it is evaluated directly. Otherwise, it would never be evaluated and stay pending forever. We
+	// deliberately check the sub-controls of the catalog and not the relevant ones: if all sub-controls of a control
+	// are out of scope, the metrics of the control itself must not be used instead.
+	if len(control.Controls) == 0 && len(control.Metrics) > 0 {
+		status, assessmentResultIds = svc.assessControl(ctx, auditScope, control, latest)
+	}
+
 	// Prepare the results slice
 	evaluationResults = make([]*evaluation.EvaluationResult, len(relevantSubcontrol)+len(manual))
 
@@ -867,9 +875,8 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 // evaluateSubcontrol evaluates the sub-controls, e.g., OPS-13.2
 func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestrator.AuditScope, control *orchestrator.Control, latest *latestAssessments) (eval *evaluation.EvaluationResult, err error) {
 	var (
-		assessments []*assessment.AssessmentResult
-		status      evaluation.EvaluationStatus
-		resultIds   []string
+		status    evaluation.EvaluationStatus
+		resultIds []string
 	)
 
 	// TODO(lebogg): Why we don't return an error here?
@@ -878,8 +885,52 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		return
 	}
 
+	status, resultIds = svc.assessControl(ctx, auditScope, control, latest)
+
+	// Create evaluation result
+	eval = &evaluation.EvaluationResult{
+		Id:                   uuid.NewString(),
+		Timestamp:            timestamppb.Now(),
+		ControlCatalogId:     auditScope.CatalogId,
+		ControlId:            control.Id,
+		ParentControlId:      control.ParentControlId,
+		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
+		AuditScopeId:         auditScope.Id,
+		Status:               status,
+		AssessmentResultIds:  resultIds,
+	}
+
+	_, err = svc.orchestratorClient.StoreEvaluationResult(ctx, connect.NewRequest(&orchestrator.StoreEvaluationResultRequest{
+		Result: eval,
+	}))
+	if err != nil {
+		slog.Error("Failed to send evaluation result to orchestrator", log.Err(err))
+		return nil, errors.New("failed to send evaluation result to orchestrator")
+	}
+
+	slog.Info("Evaluation result created",
+		slog.String("control id", control.Id),
+		slog.String("target of evaluation id", auditScope.GetTargetOfEvaluationId()),
+		slog.String("status", eval.Status.String()))
+
+	return
+}
+
+// assessControl determines the evaluation status of a control based on the latest assessment results of its metrics
+// (including the ones of its sub-controls, see [getMetricsFromControl]) and returns it together with the IDs of the
+// assessment results it is based on.
+//
+// If there are no assessment results, the status is pending. A failing request for the assessment results does not
+// fail the evaluation, because it might only be a temporary network problem.
+func (svc *Service) assessControl(ctx context.Context, auditScope *orchestrator.AuditScope, control *orchestrator.Control, latest *latestAssessments) (status evaluation.EvaluationStatus, resultIds []string) {
+	var (
+		assessments []*assessment.AssessmentResult
+		metrics     []*assessment.Metric
+		err         error
+	)
+
 	// Get metrics from control and sub-controls
-	metrics := getMetricsFromControl(control)
+	metrics = getMetricsFromControl(control)
 	slog.Debug("Evaluate subcontrol",
 		slog.String("control_name", control.GetName()),
 		slog.String("audit_scope_id", auditScope.GetId()),
@@ -952,33 +1003,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		resultIds = append(resultIds, r.GetId())
 	}
 
-	// Create evaluation result
-	eval = &evaluation.EvaluationResult{
-		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
-		ControlCatalogId:     auditScope.CatalogId,
-		ControlId:            control.Id,
-		ParentControlId:      control.ParentControlId,
-		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
-		AuditScopeId:         auditScope.Id,
-		Status:               status,
-		AssessmentResultIds:  resultIds,
-	}
-
-	_, err = svc.orchestratorClient.StoreEvaluationResult(ctx, connect.NewRequest(&orchestrator.StoreEvaluationResultRequest{
-		Result: eval,
-	}))
-	if err != nil {
-		slog.Error("Failed to send evaluation result to orchestrator", log.Err(err))
-		return nil, errors.New("failed to send evaluation result to orchestrator")
-	}
-
-	slog.Info("Evaluation result created",
-		slog.String("control id", control.Id),
-		slog.String("target of evaluation id", auditScope.GetTargetOfEvaluationId()),
-		slog.String("status", eval.Status.String()))
-
-	return
+	return status, resultIds
 }
 
 // getMetricsFromControl returns all metrics from a given control. If the control has sub-controls, get also all metrics from the sub-controls.
