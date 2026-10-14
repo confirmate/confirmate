@@ -28,6 +28,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
 	"github.com/gophercloud/gophercloud/v2/testhelper/client"
+	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -146,16 +147,12 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 					BlockStorageIds:            []string{"2bdbc40f-a277-45d4-94ac-d9881c777d33"},
 					NetworkInterfaceIds:        []string{"8a5fe506-7e9f-4091-899b-96336909d93c"},
 					BootLogging:                &ontology.BootLogging{Enabled: new(true)},
-					Raw:                        new(""),
 					ActivityLogging:            &ontology.ActivityLogging{Enabled: new(true)},
 					InternetAccessibleEndpoint: new(false),
 				}
 
 				gotNew := got.(*ontology.VirtualMachine)
-
-				assert.NotEmpty(t, gotNew.GetRaw())
-				gotNew.Raw = new("")
-				return assert.Equal(t, want, gotNew)
+				return assert.NotEmpty(t, gotNew.GetRaw()) && assert.Equal(t, want, gotNew, protocmp.IgnoreFields(&ontology.VirtualMachine{}, "raw"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -213,16 +210,12 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 					BlockStorageIds:            []string{"2bdbc40f-a277-45d4-94ac-d9881c777d33"},
 					NetworkInterfaceIds:        []string{"8a5fe506-7e9f-4091-899b-96336909d93c"},
 					BootLogging:                &ontology.BootLogging{Enabled: new(true)},
-					Raw:                        new(""),
 					ActivityLogging:            &ontology.ActivityLogging{Enabled: new(true)},
 					InternetAccessibleEndpoint: new(true),
 				}
 
 				gotNew := got.(*ontology.VirtualMachine)
-
-				assert.NotEmpty(t, gotNew.GetRaw())
-				gotNew.Raw = new("")
-				return assert.Equal(t, want, gotNew)
+				return assert.NotEmpty(t, gotNew.GetRaw()) && assert.Equal(t, want, gotNew, protocmp.IgnoreFields(&ontology.VirtualMachine{}, "raw"))
 			},
 			wantErr: assert.NoError,
 		},
