@@ -44,7 +44,8 @@ know the CRA text.
 | D9 | Documents and statements without automatic evidence are authored or uploaded in Confirmate and stored as evidence with versions and approval. | The user manages compliance in the tool, not next to it. |
 | D10 | Evidence history is append-only and snapshots are first class (state at a release or a date). | Audits ask "what was true when you shipped 2.3". |
 | D11 | Integrate through open formats first (CycloneDX, SPDX, VEX, CSAF, SARIF, OSV, in-toto/SLSA attestations, OpenSSF Scorecard results). A system-specific connector is built only where we need state that has no file format (git platform settings, issue timelines, DT project state). | One generic ingest serves many tools; connectors stay few and maintainable. |
-| D13 | The example product is a real public GitHub project. Reports to authorities are prepared and proven in Confirmate (draft, submission proof upload); there is no integration with an authority platform. | GitHub is what most customers use and tests the connector that matters; an authority API is not needed to manage compliance. |
+| D13 | The git platform integration is platform-neutral with GitLab (including self-hosted) and GitHub as first providers. The example product is a real public project that is available on both. Reports to authorities are prepared and proven in Confirmate (draft, submission proof upload); there is no integration with an authority platform. | Many customers run their own GitLab; GitHub is common for open source and suppliers. An authority API is not needed to manage compliance. |
+| D14 | We do not ship a git platform in the demo. Self-hosted platforms are represented by a replay server with responses recorded from a real project. | GitLab is too heavy to ship; a different platform (Forgejo) would not test the GitLab connector. |
 | D12 | The demo stack is self-contained and shows every integration that the product claims, with seeded data and a scripted scenario. | A capability that is not in the demo does not exist for a prospect. |
 
 ## 3. CRA obligations and how they are served
@@ -151,17 +152,18 @@ later or on demand. "Auto" fills controls; "trigger" starts a workflow (for exam
 | Vulnerabilities | VEX statements | CycloneDX VEX, OpenVEX, CSAF VEX | Part I (2)(a), Part II (2),(4) | P1 | generic ingest |
 | Vulnerabilities | Scanner results (Trivy, Grype, OSV-Scanner) | OSV-style JSON, CycloneDX | Part I (2)(a) | P2 | generic ingest |
 | Vulnerabilities | Exploitation signals: CISA KEV, EPSS; EU vulnerability database | public feeds | Art. 14 trigger "actively exploited" | P1 | trigger |
-| Vulnerabilities | Dependabot / GitHub security alerts | GitHub API | Part I (2)(a), Part II (2) | P2 | via git connector |
+| Vulnerabilities | Dependabot / GitHub security alerts; GitLab vulnerability report and dependency list (Ultimate tier only) | platform APIs | Part I (2)(a), Part II (2) | P2 | via git connector |
 | Advisories | CSAF documents of the product's own advisories; DT advisories later | CSAF 2.x; validator | Part II (4),(5),(6),(8) | P1 | generic ingest (CSAF discovery exists) |
-| Source | GitHub (App) | GitHub REST/GraphQL | Part I (2)(b),(c); Part II (3),(5)-(7) | P1 | connector |
-| Source | GitLab, Gitea/Forgejo, Bitbucket | respective APIs | same | P2/P3 | connector |
+| Source | GitLab (gitlab.com and self-managed) | GitLab REST API v4 | Part I (2)(b),(c); Part II (3),(5)-(7) | P1 | connector |
+| Source | GitHub (App) | GitHub REST/GraphQL | same | P1 | connector |
+| Source | Forgejo/Gitea, Bitbucket | respective APIs | same | P3 | connector |
 | Source | OpenSSF Scorecard (branch protection, code review, signed releases, SAST, pinned dependencies, security policy, token permissions, dependency update tool, fuzzing, ...) | Scorecard JSON; public API for public repos | Part I (2)(a),(c),(j); Part II (3),(5),(7) | P1 | generic ingest |
 | Code security | SAST and secret scanning results (CodeQL, Semgrep, Sonar, GitHub code scanning) | SARIF | Part I (2) general, Part II (3) | P1 | generic ingest |
 | Code security | In-house static analysis (CPG/Codyze), crypto inventory (CBOM from cbomkit) | existing collector, CycloneDX CBOM | Part I (2)(b),(d),(e),(f),(g),(l),(m) | P1 | existing + generic ingest |
 | Supply chain | Signatures and provenance (cosign/sigstore, SLSA provenance, GitHub artifact attestations) | in-toto attestations | Part II (7), Art. 13 | P2 | generic ingest |
-| CI/CD | GitHub Actions / GitLab CI run history, required checks, test and coverage reports | CI API, JUnit/coverage files | Part II (3) | P1 | via git connector |
-| Issues | GitHub Issues, GitHub Security Advisories and private vulnerability reporting | GitHub API | Part II (2),(5),(6), Art. 14 | P1 | via git connector |
-| Issues | Jira, GitLab issues, Linear | respective APIs | Part II (2) | P2 | connector |
+| CI/CD | GitLab CI / GitHub Actions run history, required checks, test and coverage reports | CI API, JUnit/coverage files | Part II (3) | P1 | via git connector |
+| Issues | GitLab and GitHub issues, GitHub Security Advisories and private vulnerability reporting, GitLab confidential issues | platform APIs | Part II (2),(5),(6), Art. 14 | P1 | via git connector |
+| Issues | Jira, Linear | respective APIs | Part II (2) | P2 | connector |
 | Documents | Documents in the repository (docs-as-code), uploaded files, Confluence/SharePoint | Markdown/PDF, APIs | Annex VII, Art. 13 | P1 repo+upload / P3 wikis | analyser + authoring |
 | Infrastructure | Cloud and Kubernetes the product runs on | existing cloud collectors | Part I (2)(d),(e),(h),(l) | exists | existing |
 | Reporting | Authority reporting platform | no integration: report drafts are prepared in Confirmate, the user submits them and uploads the proof | Art. 14 | P1 | output |
@@ -174,8 +176,8 @@ Consequences:
   that accepts CycloneDX, SPDX, VEX, SARIF, CSAF, Scorecard JSON and attestations for a product and release, validates
   them and maps them into the ontology. Almost every row marked "generic ingest" is then done by a CI step and no
   connector at all. It also covers customers who do not run DT.
-- **Three connectors** carry the state that has no file format: git platform (repository settings, workflows, issues,
-  security advisories; GitHub first), Dependency-Track, and issue tracker (Jira).
+- **Three connectors** carry the state that has no file format: git platform (repository settings, pipelines, issues,
+  security advisories; GitLab and GitHub), Dependency-Track, and issue tracker (Jira).
 - In-house tools stay relevant as evidence sources: CPG/Codyze for code facts, cbomkit for crypto inventory (CBOM),
   the CSAF validator and tooling for advisories.
 - The Art. 14 trigger does not need a customer to tell us that something is exploited: KEV/EPSS matches against the
@@ -202,11 +204,24 @@ Design:
 
 Product to DT project matching: suggest candidates by name and package URL, user confirms (one click).
 
-### Git platform (GitHub first, GitLab later)
+### Git platform (GitLab and GitHub)
 
-Repository settings (branch protection, required reviews, signed commits, 2FA requirement, `SECURITY.md`, dependency
-update bot), workflows and their recent runs, releases and their assets. Fills `CodeRepository`, `Workflow`, `Job`.
-Connection by GitHub App installation.
+One platform-neutral model, two providers behind one interface (`GitPlatform`): repository settings (protected
+branches, required reviews and approvals, signed commits or push rules, 2FA requirement, `SECURITY.md`, dependency
+update bot), pipelines/workflows and their recent runs, releases and their assets, security issues and advisories.
+Fills `CodeRepository`, `Workflow`, `Job`. Authentication: GitHub App installation; GitLab project or group access
+token with read scopes.
+
+Self-managed GitLab is the main case, so the provider has to cope with:
+
+- **Editions and tiers:** several settings (approval rules, push rules, vulnerability report, dependency list) exist
+  only in paid tiers or in some versions. A missing feature is reported as "not available in this edition", which
+  leads to a manual control or a CI-based alternative, never to a failed connection. The generic ingest of SBOM, SARIF
+  and Scorecard results from CI artifacts covers the free tier.
+- **Network and trust:** the connector runs where it can reach the instance (customer side, or a runner); custom CA
+  certificates and an instance URL are part of the connection; no inbound access to the instance is needed.
+- **Least privilege:** read-only scopes only, shown to the user before the token is created.
+- **Versions:** the supported GitLab versions are stated and tested against the recorded API.
 
 ### Issue tracker (GitHub issues first, then Jira)
 
@@ -291,27 +306,29 @@ engineer, auditor), accessibility and keyboard use, a guided empty state everywh
 
 ### Example product
 
-A public repository in the Confirmate organization based on the `pythonpass` demo (`cra-demo`) that is a complete,
-small product:
+A public project based on the `pythonpass` demo (`cra-demo`), in the Confirmate organization on GitHub and mirrored to
+gitlab.com so that both connectors have a real project to record and test against. It is a complete, small product:
 
-- source, CI pipeline with tests, SAST and an SBOM, releases with signed artifacts and provenance,
+- source, CI pipeline (GitHub Actions and GitLab CI) with tests, SAST and an SBOM, releases with signed artifacts and
+  provenance,
 - `SECURITY.md`, vulnerability disclosure policy and the CRA documents,
 - security issues and an advisory in different states.
 
-Creating the public repository requires an explicit go-ahead.
+Creating the public repositories requires an explicit go-ahead.
 
 ### Demo stack (D12)
 
 `docker compose --profile cra up` starts everything below. Data is seeded so that the first screen already tells a
-story; no internet access and no token are needed after the images are pulled. A second profile, `cra-github`, runs
-the GitHub connector live against the real example repository with a token, for demos that should show real changes.
-Forgejo or Gitea would only be added together with a connector for them.
+story; no internet access and no token are needed after the images are pulled. Further profiles `cra-gitlab` and
+`cra-github` run the connectors live against the real example project with a token, for demos that should show real
+changes. We do not ship a git platform (D14). Forgejo or Gitea would only be added together with a connector for them;
+they cannot stand in for GitLab, because their API differs.
 
 | Component | Role in the demo | Integration shown |
 |-----------|------------------|-------------------|
 | Confirmate core, UI, connector runtime | the product, with a persistent PostgreSQL | everything |
 | Dependency-Track v5 (+ its PostgreSQL) | holds the SBOM of the example product | DT connector, VEX, webhook refresh |
-| GitHub API replay server | serves recorded GitHub API responses (settings, workflows, issues, advisories, alerts) of the example repository, offline and without a token | GitHub connector |
+| Git platform replay servers (GitLab and GitHub) | serve responses recorded from the real example project (settings, pipelines, issues, advisories, alerts), offline and without a token; the GitLab replay stands for a self-managed instance | GitLab and GitHub connectors |
 | CI job (seed container) | runs Syft/cdxgen, Trivy or OSV-Scanner, Semgrep, Scorecard against the example repo and uploads results | generic ingest: CycloneDX, SARIF, OSV, Scorecard |
 | CPG/Codyze collector, document analyser | code and document facts | existing collectors |
 | CSAF provider and validator | serves the product's advisories (from the `cra-demo` CSAF generator) | CSAF discovery and validation |
@@ -340,12 +357,12 @@ Each milestone ends with something demonstrable and an automated test.
 | M | Content | Done when |
 |---|---------|-----------|
 | M1 | CRA catalog v1 (Part I and II, Art. 13/14 obligations that can be evidenced), metric gaps closed or marked manual, `Product` resource, product page and work queue (without connectors) | A product can be created in the UI, the catalog scope is generated, manual statements and documents can be added, the work queue shows open items |
-| M2 | Generic evidence ingest (CycloneDX, SPDX, VEX, SARIF, CSAF, Scorecard), git platform connector (GitHub first), example product, first demo profile | The example product's repository settings, workflows, SBOM and scan results appear as evidence and drive controls |
+| M2 | Generic evidence ingest (CycloneDX, SPDX, VEX, SARIF, CSAF, Scorecard), platform-neutral git connector with GitLab and GitHub providers, example product, first demo profile | The example product's repository settings, workflows, SBOM and scan results appear as evidence and drive controls |
 | M3 | DT connector, SBOM and vulnerability metrics, KEV/EPSS signals, onboarding wizard, demo stack with DT | A DT project is linked in the wizard, SBOM and findings drive the Part II controls, webhook refresh works, scenario steps 1 to 2 run |
 | M4 | Clocks and report drafts with proof upload, issue tracker (Jira), tasks and deadlines, notifications | A simulated exploited vulnerability starts the 24 h/72 h clocks, drafts the report and notifies the assignee |
 | M5 | Authoring, snapshots, technical file and declaration of conformity | A release produces a verifiable technical file bundle |
 | M6 | Persistent deployment, Helm chart, notifications, observability, docs | A new user installs and reaches a first picture following the quickstart only |
-| M7 | CSAF through DT, signing and provenance evidence, GitLab connector (Forgejo/Gitea on demand), Keycloak profile | Advisories for fixed vulnerabilities are checked automatically; the full scenario runs in CI |
+| M7 | CSAF through DT, signing and provenance evidence, Forgejo/Gitea provider on demand, Keycloak profile | Advisories for fixed vulnerabilities are checked automatically; the full scenario runs in CI |
 
 ## 12. Risks
 
@@ -362,4 +379,5 @@ Each milestone ends with something demonstrable and an automated test.
 
 - Who reviews the catalog content against the regulation, and when?
 - Which conformity routes and product classes do the first customers need?
-- Which git platform and issue tracker do the first customers use (GitHub, GitHub Enterprise Server, GitLab, Jira)?
+- Which GitLab versions and tiers do the first customers run, and do they allow a connector with a read token?
+- Which issue tracker do the first customers use (GitLab issues, Jira, other)?
