@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
     title: Evidence Store API
-    version: core/v0.3.0-31-g3d0d094b
+    version: core/v0.3.0-38-gd02bb4fa
 paths:
     /v1/evidence_store/evidence:
         post:
