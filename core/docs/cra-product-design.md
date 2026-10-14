@@ -47,6 +47,8 @@ know the CRA text.
 | D13 | The git platform integration is platform-neutral with GitLab (including self-hosted) and GitHub as first providers. The example product is a real public project that is available on both. Reports to authorities are prepared and proven in Confirmate (draft, submission proof upload); there is no integration with an authority platform. | Many customers run their own GitLab; GitHub is common for open source and suppliers. An authority API is not needed to manage compliance. |
 | D14 | We do not ship a git platform in the demo. The cloud versions (gitlab.com, github.com) stand in for self-managed instances: they serve the live profiles and are the source of recordings for a replay server. A real GitLab CE container is an optional heavy profile for self-managed edge cases. | GitLab is too heavy to ship by default; the cloud and self-managed APIs are the same; a different platform (Forgejo) would not test the GitLab connector. |
 | D16 | The example products live as code in the Confirmate repository and are published to their GitHub and GitLab projects by CI, including the project settings. The hosted projects are generated artifacts. | Reproducible, reviewable, one source of truth; the scenario states can be driven by script. |
+| D21 | Risk assessment and scoping come first (onboarding step). Confirmate stores and imports risk assessments and offers only a very light built-in analysis; it does not become a risk assessment tool. | Annex I Part I (2) applies on the basis of the risk assessment; a good external tool (QuBA-libre) exists. |
+| D22 | Out-of-scope decisions need a justification and a human approval; unknown answers keep a requirement in scope. | The responsibility stays with the manufacturer, and the tool never silently reduces the scope. |
 | D17 | Customers run Confirmate themselves (self-hosted). Connectors can run on the customer side next to self-managed systems; no SaaS and no inbound access to customer systems is required. | Matches the self-managed GitLab case and keeps credentials with the customer. |
 | D18 | Scope is software. The design must not exclude low-level embedded software (firmware, RTOS, Yocto/Zephyr-style builds). | See "Embedded software" below. |
 | D19 | The pilots (EMERALD) must not break. All CRA work is additive: new resources, tables and endpoints; new behavior sits behind feature flags that are off by default; existing results do not change. | The pilots run on the same code base. |
@@ -141,7 +143,93 @@ the catalog; Part II, Art. 13/14 and Annex VII are missing entirely.
 Review process: draft by us, structural review against the regulation text by a CRA-literate reviewer, then versioned
 release with a changelog. Control wording stays neutral and states the evidence, not a legal conclusion.
 
-## 6. Integrations
+## 6. Risk assessment and scoping
+
+The CRA starts with a cybersecurity risk assessment (Art. 13). The requirements of Annex I Part I (2) apply "on the
+basis of the risk assessment and where applicable", so the assessment decides which of them are in scope for a product
+and which are not, with a documented reason. Annex I Part I (1), Annex I Part II, Art. 13 and 14 and the documentation
+duties always apply. The assessment therefore comes before any control evaluation, and it belongs in the onboarding.
+
+We do not build a risk assessment tool and do not compete with existing ones. Confirmate does three things:
+
+1. **Store** the risk assessment of a product as a versioned, approved record with its document.
+2. **Import** the result of an external tool, so the applicability decisions do not have to be typed again.
+3. **Offer a very light built-in analysis** (a short wizard) for companies that have nothing yet, to reach a first,
+   conservative scope. It says clearly that it does not replace a full risk assessment.
+
+All three end in the same thing: a **scope decision per requirement** (in scope or out of scope, with reason and
+reference), which sets the controls in scope of the product's audit scope.
+
+### Data
+
+```
+RiskAssessment     id, product_id, version, status (DRAFT | APPROVED | SUPERSEDED),
+                   method (BUILT_IN | IMPORT | DOCUMENT), tool (e.g. "QuBA-libre"), tool_version,
+                   created_by, approved_by, approved_at, review_due_at, summary,
+                   document_evidence_id?, answers (built-in method only)
+ScopeDecision      risk_assessment_id, control_id, in_scope, justification, source (RULE | IMPORT | MANUAL)
+```
+
+- Only one `APPROVED` assessment is current per product; a new one supersedes it and shows the **difference in scope**
+  (which controls come in or go out and why), so that changes of the product are not silently carried over.
+- A `ScopeDecision` that sets a control out of scope always has a justification and is shown in the control view, the
+  audit trail and the technical file (Annex VII contains the risk assessment).
+- The decisions set the controls in scope of the audit scope (the existing `ControlInScope` mechanism); the
+  evaluation already only evaluates controls in scope, so nothing changes in the evaluation itself.
+- The document of the assessment is stored as `CyberSecurityRiskAssessmentDocument` evidence. The controls
+  `CRA-I-1.1.1.1` (risk assessment documented) and `CRA-I-1.1.1.2` (kept up to date) can then be answered from this
+  record (approved assessment exists, review date not exceeded) and no longer need a manual statement.
+
+### Which controls can be scoped out
+
+The catalog states for every control whether it is always applicable or risk-based. Only the controls under Annex I
+Part I (2) (`CRA-I-1.1.2` to `CRA-I-1.1.14`) are risk-based; everything else is always in scope. Setting a control
+out of scope requires a justification and an approval by a person; the built-in analysis only proposes.
+
+### Import: QuBA-libre and others
+
+[QuBA-libre](https://github.com/SICKAG/QuBA-libre) (Fraunhofer AISEC and SICK, CC-BY-SA 4.0) is an Excel workbook
+with a questionnaire, risks, countermeasures and an "Annex I 1.2 Report" sheet that lists each requirement
+(letters a to m) with "Implemented by", "Explicit Risk Treatment" and a comment, and a JSON export of the questionnaire,
+risk treatment and result. That maps one to one to our controls: the letter selects the parent control, "Explicit
+Risk Treatment" is the justification for an excluded requirement, the implemented countermeasures become references.
+
+- Import of the QuBA-libre export (JSON, and the report sheet as a fallback), checked against the workbook version.
+- A neutral import format (CSV/JSON: requirement, in scope, justification, reference) for every other tool.
+- Upload of the assessment document without structure: the person ticks the requirements in a checklist.
+- We import the user's results; we do not copy the questions or risk catalogs of a tool (the license of QuBA-libre
+  is share-alike). The built-in analysis is our own and much smaller.
+
+### The light analysis (built-in)
+
+About ten questions about the product, answered in a few minutes; each answer can switch requirements out of scope.
+Unknown or "don't know" always keeps the requirement in scope. Examples (to be refined with experts):
+
+| Question | Affects |
+|----------|---------|
+| Does the product process or store data of users or about users? | confidentiality, data minimisation, removal of data (e), (g), (m) |
+| Does it have network or other external interfaces? | access protection, attack surfaces, impact on other services, DoS (d), (h), (i), (j) |
+| Does it have user accounts or any form of authentication? | (d) |
+| Can it be updated after delivery (remotely or locally)? | (c), Part II (7) is kept regardless |
+| Does it record any activity of its own? | (l) |
+| Can users configure it or change settings? | (b), (m) |
+| Is physical access or a debug interface part of the attack surface? | (d), (f), (k), embedded controls |
+| Would a failure affect safety, availability of other systems or critical functions? | (h), (i), (k) |
+
+Each rule produces a proposed justification in plain language that the person can edit, for example "The product has no
+network interface, therefore the requirements on network exposure are not applicable". The rules live next to the
+catalog (a scoping questionnaire attached to the catalog) so that the core stays generic and the CRA specifics are
+reviewed with the catalog.
+
+### UX
+
+The wizard step "Risk assessment" follows the product and classification steps. It offers three paths: quick check,
+import from a tool, or upload an existing assessment. The result screen shows the proposed scope as a table (control,
+in or out, reason), highlights what is excluded, requires confirmation and approval, and then continues to connecting
+sources. The product page shows the current assessment, its approval, review date and the scope differences. The
+analysis can be repeated at any time (and a reminder is created when the review date is near or the product changes).
+
+## 7. Integrations
 
 All integrations run in a server-side connector runtime (an extension of `core/service/collection`) that reads the
 `Connection` configuration from the orchestrator. The existing collectors keep working standalone.
@@ -239,7 +327,7 @@ ontology type. Used for the time-to-triage and time-to-fix metrics.
 ### Documents
 
 The existing document analyser extracts evidence from uploaded documents. In addition the UI authors documents
-directly (see [UX](#7-ux)); both produce the same `Document` evidence types.
+directly (see [UX](#8-ux)); both produce the same `Document` evidence types.
 
 ### Ontology and metrics additions (to be proposed in `security-metrics`)
 
@@ -270,7 +358,7 @@ Low-level embedded software is part of the scope, which changes some evidence so
 - **Example products:** product B is chosen with this in mind (for example a small firmware-like component with a
   reproducible build), so that the demo does not look web-only.
 
-## 7. UX
+## 8. UX
 
 Principles: the product, not the data model, is the entry point; every red item says what to do next; the user never
 needs a command line.
@@ -309,7 +397,7 @@ reviewed and approved in the tool, exported as PDF and machine-readable bundle, 
 **Cross-cutting**: notifications (email, Slack, webhooks), comments, roles that match jobs (compliance manager,
 engineer, auditor), accessibility and keyboard use, a guided empty state everywhere.
 
-## 8. Evaluation and data
+## 9. Evaluation and data
 
 - Evaluation continues per control and audit scope. Product class and release feed scope selection and snapshots.
 - SLA and clock evaluation is a new evaluator on top of evidence timestamps (DT and issue data), producing tasks and
@@ -319,7 +407,7 @@ engineer, auditor), accessibility and keyboard use, a guided empty state everywh
 - Performance: new tables follow the index and IDs-first query approach used for evaluation and assessment results;
   collectors submit changes only.
 
-## 9. Operations and security
+## 10. Operations and security
 
 - **Feature flags (D19):** every new capability (products, connectors, ingest, clocks, authoring) is enabled by a
   configuration flag that defaults to off. Database tables and API additions are purely additive and compatible with
@@ -335,7 +423,7 @@ engineer, auditor), accessibility and keyboard use, a guided empty state everywh
   endpoints for the connector runtime.
 - Release process: images published per release, changelog, migration notes.
 
-## 10. Example product and demo stack
+## 11. Example product and demo stack
 
 ### Example products (D15)
 
@@ -451,13 +539,13 @@ per release.
 
 The scenario is a script that is also run in CI as an end-to-end test of the integrations.
 
-## 11. Milestones
+## 12. Milestones
 
 Each milestone ends with something demonstrable and an automated test.
 
 | M | Content | Done when |
 |---|---------|-----------|
-| M1 | CRA catalog v1 (Part I and II, Art. 13/14 obligations that can be evidenced), metric gaps closed or marked manual, `Product` resource, product page and work queue (without connectors) | A product can be created in the UI, the catalog scope is generated, manual statements and documents can be added, the work queue shows open items |
+| M1 | CRA catalog v1 (Part I and II, Art. 13/14 obligations that can be evidenced), metric gaps closed or marked manual, `Product` resource, risk assessment record with scope decisions (import and light analysis), product page and work queue (without connectors) | A product can be created in the UI, a risk assessment is stored or imported or run in the quick check, the controls in scope follow from it with reasons, manual statements and documents can be added, the work queue shows open items |
 | M2 | Generic evidence ingest (CycloneDX, SPDX, VEX, SARIF, CSAF, Scorecard), platform-neutral git connector with GitLab and GitHub providers, both example products, first demo profile with replay data | The example product's repository settings, workflows, SBOM and scan results appear as evidence and drive controls |
 | M3 | DT connector, SBOM and vulnerability metrics, KEV/EPSS signals, onboarding wizard, demo stack with DT | A DT project is linked in the wizard, SBOM and findings drive the Part II controls, webhook refresh works, scenario steps 1 to 2 run |
 | M4 | Clocks and report drafts with proof upload, issue tracker (Jira), tasks and deadlines, notifications | A simulated exploited vulnerability starts the 24 h/72 h clocks, drafts the report and notifies the assignee |
@@ -465,7 +553,7 @@ Each milestone ends with something demonstrable and an automated test.
 | M6 | Persistent deployment, Helm chart, notifications, observability, docs | A new user installs and reaches a first picture following the quickstart only |
 | M7 | CSAF through DT, signing and provenance evidence, self-managed GitLab profile and contract tests, Forgejo/Gitea provider on demand, Keycloak profile | Advisories for fixed vulnerabilities are checked automatically; the full scenario runs in CI |
 
-## 12. Risks
+## 13. Risks
 
 - **Catalog correctness**: wrong or incomplete mapping undermines trust. Mitigation: external review, versioned
   changelog, neutral wording.
@@ -476,7 +564,7 @@ Each milestone ends with something demonstrable and an automated test.
 - **Credential handling** for connections. Mitigation: encrypted store, write-only API, minimal scopes, audit trail.
 - **Scope growth.** Mitigation: milestones above, non-goals, D1 to D10.
 
-## 13. Questions that need input from outside this document
+## 14. Questions that need input from outside this document
 
 - Catalog review against the regulation: done by Christian (see D20 for how pieces are proposed).
 - Which conformity routes and product classes do the first customers need?
