@@ -247,6 +247,19 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			},
 		},
 		{
+			name: "error: database error when listing without grouping by control",
+			args: args{
+				req: connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{}),
+			},
+			fields: fields{
+				db: persistencetest.ListErrorDB(t, persistence.ErrDatabase, types, []persistence.CustomJoinTable{}),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListEvaluationResultsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, persistence.ErrDatabase.Error())
+			},
+		},
+		{
 			name: "happy path: filter by Audit Scope",
 			args: args{
 				req: connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{

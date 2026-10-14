@@ -30,6 +30,7 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"golang.org/x/oauth2/clientcredentials"
 	"google.golang.org/protobuf/testing/protocmp"
 
 	"confirmate.io/core/server"
@@ -118,6 +119,28 @@ func TestNewService(t *testing.T) {
 				assert.NotEmpty(t, orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, "http:://testhost:8080"), svc.orchestratorClient)
 				assert.Equal(t, make(map[string]map[string]*orchestrator.Control), svc.catalogControls)
 				return assert.NotNil(t, &svc.catalogsMutex)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path with service OAuth2 config: the orchestrator client authenticates",
+			args: args{
+				opts: []service.Option[Service]{
+					WithConfig(Config{
+						OrchestratorClient:  http.DefaultClient,
+						OrchestratorAddress: "http://testhost:8080",
+						ServiceOAuth2Config: &clientcredentials.Config{TokenURL: "http://testhost:8080/token"},
+					}),
+					WithAuthorizationStrategy(&service.AuthorizationStrategyAllowAll{}),
+				},
+			},
+			want: func(t *testing.T, got evaluationconnect.EvaluationHandler, msgAndArgs ...any) bool {
+				svc, ok := got.(*Service)
+				if !assert.True(t, ok) {
+					return false
+				}
+				return assert.NotNil(t, svc.orchestratorClient) &&
+					assert.NotNil(t, svc.authz)
 			},
 			wantErr: assert.NoError,
 		},

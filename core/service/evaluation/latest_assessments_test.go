@@ -102,6 +102,21 @@ func Test_latestAssessments_forMetrics(t *testing.T) {
 			},
 		},
 		{
+			name: "results of the same resource are ordered by metric id",
+			args: args{
+				results: []*assessment.AssessmentResult{
+					orchestratortest.MockAssessmentResult2, // metric 2
+					{Id: orchestratortest.MockResultId1, MetricId: orchestratortest.MockMetricId1, ResourceId: orchestratortest.MockAssessmentResult2.ResourceId},
+				},
+				metricIds: []string{orchestratortest.MockMetricId1, orchestratortest.MockMetricId2},
+			},
+			want: func(t *testing.T, got []*assessment.AssessmentResult, args ...any) bool {
+				return assert.Equal(t, 2, len(got)) &&
+					assert.Equal(t, orchestratortest.MockMetricId1, got[0].GetMetricId()) &&
+					assert.Equal(t, orchestratortest.MockMetricId2, got[1].GetMetricId())
+			},
+		},
+		{
 			name: "results are ordered by resource id and metric id",
 			args: args{
 				results: []*assessment.AssessmentResult{
