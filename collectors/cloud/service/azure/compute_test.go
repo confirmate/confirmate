@@ -478,7 +478,7 @@ func Test_azureComputeCollector_collectVirtualMachines(t *testing.T) {
 						SecurityAlertsEnabled:    new(false),
 					},
 					AutomaticUpdates:  &ontology.AutomaticUpdates{},
-					MalwareProtection: &ontology.MalwareProtection{Enabled: new(false)},
+					MalwareProtection: &ontology.MalwareProtection{},
 					ActivityLogging: &ontology.ActivityLogging{
 						Enabled:           new(true),
 						RetentionPeriod:   durationpb.New(RetentionPeriod90Days),
@@ -608,7 +608,7 @@ func Test_azureComputeCollector_handleVirtualMachines(t *testing.T) {
 					SecurityAlertsEnabled:    new(true),
 				},
 				AutomaticUpdates:  &ontology.AutomaticUpdates{},
-				MalwareProtection: &ontology.MalwareProtection{Enabled: new(false)},
+				MalwareProtection: &ontology.MalwareProtection{},
 				ActivityLogging: &ontology.ActivityLogging{
 					Enabled:           new(true),
 					RetentionPeriod:   durationpb.New(RetentionPeriod90Days),
@@ -1910,17 +1910,17 @@ func Test_azureComputeCollector_handleVirtualMachines_malwareProtection(t *testi
 		want assert.Want[*ontology.MalwareProtection]
 	}{
 		{
-			name: "no extensions: malware protection is not enabled",
+			name: "no extensions at all: nothing is known, so the property is left unset",
 			args: args{},
 			want: func(t *testing.T, got *ontology.MalwareProtection, msgAndArgs ...any) bool {
-				return assert.NotNil(t, got.Enabled) && assert.False(t, got.GetEnabled())
+				return assert.Nil(t, got.Enabled)
 			},
 		},
 		{
-			name: "only a monitoring agent: malware protection is not enabled",
+			name: "extensions, but no malware protection one: malware protection is not enabled",
 			args: args{extensions: []*armcompute.VirtualMachineExtension{{ID: new(vmID + "/extensions/OmsAgentForLinux")}}},
 			want: func(t *testing.T, got *ontology.MalwareProtection, msgAndArgs ...any) bool {
-				return assert.False(t, got.GetEnabled())
+				return assert.NotNil(t, got.Enabled) && assert.False(t, got.GetEnabled())
 			},
 		},
 		{
