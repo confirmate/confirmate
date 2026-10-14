@@ -35,6 +35,20 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// failingEvaluationResultsListDB is a [persistence.DB] whose List fails for evaluation results, while everything else
+// works as usual.
+type failingEvaluationResultsListDB struct {
+	persistence.DB
+}
+
+func (d failingEvaluationResultsListDB) List(r any, orderBy string, asc bool, offset int, limit int, conds ...any) error {
+	if _, ok := r.(*[]*evaluation.EvaluationResult); ok {
+		return persistence.ErrDatabase
+	}
+
+	return d.DB.List(r, orderBy, asc, offset, limit, conds...)
+}
+
 // newAuditScopeStatisticsTestDB seeds orchestratortest.MockCatalog1 (two top-level controls,
 // MockControlId1 with two sub-controls and MockControlId2 with one) and MockAuditScope1, then adds
 // ControlInScope records at mixed workflow states and EvaluationResult records at mixed
@@ -271,6 +285,22 @@ func TestService_GetAuditScopeStatistics(t *testing.T) {
 					err := d.Create(orchestratortest.MockAuditScope1)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.GetAuditScopeStatisticsResponse]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, persistence.ErrDatabase.Error())
+			},
+		},
+		{
+			name: "error: database error loading the latest evaluation results",
+			args: args{
+				req: &orchestrator.GetAuditScopeStatisticsRequest{
+					AuditScopeId: orchestratortest.MockScopeId1,
+				},
+			},
+			fields: fields{
+				db:    failingEvaluationResultsListDB{DB: newAuditScopeStatisticsTestDB(t)},
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.GetAuditScopeStatisticsResponse]],

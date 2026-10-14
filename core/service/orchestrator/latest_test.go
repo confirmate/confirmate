@@ -45,6 +45,17 @@ func Test_loadByIds(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "database error",
+			args: args{
+				db:  persistencetest.ListErrorDB(t, persistence.ErrDatabase, types, nil),
+				ids: []string{orchestratortest.MockAssessmentResult1.Id},
+			},
+			want: assert.Nil[[]*assessment.AssessmentResult],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, persistence.ErrDatabase.Error())
+			},
+		},
+		{
 			name: "returns records in the order of the given ids, skipping unknown ones",
 			args: args{
 				db: persistencetest.NewInMemoryDB(t, types, nil, func(d persistence.DB) {
