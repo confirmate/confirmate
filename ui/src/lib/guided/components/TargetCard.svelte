@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { Button, Chip, StackedProgress } from '$lib/ds';
 	import type { TargetSummary } from '../source';
 
@@ -52,6 +53,6 @@
 	{/if}
 
 	<div>
-		<Button variant={primary ? 'primary' : 'quiet'}>Open {target.name}</Button>
+		<Button variant={primary ? 'primary' : 'quiet'} href={resolve(`/guided/${target.id}/`)}>Open {target.name}</Button>
 	</div>
 </article>
