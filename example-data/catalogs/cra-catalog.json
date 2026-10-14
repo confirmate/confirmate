@@ -1,0 +1,985 @@
+[
+  {
+    "id": "CRA",
+    "name": "Cyber Resilience Act",
+    "description": "Controls and evidence for the manufacturer obligations of the EU Cyber Resilience Act (Regulation (EU) 2024/2847): essential requirements (Annex I, Parts I and II), obligations of manufacturers (Art. 13), reporting (Art. 14) and documentation and conformity (Annexes V, VII, VIII). DRAFT: the mapping has not been reviewed against the regulation yet.",
+    "short_name": "CRA",
+    "all_in_scope": true,
+    "categories": [
+      {
+        "name": "Product security requirements (Annex I, Part I)",
+        "description": "Cybersecurity properties of the product",
+        "controls": [
+          {
+            "id": "CRA-I-1",
+            "name": "Appropriate level of cybersecurity based on the risks",
+            "description": "The product is designed, developed and produced so that it ensures an appropriate level of cybersecurity based on the risks (Annex I, Part I, (1); Art. 13).",
+            "controls": [
+              {
+                "id": "CRA-I-1.1",
+                "name": "Cybersecurity risk assessment",
+                "description": "A cybersecurity risk assessment of the product exists and is taken into account in planning, design, development, production, delivery and maintenance.",
+                "metrics": [
+                  {
+                    "id": "RiskAssessmentDocumented"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-I-1.2",
+                "name": "Risk assessment is kept up to date",
+                "description": "The risk assessment is reviewed and updated during the support period, in particular after relevant vulnerabilities and changes.",
+                "metrics": [
+                  {
+                    "id": "RiskAssessmentUpdated"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2a",
+            "name": "No known exploitable vulnerabilities",
+            "description": "The product is made available on the market without known exploitable vulnerabilities (Annex I, Part I, (2)(a)).",
+            "controls": [
+              {
+                "id": "CRA-I-2a.1",
+                "description": "Regular vulnerability scanning must be performed",
+                "metrics": [
+                  {
+                    "id": "VulnerabilityScanReportUpdated"
+                  },
+                  {
+                    "id": "92b4404d-0f00-4e9c-9d1c-52cb970d975b",
+                    "name": "NoKnownVulnerabilities"
+                  },
+                  {
+                    "id": "e0f1b6f2-13f5-482e-924e-c9e29145d7e5",
+                    "name": "VulnerabilitiesNotExploitable"
+                  }
+                ],
+                "name": "Vulnerability Scanning"
+              },
+              {
+                "id": "CRA-I-2a.2",
+                "name": "Known vulnerabilities by severity",
+                "description": "The number of known vulnerabilities of the product stays within the accepted limits per severity.",
+                "metrics": [
+                  {
+                    "id": "c4edad09-f9e0-31c2-9e86-303b5aa90413",
+                    "name": "NumberOfKnownCriticalVulnerabilities"
+                  },
+                  {
+                    "id": "a04abb1e-4fce-33ce-9513-62feddf6fb2c",
+                    "name": "NumberOfKnownHighVulnerabilities"
+                  },
+                  {
+                    "id": "1eb11a7d-efdc-3909-963f-dab9a0c63a9f",
+                    "name": "NumberOfKnownMediumVulnerabilities"
+                  },
+                  {
+                    "id": "7c411a21-ee7b-35aa-bc8c-14fe303006d9",
+                    "name": "NumberOfKnownLowVulnerabilities"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2b",
+            "name": "Secure by default configuration",
+            "description": "The product is made available with a secure by default configuration, including the possibility to reset it to its original state (Annex I, Part I, (2)(b)).",
+            "controls": [
+              {
+                "id": "CRA-I-2b.1",
+                "description": "Secure configuration must be enforced by default",
+                "metrics": [
+                  {
+                    "id": "SecureConfigurationEnforced"
+                  }
+                ],
+                "name": "Secure Default Configuration"
+              },
+              {
+                "id": "CRA-I-2b.2",
+                "name": "Reset to original state",
+                "description": "The product can be reset to its original, secure state.",
+                "metrics": [
+                  {
+                    "id": "ResetToOriginalStatePossible"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-I-2b.3",
+                "name": "No default or shared credentials",
+                "description": "The product does not ship with default or shared credentials; credentials are unique per device or are set at first use.",
+                "metrics": [
+                  {
+                    "id": "NoDefaultCredentials"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2c",
+            "name": "Security updates",
+            "description": "Vulnerabilities can be addressed through security updates, including automatic updates by default with a clear opt-out and notification of available updates (Annex I, Part I, (2)(c)).",
+            "controls": [
+              {
+                "id": "CRA-I-2c.1",
+                "description": "Automatic updates must check for updates within appropriate intervals",
+                "metrics": [
+                  {
+                    "id": "50118133-1b49-416c-a052-8bc9221241c2",
+                    "name": "AutomaticUpdatesInterval"
+                  }
+                ],
+                "name": "Update Check Interval"
+              },
+              {
+                "id": "CRA-I-2c.2",
+                "description": "Automatic updates must be enabled by default",
+                "metrics": [
+                  {
+                    "id": "84eaed86-759d-4419-9954-f3d3ea1f5200",
+                    "name": "AutomaticUpdatesEnabled"
+                  }
+                ],
+                "name": "Automatic Updates by Default"
+              },
+              {
+                "id": "CRA-I-2c.3",
+                "description": "Users must be able to postpone updates and receive notifications",
+                "metrics": [
+                  {
+                    "id": "PostponeAlertOptionEnabled"
+                  }
+                ],
+                "name": "User Update Control"
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2d",
+            "name": "Protection from unauthorized access",
+            "description": "The product ensures protection from unauthorized access through appropriate control mechanisms (authentication, identity or access management) and reports possible unauthorized access (Annex I, Part I, (2)(d)).",
+            "controls": [
+              {
+                "id": "CRA-I-2d.1",
+                "description": "Access control mechanisms must be implemented at critical points",
+                "metrics": [
+                  {
+                    "id": "AccessControlMechanismsImplemented"
+                  }
+                ],
+                "name": "Access Control Mechanisms"
+              },
+              {
+                "id": "CRA-I-2d.2",
+                "description": "Password policies must be enabled for identity management",
+                "metrics": [
+                  {
+                    "id": "12fc547b-7a33-4d6a-8f9a-cf9ec059a13e",
+                    "name": "IdentityPasswordPolicyEnabled"
+                  }
+                ],
+                "name": "Password Policies"
+              },
+              {
+                "id": "CRA-I-2d.3",
+                "description": "Unauthorized access attempts must be reported",
+                "metrics": [
+                  {
+                    "id": "UnauthorizedAccessReported"
+                  }
+                ],
+                "name": "Unauthorized Access Reporting"
+              },
+              {
+                "id": "CRA-I-2d.4",
+                "description": "Multi-factor authentication must be enabled for administrative access",
+                "metrics": [
+                  {
+                    "id": "2601ddd9-d98b-467d-ad5b-ebe1e333f566",
+                    "name": "AdminMFAEnabled"
+                  }
+                ],
+                "name": "Multi-Factor Authentication"
+              },
+              {
+                "id": "CRA-I-2d.5",
+                "description": "Anomaly detection mechanisms must be enabled",
+                "metrics": [
+                  {
+                    "id": "58d9a281-0f05-4a49-a1ef-df5013cc901e",
+                    "name": "AnomalyDetectionEnabled"
+                  }
+                ],
+                "name": "Anomaly Detection"
+              },
+              {
+                "id": "CRA-I-2d.6",
+                "name": "Debug and service interfaces are protected",
+                "description": "Debug, service and manufacturing interfaces are disabled, locked or protected by authentication in the delivered product.",
+                "metrics": [
+                  {
+                    "id": "DebugInterfacesProtected"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2e",
+            "name": "Confidentiality of data",
+            "description": "The confidentiality of stored, transmitted and otherwise processed data is protected, for example by encryption of data at rest and in transit with state of the art mechanisms (Annex I, Part I, (2)(e)).",
+            "controls": [
+              {
+                "id": "CRA-I-2e.1",
+                "description": "Data at rest must be encrypted",
+                "metrics": [
+                  {
+                    "id": "c7121da1-274e-4c6b-b2fe-47df992297a9",
+                    "name": "AtRestEncryptionEnabled"
+                  }
+                ],
+                "name": "Encryption at Rest"
+              },
+              {
+                "id": "CRA-I-2e.2",
+                "description": "Strong cryptographic algorithms must be used",
+                "metrics": [
+                  {
+                    "id": "14f72a16-4939-47a9-b4d7-3514ee2a8c44",
+                    "name": "StrongCryptographicHash"
+                  }
+                ],
+                "name": "Cryptographic Algorithm Strength"
+              },
+              {
+                "id": "CRA-I-2e.3",
+                "description": "Data in transit must be encrypted",
+                "metrics": [
+                  {
+                    "id": "642e9b84-4bf9-4853-9c76-555716f0c716",
+                    "name": "TransportEncryptionEnabled"
+                  }
+                ],
+                "name": "Encryption in Transit"
+              },
+              {
+                "id": "CRA-I-2e.4",
+                "name": "Cryptographic keys are stored protected",
+                "description": "Keys and secrets are stored in protected storage (for example secure element, key store) and not in clear text in the product or its firmware image.",
+                "metrics": [
+                  {
+                    "id": "KeysProtected"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2f",
+            "name": "Integrity of data, commands, programs and configuration",
+            "description": "The integrity of data, commands, programs and configuration is protected against unauthorized manipulation, and corruption is reported (Annex I, Part I, (2)(f)).",
+            "controls": [
+              {
+                "id": "CRA-I-2f.1",
+                "description": "Secure protocols must be enabled for data transmission",
+                "metrics": [
+                  {
+                    "id": "642e9b84-4bf9-4853-9c76-555716f0c716",
+                    "name": "TransportEncryptionEnabled"
+                  }
+                ],
+                "name": "Secure Transmission Protocols"
+              },
+              {
+                "id": "CRA-I-2f.2",
+                "name": "Integrity of software and firmware",
+                "description": "Software and firmware are protected against unauthorized modification, for example by signed updates, secure boot and verified update packages.",
+                "metrics": [
+                  {
+                    "id": "SoftwareIntegrityProtected"
+                  },
+                  {
+                    "id": "514100d2-034f-4fa2-9254-9db272ca8ab0",
+                    "name": "SoftwareAttestationEnabled"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-I-2f.3",
+                "name": "Source integrity",
+                "description": "Changes to the source code are traceable and protected: commits are signed and changes are reviewed.",
+                "metrics": [
+                  {
+                    "id": "6920d9c5-587d-4e9f-876c-dcf1a69f7f75",
+                    "name": "SignedCommitsEnforced"
+                  },
+                  {
+                    "id": "5c659903-3185-3b07-9bb6-39dcd32ffa71",
+                    "name": "RequiredReviewers"
+                  },
+                  {
+                    "id": "f6dd93c1-a244-3f37-8bdd-49161662adba",
+                    "name": "PullRequestsWithReviewsPercentage"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2g",
+            "name": "Data minimisation",
+            "description": "Only data that is adequate, relevant and limited to what is necessary for the intended use is processed (Annex I, Part I, (2)(g)).",
+            "controls": [
+              {
+                "id": "CRA-I-2g.1",
+                "description": "Data minimization techniques must be enabled",
+                "metrics": [
+                  {
+                    "id": "DataMinimisationTechniquesEnabled"
+                  }
+                ],
+                "name": "Data Minimization"
+              },
+              {
+                "id": "CRA-I-2g.2",
+                "description": "Automated deletion of data must be configured",
+                "metrics": [
+                  {
+                    "id": "AutomatedDeletionOfDataEnabled"
+                  }
+                ],
+                "name": "Automated Data Deletion"
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2h",
+            "name": "Availability of essential functions",
+            "description": "The availability of essential and basic functions is protected, also after an incident, including resilience and mitigation measures against denial of service attacks (Annex I, Part I, (2)(h)).",
+            "controls": [
+              {
+                "id": "CRA-I-2h.1",
+                "description": "DDoS protection mechanisms must be activated",
+                "metrics": [
+                  {
+                    "id": "DDOSMechanismActivated"
+                  }
+                ],
+                "name": "DDoS Protection"
+              },
+              {
+                "id": "CRA-I-2h.2",
+                "description": "Backup mechanisms must be enabled for critical data flows",
+                "metrics": [
+                  {
+                    "id": "c7a4fae4-216a-4440-93e9-637cb08d79a8",
+                    "name": "BackupEnabled"
+                  }
+                ],
+                "name": "Backup of critical data"
+              },
+              {
+                "id": "CRA-I-2h.3",
+                "name": "Essential functions stay available",
+                "description": "Essential and basic functions remain available after an incident, including resilience against denial of service.",
+                "metrics": [
+                  {
+                    "id": "EssentialFunctionsResilient"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2i",
+            "name": "Minimise negative impact on other services",
+            "description": "The product minimises its own negative impact on the availability of services provided by other devices or networks (Annex I, Part I, (2)(i)).",
+            "controls": [
+              {
+                "id": "CRA-I-2i.1",
+                "description": "Standard protocols must be listed and only required interfaces enabled",
+                "metrics": [
+                  {
+                    "id": "StandardProtocolsListed"
+                  }
+                ],
+                "name": "Interface and Protocol Inventory"
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2j",
+            "name": "Limited attack surfaces",
+            "description": "The product is designed, developed and produced to limit attack surfaces, including external interfaces (Annex I, Part I, (2)(j)).",
+            "controls": [
+              {
+                "id": "CRA-I-2j.1",
+                "description": "Risk assessment must be mapped to services and controls",
+                "metrics": [
+                  {
+                    "id": "RiskAssessmentMappingtoServicesandControl"
+                  }
+                ],
+                "name": "Risk Assessment Mapping"
+              },
+              {
+                "id": "CRA-I-2j.2",
+                "description": "Only required interfaces and protocols must be enabled",
+                "metrics": [
+                  {
+                    "id": "StandardProtocolsListed"
+                  }
+                ],
+                "name": "Minimal Attack Surface"
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2k",
+            "name": "Reduce the impact of incidents",
+            "description": "The product reduces the impact of an incident using appropriate exploitation mitigation mechanisms and techniques (Annex I, Part I, (2)(k)).",
+            "controls": [
+              {
+                "id": "CRA-I-2k.1",
+                "name": "Exploitation mitigations are applied",
+                "description": "Hardening and exploitation mitigations are applied, for example memory protection, compiler hardening flags, sandboxing and least privilege.",
+                "metrics": [
+                  {
+                    "id": "ExploitationMitigationApplied"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2l",
+            "name": "Security logging and monitoring",
+            "description": "Security related information is provided by recording and monitoring relevant internal activity, with an opt-out for the user (Annex I, Part I, (2)(l)).",
+            "controls": [
+              {
+                "id": "CRA-I-2l.1",
+                "description": "Activity logging must be enabled for security-relevant activities",
+                "metrics": [
+                  {
+                    "id": "3d2996d0-f41d-4283-b574-71aec7912cd2",
+                    "name": "ActivityLoggingEnabled"
+                  }
+                ],
+                "name": "Security Activity Logging"
+              },
+              {
+                "id": "CRA-I-2l.2",
+                "description": "Identity activity must be tracked and available",
+                "metrics": [
+                  {
+                    "id": "IdentityRecentActivity"
+                  }
+                ],
+                "name": "Identity Activity Tracking"
+              },
+              {
+                "id": "CRA-I-2l.3",
+                "description": "Logging opt-out mechanism must be available to users",
+                "metrics": [
+                  {
+                    "id": "LoggingOptOutMechanismAvailable"
+                  }
+                ],
+                "name": "Logging Opt-Out"
+              },
+              {
+                "id": "CRA-I-2l.4",
+                "description": "Security data must be available to users",
+                "metrics": [
+                  {
+                    "id": "SecurityDataAvailableToUser"
+                  }
+                ],
+                "name": "Security Data Access"
+              }
+            ]
+          },
+          {
+            "id": "CRA-I-2m",
+            "name": "Secure removal and transfer of data",
+            "description": "Users can securely and easily remove all data and settings permanently and, where data can be transferred to other products, this happens securely (Annex I, Part I, (2)(m)).",
+            "controls": [
+              {
+                "id": "CRA-I-2m.1",
+                "description": "Secure data deletion mechanism must be activated",
+                "metrics": [
+                  {
+                    "id": "SecureDataDeletionMechanismActivated"
+                  }
+                ],
+                "name": "Secure Data Deletion"
+              },
+              {
+                "id": "CRA-I-2m.2",
+                "name": "Secure transfer of data",
+                "description": "Where data can be transferred to other products or systems, the transfer is secure.",
+                "metrics": [
+                  {
+                    "id": "DataTransferSecure"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Vulnerability handling requirements (Annex I, Part II)",
+        "description": "Vulnerability handling by the manufacturer",
+        "controls": [
+          {
+            "id": "CRA-II-1",
+            "name": "Identify components and vulnerabilities, software bill of materials",
+            "description": "Vulnerabilities and components are identified and documented, including a software bill of materials in a commonly used and machine-readable format covering at least the top-level dependencies (Annex I, Part II, (1)).",
+            "controls": [
+              {
+                "id": "CRA-II-1.1",
+                "name": "SBOM exists for every release",
+                "description": "A software bill of materials in a commonly used, machine-readable format exists for each release.",
+                "metrics": [
+                  {
+                    "id": "SbomAvailable"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-II-1.2",
+                "name": "SBOM is complete and valid",
+                "description": "The SBOM covers at least the top-level dependencies and is valid in its format.",
+                "metrics": [
+                  {
+                    "id": "SbomComplete"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-II-2",
+            "name": "Remediate vulnerabilities without delay",
+            "description": "Vulnerabilities are addressed and remediated without delay, including by providing security updates; security updates are provided separately from functionality updates where technically feasible (Annex I, Part II, (2); Art. 13).",
+            "controls": [
+              {
+                "id": "CRA-II-2.1",
+                "name": "Remediation within the defined time",
+                "description": "Known vulnerabilities are triaged and fixed within the defined service levels.",
+                "metrics": [
+                  {
+                    "id": "VulnerabilityRemediationTimely"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-II-2.2",
+                "name": "Security updates are separable",
+                "description": "Security updates can be installed separately from functionality updates where technically feasible.",
+                "metrics": [
+                  {
+                    "id": "SecurityUpdatesSeparable"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-II-3",
+            "name": "Regular tests and reviews",
+            "description": "Effective and regular tests and reviews of the security of the product are applied (Annex I, Part II, (3)).",
+            "controls": [
+              {
+                "id": "CRA-II-3.1",
+                "name": "Security testing in the development process",
+                "description": "Security tests (static analysis, dependency scanning, tests) run regularly and on every release.",
+                "metrics": [
+                  {
+                    "id": "SecurityTestingRegular"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-II-3.2",
+                "name": "Code review",
+                "description": "Changes are reviewed by a second person before they are merged.",
+                "metrics": [
+                  {
+                    "id": "5c659903-3185-3b07-9bb6-39dcd32ffa71",
+                    "name": "RequiredReviewers"
+                  },
+                  {
+                    "id": "f6dd93c1-a244-3f37-8bdd-49161662adba",
+                    "name": "PullRequestsWithReviewsPercentage"
+                  },
+                  {
+                    "id": "6d4bece9-a59d-35ce-aeba-a6e1092a3e23",
+                    "name": "PullRequestsWithReviewsPercentageLastMonth"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-II-4",
+            "name": "Public disclosure of fixed vulnerabilities",
+            "description": "Once a security update is available, information about fixed vulnerabilities is publicly disclosed, including description, affected products, impact, severity and remediation guidance (Annex I, Part II, (4)).",
+            "controls": [
+              {
+                "id": "CRA-II-4.1",
+                "name": "Fixed vulnerabilities are disclosed",
+                "description": "An advisory exists for every fixed vulnerability.",
+                "metrics": [
+                  {
+                    "id": "FixedVulnerabilitiesDisclosed"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-II-4.2",
+                "name": "Advisories are valid CSAF documents",
+                "description": "Published advisories are valid CSAF documents that are provided over an encrypted transport.",
+                "metrics": [
+                  {
+                    "id": "ba26e062-eea7-4d47-a181-3a5dbe723ed3",
+                    "name": "DocumentCSAFContentValid"
+                  },
+                  {
+                    "id": "3320c5ca-376b-4bdc-b4e6-0a03db2ec66e",
+                    "name": "DocumentCSAFFilenameValid"
+                  },
+                  {
+                    "id": "56ab82ed-e3f2-49e3-9acf-0b5c1fa744d1",
+                    "name": "DocumentCSAFTransportEncryption"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-II-5",
+            "name": "Coordinated vulnerability disclosure policy",
+            "description": "A policy on coordinated vulnerability disclosure is put in place and enforced (Annex I, Part II, (5)).",
+            "controls": [
+              {
+                "id": "CRA-II-5.1",
+                "name": "Disclosure policy is published",
+                "description": "A coordinated vulnerability disclosure policy is published and describes how vulnerabilities can be reported and handled.",
+                "metrics": [
+                  {
+                    "id": "CvdPolicyPublished"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-II-6",
+            "name": "Sharing information about vulnerabilities",
+            "description": "Measures are taken to facilitate the sharing of information about potential vulnerabilities, including a contact address for reporting (Annex I, Part II, (6)).",
+            "controls": [
+              {
+                "id": "CRA-II-6.1",
+                "name": "Reporting contact is provided",
+                "description": "A contact address or channel for reporting vulnerabilities is provided and monitored.",
+                "metrics": [
+                  {
+                    "id": "VulnerabilityContactProvided"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-II-7",
+            "name": "Secure distribution of updates",
+            "description": "Mechanisms for the secure distribution of updates are provided to ensure that vulnerabilities are fixed or mitigated in a timely manner (Annex I, Part II, (7)).",
+            "controls": [
+              {
+                "id": "CRA-II-7.1",
+                "name": "Updates are distributed securely",
+                "description": "Updates are signed and distributed over an authenticated channel; their authenticity is verified before installation.",
+                "metrics": [
+                  {
+                    "id": "UpdatesDistributedSecurely"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-II-8",
+            "name": "Security patches without delay and free of charge",
+            "description": "Security patches are disseminated without delay and, unless agreed otherwise for tailor-made products, free of charge, together with advisory messages (Annex I, Part II, (8)).",
+            "controls": [
+              {
+                "id": "CRA-II-8.1",
+                "name": "Patches are provided without delay",
+                "description": "Security patches are made available without delay after a fix exists.",
+                "metrics": [
+                  {
+                    "id": "SecurityPatchesTimely"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-II-8.2",
+                "name": "Patches are free of charge",
+                "description": "Security patches are provided free of charge, with advisory messages on the action to take.",
+                "metrics": [
+                  {
+                    "id": "SecurityPatchesFree"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Obligations of manufacturers (Art. 13)",
+        "description": "General obligations of manufacturers",
+        "controls": [
+          {
+            "id": "CRA-13-1",
+            "name": "Due diligence for third-party components",
+            "description": "Due diligence is exercised when integrating components from third parties, including open source components, so that they do not compromise the cybersecurity of the product; vulnerabilities in components are reported to their maintainers (Art. 13).",
+            "controls": [
+              {
+                "id": "CRA-13-1.1",
+                "name": "Component due diligence",
+                "description": "Third-party components are selected and monitored with regard to their security and support status.",
+                "metrics": [
+                  {
+                    "id": "ComponentDueDiligence"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-13-2",
+            "name": "Support period",
+            "description": "The support period reflects the time the product is expected to be in use and is at least five years, unless the product is expected to be used for less; it is clearly stated (Art. 13).",
+            "controls": [
+              {
+                "id": "CRA-13-2.1",
+                "name": "Support period is determined",
+                "description": "A support period is determined and justified.",
+                "metrics": [
+                  {
+                    "id": "SupportPeriodDetermined"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-13-2.2",
+                "name": "Support period is communicated",
+                "description": "The end of the support period is communicated to users.",
+                "metrics": [
+                  {
+                    "id": "SupportPeriodCommunicated"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-13-3",
+            "name": "User information and instructions",
+            "description": "The product is accompanied by the information and instructions to the user required by Annex II, including the contact point for vulnerability reports and secure use (Art. 13; Annex II).",
+            "controls": [
+              {
+                "id": "CRA-13-3.1",
+                "name": "User information is provided",
+                "description": "The user information and instructions required by Annex II are provided.",
+                "metrics": [
+                  {
+                    "id": "UserInformationProvided"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-13-4",
+            "name": "Documentation is retained",
+            "description": "The technical documentation and the EU declaration of conformity are kept available for at least ten years after the product has been placed on the market or for the support period, whichever is longer (Art. 13).",
+            "controls": [
+              {
+                "id": "CRA-13-4.1",
+                "name": "Retention of documentation",
+                "description": "Technical documentation and declaration of conformity are retained for the required time.",
+                "metrics": [
+                  {
+                    "id": "DocumentationRetained"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Reporting obligations (Art. 14)",
+        "description": "Reporting of actively exploited vulnerabilities and severe incidents",
+        "controls": [
+          {
+            "id": "CRA-14-1",
+            "name": "Reporting process",
+            "description": "A process exists to report actively exploited vulnerabilities and severe incidents: early warning without undue delay and within 24 hours of becoming aware, a notification within 72 hours and a final report (Art. 14).",
+            "controls": [
+              {
+                "id": "CRA-14-1.1",
+                "name": "Reporting process is defined",
+                "description": "The reporting process, responsibilities and templates are defined and tested.",
+                "metrics": [
+                  {
+                    "id": "ReportingProcessDefined"
+                  },
+                  {
+                    "id": "5df7827e-00b2-4086-af1a-ed4c3b8ce397",
+                    "name": "IncidentReportingTeam"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-14-1.2",
+                "name": "Exploited vulnerabilities are reported in time",
+                "description": "Actively exploited vulnerabilities were reported within the required time limits.",
+                "metrics": [
+                  {
+                    "id": "ExploitedVulnerabilitiesReportedInTime"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-14-1.3",
+                "name": "Severe incidents are reported in time",
+                "description": "Severe incidents with an impact on the security of the product were reported within the required time limits.",
+                "metrics": [
+                  {
+                    "id": "SevereIncidentsReportedInTime"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-14-1.4",
+                "name": "Users are informed",
+                "description": "Users are informed about actively exploited vulnerabilities and severe incidents and about the measures they can take.",
+                "metrics": [
+                  {
+                    "id": "UsersInformedOfIncidents"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Documentation and conformity",
+        "description": "Technical documentation, declaration of conformity and conformity assessment",
+        "controls": [
+          {
+            "id": "CRA-C-1",
+            "name": "Product class and conformity route",
+            "description": "The product class (default, important class I or II, critical; Annexes III and IV) is determined and the matching conformity assessment procedure (Annex VIII) is chosen (Arts. 7, 8, 32).",
+            "controls": [
+              {
+                "id": "CRA-C-1.1",
+                "name": "Product class is determined",
+                "description": "The product class is determined and documented.",
+                "metrics": [
+                  {
+                    "id": "ProductClassDetermined"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-C-1.2",
+                "name": "Conformity assessment procedure is chosen",
+                "description": "The conformity assessment procedure that matches the class is chosen and carried out.",
+                "metrics": [
+                  {
+                    "id": "ConformityRouteCompleted"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-C-2",
+            "name": "Technical documentation",
+            "description": "The technical documentation according to Annex VII is complete and up to date (Art. 31, Annex VII).",
+            "controls": [
+              {
+                "id": "CRA-C-2.1",
+                "name": "Technical documentation is complete",
+                "description": "The technical documentation contains the elements required by Annex VII.",
+                "metrics": [
+                  {
+                    "id": "TechnicalDocumentationComplete"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-C-3",
+            "name": "EU declaration of conformity",
+            "description": "An EU declaration of conformity according to Annex V is drawn up and the CE marking is affixed (Arts. 28, 29).",
+            "controls": [
+              {
+                "id": "CRA-C-3.1",
+                "name": "Declaration of conformity is issued",
+                "description": "An EU declaration of conformity exists for the released version.",
+                "metrics": [
+                  {
+                    "id": "DeclarationOfConformityIssued"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-C-3.2",
+                "name": "CE marking is affixed",
+                "description": "The CE marking is affixed visibly to the product or its documentation.",
+                "metrics": [
+                  {
+                    "id": "CeMarkingAffixed"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "CRA-C-4",
+            "name": "Product identification",
+            "description": "The product can be identified (type, batch or version) and the manufacturer and contact point are stated (Art. 13).",
+            "controls": [
+              {
+                "id": "CRA-C-4.1",
+                "name": "Product and manufacturer are identified",
+                "description": "Type, version or batch and manufacturer information are provided.",
+                "metrics": [
+                  {
+                    "id": "ProductIdentified"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
