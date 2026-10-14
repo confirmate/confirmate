@@ -1,4 +1,4 @@
-import { guidedSource } from '$lib/guided/source';
+import { guidedSource } from '$lib/guided/select';
 import type { PageLoad } from './$types';
 
 export const load = (async () => {

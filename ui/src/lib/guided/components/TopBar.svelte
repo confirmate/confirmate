@@ -3,7 +3,9 @@
 	import { page } from '$app/state';
 	import type { SchemaUser } from '$lib/api/openapi/orchestrator';
 	import { logout } from '$lib/auth';
+	import { invalidateAll } from '$app/navigation';
 	import { themes, theme } from '$lib/theme/theme.svelte';
+	import { sourceMode } from '../mode.svelte';
 
 	let { currentUser = null }: { currentUser?: SchemaUser | null } = $props();
 
@@ -42,6 +44,20 @@
 		{/each}
 	</nav>
 	<div class="ml-auto flex items-center gap-4">
+		<label class="flex items-center gap-2 text-sm text-ink-muted">
+			Data
+			<select
+				class="rounded-control border border-line-strong bg-surface px-2 py-1 text-ink"
+				value={sourceMode.current}
+				onchange={async (e) => {
+					sourceMode.set(e.currentTarget.value as 'real' | 'sample');
+					await invalidateAll();
+				}}
+			>
+				<option value="real">Real</option>
+				<option value="sample">Sample</option>
+			</select>
+		</label>
 		<label class="flex items-center gap-2 text-sm text-ink-muted">
 			Theme
 			<select

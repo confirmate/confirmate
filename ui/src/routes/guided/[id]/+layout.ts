@@ -1,4 +1,4 @@
-import { guidedSource } from '$lib/guided/source';
+import { guidedSource } from '$lib/guided/select';
 import type { LayoutLoad } from './$types';
 
 export const load = (async ({ params }) => {

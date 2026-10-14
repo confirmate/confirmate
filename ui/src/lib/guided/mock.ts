@@ -1,4 +1,4 @@
-import type { GuidedSource, TargetDetail, TargetSummary } from './source';
+import type { GuidedSource, RequirementDetail, TargetDetail, TargetSummary } from './source';
 
 /** Sample data for the preview of the guided experience. It is replaced by the real source. */
 const targets: TargetSummary[] = [
@@ -40,6 +40,55 @@ const targets: TargetSummary[] = [
 		tags: [],
 		progress: { met: 18, attention: 8, open: 14, total: 40 }
 	}
+];
+
+const requirementDetails: RequirementDetail[] = [
+	{
+			id: 'secure-by-default',
+			partId: 'product',
+			title: 'Secure by default',
+			reference: 'Annex I, part I, (2)(b)',
+			status: 'attention',
+			plain: 'The product is delivered with a secure default configuration, and users can reset it to that state.',
+			scopeReason: 'Applies because of risk assessment, version 1',
+			checks: [
+				{
+					id: 'c1',
+					title: 'The default configuration is secure',
+					kind: 'automatic',
+					status: 'not-met',
+					text: 'The code analysis found that debug mode is on in the default settings.',
+					code: 'config/default.toml, line 12: debug = true',
+					note: 'An automatic result always wins over a manual statement. To change this status, change the code or explain why the finding is wrong.',
+					actions: [{ id: 'other', label: 'Open in GitHub' }, { id: 'other', label: 'Report a false finding' }]
+				},
+				{
+					id: 'c2',
+					title: 'The product can be reset to its original state',
+					kind: 'statement',
+					metricId: 'ResetToOriginalStatePossible',
+					status: 'met',
+					text: 'Bob stated on 2 October that this is possible. Evidence: administrator guide, section 4.2.',
+					note: 'Valid until 2 October 2027, then we ask again.',
+					actions: [{ id: 'statement', label: 'Update the statement' }]
+				},
+				{
+					id: 'c3',
+					title: 'There are no default or shared credentials',
+					kind: 'statement',
+					metricId: 'NoDefaultCredentials',
+					status: 'open',
+					text: 'Nobody has answered this yet. You can answer it with a short statement and, if you have one, a document as evidence.',
+					actions: [{ id: 'statement', label: 'Add a statement', primary: true }, { id: 'other', label: 'Assign to someone' }]
+				}
+			],
+			history: [
+				{ when: 'Today', what: 'Code analysis found debug mode on by default' },
+				{ when: '2 October', what: 'Bob stated the product can be reset' },
+				{ when: '1 October', what: 'Added to the scope by the risk assessment, version 1' }
+			],
+			comments: [{ who: 'Bob', text: 'The debug flag is needed for the beta build. I will make it a build option.' }]
+		}
 ];
 
 const pythonpass: TargetDetail = {
@@ -88,52 +137,6 @@ const pythonpass: TargetDetail = {
 		{ id: 'user-information', partId: 'obligations', title: 'User information and instructions', reference: 'Art. 13, Annex II', status: 'open' },
 		{ id: 'reporting-process', partId: 'reporting', title: 'Reporting process', reference: 'Art. 14', status: 'open' },
 		{ id: 'declaration', partId: 'documentation', title: 'EU declaration of conformity', reference: 'Annex V', status: 'open' }
-	],
-	requirementDetails: [
-		{
-			id: 'secure-by-default',
-			partId: 'product',
-			title: 'Secure by default',
-			reference: 'Annex I, part I, (2)(b)',
-			status: 'attention',
-			plain: 'The product is delivered with a secure default configuration, and users can reset it to that state.',
-			scopeReason: 'Applies because of risk assessment, version 1',
-			checks: [
-				{
-					id: 'c1',
-					title: 'The default configuration is secure',
-					kind: 'automatic',
-					status: 'not-met',
-					text: 'The code analysis found that debug mode is on in the default settings.',
-					code: 'config/default.toml, line 12: debug = true',
-					note: 'An automatic result always wins over a manual statement. To change this status, change the code or explain why the finding is wrong.',
-					actions: [{ label: 'Open in GitHub' }, { label: 'Report a false finding' }]
-				},
-				{
-					id: 'c2',
-					title: 'The product can be reset to its original state',
-					kind: 'statement',
-					status: 'met',
-					text: 'Bob stated on 2 October that this is possible. Evidence: administrator guide, section 4.2.',
-					note: 'Valid until 2 October 2027, then we ask again.',
-					actions: [{ label: 'Update the statement' }]
-				},
-				{
-					id: 'c3',
-					title: 'There are no default or shared credentials',
-					kind: 'statement',
-					status: 'open',
-					text: 'Nobody has answered this yet. You can answer it with a short statement and, if you have one, a document as evidence.',
-					actions: [{ label: 'Add a statement', primary: true }, { label: 'Assign to someone' }]
-				}
-			],
-			history: [
-				{ when: 'Today', what: 'Code analysis found debug mode on by default' },
-				{ when: '2 October', what: 'Bob stated the product can be reset' },
-				{ when: '1 October', what: 'Added to the scope by the risk assessment, version 1' }
-			],
-			comments: [{ who: 'Bob', text: 'The debug flag is needed for the beta build. I will make it a build option.' }]
-		}
 	]
 };
 
@@ -145,5 +148,16 @@ export const mockSource: GuidedSource = {
 		if (id === pythonpass.id) return pythonpass;
 		// The other sample targets have no details in the preview.
 		return undefined;
+	},
+	async getRequirement(targetId, requirementId) {
+		if (targetId !== pythonpass.id) return undefined;
+		return requirementDetails.find((r) => r.id === requirementId);
+	},
+	async createTarget() {
+		// Nothing is stored for sample data, the wizard ends on the sample product.
+		return { id: pythonpass.id };
+	},
+	async addStatement() {
+		// Nothing is stored for sample data.
 	}
 };

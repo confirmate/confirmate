@@ -58,8 +58,9 @@ ui/src/routes/guided/  route files
 - **No domain knowledge in `$lib/ds`.** It must not import from `$lib/guided` or from the API types.
 - **No framework specifics in generic components.** What differs between the CRA, C5 and NIS-2 is data in a profile
   (steps, questions, scoping effects, sources, vocabulary), not branches in a component.
-- **Data only through `GuidedSource`.** Components do not call the API. A mock implements `GuidedSource` until the
-  backend pieces exist; the real implementation replaces it without changing a screen.
+- **Data only through `GuidedSource`.** Components do not call the API. `real.ts` reads and writes the orchestrator,
+  `mock.ts` serves sample data for demos, and the Data switch in the top bar chooses between them. A new operation goes
+  into the interface and into both implementations; the screens do not change.
 
 ## Design tokens and themes
 

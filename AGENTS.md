@@ -58,7 +58,9 @@ that always apply:
   `rounded-card`, ...) defined in `ui/src/lib/theme/theme.css`, never raw palette classes or hex colors.
 - Keep `ui/src/lib/ds` free of domain knowledge, and keep framework specifics (CRA, C5, NIS-2) in a profile under
   `ui/src/lib/guided/profiles/`, not in components.
-- Read data only through `GuidedSource`; do not call the API from guided components.
+- Read and write data only through `GuidedSource` (`ui/src/lib/guided/select.ts`), which serves the orchestrator
+  (`real.ts`) or sample data (`mock.ts`) depending on the Data switch in the top bar; do not call the API from guided
+  components. A new operation goes into the interface and into both implementations.
 - Use "Target of Evaluation" (ToE), "requirement" and "check" in the UI, not "control" and "metric".
 
 ### Tech Stack

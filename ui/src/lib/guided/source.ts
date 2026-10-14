@@ -1,4 +1,4 @@
-import { mockSource } from './mock';
+import type { Answer, FrameworkProfile } from './profile';
 
 /** What the list of targets of evaluation shows about one target. */
 export interface TargetSummary {
@@ -70,7 +70,9 @@ export interface Check {
 	text: string;
 	code?: string;
 	note?: string;
-	actions: { label: string; primary?: boolean }[];
+	/** The metric behind the check, if a person can answer it with a statement. */
+	metricId?: string;
+	actions: { id: 'statement' | 'other'; label: string; primary?: boolean }[];
 }
 
 export interface RequirementDetail extends RequirementSummary {
@@ -88,17 +90,35 @@ export interface TargetDetail extends TargetSummary {
 	parts: PartProgress[];
 	sources: SourceStatus[];
 	requirements: RequirementSummary[];
-	/** The requirements that have a view of their own in the preview. */
-	requirementDetails: RequirementDetail[];
+}
+
+/** What the setup wizard collected about a new Target of Evaluation. */
+export interface NewTarget {
+	profile: FrameworkProfile;
+	details: Record<string, string>;
+	choiceId: string;
+	answers: Record<string, Answer>;
+}
+
+/** A statement that a person makes about a check, for example that a requirement is met. */
+export interface NewStatement {
+	targetId: string;
+	metricId: string;
+	compliant: boolean;
+	comment: string;
+	/** Optional day until which the statement is valid (YYYY-MM-DD). */
+	validUntil?: string;
 }
 
 /**
- * Where the guided experience gets its data from. Today this is a mock; the real source reads targets of evaluation,
- * evaluation results and deadlines from the orchestrator. The screens only depend on this interface.
+ * Where the guided experience gets its data from. There is a source with sample data and one that reads from the
+ * orchestrator. The screens only depend on this interface.
  */
 export interface GuidedSource {
 	listTargets(): Promise<TargetSummary[]>;
 	getTarget(id: string): Promise<TargetDetail | undefined>;
+	getRequirement(targetId: string, requirementId: string): Promise<RequirementDetail | undefined>;
+	/** Creates the Target of Evaluation, its audit scope and an approved risk assessment, and returns its ID. */
+	createTarget(input: NewTarget): Promise<{ id: string }>;
+	addStatement(statement: NewStatement): Promise<void>;
 }
-
-export const guidedSource: GuidedSource = mockSource;
