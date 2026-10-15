@@ -52,9 +52,8 @@ func EvaluationResultsListCommand() *cli.Command {
 				Usage:   "Filter by subcontrol ID",
 			},
 			&cli.BoolFlag{
-				Name:    "parent",
-				Aliases: []string{"p"},
-				Usage:   "Filter for list evaluation results for parents only",
+				Name:  "parent",
+				Usage: "Filter for list evaluation results for parents only",
 			},
 			&cli.BoolFlag{
 				Name:    "valid-manual-only",
