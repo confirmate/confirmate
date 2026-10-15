@@ -218,9 +218,13 @@ type ScopeDecision struct {
 	// The reason for the decision. It is required if the control is out of scope.
 	Justification string `protobuf:"bytes,3,opt,name=justification,proto3" json:"justification,omitempty"`
 	// Where the decision comes from.
-	Source        ScopeDecisionSource `protobuf:"varint,4,opt,name=source,proto3,enum=confirmate.orchestrator.v1.ScopeDecisionSource" json:"source,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Source ScopeDecisionSource `protobuf:"varint,4,opt,name=source,proto3,enum=confirmate.orchestrator.v1.ScopeDecisionSource" json:"source,omitempty"`
+	// Why the control does not apply. It is required if the control is out of scope, unless it is an accepted risk.
+	Reason NotApplicableReason `protobuf:"varint,5,opt,name=reason,proto3,enum=confirmate.orchestrator.v1.NotApplicableReason" json:"reason,omitempty"`
+	// The control that is fulfilled instead, if the reason is COMPENSATED.
+	CompensatingControlId *string `protobuf:"bytes,6,opt,name=compensating_control_id,json=compensatingControlId,proto3,oneof" json:"compensating_control_id,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *ScopeDecision) Reset() {
@@ -281,6 +285,20 @@ func (x *ScopeDecision) GetSource() ScopeDecisionSource {
 	return ScopeDecisionSource_SCOPE_DECISION_SOURCE_UNSPECIFIED
 }
 
+func (x *ScopeDecision) GetReason() NotApplicableReason {
+	if x != nil {
+		return x.Reason
+	}
+	return NotApplicableReason_NOT_APPLICABLE_REASON_UNSPECIFIED
+}
+
+func (x *ScopeDecision) GetCompensatingControlId() string {
+	if x != nil && x.CompensatingControlId != nil {
+		return *x.CompensatingControlId
+	}
+	return ""
+}
+
 // RiskAssessment is the cybersecurity risk assessment of a target of evaluation and the decisions about the scope
 // that follow from it. Confirmate stores and applies it; it does not replace a full risk assessment tool.
 type RiskAssessment struct {
@@ -312,7 +330,9 @@ type RiskAssessment struct {
 	// The ID of the user who approved the assessment, if known.
 	ApprovedBy *string `protobuf:"bytes,16,opt,name=approved_by,json=approvedBy,proto3,oneof" json:"approved_by,omitempty"`
 	// The time by which the assessment has to be reviewed. If omitted, it is one year after the approval.
-	ReviewDueAt   *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=review_due_at,json=reviewDueAt,proto3,oneof" json:"review_due_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	ReviewDueAt *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=review_due_at,json=reviewDueAt,proto3,oneof" json:"review_due_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	// The assets and the environment the scope decisions were derived from, if any.
+	RiskProfile   *RiskProfile `protobuf:"bytes,18,opt,name=risk_profile,json=riskProfile,proto3,oneof" json:"risk_profile,omitempty" gorm:"serializer:json"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -466,18 +486,28 @@ func (x *RiskAssessment) GetReviewDueAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *RiskAssessment) GetRiskProfile() *RiskProfile {
+	if x != nil {
+		return x.RiskProfile
+	}
+	return nil
+}
+
 var File_api_orchestrator_risk_assessment_proto protoreflect.FileDescriptor
 
 const file_api_orchestrator_risk_assessment_proto_rawDesc = "" +
 	"\n" +
-	"&api/orchestrator/risk_assessment.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xde\x02\n" +
+	"&api/orchestrator/risk_assessment.proto\x12\x1aconfirmate.orchestrator.v1\x1a$api/orchestrator/applicability.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\x94\x04\n" +
 	"\rScopeDecision\x12*\n" +
 	"\n" +
 	"control_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\tcontrolId\x12\x19\n" +
 	"\bin_scope\x18\x02 \x01(\bR\ainScope\x12$\n" +
 	"\rjustification\x18\x03 \x01(\tR\rjustification\x12Q\n" +
-	"\x06source\x18\x04 \x01(\x0e2/.confirmate.orchestrator.v1.ScopeDecisionSourceB\b\xbaH\x05\x82\x01\x02\x10\x01R\x06source:\x8c\x01\xbaH\x88\x01\x1a\x85\x01\n" +
-	"\x1ejustification_for_out_of_scope\x124a control that is out of scope needs a justification\x1a-this.in_scope || size(this.justification) > 0\"\x8a\v\n" +
+	"\x06source\x18\x04 \x01(\x0e2/.confirmate.orchestrator.v1.ScopeDecisionSourceB\b\xbaH\x05\x82\x01\x02\x10\x01R\x06source\x12Q\n" +
+	"\x06reason\x18\x05 \x01(\x0e2/.confirmate.orchestrator.v1.NotApplicableReasonB\b\xbaH\x05\x82\x01\x02\x10\x01R\x06reason\x12E\n" +
+	"\x17compensating_control_id\x18\x06 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x15compensatingControlId\x88\x01\x01:\x8c\x01\xbaH\x88\x01\x1a\x85\x01\n" +
+	"\x1ejustification_for_out_of_scope\x124a control that is out of scope needs a justification\x1a-this.in_scope || size(this.justification) > 0B\x1a\n" +
+	"\x18_compensating_control_id\"\x89\f\n" +
 	"\x0eRiskAssessment\x121\n" +
 	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12B\n" +
 	"\x17target_of_evaluation_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12c\n" +
@@ -500,7 +530,8 @@ const file_api_orchestrator_risk_assessment_proto_rawDesc = "" +
 	"approvedAt\x88\x01\x01\x12)\n" +
 	"\vapproved_by\x18\x10 \x01(\tB\x03\xe0A\x03H\x05R\n" +
 	"approvedBy\x88\x01\x01\x12v\n" +
-	"\rreview_due_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"H\x06R\vreviewDueAt\x88\x01\x01\x1a:\n" +
+	"\rreview_due_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"H\x06R\vreviewDueAt\x88\x01\x01\x12l\n" +
+	"\frisk_profile\x18\x12 \x01(\v2'.confirmate.orchestrator.v1.RiskProfileB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"H\aR\vriskProfile\x88\x01\x01\x1a:\n" +
 	"\fAnswersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\a\n" +
@@ -510,7 +541,8 @@ const file_api_orchestrator_risk_assessment_proto_rawDesc = "" +
 	"\v_created_byB\x0e\n" +
 	"\f_approved_atB\x0e\n" +
 	"\f_approved_byB\x10\n" +
-	"\x0e_review_due_at*\xac\x01\n" +
+	"\x0e_review_due_atB\x0f\n" +
+	"\r_risk_profile*\xac\x01\n" +
 	"\x14RiskAssessmentStatus\x12&\n" +
 	"\"RISK_ASSESSMENT_STATUS_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cRISK_ASSESSMENT_STATUS_DRAFT\x10\x01\x12#\n" +
@@ -548,22 +580,26 @@ var file_api_orchestrator_risk_assessment_proto_goTypes = []any{
 	(*ScopeDecision)(nil),         // 3: confirmate.orchestrator.v1.ScopeDecision
 	(*RiskAssessment)(nil),        // 4: confirmate.orchestrator.v1.RiskAssessment
 	nil,                           // 5: confirmate.orchestrator.v1.RiskAssessment.AnswersEntry
-	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+	(NotApplicableReason)(0),      // 6: confirmate.orchestrator.v1.NotApplicableReason
+	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*RiskProfile)(nil),           // 8: confirmate.orchestrator.v1.RiskProfile
 }
 var file_api_orchestrator_risk_assessment_proto_depIdxs = []int32{
-	2, // 0: confirmate.orchestrator.v1.ScopeDecision.source:type_name -> confirmate.orchestrator.v1.ScopeDecisionSource
-	0, // 1: confirmate.orchestrator.v1.RiskAssessment.status:type_name -> confirmate.orchestrator.v1.RiskAssessmentStatus
-	1, // 2: confirmate.orchestrator.v1.RiskAssessment.method:type_name -> confirmate.orchestrator.v1.RiskAssessmentMethod
-	5, // 3: confirmate.orchestrator.v1.RiskAssessment.answers:type_name -> confirmate.orchestrator.v1.RiskAssessment.AnswersEntry
-	3, // 4: confirmate.orchestrator.v1.RiskAssessment.decisions:type_name -> confirmate.orchestrator.v1.ScopeDecision
-	6, // 5: confirmate.orchestrator.v1.RiskAssessment.created_at:type_name -> google.protobuf.Timestamp
-	6, // 6: confirmate.orchestrator.v1.RiskAssessment.approved_at:type_name -> google.protobuf.Timestamp
-	6, // 7: confirmate.orchestrator.v1.RiskAssessment.review_due_at:type_name -> google.protobuf.Timestamp
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	2,  // 0: confirmate.orchestrator.v1.ScopeDecision.source:type_name -> confirmate.orchestrator.v1.ScopeDecisionSource
+	6,  // 1: confirmate.orchestrator.v1.ScopeDecision.reason:type_name -> confirmate.orchestrator.v1.NotApplicableReason
+	0,  // 2: confirmate.orchestrator.v1.RiskAssessment.status:type_name -> confirmate.orchestrator.v1.RiskAssessmentStatus
+	1,  // 3: confirmate.orchestrator.v1.RiskAssessment.method:type_name -> confirmate.orchestrator.v1.RiskAssessmentMethod
+	5,  // 4: confirmate.orchestrator.v1.RiskAssessment.answers:type_name -> confirmate.orchestrator.v1.RiskAssessment.AnswersEntry
+	3,  // 5: confirmate.orchestrator.v1.RiskAssessment.decisions:type_name -> confirmate.orchestrator.v1.ScopeDecision
+	7,  // 6: confirmate.orchestrator.v1.RiskAssessment.created_at:type_name -> google.protobuf.Timestamp
+	7,  // 7: confirmate.orchestrator.v1.RiskAssessment.approved_at:type_name -> google.protobuf.Timestamp
+	7,  // 8: confirmate.orchestrator.v1.RiskAssessment.review_due_at:type_name -> google.protobuf.Timestamp
+	8,  // 9: confirmate.orchestrator.v1.RiskAssessment.risk_profile:type_name -> confirmate.orchestrator.v1.RiskProfile
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_api_orchestrator_risk_assessment_proto_init() }
@@ -571,6 +607,8 @@ func file_api_orchestrator_risk_assessment_proto_init() {
 	if File_api_orchestrator_risk_assessment_proto != nil {
 		return
 	}
+	file_api_orchestrator_applicability_proto_init()
+	file_api_orchestrator_risk_assessment_proto_msgTypes[0].OneofWrappers = []any{}
 	file_api_orchestrator_risk_assessment_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
