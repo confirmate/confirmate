@@ -910,6 +910,74 @@ func TestService_ListSupportedResourceTypes(t *testing.T) {
 	}
 }
 
+// TestService_ListGraphEdges verifies that edges are pre-computed when evidence is stored
+// and returned via ListGraphEdges with proper pagination.
+func TestService_ListGraphEdges(t *testing.T) {
+	db := persistencetest.NewInMemoryDB(t, types, nil)
+	svc := &Service{
+		db:              db,
+		channelEvidence: make(chan *evidence.Evidence, defaultEvidenceQueueSize),
+	}
+
+	// Store a BlockStorage resource.
+	bsEvidence := &evidence.Evidence{
+		Id:                   uuid.NewString(),
+		Timestamp:            timestamppb.Now(),
+		TargetOfEvaluationId: uuid.NewString(),
+		ToolId:               "MockTool1",
+		Resource: &ontology.Resource{Type: &ontology.Resource_BlockStorage{
+			BlockStorage: &ontology.BlockStorage{
+				Id:   new("bs-1"),
+				Name: new("my-bs"),
+			},
+		}},
+	}
+	_, err := svc.StoreEvidence(context.Background(), connect.NewRequest(&evidence.StoreEvidenceRequest{
+		Evidence: bsEvidence,
+	}))
+	assert.Nil(t, err)
+
+	// Store a VirtualMachine that references the BlockStorage via block_storage_ids.
+	vmEvidence := &evidence.Evidence{
+		Id:                   uuid.NewString(),
+		Timestamp:            timestamppb.Now(),
+		TargetOfEvaluationId: uuid.NewString(),
+		ToolId:               "MockTool1",
+		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
+			VirtualMachine: &ontology.VirtualMachine{
+				Id:              new("vm-1"),
+				Name:            new("my-vm"),
+				BlockStorageIds: []string{"bs-1"},
+			},
+		}},
+	}
+	_, err = svc.StoreEvidence(context.Background(), connect.NewRequest(&evidence.StoreEvidenceRequest{
+		Evidence: vmEvidence,
+	}))
+	assert.Nil(t, err)
+
+	// List graph edges.
+	res, err := svc.ListGraphEdges(context.Background(), connect.NewRequest(&evidence.ListGraphEdgesRequest{}))
+	assert.Nil(t, err)
+	assert.NotNil(t, res)
+
+	// We expect at least one edge: vm-1 -> bs-1 -> block_storage
+	if len(res.Msg.Edges) == 0 {
+		t.Fatal("expected at least one graph edge, got none")
+	}
+
+	found := false
+	for _, e := range res.Msg.Edges {
+		if e.Source == "vm-1" && e.Target == "bs-1" && e.Type == "block_storage" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected edge vm-1 -> bs-1 -> block_storage, got: %+v", res.Msg.Edges)
+	}
+}
+
 // TestService_ListTools covers the empty-cache case and population via StoreEvidence.
 func TestService_ListTools(t *testing.T) {
 	type fields struct {
