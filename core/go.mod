@@ -106,7 +106,7 @@ require (
 )
 
 require (
-	github.com/johnfercher/maroto/v2 v2.4.2
+	github.com/johnfercher/maroto/v2 v2.4.3
 	github.com/pdfcpu/pdfcpu v0.11.1
 	github.com/xuri/excelize/v2 v2.11.0
 )
