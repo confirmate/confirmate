@@ -1,4 +1,5 @@
 import { conditionsOf } from './catalog';
+import { suggestedAnswers } from './conditions';
 import type { Answer, FrameworkProfile, RequirementGroup, RiskProfile } from './profile';
 import { emptyRisk } from './risk';
 import type { Decisions, NotApplicableReason, Treatment } from './scope';
@@ -18,6 +19,10 @@ class WizardState {
 	presetId = $state('');
 	/** The answers about the conditions of the requirements, by condition ID. */
 	answers = $state<Record<string, Answer>>({});
+	/** The conditions whose answer a person has set, so that a change of the product type leaves them alone. */
+	answered = $state<Record<string, boolean>>({});
+	/** The conditions whose answer comes from the product type. */
+	fromChoice = $state<Record<string, boolean>>({});
 	approved = $state(false);
 	/** The decisions of the person about single requirements. */
 	decisions = $state<Decisions>({ decided: {} });
@@ -31,10 +36,34 @@ class WizardState {
 		this.groups = groups;
 		this.risk = preset ? copyRisk(preset.profile) : emptyRisk();
 		this.presetId = preset?.id ?? '';
-		// A requirement stays if the answer is not an explicit no, so "yes" is the cautious start.
-		this.answers = Object.fromEntries(conditionsOf(groups).map((c) => [c.id, 'yes' as Answer]));
+		this.answered = {};
+		this.answers = {};
+		this.applyChoices(profile);
 		this.approved = false;
 		this.decisions = { decided: {} };
+	}
+
+	/**
+	 * Sets the answers about the conditions that the choices of the setup suggest, for example the kind of product. An
+	 * answer that a person has set is left alone. A requirement stays unless the answer is an explicit no, so "yes" is the
+	 * cautious start.
+	 */
+	applyChoices(profile: FrameworkProfile) {
+		const suggested = suggestedAnswers(profile, this.details, conditionsOf(this.groups));
+		for (const [id, s] of Object.entries(suggested)) {
+			if (this.answered[id]) continue;
+			this.answers[id] = s.answer;
+			this.fromChoice[id] = s.fromChoice;
+		}
+		this.approved = false;
+	}
+
+	/** Records the answer of a person about a condition. */
+	answer(id: string, answer: Answer) {
+		this.answers[id] = answer;
+		this.answered[id] = true;
+		this.fromChoice[id] = false;
+		this.approved = false;
 	}
 
 	/** Takes over a ready-made risk profile, which the person can adjust afterwards. */

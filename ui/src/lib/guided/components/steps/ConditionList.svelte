@@ -27,16 +27,14 @@
 					<strong class="font-medium">{condition.text}.</strong>
 					<span class="text-[0.8125rem] text-ink-muted">
 						{condition.requirements.length === 1 ? '1 requirement depends' : `${condition.requirements.length} requirements depend`} on it.
+						{#if wizard.fromChoice[condition.id]}Suggested by the kind of product you chose.{/if}
 					</span>
 				</div>
 				<Segmented
 					label={condition.text}
 					{options}
 					value={wizard.answers[condition.id]}
-					onchange={(v) => {
-						wizard.answers[condition.id] = v as Answer;
-						wizard.approved = false;
-					}}
+					onchange={(v) => wizard.answer(condition.id, v as Answer)}
 				/>
 			</div>
 		{/each}

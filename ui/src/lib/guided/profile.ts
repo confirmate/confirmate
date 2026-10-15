@@ -132,6 +132,12 @@ export interface DetailsField {
 	type: 'text' | 'date' | 'select';
 	options?: string[];
 	defaultValue: string;
+	/**
+	 * For a select: what the chosen option says about the conditions of the requirements, as the answer to a condition by
+	 * the text of the condition. A condition that the option does not mention starts as "yes". A person can change every
+	 * answer.
+	 */
+	conditionDefaults?: Record<string, Record<string, Answer>>;
 }
 
 /** A place where evidence comes from, as shown in the sources step. */

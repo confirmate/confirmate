@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import catalog from '../../../../example-data/catalogs/cra-example-catalog.json';
 import { conditionId, conditionsOf, groupsOf } from './catalog';
 import type { Applicability, RequirementGroup, RiskProfile, RiskScenario, ScopableRequirement } from './profile';
+import { suggestedAnswers } from './conditions';
+import { craProfile } from './profiles/cra';
 import { emptyRisk, scenarioReached } from './risk';
 import { computeScope, summarize } from './scope';
 
@@ -185,5 +187,41 @@ describe('the CRA example catalog', () => {
 		expect(small.na).toBeGreaterThan(big.na);
 		expect(big.na).toBe(0);
 		expect(small.emptyGroups).toBe(0);
+	});
+});
+
+describe('the answers that the kind of product suggests', () => {
+	const groups = groupsOf([{ name: 'CRA', controls: catalog[0].categories.flatMap((c) => c.controls) as never }]);
+	const conditions = conditionsOf(groups);
+	const suggest = (kind: string) => suggestedAnswers(craProfile, { kind }, conditions);
+
+	it('only mentions conditions that the catalog has', () => {
+		const texts = new Set(conditions.map((c) => c.text));
+		for (const field of craProfile.details) {
+			for (const defaults of Object.values(field.conditionDefaults ?? {})) {
+				for (const text of Object.keys(defaults)) expect(texts.has(text), text).toBe(true);
+			}
+		}
+	});
+
+	it('starts with yes for what nothing mentions', () => {
+		const answers = suggest('Software application');
+		expect(answers[conditionId('The product has user accounts')]).toEqual({ answer: 'yes', fromChoice: false });
+		expect(answers[conditionId('The product has debug, service or manufacturing interfaces')]).toEqual({ answer: 'no', fromChoice: true });
+	});
+
+	it('a library has no accounts and does not connect', () => {
+		const answers = suggest('Library or component');
+		expect(answers[conditionId('The product has user accounts')].answer).toBe('no');
+		expect(answers[conditionId('The product connects to other devices or networks')].answer).toBe('no');
+		expect(answers[conditionId('The product uses cryptography')].answer).toBe('unknown');
+	});
+
+	it('keeps every requirement of the always applicable baseline whatever the kind', () => {
+		for (const kind of craProfile.details.find((d) => d.id === 'kind')!.options!) {
+			const answers = Object.fromEntries(Object.entries(suggest(kind)).map(([id, s]) => [id, s.answer]));
+			const scoped = computeScope(groups, emptyRisk(), answers, { decided: {} });
+			expect(summarize(scoped).emptyGroups, kind).toBe(0);
+		}
 	});
 });

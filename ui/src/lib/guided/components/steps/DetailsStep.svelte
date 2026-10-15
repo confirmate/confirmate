@@ -14,6 +14,7 @@
 					id="detail-{field.id}"
 					bind:value={wizard.details[field.id]}
 					options={(field.options ?? []).map((o) => ({ value: o, label: o }))}
+					onchange={() => wizard.applyChoices(profile)}
 				/>
 			{:else}
 				<TextInput id="detail-{field.id}" type={field.type} bind:value={wizard.details[field.id]} />

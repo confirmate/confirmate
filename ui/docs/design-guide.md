@@ -107,6 +107,8 @@ All colors, fonts and radii of the guided experience come from tokens in `ui/src
   A requirement is only taken out by an explicit answer or a risk profile below its scenario, never by "don't know".
   Every requirement that is not applicable has one of the fixed reasons and a sentence; a point of the law cannot
   drop out as a whole. The matching in `risk.ts` is the same as the one of the server and is tested against it.
+  Choices of the setup, such as the kind of product, can suggest the answers about the conditions (`conditionDefaults` of
+  the details field); the screen says where a suggestion comes from, and an answer of a person is never overwritten.
 - **Work queue.** A list of tasks with a status, an explanation of why, who is responsible and when. Each task links
   to the place where it is solved.
 - **Requirement view.** The requirement in plain words and its reference, the status, the checks with the evidence

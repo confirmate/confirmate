@@ -75,7 +75,34 @@ export const craProfile: FrameworkProfile = {
 				'Firmware or embedded software',
 				'Online service with a client'
 			],
-			defaultValue: 'Software application'
+			defaultValue: 'Software application',
+			// What the kind of product says about the conditions of the requirements. These are suggestions for the risk step.
+			conditionDefaults: {
+				'Software application': {
+					'The product has debug, service or manufacturing interfaces': 'no'
+				},
+				'Library or component': {
+					'Automatic security updates are appropriate for the product': 'no',
+					'Users or administrators authenticate with passwords': 'no',
+					'The product has debug, service or manufacturing interfaces': 'no',
+					'The product uses cryptography': 'unknown',
+					'The product holds cryptographic keys or secrets': 'unknown',
+					'The product processes personal or other user data': 'unknown',
+					'The product connects to other devices or networks': 'no',
+					'The product has user accounts': 'no',
+					'The product records security relevant activity': 'no',
+					'The product stores user data or settings': 'no',
+					'Data can be transferred to other products or systems': 'no'
+				},
+				'Firmware or embedded software': {
+					'The product has user accounts': 'unknown',
+					'The product processes personal or other user data': 'unknown'
+				},
+				'Online service with a client': {
+					'The product has debug, service or manufacturing interfaces': 'no',
+					'Separating security updates from functionality updates is technically feasible': 'unknown'
+				}
+			}
 		},
 		{
 			id: 'support',
