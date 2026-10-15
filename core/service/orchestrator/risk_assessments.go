@@ -294,9 +294,15 @@ func (svc *Service) ApproveRiskAssessment(
 }
 
 // validateScopeDecisions checks that the decisions are about controls of the catalog of the audit scope and that
-// there is at most one decision per control.
+// there is at most one decision per control. A whole control cannot be taken out of scope: its requirements (the
+// sub-controls) have to be decided one by one, and at least one of them has to stay in scope. Otherwise a point of the
+// legal text could silently drop out because of one decision.
 func (svc *Service) validateScopeDecisions(scope *orchestrator.AuditScope, decisions []*orchestrator.ScopeDecision) error {
-	seen := make(map[string]struct{}, len(decisions))
+	var (
+		seen = make(map[string]struct{}, len(decisions))
+		// The number of decisions that take a sub-control out of scope, by the ID of its parent control
+		outByParent = make(map[string]int)
+	)
 
 	for _, d := range decisions {
 		if _, ok := seen[d.GetControlId()]; ok {
@@ -304,12 +310,39 @@ func (svc *Service) validateScopeDecisions(scope *orchestrator.AuditScope, decis
 		}
 		seen[d.GetControlId()] = struct{}{}
 
-		count, err := svc.db.Count(&orchestrator.Control{}, "id = ? AND catalog_id = ?", d.GetControlId(), scope.CatalogId)
+		var ctrl orchestrator.Control
+		err := svc.db.Get(&ctrl, persistence.WithoutPreload(), "id = ? AND catalog_id = ?", d.GetControlId(), scope.CatalogId)
+		if errors.Is(err, persistence.ErrRecordNotFound) {
+			return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("control %s is not part of the catalog of the audit scope", d.GetControlId()))
+		}
 		if err != nil {
 			return service.HandleDatabaseError(err)
 		}
-		if count == 0 {
-			return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("control %s is not part of the catalog of the audit scope", d.GetControlId()))
+
+		if d.GetInScope() {
+			continue
+		}
+
+		children, err := svc.db.Count(&orchestrator.Control{}, "parent_control_id = ?", ctrl.Id)
+		if err != nil {
+			return service.HandleDatabaseError(err)
+		}
+		if children > 0 {
+			return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("control %s cannot be taken out of scope as a whole, decide on its requirements", ctrl.GetShortName()))
+		}
+
+		if ctrl.ParentControlId != nil {
+			outByParent[*ctrl.ParentControlId]++
+		}
+	}
+
+	for parent, out := range outByParent {
+		children, err := svc.db.Count(&orchestrator.Control{}, "parent_control_id = ?", parent)
+		if err != nil {
+			return service.HandleDatabaseError(err)
+		}
+		if int64(out) >= children {
+			return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("at least one requirement of control %s has to stay in scope", parent))
 		}
 	}
 

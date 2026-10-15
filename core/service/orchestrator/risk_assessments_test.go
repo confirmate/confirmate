@@ -208,6 +208,48 @@ func TestService_CreateRiskAssessment(t *testing.T) {
 			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
+			name: "a control with requirements cannot be taken out of scope as a whole",
+			args: args{req: valid(outOfScope(orchestratortest.MockControlId1, mockRiskJustification1))},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) { seedRiskAssessmentScope(t, d) }),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.RiskAssessment]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "decide on its requirements")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "all requirements of a control cannot be taken out of scope",
+			args: args{req: valid(outOfScope(orchestratortest.MockControl2SubControlId1, mockRiskJustification1))},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) { seedRiskAssessmentScope(t, d) }),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.RiskAssessment]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "at least one requirement")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "a requirement can be taken out of scope if another one of the control stays",
+			args: args{req: valid(outOfScope(orchestratortest.MockControl2SubControlId1, mockRiskJustification1))},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					seedRiskAssessmentScope(t, d)
+					assert.NoError(t, d.Create(&orchestrator.Control{Id: orchestratortest.MockControlId31, CatalogId: orchestratortest.MockCatalogId1, Name: orchestratortest.MockControlName2, ShortName: orchestratortest.MockControlShortName2, ParentControlId: new(orchestratortest.MockControlId1)}))
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want:    assert.NotNil[*connect.Response[orchestrator.RiskAssessment]],
+			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
+		},
+		{
 			name: "two decisions for the same control",
 			args: args{req: valid(
 				outOfScope(orchestratortest.MockControlId2, mockRiskJustification1),
