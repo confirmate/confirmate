@@ -19,20 +19,23 @@
 		saving = true;
 		error = '';
 		const { error: err } = await client.PUT(
-			'/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}',
+			'/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}/{user_permission.permission}',
 			{
 				params: {
 					path: {
 						'user_permission.object_type': 'OBJECT_TYPE_TARGET_OF_EVALUATION',
 						'user_permission.object_id': data.toeId,
-						'user_permission.user_id': selectedUserId
+						'user_permission.user_id': selectedUserId,
+						'user_permission.permission': selectedPermission
 					}
 				},
 				body: {
-					userId: selectedUserId,
-					objectId: data.toeId,
-					objectType: 'OBJECT_TYPE_TARGET_OF_EVALUATION',
-					permission: selectedPermission
+					userPermission: {
+						userId: selectedUserId,
+						objectId: data.toeId,
+						objectType: 'OBJECT_TYPE_TARGET_OF_EVALUATION',
+						permission: selectedPermission
+					}
 				}
 			}
 		);
@@ -48,13 +51,13 @@
 	async function removeUser(userId: string) {
 		error = '';
 		const { error: err } = await client.DELETE(
-			'/v1/users/permissions/{object_type}/{object_id}/users/{user_id}',
+			'/v1/users/permissions/{objectType}/{objectId}/users/{userId}',
 			{
 				params: {
 					path: {
-						object_type: 'OBJECT_TYPE_TARGET_OF_EVALUATION',
-						object_id: data.toeId,
-						user_id: userId
+						objectType: 'OBJECT_TYPE_TARGET_OF_EVALUATION',
+						objectId: data.toeId,
+						userId
 					}
 				}
 			}
