@@ -27,11 +27,15 @@ export interface ScopeRow {
 	locked: boolean;
 	/** The treatment is not applicable or accepted risk, but there is no reason yet. */
 	missingReason: boolean;
+	/** Taking the requirement out would leave no requirement of its point, so "not applicable" is not offered. */
+	naBlocked: boolean;
 }
 
 export interface ScopeGroup {
 	group: RequirementGroup;
 	rows: ScopeRow[];
+	/** Every requirement of the point is not applicable. A point cannot drop out as a whole. */
+	empty: boolean;
 }
 
 export interface ScopeSummary {
@@ -42,7 +46,9 @@ export interface ScopeSummary {
 	/** Suggestions without a decision. */
 	suggestions: number;
 	missingReasons: number;
-	/** Requirements that still need a decision of a person. */
+	/** Points in which every requirement is not applicable. */
+	emptyGroups: number;
+	/** Requirements and points that still need a decision of a person. */
 	review: number;
 }
 
@@ -60,9 +66,8 @@ function matches(when: Partial<Record<string, Answer>>, answers: Record<string, 
  * - A decision of a person always wins.
  */
 export function computeScope(q: Questionnaire, answers: Record<string, Answer>, decisions: Decisions): ScopeGroup[] {
-	return q.groups.map((group) => ({
-		group,
-		rows: group.requirements.map((requirement): ScopeRow => {
+	return q.groups.map((group) => {
+		const rows = group.requirements.map((requirement): ScopeRow => {
 			const locked = requirement.applicability === 'mandatory';
 			const decided = decisions.decided[requirement.id];
 
@@ -99,10 +104,18 @@ export function computeScope(q: Questionnaire, answers: Record<string, Answer>, 
 				source,
 				suggestion,
 				locked,
-				missingReason: treatment !== 'applies' && !reason.trim()
+				missingReason: treatment !== 'applies' && !reason.trim(),
+				naBlocked: false
 			};
-		})
-	}));
+		});
+
+		// A point cannot drop out as a whole: the last requirement that is not out cannot be taken out, and if the
+		// answers have taken out all of them, that is an error that a person has to resolve.
+		const remaining = rows.filter((r) => r.treatment !== 'na');
+		for (const r of rows) r.naBlocked = remaining.length === 1 && remaining[0] === r;
+
+		return { group, rows, empty: rows.length > 0 && remaining.length === 0 };
+	});
 }
 
 /** Counts the requirements of a scope. */
@@ -111,6 +124,7 @@ export function summarize(groups: ScopeGroup[]): ScopeSummary {
 	const count = (t: Treatment) => rows.filter((r) => r.treatment === t).length;
 	const suggestions = rows.filter((r) => r.suggestion).length;
 	const missingReasons = rows.filter((r) => r.missingReason).length;
+	const emptyGroups = groups.filter((g) => g.empty).length;
 
 	return {
 		total: rows.length,
@@ -119,7 +133,8 @@ export function summarize(groups: ScopeGroup[]): ScopeSummary {
 		risk: count('risk'),
 		suggestions,
 		missingReasons,
-		review: rows.filter((r) => r.suggestion || r.missingReason).length
+		emptyGroups,
+		review: rows.filter((r) => r.suggestion || r.missingReason).length + emptyGroups
 	};
 }
 

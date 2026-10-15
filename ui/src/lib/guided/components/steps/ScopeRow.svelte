@@ -20,11 +20,16 @@
 		capability: { label: 'Only if the capability exists', tone: 'neutral' },
 		risk: { label: 'Risk based', tone: 'brand' }
 	};
-	const options = [
+	const options = $derived([
 		{ value: 'applies', label: 'Applies' },
-		{ value: 'na', label: 'Not applicable' },
+		{
+			value: 'na',
+			label: 'Not applicable',
+			disabled: row.naBlocked && row.treatment !== 'na',
+			title: 'At least one requirement of each point has to remain.'
+		},
 		{ value: 'risk', label: 'Accepted risk' }
-	];
+	]);
 	const suggestionLabel = { na: 'not applicable', risk: 'accepted residual risk' };
 
 	const id = $derived(row.requirement.id);
@@ -53,6 +58,11 @@
 					value={row.treatment}
 					onchange={(v) => ondecide(v as Treatment, row.reason)}
 				/>
+			{/if}
+			{#if row.naBlocked && !row.locked}
+				<span class="max-w-60 text-right text-xs text-ink-muted">
+					The last requirement of its point. If you do not implement it, accept the residual risk.
+				</span>
 			{/if}
 		</div>
 	</div>
