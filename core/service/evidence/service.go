@@ -280,6 +280,14 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 		slog.String("resource_type", r.ResourceType),
 		slog.String("evidence_id", req.Msg.Evidence.Id))
 
+	// Update pre-computed graph edges for this resource.
+	if graphErr := svc.updateGraphEdges(r); graphErr != nil {
+		// Non-fatal: log and continue. Stale edges are better than failing the evidence store.
+		slog.Warn("Failed to update graph edges",
+			slog.String("resource_id", r.Id),
+			tint.Err(graphErr))
+	}
+
 	go svc.informHooks(ctx, req.Msg.Evidence, nil)
 
 	// Send evidence to the channel for further processing and acknowledge receipt, without waiting
@@ -575,69 +583,80 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 	return
 }
 
-// ListGraphEdges returns edges between resources derived via [ontology.Related], which finds all
-// _id/_ids fields on each concrete ontology resource and matches them against known resource IDs.
+// updateGraphEdges computes the outgoing edges of a resource snapshot (using
+// [ontology.Related]) and replaces any previously stored edges for that resource
+// in the graph_edges table.  It is called from [Service.StoreEvidence] after the
+// snapshot has been persisted.
+func (svc *Service) updateGraphEdges(r *evidence.ResourceSnapshot) error {
+	if r == nil || r.Resource == nil {
+		return nil
+	}
+
+	var edges []graphEdge
+
+	// The ontology Resource is a oneof — ranging over it visits only the set concrete field.
+	r.Resource.ProtoReflect().Range(func(_ protoreflect.FieldDescriptor, v protoreflect.Value) bool {
+		concrete, ok := v.Message().Interface().(ontology.IsResource)
+		if !ok {
+			return true
+		}
+		for _, rel := range ontology.Related(concrete) {
+			edges = append(edges, graphEdge{
+				Id:     r.Id + "→" + rel.Value + "→" + rel.Property,
+				Source: r.Id,
+				Target: rel.Value,
+				Type:   rel.Property,
+			})
+		}
+		return true
+	})
+
+	// Replace old edges for this source atomically.
+	return svc.db.Transaction(func(tx persistence.DB) error {
+		// Delete existing edges where source = r.Id. ErrRecordNotFound is expected
+		// when the resource has no edges yet (first store).
+		if err := tx.Delete(&graphEdge{}, "source = ?", r.Id); err != nil && !errors.Is(err, persistence.ErrRecordNotFound) {
+			return err
+		}
+		// Insert new edges (if any)
+		if len(edges) > 0 {
+			return tx.Create(&edges)
+		}
+		return nil
+	})
+}
+
+// ListGraphEdges returns pre-computed edges between resources from the graph_edges
+// table. Edges are derived from ontology _id/_ids fields when a resource snapshot
+// is saved (see [Service.updateGraphEdges]).
+//
 // This implements the [evidenceconnect.ResourcesHandler.ListGraphEdges] RPC method.
 func (svc *Service) ListGraphEdges(_ context.Context, req *connect.Request[evidence.ListGraphEdgesRequest]) (
 	res *connect.Response[evidence.ListGraphEdgesResponse], err error) {
-	var (
-		snapshots []*evidence.ResourceSnapshot
-		edges     []*evidence.GraphEdge
-	)
+
+	res = connect.NewResponse(&evidence.ListGraphEdgesResponse{})
 
 	// Validate request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	if err = svc.db.List(&snapshots, "id", true, 0, -1); err != nil {
-		return nil, service.HandleDatabaseError(err)
-	}
-
-	// Build a set of all known resource IDs for fast lookup.
-	ids := make(map[string]struct{}, len(snapshots))
-	for _, s := range snapshots {
-		ids[s.Id] = struct{}{}
-	}
-
-	seen := make(map[string]struct{})
-
-	for _, s := range snapshots {
-		if s.Resource == nil {
-			continue
-		}
-		// The ontology Resource is a oneof — ranging over it visits only the set concrete field.
-		s.Resource.ProtoReflect().Range(func(_ protoreflect.FieldDescriptor, v protoreflect.Value) bool {
-			concrete, ok := v.Message().Interface().(ontology.IsResource)
-			if !ok {
-				return true
-			}
-			for _, rel := range ontology.Related(concrete) {
-				if _, ok := ids[rel.Value]; !ok {
-					continue
-				}
-				edgeID := s.Id + "→" + rel.Value + "→" + rel.Property
-				if _, dup := seen[edgeID]; dup {
-					continue
-				}
-				seen[edgeID] = struct{}{}
-				edges = append(edges, &evidence.GraphEdge{
-					Id:     edgeID,
-					Source: s.Id,
-					Target: rel.Value,
-					Type:   rel.Property,
-				})
-			}
-			return true
-		})
-	}
-
-	res = connect.NewResponse(&evidence.ListGraphEdgesResponse{})
-	res.Msg.Edges, res.Msg.NextPageToken, err = service.PaginateSlice(req.Msg, edges, func(a, b *evidence.GraphEdge) bool {
-		return a.Id < b.Id
-	}, service.DefaultPaginationOpts)
-	if err != nil {
+	// DB-level pagination on the graph_edges table.
+	var page []graphEdge
+	page, res.Msg.NextPageToken, err = service.PaginateStorage[graphEdge](req.Msg, svc.db, service.DefaultPaginationOpts)
+	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
+	}
+
+	// Convert GORM model to proto response type.
+	res.Msg.Edges = make([]*evidence.GraphEdge, 0, len(page))
+	for _, e := range page {
+		res.Msg.Edges = append(res.Msg.Edges, &evidence.GraphEdge{
+			Id:     e.Id,
+			Source: e.Source,
+			Target: e.Target,
+			Type:   e.Type,
+		})
 	}
 
 	return
