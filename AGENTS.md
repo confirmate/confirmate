@@ -45,6 +45,22 @@ Route files (`+page.svelte`, `+layout.svelte`) should be **minimal** — they re
   - `ui/` — generic UI primitives (buttons, badges, empty states, etc.)
   - `toe/` — Target of Evaluation specific components
 
+### Guided experience and design layer
+
+The guided experience lives under `ui/src/routes/guided/` and is a preview that is off by default (feature flag
+`VITE_FEATURE_GUIDED=true` at build time, or `localStorage.setItem('cf.feature.guided', 'true')` in the browser).
+Existing screens do not change. Read [ui/docs/design-guide.md](ui/docs/design-guide.md) before you change it. The rules
+that always apply:
+
+- Route files contain no markup of their own: they pass loaded data to one component. Reuse components from
+  `ui/src/lib/ds` and `ui/src/lib/guided/components` before you write new markup.
+- Use only the semantic design tokens (`bg-surface`, `text-ink`, `border-line`, `bg-brand`, `text-ok`,
+  `rounded-card`, ...) defined in `ui/src/lib/theme/theme.css`, never raw palette classes or hex colors.
+- Keep `ui/src/lib/ds` free of domain knowledge, and keep framework specifics (CRA, C5, NIS-2) in a profile under
+  `ui/src/lib/guided/profiles/`, not in components.
+- Read data only through `GuidedSource`; do not call the API from guided components.
+- Use "Target of Evaluation" (ToE), "requirement" and "check" in the UI, not "control" and "metric".
+
 ### Tech Stack
 
 - SvelteKit 2 + Svelte 5 (runes: `$props()`, `$state()`, `$derived()`, `{@render children()}`)

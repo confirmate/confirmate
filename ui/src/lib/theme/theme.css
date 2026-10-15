@@ -1,0 +1,168 @@
+/*
+ * Design tokens of the guided experience.
+ *
+ * Components use only the semantic utilities defined at the bottom (bg-surface, text-ink, border-line, bg-brand,
+ * text-ok, rounded-card, font-display, font-body, ...), never raw palette colors. A theme is a set of values for the --cf-*
+ * variables, selected by the data-theme attribute of the <html> element. To change the design language, add or
+ * edit a theme here; no component changes.
+ */
+
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/source-serif-4/600.css';
+@import '@fontsource-variable/inter/wght.css';
+
+/*
+ * Default theme "console": a neutral, dense application look with a sans-serif display face, small radii and
+ * compact cards. It is the reference for everything the tokens can express (color, type scale, radii, density).
+ */
+:root,
+[data-theme='console'] {
+	--cf-canvas: #f3f5f7;
+	--cf-surface: #ffffff;
+	--cf-surface-sunken: #edf0f3;
+	--cf-ink: #101820;
+	--cf-ink-soft: #36424e;
+	--cf-ink-muted: #5a6672;
+	--cf-line: #dce1e6;
+	--cf-line-strong: #c3cbd3;
+
+	--cf-brand: #005b99;
+	--cf-brand-strong: #004a7d;
+	--cf-brand-soft: #e5eff7;
+	--cf-brand-ink: #003f6b;
+	--cf-on-brand: #ffffff;
+
+	--cf-ok: #0b6e5b;
+	--cf-ok-soft: #e1f1ec;
+	--cf-ok-ink: #0b5444;
+	--cf-warn: #9a5300;
+	--cf-warn-soft: #fdefd9;
+	--cf-warn-ink: #7a4200;
+	--cf-bad: #a3262a;
+	--cf-bad-soft: #fae8e8;
+	--cf-bad-ink: #7a1d20;
+	--cf-neutral-soft: #e9edf0;
+
+	/* The system font, as the existing screens use it (San Francisco on macOS, Segoe UI on Windows). */
+	--cf-font-sans: ui-sans-serif, system-ui, sans-serif;
+	--cf-font-display: ui-sans-serif, system-ui, sans-serif;
+	--cf-font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+	--cf-radius-control: 0.375rem;
+	--cf-radius-card: 0.5rem;
+	--cf-radius-pill: 0.25rem;
+
+	--cf-text-title: 1.75rem;
+	--cf-text-heading: 1.25rem;
+	--cf-text-figure: 1.875rem;
+	--cf-card-pad: 1.125rem;
+	--cf-display-weight: 600;
+}
+
+/* Console with Inter instead of the system font. Only the fonts differ. */
+[data-theme='console-inter'] {
+	--cf-font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+	--cf-font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* The earlier editorial look: warm ground, serif display face, large rounded cards. */
+[data-theme='editorial'] {
+	--cf-canvas: #f6f6f3;
+	--cf-surface-sunken: #f0f2f4;
+	--cf-ink: #14202b;
+	--cf-ink-soft: #3c4854;
+	--cf-ink-muted: #5b6773;
+	--cf-line: #dde1e5;
+	--cf-line-strong: #c9cfd5;
+	--cf-brand-soft: #e6f0f7;
+	--cf-ok-soft: #e3f2ee;
+	--cf-warn-soft: #fdf0dd;
+	--cf-bad-soft: #fbe9e9;
+	--cf-neutral-soft: #edeff1;
+
+	--cf-font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+	--cf-font-display: 'Source Serif 4', Georgia, serif;
+
+	--cf-radius-control: 0.5rem;
+	--cf-radius-card: 0.75rem;
+	--cf-radius-pill: 999px;
+
+	--cf-text-title: 2.5rem;
+	--cf-text-heading: 1.75rem;
+	--cf-text-figure: 2.75rem;
+	--cf-card-pad: 1.5rem;
+}
+
+/* A second theme proves that the design language is swappable. */
+[data-theme='night'] {
+	/* Colors only: type, radii and density come from the default theme. */
+	--cf-canvas: #0f161d;
+	--cf-surface: #17212b;
+	--cf-surface-sunken: #1e2a36;
+	--cf-ink: #eef2f5;
+	--cf-ink-soft: #c5ced6;
+	--cf-ink-muted: #9aa8b4;
+	--cf-line: #2a3744;
+	--cf-line-strong: #3a4a59;
+
+	--cf-brand: #5eb1ea;
+	--cf-brand-strong: #86c6f0;
+	--cf-brand-soft: #16354b;
+	--cf-brand-ink: #b9defa;
+	--cf-on-brand: #06121b;
+
+	--cf-ok: #4fc9ab;
+	--cf-ok-soft: #123a31;
+	--cf-ok-ink: #9be3cf;
+	--cf-warn: #f0a74a;
+	--cf-warn-soft: #3d2c10;
+	--cf-warn-ink: #f6cf95;
+	--cf-bad: #f07f82;
+	--cf-bad-soft: #43191b;
+	--cf-bad-ink: #f7b4b6;
+	--cf-neutral-soft: #26323e;
+}
+
+/* Semantic utilities. */
+@theme inline {
+	--color-canvas: var(--cf-canvas);
+	--color-surface: var(--cf-surface);
+	--color-sunken: var(--cf-surface-sunken);
+	--color-ink: var(--cf-ink);
+	--color-ink-soft: var(--cf-ink-soft);
+	--color-ink-muted: var(--cf-ink-muted);
+	--color-line: var(--cf-line);
+	--color-line-strong: var(--cf-line-strong);
+
+	--color-brand: var(--cf-brand);
+	--color-brand-strong: var(--cf-brand-strong);
+	--color-brand-soft: var(--cf-brand-soft);
+	--color-brand-ink: var(--cf-brand-ink);
+	--color-on-brand: var(--cf-on-brand);
+
+	--color-ok: var(--cf-ok);
+	--color-ok-soft: var(--cf-ok-soft);
+	--color-ok-ink: var(--cf-ok-ink);
+	--color-warn: var(--cf-warn);
+	--color-warn-soft: var(--cf-warn-soft);
+	--color-warn-ink: var(--cf-warn-ink);
+	--color-bad: var(--cf-bad);
+	--color-bad-soft: var(--cf-bad-soft);
+	--color-bad-ink: var(--cf-bad-ink);
+	--color-neutral-soft: var(--cf-neutral-soft);
+
+	/* Own names, so that the fonts of the existing pages do not change. */
+	--text-title: var(--cf-text-title);
+	--text-heading: var(--cf-text-heading);
+	--text-figure: var(--cf-text-figure);
+	--radius-pill: var(--cf-radius-pill);
+
+	--font-body: var(--cf-font-sans);
+	--font-display: var(--cf-font-display);
+	--font-code: var(--cf-font-mono);
+
+	--radius-control: var(--cf-radius-control);
+	--radius-card: var(--cf-radius-card);
+}
