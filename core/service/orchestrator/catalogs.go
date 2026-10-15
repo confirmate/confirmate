@@ -33,6 +33,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -717,20 +718,29 @@ func (svc *Service) loadCatalogsFromFolder(folder string) (catalogs []*orchestra
 			continue
 		}
 
-		var catalogsFromFile []*orchestrator.Catalog
+		var rawCatalogs []json.RawMessage
 		b, err := os.ReadFile(filepath.Join(folder, file.Name()))
 		if err != nil {
 			slog.Warn("Failed to read catalog file, skipping", "file", file.Name(), log.Err(err))
 			continue
 		}
 
-		err = json.Unmarshal(b, &catalogsFromFile)
+		err = json.Unmarshal(b, &rawCatalogs)
 		if err != nil {
 			slog.Warn("Failed to unmarshal catalog file, skipping", "file", file.Name(), log.Err(err))
 			continue
 		}
 
-		catalogs = append(catalogs, catalogsFromFile...)
+		// protojson reads enums by name, so that the catalog files stay readable
+		for _, raw := range rawCatalogs {
+			catalog := &orchestrator.Catalog{}
+			err = protojson.Unmarshal(raw, catalog)
+			if err != nil {
+				slog.Warn("Failed to unmarshal catalog in file, skipping", "file", file.Name(), log.Err(err))
+				continue
+			}
+			catalogs = append(catalogs, catalog)
+		}
 	}
 
 	for _, catalog := range catalogs {
