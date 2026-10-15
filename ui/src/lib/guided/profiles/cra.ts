@@ -1,4 +1,5 @@
 import type { FrameworkProfile } from '../profile';
+import { craRequirementGroups } from './cra-requirements';
 
 /**
  * The CRA profile. The texts of the classes and routes are sample content until they are reviewed together with the
@@ -7,6 +8,7 @@ import type { FrameworkProfile } from '../profile';
 export const craProfile: FrameworkProfile = {
 	id: 'cra',
 	name: 'Cyber Resilience Act',
+	catalogId: 'CRA_Catalog',
 	targetType: 'TARGET_TYPE_PRODUCT',
 	typeLabel: 'Product',
 	pitch: {
@@ -87,6 +89,7 @@ export const craProfile: FrameworkProfile = {
 	choices: [
 		{
 			id: 'none',
+			attributes: { classification: 'CLASSIFICATION_DEFAULT' },
 			label: 'A general-purpose product',
 			hint: 'Nothing on the list matches',
 			result: {
@@ -97,6 +100,7 @@ export const craProfile: FrameworkProfile = {
 		},
 		{
 			id: 'password-manager',
+			attributes: { classification: 'CLASSIFICATION_IMPORTANT_I' },
 			label: 'Password manager',
 			hint: 'Stores or generates credentials for users',
 			result: {
@@ -107,6 +111,7 @@ export const craProfile: FrameworkProfile = {
 		},
 		{
 			id: 'vpn',
+			attributes: { classification: 'CLASSIFICATION_IMPORTANT_I' },
 			label: 'VPN or network management software',
 			hint: 'Creates tunnels or manages network devices',
 			result: {
@@ -117,6 +122,7 @@ export const craProfile: FrameworkProfile = {
 		},
 		{
 			id: 'hypervisor',
+			attributes: { classification: 'CLASSIFICATION_IMPORTANT_II' },
 			label: 'Hypervisor or container runtime',
 			hint: 'Isolates and runs other software',
 			result: {
@@ -135,25 +141,38 @@ export const craProfile: FrameworkProfile = {
 			{ id: 'upd', text: 'Can it be updated after it has been delivered?', help: 'Remotely or locally', defaultAnswer: 'yes' },
 			{ id: 'dbg', text: 'Is there a debug, service or manufacturing interface?', help: 'Typical for firmware and devices', defaultAnswer: 'no' }
 		],
-		requirements: [
-			{ id: 'a', title: 'No known exploitable vulnerabilities' },
-			{ id: 'b', title: 'Secure by default' },
-			{ id: 'c', title: 'Security updates' },
-			{ id: 'd', title: 'Protection from unauthorised access' },
-			{ id: 'e', title: 'Confidentiality of data' },
-			{ id: 'f', title: 'Integrity' },
-			{ id: 'g', title: 'Data minimisation' },
-			{ id: 'h', title: 'Availability' },
-			{ id: 'i', title: 'Impact on other services' },
-			{ id: 'j', title: 'Limited attack surface' },
-			{ id: 'k', title: 'Exploitation mitigation' },
-			{ id: 'l', title: 'Logging and monitoring' },
-			{ id: 'm', title: 'Removal and transfer of data' }
-		],
-		effects: [
-			{ when: { data: 'no' }, out: ['e', 'g', 'm'], reason: 'No user data is processed.' },
-			{ when: { net: 'no' }, out: ['h', 'i'], reason: 'No network or external interface.' },
-			{ when: { acc: 'no', net: 'no' }, out: ['d'], reason: 'No accounts and no external interface.' }
+		groups: craRequirementGroups,
+		suggestions: [
+			{
+				when: { net: 'no' },
+				requirements: ['CRA-I-1.1.10.1', 'CRA-I-1.1.9.2', 'CRA-I-1.1.5.5'],
+				treatment: 'na',
+				reason: 'No network or other external interface.'
+			},
+			{
+				when: { dbg: 'no' },
+				requirements: ['CRA-I-1.1.5.6'],
+				treatment: 'na',
+				reason: 'No debug, service or manufacturing interface.'
+			},
+			{
+				when: { data: 'no' },
+				requirements: ['CRA-I-1.1.6.1', 'CRA-I-1.1.6.4', 'CRA-I-1.1.8.2', 'CRA-I-1.1.14.1', 'CRA-I-1.1.14.2'],
+				treatment: 'na',
+				reason: 'No user data is processed.'
+			},
+			{
+				when: { net: 'no', acc: 'no' },
+				requirements: ['CRA-I-1.1.5.1', 'CRA-I-1.1.5.3'],
+				treatment: 'na',
+				reason: 'No accounts and no external interface.'
+			},
+			{
+				when: { net: 'no' },
+				requirements: ['CRA-I-1.1.13.4'],
+				treatment: 'risk',
+				reason: 'Logs stay on the device of the user and are not offered through a separate interface.'
+			}
 		],
 		notes: [
 			{

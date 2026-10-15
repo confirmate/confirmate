@@ -21,6 +21,8 @@ export interface ChoiceOption {
 	id: string;
 	label: string;
 	hint: string;
+	/** What the choice sets on the target of evaluation, for example its classification. */
+	attributes?: Record<string, string>;
 	/** What the choice means, shown next to the options. */
 	result: { title: string; text: string; note?: string };
 }
@@ -32,16 +34,40 @@ export interface Question {
 	defaultAnswer: Answer;
 }
 
-/** The requirements that a questionnaire can switch out of scope. */
+/** How a requirement is applied: always, only if the product has a capability, or depending on the risk. */
+export type Applicability = 'mandatory' | 'capability' | 'risk';
+
+/** A single requirement that can be taken out of scope, as an atomic, assessable obligation. */
 export interface ScopableRequirement {
+	/** The short name of the control in the catalog. */
 	id: string;
 	title: string;
+	text: string;
+	/** Number of checks (metrics) behind the requirement. */
+	checks: number;
+	applicability: Applicability;
+	/** For applicability "capability": the requirement only applies if the answer to the question is yes. */
+	capability?: { question: string; text: string };
 }
 
-/** If all conditions hold, the requirements are out of scope, with the reason. Unknown answers never match "no". */
-export interface ScopeEffect {
+/** A group of requirements, for example the requirements behind one point of the legal text. */
+export interface RequirementGroup {
+	/** The short name of the control that groups the requirements. */
+	id: string;
+	title: string;
+	reference: string;
+	requirements: ScopableRequirement[];
+}
+
+/**
+ * A suggestion for the scope that follows from an answer. If every condition is an explicit match, the requirements are
+ * suggested as not applicable (or as an accepted residual risk), with the reason. A person decides; "don't know" never
+ * matches.
+ */
+export interface ScopeSuggestion {
 	when: Partial<Record<string, Answer>>;
-	out: string[];
+	requirements: string[];
+	treatment: 'na' | 'risk';
 	reason: string;
 }
 
@@ -54,8 +80,8 @@ export interface QuestionNote {
 export interface Questionnaire {
 	heading: string;
 	questions: Question[];
-	requirements: ScopableRequirement[];
-	effects: ScopeEffect[];
+	groups: RequirementGroup[];
+	suggestions: ScopeSuggestion[];
 	notes: QuestionNote[];
 }
 
@@ -85,6 +111,8 @@ export interface FrameworkProfile {
 	id: string;
 	/** Short name of the framework as shown to users. */
 	name: string;
+	/** The catalog that the audit scope of a target of evaluation is created for. */
+	catalogId: string;
 	/** Type of target of evaluation this profile is made for (TargetOfEvaluation.TargetType of the API). */
 	targetType: 'TARGET_TYPE_PRODUCT' | 'TARGET_TYPE_CLOUD' | 'TARGET_TYPE_ORGANIZATION';
 	typeLabel: string;

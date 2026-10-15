@@ -1,5 +1,9 @@
 <script lang="ts">
+	import { goto, invalidateAll } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import type { FrameworkProfile, ProfileStep } from '../profile';
+	import { computeScope, summarize } from '../scope';
+	import { guidedSource } from '../select';
 	import { wizard } from '../wizard.svelte';
 	import ChoiceResult from './steps/ChoiceResult.svelte';
 	import ChoiceStep from './steps/ChoiceStep.svelte';
@@ -12,6 +16,31 @@
 	import WizardShell from './WizardShell.svelte';
 
 	let { profile, step }: { profile: FrameworkProfile; step: ProfileStep } = $props();
+
+	let busy = $state(false);
+	let error = $state<string | null>(null);
+
+	/** Creates the Target of Evaluation from the answers of the wizard and opens it. */
+	async function finish() {
+		busy = true;
+		error = null;
+		try {
+			const created = await guidedSource.createTarget({
+				profile,
+				details: { ...wizard.details },
+				choiceId: wizard.choiceId,
+				answers: { ...wizard.answers },
+				decisions: $state.snapshot(wizard.decisions)
+			});
+			await invalidateAll();
+			wizard.start(profile);
+			await goto(resolve(`/guided/${created.id}/`));
+		} catch (e) {
+			error = e instanceof Error ? e.message : 'The setup failed.';
+		} finally {
+			busy = false;
+		}
+	}
 </script>
 
 {#snippet aside()}
@@ -27,7 +56,10 @@
 <WizardShell
 	{profile}
 	stepId={step.id}
-	nextDisabled={step.type === 'scope' && !wizard.approved}
+	nextDisabled={step.type === 'scope' && (!wizard.approved || summarize(computeScope(profile.questionnaire, wizard.answers, wizard.decisions)).review > 0)}
+	onfinish={step.type === 'sources' ? finish : undefined}
+	{busy}
+	{error}
 	aside={step.type === 'sources' || step.type === 'scope' ? undefined : aside}
 >
 	{#if step.type === 'details'}
