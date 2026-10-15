@@ -465,39 +465,7 @@ func (svc *Service) RemoveControlInScope(
 
 	actor := actorFromContext(ctx)
 	err = svc.db.Transaction(func(tx persistence.DB) error {
-		// Cascade: removing a parent control from scope also removes every
-		// descendant ControlInScope record so the subtree state stays consistent
-		// — a sub-control can't be "in scope" while its parent isn't.
-		victims, err := collectControlInScopeSubtree(tx, cis.AuditScopeId, cis.ControlId)
-		if err != nil {
-			return err
-		}
-		victims = append([]*orchestrator.ControlInScope{&cis}, victims...)
-		for _, victim := range victims {
-			// control_in_scope_id is intentionally empty: the ControlInScope record
-			// is deleted in this same transaction, so linking to it would create a
-			// dangling reference.
-			if err := createAuditTrailEvent(tx, actor, victim.AuditScopeId, "", req.Msg.GetComment(),
-				&orchestrator.ControlScopingEvent{
-					ControlId:    victim.ControlId,
-					AuditScopeId: victim.AuditScopeId,
-					InScope:      false,
-				}); err != nil {
-				return err
-			}
-			if err := tx.Delete(&orchestrator.ControlInScope{}, "id = ?", victim.Id); err != nil {
-				return err
-			}
-			// Remove any existing evaluation results for this control so the UI
-			// shows it as "not evaluated" instead of a stale status. Ignore
-			// not-found — there may be no results to delete.
-			if err := tx.Delete(&evaluation.EvaluationResult{},
-				"control_id = ? AND audit_scope_id = ?", victim.ControlId, victim.AuditScopeId,
-			); err != nil && !errors.Is(err, persistence.ErrRecordNotFound) {
-				return err
-			}
-		}
-		return nil
+		return removeControlInScope(tx, actor, &cis, req.Msg.GetComment())
 	})
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
@@ -509,6 +477,46 @@ func (svc *Service) RemoveControlInScope(
 
 	res = connect.NewResponse(&emptypb.Empty{})
 	return
+}
+
+// removeControlInScope removes a control from the scope of its audit scope, together with all of its descendants, and
+// records the reason in the audit trail. It also deletes the evaluation results of the removed controls, so that they
+// show up as not evaluated. It has to be called within a transaction.
+func removeControlInScope(tx persistence.DB, actor string, cis *orchestrator.ControlInScope, comment string) error {
+	// Cascade: removing a parent control from scope also removes every
+	// descendant ControlInScope record so the subtree state stays consistent
+	// — a sub-control can't be "in scope" while its parent isn't.
+	victims, err := collectControlInScopeSubtree(tx, cis.AuditScopeId, cis.ControlId)
+	if err != nil {
+		return err
+	}
+	victims = append([]*orchestrator.ControlInScope{cis}, victims...)
+	for _, victim := range victims {
+		// control_in_scope_id is intentionally empty: the ControlInScope record
+		// is deleted in this same transaction, so linking to it would create a
+		// dangling reference.
+		if err := createAuditTrailEvent(tx, actor, victim.AuditScopeId, "", comment,
+			&orchestrator.ControlScopingEvent{
+				ControlId:    victim.ControlId,
+				AuditScopeId: victim.AuditScopeId,
+				InScope:      false,
+			}); err != nil {
+			return err
+		}
+		if err := tx.Delete(&orchestrator.ControlInScope{}, "id = ?", victim.Id); err != nil {
+			return err
+		}
+		// Remove any existing evaluation results for this control so the UI
+		// shows it as "not evaluated" instead of a stale status. Ignore
+		// not-found — there may be no results to delete.
+		if err := tx.Delete(&evaluation.EvaluationResult{},
+			"control_id = ? AND audit_scope_id = ?", victim.ControlId, victim.AuditScopeId,
+		); err != nil && !errors.Is(err, persistence.ErrRecordNotFound) {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // triggerScopeChangeCallback invokes the registered scope-change callback (if any) in a new
