@@ -1,4 +1,5 @@
 import type { FrameworkProfile } from '../profile';
+import { craRequirementGroups } from './cra-requirements';
 
 /**
  * The CRA profile. The texts of the classes and routes are sample content until they are reviewed together with the
@@ -140,25 +141,38 @@ export const craProfile: FrameworkProfile = {
 			{ id: 'upd', text: 'Can it be updated after it has been delivered?', help: 'Remotely or locally', defaultAnswer: 'yes' },
 			{ id: 'dbg', text: 'Is there a debug, service or manufacturing interface?', help: 'Typical for firmware and devices', defaultAnswer: 'no' }
 		],
-		requirements: [
-			{ id: 'a', title: 'No known exploitable vulnerabilities', controlShortName: 'CRA-I-1.1.2' },
-			{ id: 'b', title: 'Secure by default', controlShortName: 'CRA-I-1.1.3' },
-			{ id: 'c', title: 'Security updates', controlShortName: 'CRA-I-1.1.4' },
-			{ id: 'd', title: 'Protection from unauthorised access', controlShortName: 'CRA-I-1.1.5' },
-			{ id: 'e', title: 'Confidentiality of data', controlShortName: 'CRA-I-1.1.6' },
-			{ id: 'f', title: 'Integrity', controlShortName: 'CRA-I-1.1.7' },
-			{ id: 'g', title: 'Data minimisation', controlShortName: 'CRA-I-1.1.8' },
-			{ id: 'h', title: 'Availability', controlShortName: 'CRA-I-1.1.9' },
-			{ id: 'i', title: 'Impact on other services', controlShortName: 'CRA-I-1.1.10' },
-			{ id: 'j', title: 'Limited attack surface', controlShortName: 'CRA-I-1.1.11' },
-			{ id: 'k', title: 'Exploitation mitigation', controlShortName: 'CRA-I-1.1.12' },
-			{ id: 'l', title: 'Logging and monitoring', controlShortName: 'CRA-I-1.1.13' },
-			{ id: 'm', title: 'Removal and transfer of data', controlShortName: 'CRA-I-1.1.14' }
-		],
-		effects: [
-			{ when: { data: 'no' }, out: ['e', 'g', 'm'], reason: 'No user data is processed.' },
-			{ when: { net: 'no' }, out: ['h', 'i'], reason: 'No network or external interface.' },
-			{ when: { acc: 'no', net: 'no' }, out: ['d'], reason: 'No accounts and no external interface.' }
+		groups: craRequirementGroups,
+		suggestions: [
+			{
+				when: { net: 'no' },
+				requirements: ['CRA-I-1.1.10.1', 'CRA-I-1.1.9.2', 'CRA-I-1.1.5.5'],
+				treatment: 'na',
+				reason: 'No network or other external interface.'
+			},
+			{
+				when: { dbg: 'no' },
+				requirements: ['CRA-I-1.1.5.6'],
+				treatment: 'na',
+				reason: 'No debug, service or manufacturing interface.'
+			},
+			{
+				when: { data: 'no' },
+				requirements: ['CRA-I-1.1.6.1', 'CRA-I-1.1.6.4', 'CRA-I-1.1.8.2', 'CRA-I-1.1.14.1', 'CRA-I-1.1.14.2'],
+				treatment: 'na',
+				reason: 'No user data is processed.'
+			},
+			{
+				when: { net: 'no', acc: 'no' },
+				requirements: ['CRA-I-1.1.5.1', 'CRA-I-1.1.5.3'],
+				treatment: 'na',
+				reason: 'No accounts and no external interface.'
+			},
+			{
+				when: { net: 'no' },
+				requirements: ['CRA-I-1.1.13.4'],
+				treatment: 'risk',
+				reason: 'Logs stay on the device of the user and are not offered through a separate interface.'
+			}
 		],
 		notes: [
 			{

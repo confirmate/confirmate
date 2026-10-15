@@ -2,6 +2,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import type { FrameworkProfile, ProfileStep } from '../profile';
+	import { computeScope, summarize } from '../scope';
 	import { guidedSource } from '../select';
 	import { wizard } from '../wizard.svelte';
 	import ChoiceResult from './steps/ChoiceResult.svelte';
@@ -28,7 +29,8 @@
 				profile,
 				details: { ...wizard.details },
 				choiceId: wizard.choiceId,
-				answers: { ...wizard.answers }
+				answers: { ...wizard.answers },
+				decisions: $state.snapshot(wizard.decisions)
 			});
 			await invalidateAll();
 			wizard.start(profile);
@@ -54,7 +56,7 @@
 <WizardShell
 	{profile}
 	stepId={step.id}
-	nextDisabled={step.type === 'scope' && !wizard.approved}
+	nextDisabled={step.type === 'scope' && (!wizard.approved || summarize(computeScope(profile.questionnaire, wizard.answers, wizard.decisions)).review > 0)}
 	onfinish={step.type === 'sources' ? finish : undefined}
 	{busy}
 	{error}

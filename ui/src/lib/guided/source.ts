@@ -1,4 +1,5 @@
 import type { Answer, FrameworkProfile } from './profile';
+import type { Decisions } from './scope';
 
 /** What the list of targets of evaluation shows about one target. */
 export interface TargetSummary {
@@ -98,6 +99,8 @@ export interface NewTarget {
 	details: Record<string, string>;
 	choiceId: string;
 	answers: Record<string, Answer>;
+	/** The decisions about single requirements that go with the answers. */
+	decisions: Decisions;
 }
 
 /** A statement that a person makes about a check, for example that a requirement is met. */
@@ -108,6 +111,25 @@ export interface NewStatement {
 	comment: string;
 	/** Optional day until which the statement is valid (YYYY-MM-DD). */
 	validUntil?: string;
+}
+
+/** A residual risk that a person accepted for a requirement. */
+export interface AcceptedRisk {
+	id: string;
+	requirement: string;
+	reference: string;
+	text: string;
+	acceptedBy: string;
+	acceptedAt: string;
+	reviewBy: string;
+}
+
+/** A change of the treatment of one requirement after the setup. */
+export interface ScopeChange {
+	targetId: string;
+	requirementId: string;
+	treatment: 'na' | 'risk';
+	reason: string;
 }
 
 /**
@@ -121,4 +143,7 @@ export interface GuidedSource {
 	/** Creates the Target of Evaluation, its audit scope and an approved risk assessment, and returns its ID. */
 	createTarget(input: NewTarget): Promise<{ id: string }>;
 	addStatement(statement: NewStatement): Promise<void>;
+	/** Takes a requirement out of scope or accepts its residual risk, as a new version of the risk assessment. */
+	changeScope(change: ScopeChange): Promise<void>;
+	listAcceptedRisks(targetId: string): Promise<AcceptedRisk[]>;
 }

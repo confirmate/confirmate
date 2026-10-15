@@ -3,6 +3,7 @@
 	import { Card, Chip, PageHeading } from '$lib/ds';
 	import type { RequirementDetail, TargetDetail } from '../source';
 	import CheckCard from './CheckCard.svelte';
+	import ScopeDialog from './ScopeDialog.svelte';
 	import StatementDialog from './StatementDialog.svelte';
 	import StatusTag from './StatusTag.svelte';
 
@@ -10,6 +11,7 @@
 
 	let { target, requirement: r }: { target: TargetDetail; requirement: RequirementDetail } = $props();
 
+	let scopeOpen = $state(false);
 	let statementOpen = $state(false);
 	let statementCheck = $state<Check | undefined>();
 
@@ -39,8 +41,8 @@
 				<CheckCard {check} {onaction} />
 			{/each}
 			<p class="text-sm text-ink-muted">
-				Think this requirement does not apply? <a href={resolve(`/guided/${target.id}/requirements/${r.id}/`)}>Take it out of scope</a>.
-				That needs a reason and an approval, and it is added to the risk assessment.
+				Think this requirement does not apply, or does a risk stay? You can take it out of scope with a reason. That creates a new
+				version of the risk assessment. <button type="button" class="cursor-pointer text-brand underline" onclick={() => (scopeOpen = true)}>Change the scope</button>.
 			</p>
 		</div>
 
@@ -68,3 +70,4 @@
 </div>
 
 <StatementDialog bind:open={statementOpen} targetId={target.id} check={statementCheck} />
+<ScopeDialog bind:open={scopeOpen} targetId={target.id} requirement={r} />

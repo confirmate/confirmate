@@ -13,11 +13,13 @@ import type {
 import { bucketControlsByCategory, flattenControls } from '$lib/auditScope';
 import { computeScope } from './scope';
 import type {
+	AcceptedRisk,
 	Check,
 	GuidedSource,
 	NewStatement,
 	NewTarget,
 	PartProgress,
+	ScopeChange,
 	Progress,
 	RequirementDetail,
 	RequirementStatus,
@@ -341,16 +343,33 @@ export const realSource: GuidedSource = {
 			params: { query: { 'filter.catalogId': profile.catalogId, pageSize: 1500 } }
 		});
 		const byShortName = new Map((controlsRes.data?.controls ?? []).map((c) => [c.shortName ?? '', c.id ?? '']));
-		const scoped = computeScope(profile.questionnaire, answers);
-		const decisions = scoped.requirements
-			.map((r) => ({ requirement: r, controlId: byShortName.get(profile.questionnaire.requirements.find((q) => q.id === r.id)?.controlShortName ?? '') }))
-			.filter((d) => d.controlId)
-			.map((d) => ({
-				controlId: d.controlId!,
-				inScope: !d.requirement.out,
-				justification: d.requirement.reason,
-				source: 'SCOPE_DECISION_SOURCE_RULE' as const
-			}));
+		const groups = computeScope(profile.questionnaire, answers, input.decisions);
+		const decisions: { controlId: string; inScope: boolean; justification: string; source: string }[] = [];
+		for (const g of groups) {
+			for (const row of g.rows) {
+				const controlId = byShortName.get(row.requirement.id);
+				if (!controlId || row.treatment === 'applies') continue;
+				// An accepted residual risk keeps the requirement in scope; the backend has no field for it yet, so the reason
+				// carries it.
+				decisions.push({
+					controlId,
+					inScope: row.treatment === 'risk',
+					justification: row.treatment === 'risk' ? `Accepted residual risk: ${row.reason}` : row.reason,
+					source: row.source === 'rule' ? 'SCOPE_DECISION_SOURCE_RULE' : 'SCOPE_DECISION_SOURCE_MANUAL'
+				});
+			}
+
+			// If every requirement of a point is not applicable, the point drops out as well.
+			const parentId = byShortName.get(g.group.id);
+			if (parentId && g.rows.length > 0 && g.rows.every((r) => r.treatment === 'na')) {
+				decisions.push({
+					controlId: parentId,
+					inScope: false,
+					justification: 'Every requirement of this point is not applicable.',
+					source: 'SCOPE_DECISION_SOURCE_MANUAL'
+				});
+			}
+		}
 
 		const assessmentRes = await client.POST('/v1/orchestrator/risk_assessments', {
 			body: request({
@@ -385,5 +404,77 @@ export const realSource: GuidedSource = {
 			})
 		});
 		if (error) fail('Could not save the statement', error);
+	},
+
+	async changeScope(change: ScopeChange) {
+		const client = orchestratorClient();
+		const { scopes } = await loadAll();
+		const scope = scopes.find((x) => x.targetOfEvaluationId === change.targetId);
+		if (!scope) throw new Error('This Target of Evaluation has no audit scope yet.');
+
+		const res = await client.GET('/v1/orchestrator/risk_assessments', {
+			params: { query: { 'filter.auditScopeId': scope.id, pageSize: 50 } }
+		});
+		const previous = (res.data?.riskAssessments ?? []).find((a) => a.status === 'RISK_ASSESSMENT_STATUS_APPROVED');
+
+		// The new version keeps every earlier decision except the one that is replaced.
+		const decisions = (previous?.decisions ?? []).filter((d) => d.controlId !== change.requirementId);
+		decisions.push({
+			controlId: change.requirementId,
+			inScope: change.treatment === 'risk',
+			justification: change.treatment === 'risk' ? `Accepted residual risk: ${change.reason}` : change.reason,
+			source: 'SCOPE_DECISION_SOURCE_MANUAL'
+		});
+
+		const created = await client.POST('/v1/orchestrator/risk_assessments', {
+			body: request({
+				targetOfEvaluationId: change.targetId,
+				auditScopeId: scope.id,
+				method: previous?.method ?? 'RISK_ASSESSMENT_METHOD_BUILT_IN',
+				summary: 'Changed in the requirement view.',
+				answers: previous?.answers ?? {},
+				decisions
+			})
+		});
+		if (!created.data?.id) fail('Could not store the risk assessment', created.error);
+
+		const approved = await client.POST('/v1/orchestrator/risk_assessments/{riskAssessmentId}/approve', {
+			params: { path: { riskAssessmentId: created.data.id } },
+			body: { riskAssessmentId: created.data.id }
+		});
+		if (approved.error) fail('Could not approve the risk assessment', approved.error);
+	},
+
+	async listAcceptedRisks(targetId) {
+		const client = orchestratorClient();
+		const { scopes, users } = await loadAll();
+		const scope = scopes.find((x) => x.targetOfEvaluationId === targetId);
+		if (!scope) return [];
+
+		const [assessments, controls] = await Promise.all([
+			client.GET('/v1/orchestrator/risk_assessments', { params: { query: { 'filter.auditScopeId': scope.id, pageSize: 50 } } }),
+			client.GET('/v1/orchestrator/controls', { params: { query: { 'filter.catalogId': scope.catalogId, pageSize: 1500 } } })
+		]);
+		const approved = (assessments.data?.riskAssessments ?? []).find((a) => a.status === 'RISK_ASSESSMENT_STATUS_APPROVED');
+		if (!approved) return [];
+
+		const byId = new Map(flattenControls(controls.data?.controls ?? []).map((c) => [c.id ?? '', c]));
+		const by = users.find((u) => u.id === approved.approvedBy);
+		const name = by ? [by.firstName, by.lastName].filter(Boolean).join(' ') || by.username || '' : 'Unknown';
+		const prefix = 'Accepted residual risk: ';
+
+		return (approved.decisions ?? [])
+			.filter((d) => d.inScope && d.justification?.startsWith(prefix))
+			.map(
+				(d): AcceptedRisk => ({
+					id: d.controlId ?? '',
+					requirement: byId.get(d.controlId ?? '')?.name ?? d.controlId ?? '',
+					reference: byId.get(d.controlId ?? '')?.shortName ?? '',
+					text: (d.justification ?? '').slice(prefix.length),
+					acceptedBy: name,
+					acceptedAt: approved.approvedAt ? new Date(approved.approvedAt).toLocaleDateString() : '',
+					reviewBy: approved.reviewDueAt ? new Date(approved.reviewDueAt).toLocaleDateString() : ''
+				})
+			);
 	}
 };
