@@ -8,6 +8,7 @@ Thank you for your interest in contributing to Confirmate! This document provide
 - [Error Handling](#error-handling)
 - [API Design Guidelines](#api-design-guidelines)
 - [Documentation Guidelines](#documentation-guidelines)
+- [User Interface Guidelines](#user-interface-guidelines)
 - [Testing Guidelines](#testing-guidelines)
 - [Dependencies and Libraries](#dependencies-and-libraries)
 - [Pull Request Process](#pull-request-process)
@@ -468,6 +469,13 @@ Avoid adding `README.md` files in internal code directories. Instead, use packag
 - Include examples where appropriate
 - Document any side effects or important considerations
 - Use proper Go documentation formatting (see [Go documentation comments](https://go.dev/doc/comment))
+
+## User Interface Guidelines
+
+The user interface follows the [UI design guide](ui/docs/design-guide.md): task-first screens in plain words, route
+files without markup of their own, reusable components, semantic design tokens that make the design language
+swappable, and framework specifics in profiles. New UI work that is not ready for everyone sits behind a feature
+flag that is off by default.
 
 ## Testing Guidelines
 

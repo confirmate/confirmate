@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './lib/theme/theme.css';
 
 @theme {
 	--color-confirmate: #005B99;
