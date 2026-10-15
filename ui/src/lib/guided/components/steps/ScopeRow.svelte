@@ -65,7 +65,7 @@
 			<span class="text-sm text-ink-soft">{row.requirement.text}</span>
 			{#if when}<span class="text-[0.8125rem] text-ink-muted">{when}</span>{/if}
 			<span class="text-xs text-ink-muted">
-				{#if legal}<span>{legal.framework} {legal.identifier}</span><span>, </span>{/if}<span class="font-code">{id}</span>{#if row.requirement.checks > 0}<span>, </span><span>{row.requirement.checks === 1 ? '1 check' : `${row.requirement.checks} checks`}</span>{/if}
+				{#if legal}<span>{legal.framework} {legal.identifier}</span><span>,{' '}</span>{/if}<span class="font-code">{id}</span>{#if row.requirement.checks > 0}<span>,{' '}</span><span>{row.requirement.checks === 1 ? '1 check' : `${row.requirement.checks} checks`}</span>{/if}
 			</span>
 		</div>
 
