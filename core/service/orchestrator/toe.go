@@ -54,6 +54,7 @@ func (svc *Service) CreateTargetOfEvaluation(
 		ConfiguredMetrics: req.Msg.GetTargetOfEvaluation().GetConfiguredMetrics(),
 		Metadata:          req.Msg.GetTargetOfEvaluation().GetMetadata(),
 		Organization:      req.Msg.GetTargetOfEvaluation().GetOrganization(),
+		Product:           req.Msg.GetTargetOfEvaluation().GetProduct(),
 		TargetType:        req.Msg.GetTargetOfEvaluation().GetTargetType(),
 		CreatedAt:         now,
 		UpdatedAt:         now,
@@ -211,6 +212,7 @@ func (svc *Service) UpdateTargetOfEvaluation(
 		ConfiguredMetrics: req.Msg.GetTargetOfEvaluation().GetConfiguredMetrics(),
 		Metadata:          req.Msg.GetTargetOfEvaluation().GetMetadata(),
 		Organization:      req.Msg.GetTargetOfEvaluation().GetOrganization(),
+		Product:           req.Msg.GetTargetOfEvaluation().GetProduct(),
 		TargetType:        req.Msg.GetTargetOfEvaluation().GetTargetType(),
 		UpdatedAt:         timestamppb.Now(),
 	}

@@ -987,6 +987,55 @@ message TargetOfEvaluation {
 
   // Organization details for this target of evaluation.
   optional Organization organization = 15 [(tagger.tags) = "gorm:\"serializer:json\""];
+
+  // Product contains details of a product. It is only used if the target type is TARGET_TYPE_PRODUCT.
+  message Product {
+    // Classification of a product, for example the product class of the Cyber Resilience Act.
+    enum Classification {
+      CLASSIFICATION_UNSPECIFIED = 0;
+      // A product without special classification.
+      CLASSIFICATION_DEFAULT = 1;
+      // An important product, class I.
+      CLASSIFICATION_IMPORTANT_I = 2;
+      // An important product, class II.
+      CLASSIFICATION_IMPORTANT_II = 3;
+      // A critical product.
+      CLASSIFICATION_CRITICAL = 4;
+    }
+
+    // The kind of product.
+    enum ProductType {
+      PRODUCT_TYPE_UNSPECIFIED = 0;
+      PRODUCT_TYPE_SOFTWARE_APPLICATION = 1;
+      PRODUCT_TYPE_LIBRARY = 2;
+      PRODUCT_TYPE_FIRMWARE = 3;
+      PRODUCT_TYPE_ONLINE_SERVICE_WITH_CLIENT = 4;
+    }
+
+    // Classification of the product.
+    Classification classification = 1 [(buf.validate.field).enum.defined_only = true];
+
+    // The kind of product.
+    ProductType product_type = 2 [(buf.validate.field).enum.defined_only = true];
+
+    // The currently supported release, for example "1.4.0".
+    string current_release = 3;
+
+    // The time until which the product is supported with security updates.
+    optional google.protobuf.Timestamp support_until = 4;
+
+    // The ID of the user who is responsible for the product.
+    optional string responsible_user_id = 5;
+  }
+
+  // Product details for this target of evaluation.
+  optional Product product = 16 [(tagger.tags) = "gorm:\"serializer:json\""];
+
+  option (buf.validate.message).cel = {
+    id: "product_details_only_for_products"
+    message: "product details are only allowed for the target type product"
+    expression: "!has(this.product) || this.target_type == 2"
+  };
 }
 
 message Catalog {
