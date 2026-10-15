@@ -553,6 +553,12 @@ func (svc *Service) loadMetricsFromRepository() (metrics []*assessment.Metric, e
 			return nil
 		}
 
+		// data.json files hold the default configuration of the metric in the same directory. They are no metric
+		// batches and are read together with the metric, see prepareMetric.
+		if info.Name() == "data.json" {
+			return nil
+		}
+
 		// JSON files: treat as an array of metrics
 		if strings.HasSuffix(info.Name(), ".json") {
 			b, err := os.ReadFile(path)

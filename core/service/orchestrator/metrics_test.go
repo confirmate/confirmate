@@ -16,9 +16,12 @@
 package orchestrator
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -1531,6 +1534,64 @@ func TestService_loadMetricsFromRepository_JSONWithNullEntry(t *testing.T) {
 	assert.Equal(t, 2, len(metrics))
 	for _, m := range metrics {
 		assert.NotNil(t, m)
+	}
+}
+
+// TestService_loadMetricsFromRepository_DataJSON checks that the data.json of a metric, which holds its default
+// configuration and not a batch of metrics, is read with the metric and does not cause a warning.
+func TestService_loadMetricsFromRepository_DataJSON(t *testing.T) {
+	type args struct {
+		files map[string]string
+	}
+	tests := []struct {
+		name         string
+		args         args
+		wantMetrics  int
+		wantWarnings bool
+	}{
+		{
+			name: "data.json next to a metric is not parsed as a batch",
+			args: args{files: map[string]string{
+				"Test/Metric1/metric.yaml": "id: metric-1\ncategory: Test\nname: Metric1\n",
+				"Test/Metric1/data.json":   `{"operator": "==", "targetValue": true}`,
+			}},
+			wantMetrics:  1,
+			wantWarnings: false,
+		},
+		{
+			name: "other JSON file that is no batch still warns",
+			args: args{files: map[string]string{
+				"Test/Metric1/metric.yaml": "id: metric-1\ncategory: Test\nname: Metric1\n",
+				"Test/Metric1/other.json":  `{"operator": "=="}`,
+			}},
+			wantMetrics:  1,
+			wantWarnings: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var (
+				dir    = t.TempDir()
+				logs   bytes.Buffer
+				logger = slog.New(slog.NewTextHandler(&logs, &slog.HandlerOptions{Level: slog.LevelWarn}))
+				prev   = slog.Default()
+			)
+
+			slog.SetDefault(logger)
+			t.Cleanup(func() { slog.SetDefault(prev) })
+
+			for name, content := range tt.args.files {
+				assert.NoError(t, os.MkdirAll(filepath.Dir(filepath.Join(dir, name)), 0o755))
+				assert.NoError(t, os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644))
+			}
+
+			svc := &Service{cfg: Config{DefaultMetricsPath: dir}}
+			metrics, err := svc.loadMetricsFromRepository()
+
+			assert.NoError(t, err)
+			assert.Equal(t, tt.wantMetrics, len(metrics))
+			assert.Equal(t, tt.wantWarnings, strings.Contains(logs.String(), "Could not parse metrics JSON file"))
+		})
 	}
 }
 
