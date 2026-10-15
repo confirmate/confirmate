@@ -475,34 +475,9 @@
             "description": "The confidentiality of stored, transmitted and otherwise processed data is protected, for example by encryption of data at rest and in transit with state of the art mechanisms (Annex I, Part I, (2)(e)).",
             "controls": [
               {
-                "id": "CRA-I-1.1.6.5",
-                "name": "Relevant data is protected",
-                "description": "Data whose confidentiality matters is identified and protected by suitable technical means against unauthorised disclosure.",
-                "metrics": [
-                  {
-                    "id": "ConfidentialDataProtected"
-                  }
-                ],
-                "type": "CONTROL_TYPE_TECHNICAL",
-                "applicability": {
-                  "kind": "APPLICABILITY_KIND_RISK_BASED",
-                  "scenario": {
-                    "min_confidentiality": 1
-                  }
-                },
-                "references": [
-                  {
-                    "framework": "CRA",
-                    "identifier": "Annex I, Part I, (2)(e)",
-                    "relationship": "legal-basis",
-                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
-                  }
-                ]
-              },
-              {
                 "id": "CRA-I-1.1.6.6",
                 "name": "Stored data is protected",
-                "description": "Confidential data that is stored is protected against unauthorised access by suitable technical means. Encryption is one of them.",
+                "description": "Data that is stored and whose confidentiality matters is protected against unauthorised access by suitable technical means. Encryption is one of them, and the more specific requirements below say when it is needed.",
                 "metrics": [
                   {
                     "id": "StoredDataProtected"
@@ -510,10 +485,7 @@
                 ],
                 "type": "CONTROL_TYPE_TECHNICAL",
                 "applicability": {
-                  "kind": "APPLICABILITY_KIND_RISK_BASED",
-                  "scenario": {
-                    "min_confidentiality": 3
-                  }
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
                 },
                 "references": [
                   {
@@ -570,7 +542,7 @@
                 "applicability": {
                   "kind": "APPLICABILITY_KIND_RISK_BASED",
                   "scenario": {
-                    "min_confidentiality": 2,
+                    "min_confidentiality": 1,
                     "connectivity": [
                       "CONNECTIVITY_PRIVATE_NETWORK",
                       "CONNECTIVITY_INTERNET"
@@ -849,6 +821,28 @@
             "description": "Only data that is adequate, relevant and limited to what is necessary for the intended use is processed (Annex I, Part I, (2)(g)).",
             "controls": [
               {
+                "id": "CRA-I-1.1.8.3",
+                "name": "Data processing is limited to what is necessary",
+                "description": "It is documented which data the product processes and why each item is necessary for its intended use. If the product processes no data, the documentation says so.",
+                "metrics": [
+                  {
+                    "id": "DataProcessingJustified"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(g)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
+              },
+              {
                 "id": "CRA-I-1.1.8.1",
                 "description": "Data minimization techniques must be enabled",
                 "metrics": [
@@ -984,6 +978,28 @@
             "description": "The product minimises its own negative impact on the availability of services provided by other devices or networks (Annex I, Part I, (2)(i)).",
             "controls": [
               {
+                "id": "CRA-I-1.1.10.2",
+                "name": "Impact on other services is assessed",
+                "description": "The impact of the product on the availability of services that other devices or networks provide is assessed and documented. If there is none, the documentation says so.",
+                "metrics": [
+                  {
+                    "id": "ImpactOnOtherServicesAssessed"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(i)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
+              },
+              {
                 "id": "CRA-I-1.1.10.1",
                 "description": "Standard protocols must be listed and only required interfaces enabled",
                 "metrics": [
@@ -1065,6 +1081,28 @@
             "description": "The product reduces the impact of an incident using appropriate exploitation mitigation mechanisms and techniques (Annex I, Part I, (2)(k)).",
             "controls": [
               {
+                "id": "CRA-I-1.1.12.3",
+                "name": "Reducing the impact of incidents is part of the design",
+                "description": "The design says how the impact of an incident is reduced, for example by least privilege, isolation of components or recovery. The measures are documented.",
+                "metrics": [
+                  {
+                    "id": "IncidentImpactReductionDesigned"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(k)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
+              },
+              {
                 "id": "CRA-I-1.1.12.1",
                 "description": "Backup mechanisms must be enabled for critical data flows",
                 "metrics": [
@@ -1126,6 +1164,28 @@
             "name": "Security Logging and Monitoring",
             "description": "Security related information is provided by recording and monitoring relevant internal activity, with an opt-out for the user (Annex I, Part I, (2)(l)).",
             "controls": [
+              {
+                "id": "CRA-I-1.1.13.5",
+                "name": "Security relevant activity is defined",
+                "description": "It is decided and documented which internal activity is relevant for security, including access to and changes of data, services and functions, and how it is recorded or monitored.",
+                "metrics": [
+                  {
+                    "id": "SecurityRelevantActivityDefined"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(l)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
+              },
               {
                 "id": "CRA-I-1.1.13.1",
                 "description": "Activity logging must be enabled for security-relevant activities",
@@ -1228,6 +1288,28 @@
             "name": "Secure Data Deletion",
             "description": "Users can securely and easily remove all data and settings permanently and, where data can be transferred to other products, this happens securely (Annex I, Part I, (2)(m)).",
             "controls": [
+              {
+                "id": "CRA-I-1.1.14.3",
+                "name": "Removal of data and settings is described",
+                "description": "It is documented how users securely remove all data and settings, or that the product stores none.",
+                "metrics": [
+                  {
+                    "id": "DataRemovalDescribed"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(m)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
+              },
               {
                 "id": "CRA-I-1.1.14.1",
                 "description": "Secure data deletion mechanism must be activated",

@@ -30,21 +30,6 @@
     }
   },
   {
-    "id": "ConfidentialDataProtected",
-    "name": "ConfidentialDataProtected",
-    "description": "Data whose confidentiality matters is identified and protected against unauthorised disclosure",
-    "category": "Data Protection",
-    "scale": 1,
-    "range": {
-      "allowedValues": {
-        "values": [
-          true,
-          false
-        ]
-      }
-    }
-  },
-  {
     "id": "ConformityRouteCompleted",
     "name": "ConformityRouteCompleted",
     "description": "The conformity assessment procedure for the product class is carried out",
@@ -79,6 +64,36 @@
     "name": "CvdPolicyPublished",
     "description": "A coordinated vulnerability disclosure policy is published",
     "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "DataProcessingJustified",
+    "name": "DataProcessingJustified",
+    "description": "It is documented which data the product processes and why each item is necessary for the intended use",
+    "category": "Data Protection",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "DataRemovalDescribed",
+    "name": "DataRemovalDescribed",
+    "description": "It is documented how users remove all data and settings, or that the product stores none",
+    "category": "Data Protection",
     "scale": 1,
     "range": {
       "allowedValues": {
@@ -214,6 +229,36 @@
     "name": "FixedVulnerabilitiesDisclosed",
     "description": "An advisory with the required information is published for every fixed vulnerability",
     "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "ImpactOnOtherServicesAssessed",
+    "name": "ImpactOnOtherServicesAssessed",
+    "description": "The impact of the product on services of other devices or networks is assessed and documented",
+    "category": "Network Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "IncidentImpactReductionDesigned",
+    "name": "IncidentImpactReductionDesigned",
+    "description": "The design and documentation say how the impact of an incident is reduced",
+    "category": "Application Security",
     "scale": 1,
     "range": {
       "allowedValues": {
@@ -409,6 +454,21 @@
     "name": "SecurityPatchesTimely",
     "description": "Security patches are disseminated without delay",
     "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SecurityRelevantActivityDefined",
+    "name": "SecurityRelevantActivityDefined",
+    "description": "The security relevant internal activity and how it is recorded or monitored are defined and documented",
+    "category": "Logging and Monitoring",
     "scale": 1,
     "range": {
       "allowedValues": {
