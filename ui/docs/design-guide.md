@@ -93,6 +93,7 @@ All colors, fonts and radii of the guided experience come from tokens in `ui/src
 | `FilterChips` | Filtering a list by one attribute. |
 | `Stepper` | The steps of a wizard. |
 | `StackedProgress` | Progress with several outcomes. Always next to the numbers. |
+| `Tabs` | Switches between parts of one page, with a short summary on each tab (a count). Keyboard and screen reader support included; the caller renders the panels. |
 | `Banner` | Something that needs attention or explains a consequence. |
 | `PageHeading` | Title, introduction and actions of a page. |
 

@@ -11,6 +11,7 @@ export { default as Segmented } from './Segmented.svelte';
 export { default as Select } from './Select.svelte';
 export { default as StackedProgress } from './StackedProgress.svelte';
 export { default as Stepper } from './Stepper.svelte';
+export { default as Tabs } from './Tabs.svelte';
 export { default as TextArea } from './TextArea.svelte';
 export { default as TextInput } from './TextInput.svelte';
 export type { Tone } from './tones';
