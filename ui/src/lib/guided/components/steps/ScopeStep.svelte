@@ -16,10 +16,14 @@
 	let filter = $state(depends);
 
 	function visible(group: ScopeGroup) {
+		// A point with requirements that depend on the product shows all of them, including the baseline that always
+		// applies, so that the structure of the point can be seen.
+		if (filter === depends) {
+			return group.rows.some((r) => r.requirement.applicability.kind !== 'always') ? group.rows : [];
+		}
 		return group.rows.filter(
 			(r) =>
 				filter === 'All' ||
-				(filter === depends && r.requirement.applicability.kind !== 'always') ||
 				(filter === 'Need a decision' && (r.missingReason || r.missingCompensation || group.empty)) ||
 				(filter === 'Not applicable' && r.treatment === 'na') ||
 				(filter === 'Accepted risk' && r.treatment === 'risk')

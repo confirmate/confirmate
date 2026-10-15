@@ -143,6 +143,16 @@ describe('the CRA example catalog', () => {
 		for (const g of groups) expect(g.reference).toMatch(/^(Annex|Art)/);
 	});
 
+	it('lists the baseline of a point first and a generic requirement before its refinement', () => {
+		const point = groups.find((g) => g.id === 'CRA-I-1.1.6')!;
+		const ids = point.requirements.map((r) => r.id);
+		expect(ids[0]).toBe('CRA-I-1.1.6.6');
+		expect(ids.indexOf('CRA-I-1.1.6.7')).toBeLessThan(ids.indexOf('CRA-I-1.1.6.3'));
+		expect(ids.indexOf('CRA-I-1.1.6.3')).toBeLessThan(ids.indexOf('CRA-I-1.1.6.2'));
+		// Every point has a baseline that always applies.
+		for (const g of groups) expect(g.requirements.some((r) => r.applicability.kind === 'always')).toBe(true);
+	});
+
 	it('names the requirements that can compensate a requirement', () => {
 		const ids = new Set(requirements.map((r) => r.id));
 		for (const r of requirements) for (const c of r.applicability.compensatedBy) expect(ids.has(c)).toBe(true);

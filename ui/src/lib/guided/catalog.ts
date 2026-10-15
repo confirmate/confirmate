@@ -103,6 +103,19 @@ function referenceOf(requirements: ScopableRequirement[], fallback: string): str
 	return legal?.identifier ?? fallback;
 }
 
+const rank: Record<ApplicabilityKind, number> = { always: 0, risk: 1, conditional: 2 };
+
+/**
+ * Puts the baseline first, then the requirements that depend on the risk, then those that depend on a condition. A
+ * requirement that can replace another one (it is named in its compensatedBy) comes before it: the generic requirement
+ * before its refinement. Otherwise the order of the catalog stays.
+ */
+export function ordered(requirements: ScopableRequirement[]): ScopableRequirement[] {
+	const replacing = new Set(requirements.flatMap((r) => r.applicability.compensatedBy));
+	const key = (r: ScopableRequirement) => rank[r.applicability.kind] * 2 + (replacing.has(r.id) ? 0 : 1);
+	return requirements.map((r, i) => ({ r, i })).sort((a, b) => key(a.r) - key(b.r) || a.i - b.i).map(({ r }) => r);
+}
+
 /**
  * Groups the controls of a catalog for the setup: every top-level control with sub-controls is one point of the law or
  * standard, and its sub-controls are the requirements behind it.
@@ -111,7 +124,7 @@ export function groupsOf(categories: RawCategory[]): RequirementGroup[] {
 	return categories.flatMap((category) =>
 		category.controls.map((control): RequirementGroup => {
 			const children = list(control.controls);
-			const requirements = (children.length > 0 ? children : [control]).map(requirementOf);
+			const requirements = ordered((children.length > 0 ? children : [control]).map(requirementOf));
 			return {
 				id: str(get(control, 'shortName', 'short_name')) || str(control.id),
 				title: str(control.name),
