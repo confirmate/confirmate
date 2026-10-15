@@ -1,4 +1,4 @@
-import type { GuidedSource, RequirementDetail, TargetDetail, TargetSummary } from './source';
+import type { AcceptedRisk, GuidedSource, RequirementDetail, TargetDetail, TargetSummary } from './source';
 
 /** Sample data for the preview of the guided experience. It is replaced by the real source. */
 const targets: TargetSummary[] = [
@@ -140,6 +140,27 @@ const pythonpass: TargetDetail = {
 	]
 };
 
+const acceptedRisks: AcceptedRisk[] = [
+	{
+		id: 'CRA-I-1.1.12.1',
+		requirement: 'Critical data backup',
+		reference: 'Annex I, part I, (2)(k)',
+		text: 'Backups of the local vault are the responsibility of the user. This is stated in the user guide.',
+		acceptedBy: 'Alice',
+		acceptedAt: '2 October 2026',
+		reviewBy: '2 October 2027'
+	},
+	{
+		id: 'CRA-I-1.1.13.4',
+		requirement: 'Security data access',
+		reference: 'Annex I, part I, (2)(l)',
+		text: 'Logs stay on the device of the user and are not offered through a separate interface.',
+		acceptedBy: 'Alice',
+		acceptedAt: '2 October 2026',
+		reviewBy: '2 October 2027'
+	}
+];
+
 export const mockSource: GuidedSource = {
 	async listTargets() {
 		return targets;
@@ -159,5 +180,11 @@ export const mockSource: GuidedSource = {
 	},
 	async addStatement() {
 		// Nothing is stored for sample data.
+	},
+	async changeScope() {
+		// Nothing is stored for sample data.
+	},
+	async listAcceptedRisks(targetId) {
+		return targetId === pythonpass.id ? acceptedRisks : [];
 	}
 };
