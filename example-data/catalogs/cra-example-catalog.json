@@ -2,7 +2,7 @@
   {
     "id": "CRA_Catalog",
     "name": "Cyber Resilience Act Catalog",
-    "description": "Controls and evidence for the manufacturer obligations of the EU Cyber Resilience Act (Regulation (EU) 2024/2847): essential requirements (Annex I, Parts I and II), obligations of manufacturers (Art. 13), reporting (Art. 14) and documentation and conformity (Annexes V, VII, VIII). DRAFT: the mapping has not been reviewed against the regulation yet.",
+    "description": "Controls and evidence for the manufacturer obligations of the EU Cyber Resilience Act (Regulation (EU) 2024/2847): essential requirements (Annex I, Parts I and II), obligations of manufacturers (Art. 13), reporting (Art. 14) and documentation and conformity (Annexes V, VII, VIII). Every requirement has its legal basis and says when it applies: always, under a condition, or depending on the risk (impact on an asset and the environment). DRAFT: the wording and the applicability have not been reviewed against the regulation yet.",
     "short_name": "CRA",
     "all_in_scope": false,
     "categories": [
@@ -23,6 +23,18 @@
                   {
                     "id": "RiskAssessmentDocumented"
                   }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (1)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               },
               {
@@ -32,6 +44,18 @@
                 "metrics": [
                   {
                     "id": "RiskAssessmentUpdated"
+                  }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (1)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -58,7 +82,19 @@
                     "name": "VulnerabilitiesNotExploitable"
                   }
                 ],
-                "name": "Vulnerability Scanning"
+                "name": "Vulnerability Scanning",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(a)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.2.2",
@@ -81,6 +117,18 @@
                     "id": "7c411a21-ee7b-35aa-bc8c-14fe303006d9",
                     "name": "NumberOfKnownLowVulnerabilities"
                   }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(a)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               }
             ]
@@ -98,7 +146,19 @@
                     "id": "SecureConfigurationEnforced"
                   }
                 ],
-                "name": "Secure Default Configuration"
+                "name": "Secure Default Configuration",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(b)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.3.2",
@@ -107,6 +167,18 @@
                 "metrics": [
                   {
                     "id": "ResetToOriginalStatePossible"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(b)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               },
@@ -117,6 +189,18 @@
                 "metrics": [
                   {
                     "id": "NoDefaultCredentials"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(b)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -136,7 +220,20 @@
                     "name": "AutomaticUpdatesInterval"
                   }
                 ],
-                "name": "Update Check Interval"
+                "name": "Update Check Interval",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "Automatic security updates are appropriate for the product"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(c)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.4.2",
@@ -147,7 +244,20 @@
                     "name": "AutomaticUpdatesEnabled"
                   }
                 ],
-                "name": "Automatic Updates by Default"
+                "name": "Automatic Updates by Default",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "Automatic security updates are appropriate for the product"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(c)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.4.3",
@@ -157,7 +267,42 @@
                     "id": "PostponeAlertOptionEnabled"
                   }
                 ],
-                "name": "User Update Control"
+                "name": "User Update Control",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "Automatic security updates are appropriate for the product"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(c)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-I-1.1.4.4",
+                "name": "Security updates can be installed",
+                "description": "The product can receive and install security updates.",
+                "metrics": [
+                  {
+                    "id": "SecurityUpdatesPossible"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(c)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               }
             ]
           },
@@ -174,7 +319,19 @@
                     "id": "AccessControlMechanismsImplemented"
                   }
                 ],
-                "name": "Access Control Mechanisms"
+                "name": "Access Control Mechanisms",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(d)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.5.2",
@@ -185,7 +342,20 @@
                     "name": "IdentityPasswordPolicyEnabled"
                   }
                 ],
-                "name": "Password Policies"
+                "name": "Password Policies",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "Users or administrators authenticate with passwords"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(d)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.5.3",
@@ -195,7 +365,26 @@
                     "id": "UnauthorizedAccessReported"
                   }
                 ],
-                "name": "Unauthorized Access Reporting"
+                "name": "Unauthorized Access Reporting",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_confidentiality": 3,
+                    "connectivity": [
+                      "CONNECTIVITY_PRIVATE_NETWORK",
+                      "CONNECTIVITY_INTERNET"
+                    ]
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(d)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.5.4",
@@ -206,7 +395,25 @@
                     "name": "AdminMFAEnabled"
                   }
                 ],
-                "name": "Multi-Factor Authentication"
+                "name": "Multi-Factor Authentication",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_confidentiality": 4,
+                    "connectivity": [
+                      "CONNECTIVITY_INTERNET"
+                    ]
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(d)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.5.5",
@@ -217,7 +424,25 @@
                     "name": "AnomalyDetectionEnabled"
                   }
                 ],
-                "name": "Anomaly Detection"
+                "name": "Anomaly Detection",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_integrity": 4,
+                    "connectivity": [
+                      "CONNECTIVITY_INTERNET"
+                    ]
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(d)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.5.6",
@@ -226,6 +451,19 @@
                 "metrics": [
                   {
                     "id": "DebugInterfacesProtected"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "The product has debug, service or manufacturing interfaces"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(d)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -237,6 +475,56 @@
             "description": "The confidentiality of stored, transmitted and otherwise processed data is protected, for example by encryption of data at rest and in transit with state of the art mechanisms (Annex I, Part I, (2)(e)).",
             "controls": [
               {
+                "id": "CRA-I-1.1.6.5",
+                "name": "Relevant data is protected",
+                "description": "Data whose confidentiality matters is identified and protected by suitable technical means against unauthorised disclosure.",
+                "metrics": [
+                  {
+                    "id": "ConfidentialDataProtected"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_confidentiality": 1
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(e)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-I-1.1.6.6",
+                "name": "Stored data is protected",
+                "description": "Confidential data that is stored is protected against unauthorised access by suitable technical means. Encryption is one of them.",
+                "metrics": [
+                  {
+                    "id": "StoredDataProtected"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_confidentiality": 3
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(e)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
+              },
+              {
                 "id": "CRA-I-1.1.6.1",
                 "description": "Data at rest must be encrypted",
                 "metrics": [
@@ -245,18 +533,58 @@
                     "name": "AtRestEncryptionEnabled"
                   }
                 ],
-                "name": "Encryption at Rest"
+                "name": "Encryption at Rest",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_confidentiality": 4,
+                    "physical_access": [
+                      "PHYSICAL_ACCESS_SUPERVISED",
+                      "PHYSICAL_ACCESS_OPEN"
+                    ]
+                  },
+                  "compensated_by": [
+                    "CRA-I-1.1.6.6"
+                  ]
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(e)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
-                "id": "CRA-I-1.1.6.2",
-                "description": "Strong cryptographic algorithms must be used",
+                "id": "CRA-I-1.1.6.7",
+                "name": "Transmitted data is protected",
+                "description": "Confidential data that is transmitted is protected against unauthorised disclosure by suitable technical means.",
                 "metrics": [
                   {
-                    "id": "14f72a16-4939-47a9-b4d7-3514ee2a8c44",
-                    "name": "StrongCryptographicHash"
+                    "id": "TransmittedDataProtected"
                   }
                 ],
-                "name": "Cryptographic Algorithm Strength"
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_confidentiality": 2,
+                    "connectivity": [
+                      "CONNECTIVITY_PRIVATE_NETWORK",
+                      "CONNECTIVITY_INTERNET"
+                    ]
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(e)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.6.3",
@@ -267,7 +595,53 @@
                     "name": "TransportEncryptionEnabled"
                   }
                 ],
-                "name": "Encryption in Transit"
+                "name": "Encryption in Transit",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_confidentiality": 3,
+                    "connectivity": [
+                      "CONNECTIVITY_PRIVATE_NETWORK",
+                      "CONNECTIVITY_INTERNET"
+                    ]
+                  },
+                  "compensated_by": [
+                    "CRA-I-1.1.6.7"
+                  ]
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(e)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-I-1.1.6.2",
+                "description": "Strong cryptographic algorithms must be used",
+                "metrics": [
+                  {
+                    "id": "14f72a16-4939-47a9-b4d7-3514ee2a8c44",
+                    "name": "StrongCryptographicHash"
+                  }
+                ],
+                "name": "Cryptographic Algorithm Strength",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "The product uses cryptography"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(e)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.6.4",
@@ -276,6 +650,19 @@
                 "metrics": [
                   {
                     "id": "KeysProtected"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "The product holds cryptographic keys or secrets"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(e)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -295,7 +682,26 @@
                     "name": "TransportEncryptionEnabled"
                   }
                 ],
-                "name": "Secure Transmission Protocols"
+                "name": "Secure Transmission Protocols",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_integrity": 2,
+                    "connectivity": [
+                      "CONNECTIVITY_PRIVATE_NETWORK",
+                      "CONNECTIVITY_INTERNET"
+                    ]
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(f)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.7.2",
@@ -306,7 +712,20 @@
                     "name": "IdentityPasswordPolicyEnabled"
                   }
                 ],
-                "name": "Password Policy Enforcement"
+                "name": "Password Policy Enforcement",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "Users or administrators authenticate with passwords"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(f)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.7.3",
@@ -319,6 +738,18 @@
                   {
                     "id": "514100d2-034f-4fa2-9254-9db272ca8ab0",
                     "name": "SoftwareAttestationEnabled"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(f)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               },
@@ -339,6 +770,75 @@
                     "id": "f6dd93c1-a244-3f37-8bdd-49161662adba",
                     "name": "PullRequestsWithReviewsPercentage"
                   }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(f)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-I-1.1.7.5",
+                "name": "Boot chain is verified",
+                "description": "The product only starts software whose integrity and origin it has verified, for example by secure boot.",
+                "metrics": [
+                  {
+                    "id": "SecureBootEnabled"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_integrity": 4,
+                    "physical_access": [
+                      "PHYSICAL_ACCESS_SUPERVISED",
+                      "PHYSICAL_ACCESS_OPEN"
+                    ]
+                  },
+                  "compensated_by": [
+                    "CRA-I-1.1.7.3"
+                  ]
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(f)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-I-1.1.7.6",
+                "name": "Corruption of data is reported",
+                "description": "Corruption of data, commands, programs or configuration is detected and reported.",
+                "metrics": [
+                  {
+                    "id": "CorruptionReported"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_integrity": 3
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(f)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               }
             ]
@@ -356,7 +856,20 @@
                     "id": "DataMinimisationTechniquesEnabled"
                   }
                 ],
-                "name": "Data Minimization"
+                "name": "Data Minimization",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "The product processes personal or other user data"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(g)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.8.2",
@@ -366,7 +879,20 @@
                     "id": "AutomatedDeletionOfDataEnabled"
                   }
                 ],
-                "name": "Automated Data Deletion"
+                "name": "Automated Data Deletion",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "The product processes personal or other user data"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(g)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               }
             ]
           },
@@ -383,7 +909,25 @@
                     "id": "DDOSMechanismActivated"
                   }
                 ],
-                "name": "DDoS Protection"
+                "name": "DDoS Protection",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_availability": 3,
+                    "connectivity": [
+                      "CONNECTIVITY_INTERNET"
+                    ]
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(h)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.9.2",
@@ -392,6 +936,43 @@
                 "metrics": [
                   {
                     "id": "EssentialFunctionsResilient"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_availability": 3
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(h)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
+              },
+              {
+                "id": "CRA-I-1.1.9.3",
+                "name": "Essential functions are identified",
+                "description": "The essential and basic functions of the product are identified and documented.",
+                "metrics": [
+                  {
+                    "id": "EssentialFunctionsIdentified"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(h)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -410,7 +991,20 @@
                     "id": "StandardProtocolsListed"
                   }
                 ],
-                "name": "Interface and Protocol Inventory"
+                "name": "Interface and Protocol Inventory",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "The product connects to other devices or networks"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(i)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               }
             ]
           },
@@ -427,7 +1021,19 @@
                     "id": "RiskAssessmentMappingtoServicesandControl"
                   }
                 ],
-                "name": "Risk Assessment Mapping"
+                "name": "Risk Assessment Mapping",
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(j)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.11.2",
@@ -437,7 +1043,19 @@
                     "id": "StandardProtocolsListed"
                   }
                 ],
-                "name": "Minimal Attack Surface"
+                "name": "Minimal Attack Surface",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(j)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               }
             ]
           },
@@ -455,7 +1073,22 @@
                     "name": "BackupEnabled"
                   }
                 ],
-                "name": "Critical Data Backup"
+                "name": "Critical Data Backup",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_availability": 3
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(k)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.12.2",
@@ -464,6 +1097,25 @@
                 "metrics": [
                   {
                     "id": "ExploitationMitigationApplied"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_integrity": 3,
+                    "connectivity": [
+                      "CONNECTIVITY_PRIVATE_NETWORK",
+                      "CONNECTIVITY_INTERNET"
+                    ]
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(k)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -483,7 +1135,22 @@
                     "name": "ActivityLoggingEnabled"
                   }
                 ],
-                "name": "Security Activity Logging"
+                "name": "Security Activity Logging",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_RISK_BASED",
+                  "scenario": {
+                    "min_integrity": 3
+                  }
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(l)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.13.2",
@@ -493,7 +1160,20 @@
                     "id": "IdentityRecentActivity"
                   }
                 ],
-                "name": "Identity Activity Tracking"
+                "name": "Identity Activity Tracking",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "The product has user accounts"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(l)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.13.3",
@@ -503,7 +1183,20 @@
                     "id": "LoggingOptOutMechanismAvailable"
                   }
                 ],
-                "name": "Logging Opt-Out"
+                "name": "Logging Opt-Out",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "The product records security relevant activity"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(l)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.13.4",
@@ -513,7 +1206,20 @@
                     "id": "SecurityDataAvailableToUser"
                   }
                 ],
-                "name": "Security Data Access"
+                "name": "Security Data Access",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "The product records security relevant activity"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(l)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               }
             ]
           },
@@ -530,7 +1236,20 @@
                     "id": "SecureDataDeletionMechanismActivated"
                   }
                 ],
-                "name": "Secure Data Deletion"
+                "name": "Secure Data Deletion",
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "The product stores user data or settings"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(m)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
+                ]
               },
               {
                 "id": "CRA-I-1.1.14.2",
@@ -539,6 +1258,19 @@
                 "metrics": [
                   {
                     "id": "DataTransferSecure"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "Data can be transferred to other products or systems"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part I, (2)(m)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -563,6 +1295,18 @@
                   {
                     "id": "SbomAvailable"
                   }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (1)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               },
               {
@@ -572,6 +1316,18 @@
                 "metrics": [
                   {
                     "id": "SbomComplete"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (1)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -590,6 +1346,18 @@
                   {
                     "id": "VulnerabilityRemediationTimely"
                   }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (2)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               },
               {
@@ -599,6 +1367,19 @@
                 "metrics": [
                   {
                     "id": "SecurityUpdatesSeparable"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_CONDITIONAL",
+                  "condition": "Separating security updates from functionality updates is technically feasible"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (2)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -616,6 +1397,18 @@
                 "metrics": [
                   {
                     "id": "SecurityTestingRegular"
+                  }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (3)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               },
@@ -636,6 +1429,18 @@
                     "id": "6d4bece9-a59d-35ce-aeba-a6e1092a3e23",
                     "name": "PullRequestsWithReviewsPercentageLastMonth"
                   }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (3)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               }
             ]
@@ -652,6 +1457,18 @@
                 "metrics": [
                   {
                     "id": "FixedVulnerabilitiesDisclosed"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (4)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               },
@@ -672,6 +1489,18 @@
                     "id": "56ab82ed-e3f2-49e3-9acf-0b5c1fa744d1",
                     "name": "DocumentCSAFTransportEncryption"
                   }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (4)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               }
             ]
@@ -688,6 +1517,18 @@
                 "metrics": [
                   {
                     "id": "CvdPolicyPublished"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (5)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -706,6 +1547,18 @@
                   {
                     "id": "VulnerabilityContactProvided"
                   }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (6)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               }
             ]
@@ -722,6 +1575,18 @@
                 "metrics": [
                   {
                     "id": "UpdatesDistributedSecurely"
+                  }
+                ],
+                "type": "CONTROL_TYPE_TECHNICAL",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (7)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -740,6 +1605,18 @@
                   {
                     "id": "SecurityPatchesTimely"
                   }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (8)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               },
               {
@@ -749,6 +1626,18 @@
                 "metrics": [
                   {
                     "id": "SecurityPatchesFree"
+                  }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Annex I, Part II, (8)",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -773,6 +1662,18 @@
                   {
                     "id": "ComponentDueDiligence"
                   }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Art. 13",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               }
             ]
@@ -790,6 +1691,18 @@
                   {
                     "id": "SupportPeriodDetermined"
                   }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Art. 13",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               },
               {
@@ -799,6 +1712,18 @@
                 "metrics": [
                   {
                     "id": "SupportPeriodCommunicated"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Art. 13",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -817,6 +1742,18 @@
                   {
                     "id": "UserInformationProvided"
                   }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Art. 13, Annex II",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               }
             ]
@@ -833,6 +1770,18 @@
                 "metrics": [
                   {
                     "id": "DocumentationRetained"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Art. 13",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -861,6 +1810,18 @@
                     "id": "5df7827e-00b2-4086-af1a-ed4c3b8ce397",
                     "name": "IncidentReportingTeam"
                   }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Art. 14",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               },
               {
@@ -870,6 +1831,18 @@
                 "metrics": [
                   {
                     "id": "ExploitedVulnerabilitiesReportedInTime"
+                  }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Art. 14",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               },
@@ -881,6 +1854,18 @@
                   {
                     "id": "SevereIncidentsReportedInTime"
                   }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Art. 14",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               },
               {
@@ -890,6 +1875,18 @@
                 "metrics": [
                   {
                     "id": "UsersInformedOfIncidents"
+                  }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Art. 14",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -914,6 +1911,18 @@
                   {
                     "id": "ProductClassDetermined"
                   }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Arts. 7, 8, 32, Annex VIII",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               },
               {
@@ -923,6 +1932,18 @@
                 "metrics": [
                   {
                     "id": "ConformityRouteCompleted"
+                  }
+                ],
+                "type": "CONTROL_TYPE_ACTIVITY",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Arts. 7, 8, 32, Annex VIII",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -941,6 +1962,18 @@
                   {
                     "id": "TechnicalDocumentationComplete"
                   }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Art. 31, Annex VII",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               }
             ]
@@ -958,6 +1991,18 @@
                   {
                     "id": "DeclarationOfConformityIssued"
                   }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Arts. 28, 29, Annex V",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+                  }
                 ]
               },
               {
@@ -967,6 +2012,18 @@
                 "metrics": [
                   {
                     "id": "CeMarkingAffixed"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Arts. 28, 29, Annex V",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }
@@ -984,6 +2041,18 @@
                 "metrics": [
                   {
                     "id": "ProductIdentified"
+                  }
+                ],
+                "type": "CONTROL_TYPE_DOCUMENTATION",
+                "applicability": {
+                  "kind": "APPLICABILITY_KIND_ALWAYS"
+                },
+                "references": [
+                  {
+                    "framework": "CRA",
+                    "identifier": "Art. 13",
+                    "relationship": "legal-basis",
+                    "url": "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
                   }
                 ]
               }

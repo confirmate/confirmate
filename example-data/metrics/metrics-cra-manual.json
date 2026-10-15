@@ -30,10 +30,40 @@
     }
   },
   {
+    "id": "ConfidentialDataProtected",
+    "name": "ConfidentialDataProtected",
+    "description": "Data whose confidentiality matters is identified and protected against unauthorised disclosure",
+    "category": "Data Protection",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
     "id": "ConformityRouteCompleted",
     "name": "ConformityRouteCompleted",
     "description": "The conformity assessment procedure for the product class is carried out",
     "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "CorruptionReported",
+    "name": "CorruptionReported",
+    "description": "Corruption of data, programs or configuration is detected and reported",
+    "category": "Application Security",
     "scale": 1,
     "range": {
       "allowedValues": {
@@ -108,6 +138,21 @@
     "id": "DocumentationRetained",
     "name": "DocumentationRetained",
     "description": "Technical documentation and EU declaration of conformity are retained for the required period",
+    "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "EssentialFunctionsIdentified",
+    "name": "EssentialFunctionsIdentified",
+    "description": "The essential and basic functions of the product are identified and documented",
     "category": "Governance",
     "scale": 1,
     "range": {
@@ -330,6 +375,21 @@
     }
   },
   {
+    "id": "SecureBootEnabled",
+    "name": "SecureBootEnabled",
+    "description": "The product verifies the integrity and origin of the software it starts",
+    "category": "Application Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
     "id": "SecurityPatchesFree",
     "name": "SecurityPatchesFree",
     "description": "Security patches are provided free of charge with advisory messages",
@@ -364,6 +424,21 @@
     "name": "SecurityTestingRegular",
     "description": "Security tests and scans run regularly and for every release",
     "category": "Application Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SecurityUpdatesPossible",
+    "name": "SecurityUpdatesPossible",
+    "description": "The product can receive and install security updates",
+    "category": "Vulnerability Management",
     "scale": 1,
     "range": {
       "allowedValues": {
@@ -420,6 +495,21 @@
     }
   },
   {
+    "id": "StoredDataProtected",
+    "name": "StoredDataProtected",
+    "description": "Stored confidential data is protected by suitable technical means",
+    "category": "Storage Encryption",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
     "id": "SupportPeriodCommunicated",
     "name": "SupportPeriodCommunicated",
     "description": "The support period is stated to users",
@@ -454,6 +544,21 @@
     "name": "TechnicalDocumentationComplete",
     "description": "The technical documentation is complete according to Annex VII and up to date",
     "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "TransmittedDataProtected",
+    "name": "TransmittedDataProtected",
+    "description": "Transmitted confidential data is protected by suitable technical means",
+    "category": "Transport Encryption",
     "scale": 1,
     "range": {
       "allowedValues": {
