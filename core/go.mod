@@ -27,7 +27,7 @@ require (
 	buf.build/go/protovalidate v1.4.0
 	cel.dev/expr v0.25.3 // indirect
 	connectrpc.com/connect v1.21.0
-	connectrpc.com/grpcreflect v1.3.0
+	connectrpc.com/grpcreflect v1.3.1
 	connectrpc.com/vanguard v0.4.0
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/google/uuid v1.6.0
