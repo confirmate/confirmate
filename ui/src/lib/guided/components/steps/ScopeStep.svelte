@@ -17,7 +17,7 @@
 		return group.rows.filter(
 			(r) =>
 				filter === 'All' ||
-				(filter === 'Need a decision' && (r.suggestion || r.missingReason)) ||
+				(filter === 'Need a decision' && (r.suggestion || r.missingReason || group.empty)) ||
 				(filter === 'Not applicable' && r.treatment === 'na') ||
 				(filter === 'Accepted risk' && r.treatment === 'risk')
 		);
@@ -49,7 +49,6 @@
 
 	<div class="flex flex-col gap-5">
 		{#each shown as g (g.group.id)}
-			{@const all = g.rows.every((r) => r.treatment === 'na')}
 			<section class="overflow-hidden rounded-card border border-line bg-surface">
 				<div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line bg-sunken px-6 py-3.5">
 					<div class="flex flex-col">
@@ -62,10 +61,10 @@
 						{g.rows.filter((r) => r.treatment === 'risk').length} accepted risk
 					</span>
 				</div>
-				{#if all}
-					<div class="bg-warn-soft px-6 py-2.5 text-sm text-warn-ink">
-						Every requirement of this point is not applicable. The whole point drops out, so please check that this is
-						really what you mean.
+				{#if g.empty}
+					<div class="bg-bad-soft px-6 py-2.5 text-sm text-bad-ink" role="alert">
+						Your answers took out every requirement of this point. A point cannot drop out as a whole: keep at least one
+						requirement, and if you do not implement it, accept the residual risk.
 					</div>
 				{/if}
 				{#each g.visible as row (row.requirement.id)}

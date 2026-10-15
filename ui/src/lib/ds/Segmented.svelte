@@ -6,7 +6,7 @@
 		onchange
 	}: {
 		label: string;
-		options: { value: string; label: string }[];
+		options: { value: string; label: string; disabled?: boolean; title?: string }[];
 		value?: string;
 		onchange?: (value: string) => void;
 	} = $props();
@@ -16,6 +16,8 @@
 	{#each options as o (o.value)}
 		<button
 			type="button"
+			disabled={o.disabled}
+			title={o.title}
 			aria-pressed={value === o.value}
 			onclick={() => {
 				value = o.value;
@@ -23,7 +25,7 @@
 			}}
 			class="min-h-11 cursor-pointer px-4.5 font-body {value === o.value
 				? 'bg-brand font-medium text-on-brand'
-				: 'bg-surface text-ink hover:bg-sunken'}"
+				: 'bg-surface text-ink hover:bg-sunken'} disabled:cursor-not-allowed disabled:text-ink-muted disabled:opacity-60 disabled:hover:bg-surface"
 		>
 			{o.label}
 		</button>

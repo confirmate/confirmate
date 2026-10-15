@@ -358,17 +358,6 @@ export const realSource: GuidedSource = {
 					source: row.source === 'rule' ? 'SCOPE_DECISION_SOURCE_RULE' : 'SCOPE_DECISION_SOURCE_MANUAL'
 				});
 			}
-
-			// If every requirement of a point is not applicable, the point drops out as well.
-			const parentId = byShortName.get(g.group.id);
-			if (parentId && g.rows.length > 0 && g.rows.every((r) => r.treatment === 'na')) {
-				decisions.push({
-					controlId: parentId,
-					inScope: false,
-					justification: 'Every requirement of this point is not applicable.',
-					source: 'SCOPE_DECISION_SOURCE_MANUAL'
-				});
-			}
 		}
 
 		const assessmentRes = await client.POST('/v1/orchestrator/risk_assessments', {
