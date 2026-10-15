@@ -1,14 +1,89 @@
 version: 2
 updates:
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/core" # Location of package manifests
+  - package-ecosystem: "gomod"
+    directory: "/core"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/collectors/cloud" # Location of package manifests
+    groups:
+      # Minor and patch updates come in one pull request. Major updates stay separate.
+      go-core:
+        update-types:
+          - "minor"
+          - "patch"
+        exclude-patterns:
+          # 0.x modules whose minor updates have broken the build before (pdfcpu 0.16 vs. maroto)
+          - "github.com/pdfcpu/pdfcpu"
+          - "github.com/johnfercher/maroto/*"
+  - package-ecosystem: "gomod"
+    directory: "/collectors/cloud"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "gitsubmodule" # See documentation for possible values
-    directory: "/" # Location of package manifests
+    groups:
+      aws-sdk:
+        patterns:
+          - "github.com/aws/*"
+      kubernetes:
+        patterns:
+          - "k8s.io/*"
+          - "sigs.k8s.io/*"
+      azure-sdk:
+        patterns:
+          - "github.com/Azure/*"
+        exclude-patterns:
+          # armmonitor 0.12 removed DiagnosticSettingsClient, which the Azure collector uses
+          - "github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/monitor/armmonitor"
+      go-collectors:
+        update-types:
+          - "minor"
+          - "patch"
+        exclude-patterns:
+          - "github.com/pdfcpu/pdfcpu"
+          - "github.com/johnfercher/maroto/*"
+  - package-ecosystem: "npm"
+    directory: "/ui"
+    schedule:
+      interval: "weekly"
+    groups:
+      # The SvelteKit packages are released together and have to match
+      sveltekit:
+        patterns:
+          - "@sveltejs/*"
+          - "svelte"
+          - "svelte-check"
+          - "vite"
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+      ui-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      docker:
+        patterns:
+          - "*"
+  - package-ecosystem: "pip"
+    directory: "/collectors/documents"
+    schedule:
+      interval: "weekly"
+    groups:
+      python:
+        patterns:
+          - "*"
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
     schedule:
       interval: "daily"
