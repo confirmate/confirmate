@@ -1,0 +1,153 @@
+// Copyright 2026 Fraunhofer AISEC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+package confirmate.orchestrator.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "tagger/tagger.proto";
+
+option go_package = "confirmate.io/core/api/orchestrator";
+
+// RiskAssessmentStatus is the lifecycle status of a risk assessment.
+enum RiskAssessmentStatus {
+  RISK_ASSESSMENT_STATUS_UNSPECIFIED = 0;
+  // The assessment is prepared, but its scope decisions are not applied yet.
+  RISK_ASSESSMENT_STATUS_DRAFT = 1;
+  // The assessment is approved and its scope decisions are applied. There is
+  // at most one approved assessment per audit scope.
+  RISK_ASSESSMENT_STATUS_APPROVED = 2;
+  // The assessment was approved once and has been replaced by a newer one.
+  RISK_ASSESSMENT_STATUS_SUPERSEDED = 3;
+}
+
+// RiskAssessmentMethod describes how a risk assessment was made.
+enum RiskAssessmentMethod {
+  RISK_ASSESSMENT_METHOD_UNSPECIFIED = 0;
+  // A short built-in questionnaire.
+  RISK_ASSESSMENT_METHOD_BUILT_IN = 1;
+  // The result of an external tool, for example QuBA-libre.
+  RISK_ASSESSMENT_METHOD_IMPORT = 2;
+  // A document that was uploaded, with the scope decisions made by a person.
+  RISK_ASSESSMENT_METHOD_DOCUMENT = 3;
+}
+
+// ScopeDecisionSource tells where a scope decision comes from.
+enum ScopeDecisionSource {
+  SCOPE_DECISION_SOURCE_UNSPECIFIED = 0;
+  // Derived from the answers of the built-in questionnaire.
+  SCOPE_DECISION_SOURCE_RULE = 1;
+  // Taken from an imported assessment.
+  SCOPE_DECISION_SOURCE_IMPORT = 2;
+  // Decided by a person.
+  SCOPE_DECISION_SOURCE_MANUAL = 3;
+}
+
+// ScopeDecision says whether a control is in the scope of an audit scope, and why.
+message ScopeDecision {
+  // The control the decision is about.
+  string control_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Whether the control is in scope.
+  bool in_scope = 2;
+
+  // The reason for the decision. It is required if the control is out of scope.
+  string justification = 3;
+
+  // Where the decision comes from.
+  ScopeDecisionSource source = 4 [(buf.validate.field).enum.defined_only = true];
+
+  option (buf.validate.message).cel = {
+    id: "justification_for_out_of_scope"
+    message: "a control that is out of scope needs a justification"
+    expression: "this.in_scope || size(this.justification) > 0"
+  };
+}
+
+// RiskAssessment is the cybersecurity risk assessment of a target of evaluation and the decisions about the scope
+// that follow from it. Confirmate stores and applies it; it does not replace a full risk assessment tool.
+message RiskAssessment {
+  string id = 1 [
+    (tagger.tags) = "gorm:\"primaryKey\"",
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string target_of_evaluation_id = 2 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The audit scope whose controls in scope follow from the assessment.
+  string audit_scope_id = 3 [
+    (tagger.tags) = "gorm:\"index:idx_risk_assessments_audit_scope\"",
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The version of the assessment within its audit scope, starting at 1.
+  int32 version = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  RiskAssessmentStatus status = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  RiskAssessmentMethod method = 6 [
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    },
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The tool of an imported assessment, for example "QuBA-libre".
+  optional string tool = 7;
+
+  // The version of that tool.
+  optional string tool_version = 8;
+
+  // A short summary of the assessment in the words of the author.
+  string summary = 9;
+
+  // A document of the assessment, stored as evidence before.
+  optional string document_evidence_id = 10 [(buf.validate.field).string.uuid = true];
+
+  // The answers of the built-in questionnaire by question ID.
+  map<string, string> answers = 11 [(tagger.tags) = "gorm:\"serializer:json\""];
+
+  // The decisions about the scope. Controls without a decision stay as they are.
+  repeated ScopeDecision decisions = 12 [(tagger.tags) = "gorm:\"serializer:json\""];
+
+  google.protobuf.Timestamp created_at = 13 [
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The ID of the user who created the assessment, if known.
+  optional string created_by = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  optional google.protobuf.Timestamp approved_at = 15 [
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The ID of the user who approved the assessment, if known.
+  optional string approved_by = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time by which the assessment has to be reviewed. If omitted, it is one year after the approval.
+  optional google.protobuf.Timestamp review_due_at = 17 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+}

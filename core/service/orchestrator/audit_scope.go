@@ -317,34 +317,44 @@ func autoCreateControlsInScope(ctx context.Context, tx persistence.DB, scope *or
 			continue
 		}
 		seen[ctrl.Id] = true
-		// Skip only when both levels are explicitly set and differ. Controls without an
-		// assurance level are included in every scope regardless of the scope's level.
-		if scope.AssuranceLevel != nil && ctrl.AssuranceLevel != nil &&
-			*scope.AssuranceLevel != *ctrl.AssuranceLevel {
+		if !matchesAssuranceLevel(scope, ctrl) {
 			continue
 		}
-		cis := &orchestrator.ControlInScope{
-			Id:                   uuid.NewString(),
-			AuditScopeId:         scope.Id,
-			TargetOfEvaluationId: scope.TargetOfEvaluationId,
-			ControlId:            ctrl.Id,
-			State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
-			CreatedAt:            now,
-			UpdatedAt:            now,
-		}
-		if err := tx.Create(cis); err != nil {
-			return service.HandleDatabaseError(err)
-		}
-		if err := createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, cis.Id, "",
-			&orchestrator.ControlScopingEvent{
-				ControlInScopeId: cis.Id,
-				ControlId:        cis.ControlId,
-				AuditScopeId:     cis.AuditScopeId,
-				InScope:          true,
-			}); err != nil {
+		if err := addControlInScope(ctx, tx, scope, ctrl.Id, now); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// addControlInScope brings a control into the scope of an audit scope in the open state and records it in the audit
+// trail. It has to be called within a transaction.
+func addControlInScope(ctx context.Context, tx persistence.DB, scope *orchestrator.AuditScope, controlId string, now *timestamppb.Timestamp) error {
+	cis := &orchestrator.ControlInScope{
+		Id:                   uuid.NewString(),
+		AuditScopeId:         scope.Id,
+		TargetOfEvaluationId: scope.TargetOfEvaluationId,
+		ControlId:            controlId,
+		State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
+		CreatedAt:            now,
+		UpdatedAt:            now,
+	}
+	if err := tx.Create(cis); err != nil {
+		return service.HandleDatabaseError(err)
+	}
+
+	return createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, cis.Id, "",
+		&orchestrator.ControlScopingEvent{
+			ControlInScopeId: cis.Id,
+			ControlId:        cis.ControlId,
+			AuditScopeId:     cis.AuditScopeId,
+			InScope:          true,
+		})
+}
+
+// matchesAssuranceLevel returns false only when both levels are explicitly set and differ. Controls without an
+// assurance level are included in every scope regardless of the scope's level.
+func matchesAssuranceLevel(scope *orchestrator.AuditScope, ctrl *orchestrator.Control) bool {
+	return scope.AssuranceLevel == nil || ctrl.AssuranceLevel == nil || *scope.AssuranceLevel == *ctrl.AssuranceLevel
 }

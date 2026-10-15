@@ -196,6 +196,7 @@ permission update call.
   - `service/orchestrator/audit_scope.go`
   - `service/orchestrator/certificates.go`
   - `service/orchestrator/assessment_results.go`
+  - `service/orchestrator/risk_assessments.go`
   - `service/orchestrator/user.go`
 - Temporary exception: `ListUsers` (`/users`) and `GetUser` (`/users/{user_id}`) are
   accessible to all authenticated users as a stopgap until fine-grained user access

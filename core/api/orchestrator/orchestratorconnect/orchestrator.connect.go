@@ -243,6 +243,18 @@ const (
 	// OrchestratorRemoveControlInScopeProcedure is the fully-qualified name of the Orchestrator's
 	// RemoveControlInScope RPC.
 	OrchestratorRemoveControlInScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveControlInScope"
+	// OrchestratorCreateRiskAssessmentProcedure is the fully-qualified name of the Orchestrator's
+	// CreateRiskAssessment RPC.
+	OrchestratorCreateRiskAssessmentProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateRiskAssessment"
+	// OrchestratorGetRiskAssessmentProcedure is the fully-qualified name of the Orchestrator's
+	// GetRiskAssessment RPC.
+	OrchestratorGetRiskAssessmentProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetRiskAssessment"
+	// OrchestratorListRiskAssessmentsProcedure is the fully-qualified name of the Orchestrator's
+	// ListRiskAssessments RPC.
+	OrchestratorListRiskAssessmentsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListRiskAssessments"
+	// OrchestratorApproveRiskAssessmentProcedure is the fully-qualified name of the Orchestrator's
+	// ApproveRiskAssessment RPC.
+	OrchestratorApproveRiskAssessmentProcedure = "/confirmate.orchestrator.v1.Orchestrator/ApproveRiskAssessment"
 	// OrchestratorListAuditTrailEventsProcedure is the fully-qualified name of the Orchestrator's
 	// ListAuditTrailEvents RPC.
 	OrchestratorListAuditTrailEventsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListAuditTrailEvents"
@@ -410,6 +422,16 @@ type OrchestratorClient interface {
 	TransitionControlInScopeState(context.Context, *connect.Request[orchestrator.TransitionControlInScopeStateRequest]) (*connect.Response[orchestrator.ControlInScope], error)
 	// Manually removes a control from scope within an audit scope, creating an AuditTrailEvent.
 	RemoveControlInScope(context.Context, *connect.Request[orchestrator.RemoveControlInScopeRequest]) (*connect.Response[emptypb.Empty], error)
+	// Stores a risk assessment as a draft. Its scope decisions are applied when it is approved.
+	CreateRiskAssessment(context.Context, *connect.Request[orchestrator.CreateRiskAssessmentRequest]) (*connect.Response[orchestrator.RiskAssessment], error)
+	// Retrieves a risk assessment by ID.
+	GetRiskAssessment(context.Context, *connect.Request[orchestrator.GetRiskAssessmentRequest]) (*connect.Response[orchestrator.RiskAssessment], error)
+	// Lists risk assessments, optionally filtered by audit scope or target of evaluation.
+	ListRiskAssessments(context.Context, *connect.Request[orchestrator.ListRiskAssessmentsRequest]) (*connect.Response[orchestrator.ListRiskAssessmentsResponse], error)
+	// Approves a draft risk assessment and applies its scope decisions to the audit scope: controls that are out
+	// of scope are removed from it (with the justification in the audit trail) and controls that are in scope again
+	// are added. The assessment that was approved before is superseded.
+	ApproveRiskAssessment(context.Context, *connect.Request[orchestrator.ApproveRiskAssessmentRequest]) (*connect.Response[orchestrator.RiskAssessment], error)
 	// Lists audit trail events, optionally filtered by audit scope.
 	ListAuditTrailEvents(context.Context, *connect.Request[orchestrator.ListAuditTrailEventsRequest]) (*connect.Response[orchestrator.ListAuditTrailEventsResponse], error)
 }
@@ -821,6 +843,30 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("RemoveControlInScope")),
 			connect.WithClientOptions(opts...),
 		),
+		createRiskAssessment: connect.NewClient[orchestrator.CreateRiskAssessmentRequest, orchestrator.RiskAssessment](
+			httpClient,
+			baseURL+OrchestratorCreateRiskAssessmentProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("CreateRiskAssessment")),
+			connect.WithClientOptions(opts...),
+		),
+		getRiskAssessment: connect.NewClient[orchestrator.GetRiskAssessmentRequest, orchestrator.RiskAssessment](
+			httpClient,
+			baseURL+OrchestratorGetRiskAssessmentProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("GetRiskAssessment")),
+			connect.WithClientOptions(opts...),
+		),
+		listRiskAssessments: connect.NewClient[orchestrator.ListRiskAssessmentsRequest, orchestrator.ListRiskAssessmentsResponse](
+			httpClient,
+			baseURL+OrchestratorListRiskAssessmentsProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("ListRiskAssessments")),
+			connect.WithClientOptions(opts...),
+		),
+		approveRiskAssessment: connect.NewClient[orchestrator.ApproveRiskAssessmentRequest, orchestrator.RiskAssessment](
+			httpClient,
+			baseURL+OrchestratorApproveRiskAssessmentProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("ApproveRiskAssessment")),
+			connect.WithClientOptions(opts...),
+		),
 		listAuditTrailEvents: connect.NewClient[orchestrator.ListAuditTrailEventsRequest, orchestrator.ListAuditTrailEventsResponse](
 			httpClient,
 			baseURL+OrchestratorListAuditTrailEventsProcedure,
@@ -898,6 +944,10 @@ type orchestratorClient struct {
 	updateControlInScope            *connect.Client[orchestrator.UpdateControlInScopeRequest, orchestrator.ControlInScope]
 	transitionControlInScopeState   *connect.Client[orchestrator.TransitionControlInScopeStateRequest, orchestrator.ControlInScope]
 	removeControlInScope            *connect.Client[orchestrator.RemoveControlInScopeRequest, emptypb.Empty]
+	createRiskAssessment            *connect.Client[orchestrator.CreateRiskAssessmentRequest, orchestrator.RiskAssessment]
+	getRiskAssessment               *connect.Client[orchestrator.GetRiskAssessmentRequest, orchestrator.RiskAssessment]
+	listRiskAssessments             *connect.Client[orchestrator.ListRiskAssessmentsRequest, orchestrator.ListRiskAssessmentsResponse]
+	approveRiskAssessment           *connect.Client[orchestrator.ApproveRiskAssessmentRequest, orchestrator.RiskAssessment]
 	listAuditTrailEvents            *connect.Client[orchestrator.ListAuditTrailEventsRequest, orchestrator.ListAuditTrailEventsResponse]
 }
 
@@ -1237,6 +1287,26 @@ func (c *orchestratorClient) RemoveControlInScope(ctx context.Context, req *conn
 	return c.removeControlInScope.CallUnary(ctx, req)
 }
 
+// CreateRiskAssessment calls confirmate.orchestrator.v1.Orchestrator.CreateRiskAssessment.
+func (c *orchestratorClient) CreateRiskAssessment(ctx context.Context, req *connect.Request[orchestrator.CreateRiskAssessmentRequest]) (*connect.Response[orchestrator.RiskAssessment], error) {
+	return c.createRiskAssessment.CallUnary(ctx, req)
+}
+
+// GetRiskAssessment calls confirmate.orchestrator.v1.Orchestrator.GetRiskAssessment.
+func (c *orchestratorClient) GetRiskAssessment(ctx context.Context, req *connect.Request[orchestrator.GetRiskAssessmentRequest]) (*connect.Response[orchestrator.RiskAssessment], error) {
+	return c.getRiskAssessment.CallUnary(ctx, req)
+}
+
+// ListRiskAssessments calls confirmate.orchestrator.v1.Orchestrator.ListRiskAssessments.
+func (c *orchestratorClient) ListRiskAssessments(ctx context.Context, req *connect.Request[orchestrator.ListRiskAssessmentsRequest]) (*connect.Response[orchestrator.ListRiskAssessmentsResponse], error) {
+	return c.listRiskAssessments.CallUnary(ctx, req)
+}
+
+// ApproveRiskAssessment calls confirmate.orchestrator.v1.Orchestrator.ApproveRiskAssessment.
+func (c *orchestratorClient) ApproveRiskAssessment(ctx context.Context, req *connect.Request[orchestrator.ApproveRiskAssessmentRequest]) (*connect.Response[orchestrator.RiskAssessment], error) {
+	return c.approveRiskAssessment.CallUnary(ctx, req)
+}
+
 // ListAuditTrailEvents calls confirmate.orchestrator.v1.Orchestrator.ListAuditTrailEvents.
 func (c *orchestratorClient) ListAuditTrailEvents(ctx context.Context, req *connect.Request[orchestrator.ListAuditTrailEventsRequest]) (*connect.Response[orchestrator.ListAuditTrailEventsResponse], error) {
 	return c.listAuditTrailEvents.CallUnary(ctx, req)
@@ -1404,6 +1474,16 @@ type OrchestratorHandler interface {
 	TransitionControlInScopeState(context.Context, *connect.Request[orchestrator.TransitionControlInScopeStateRequest]) (*connect.Response[orchestrator.ControlInScope], error)
 	// Manually removes a control from scope within an audit scope, creating an AuditTrailEvent.
 	RemoveControlInScope(context.Context, *connect.Request[orchestrator.RemoveControlInScopeRequest]) (*connect.Response[emptypb.Empty], error)
+	// Stores a risk assessment as a draft. Its scope decisions are applied when it is approved.
+	CreateRiskAssessment(context.Context, *connect.Request[orchestrator.CreateRiskAssessmentRequest]) (*connect.Response[orchestrator.RiskAssessment], error)
+	// Retrieves a risk assessment by ID.
+	GetRiskAssessment(context.Context, *connect.Request[orchestrator.GetRiskAssessmentRequest]) (*connect.Response[orchestrator.RiskAssessment], error)
+	// Lists risk assessments, optionally filtered by audit scope or target of evaluation.
+	ListRiskAssessments(context.Context, *connect.Request[orchestrator.ListRiskAssessmentsRequest]) (*connect.Response[orchestrator.ListRiskAssessmentsResponse], error)
+	// Approves a draft risk assessment and applies its scope decisions to the audit scope: controls that are out
+	// of scope are removed from it (with the justification in the audit trail) and controls that are in scope again
+	// are added. The assessment that was approved before is superseded.
+	ApproveRiskAssessment(context.Context, *connect.Request[orchestrator.ApproveRiskAssessmentRequest]) (*connect.Response[orchestrator.RiskAssessment], error)
 	// Lists audit trail events, optionally filtered by audit scope.
 	ListAuditTrailEvents(context.Context, *connect.Request[orchestrator.ListAuditTrailEventsRequest]) (*connect.Response[orchestrator.ListAuditTrailEventsResponse], error)
 }
@@ -1811,6 +1891,30 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("RemoveControlInScope")),
 		connect.WithHandlerOptions(opts...),
 	)
+	orchestratorCreateRiskAssessmentHandler := connect.NewUnaryHandler(
+		OrchestratorCreateRiskAssessmentProcedure,
+		svc.CreateRiskAssessment,
+		connect.WithSchema(orchestratorMethods.ByName("CreateRiskAssessment")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorGetRiskAssessmentHandler := connect.NewUnaryHandler(
+		OrchestratorGetRiskAssessmentProcedure,
+		svc.GetRiskAssessment,
+		connect.WithSchema(orchestratorMethods.ByName("GetRiskAssessment")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorListRiskAssessmentsHandler := connect.NewUnaryHandler(
+		OrchestratorListRiskAssessmentsProcedure,
+		svc.ListRiskAssessments,
+		connect.WithSchema(orchestratorMethods.ByName("ListRiskAssessments")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorApproveRiskAssessmentHandler := connect.NewUnaryHandler(
+		OrchestratorApproveRiskAssessmentProcedure,
+		svc.ApproveRiskAssessment,
+		connect.WithSchema(orchestratorMethods.ByName("ApproveRiskAssessment")),
+		connect.WithHandlerOptions(opts...),
+	)
 	orchestratorListAuditTrailEventsHandler := connect.NewUnaryHandler(
 		OrchestratorListAuditTrailEventsProcedure,
 		svc.ListAuditTrailEvents,
@@ -1951,6 +2055,14 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorTransitionControlInScopeStateHandler.ServeHTTP(w, r)
 		case OrchestratorRemoveControlInScopeProcedure:
 			orchestratorRemoveControlInScopeHandler.ServeHTTP(w, r)
+		case OrchestratorCreateRiskAssessmentProcedure:
+			orchestratorCreateRiskAssessmentHandler.ServeHTTP(w, r)
+		case OrchestratorGetRiskAssessmentProcedure:
+			orchestratorGetRiskAssessmentHandler.ServeHTTP(w, r)
+		case OrchestratorListRiskAssessmentsProcedure:
+			orchestratorListRiskAssessmentsHandler.ServeHTTP(w, r)
+		case OrchestratorApproveRiskAssessmentProcedure:
+			orchestratorApproveRiskAssessmentHandler.ServeHTTP(w, r)
 		case OrchestratorListAuditTrailEventsProcedure:
 			orchestratorListAuditTrailEventsHandler.ServeHTTP(w, r)
 		default:
@@ -2224,6 +2336,22 @@ func (UnimplementedOrchestratorHandler) TransitionControlInScopeState(context.Co
 
 func (UnimplementedOrchestratorHandler) RemoveControlInScope(context.Context, *connect.Request[orchestrator.RemoveControlInScopeRequest]) (*connect.Response[emptypb.Empty], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveControlInScope is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) CreateRiskAssessment(context.Context, *connect.Request[orchestrator.CreateRiskAssessmentRequest]) (*connect.Response[orchestrator.RiskAssessment], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.CreateRiskAssessment is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) GetRiskAssessment(context.Context, *connect.Request[orchestrator.GetRiskAssessmentRequest]) (*connect.Response[orchestrator.RiskAssessment], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetRiskAssessment is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) ListRiskAssessments(context.Context, *connect.Request[orchestrator.ListRiskAssessmentsRequest]) (*connect.Response[orchestrator.ListRiskAssessmentsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListRiskAssessments is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) ApproveRiskAssessment(context.Context, *connect.Request[orchestrator.ApproveRiskAssessmentRequest]) (*connect.Response[orchestrator.RiskAssessment], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ApproveRiskAssessment is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) ListAuditTrailEvents(context.Context, *connect.Request[orchestrator.ListAuditTrailEventsRequest]) (*connect.Response[orchestrator.ListAuditTrailEventsResponse], error) {
