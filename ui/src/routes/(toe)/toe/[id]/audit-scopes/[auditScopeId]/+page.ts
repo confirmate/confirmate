@@ -1,6 +1,6 @@
-import { orchestratorClient } from '$lib/api/client';
+import { orchestratorClient } from '#lib/api/client.js';
 import { error } from '@sveltejs/kit';
-import type { SchemaControl } from '$lib/api/openapi/orchestrator';
+import type { SchemaControl } from '#lib/api/openapi/orchestrator.js';
 import {
 	bucketControlsByCategory,
 	countAssessmentsByMetric,
@@ -8,7 +8,7 @@ import {
 	indexControlsById,
 	indexControlsInScope,
 	indexEvaluationsByControl
-} from '$lib/auditScope';
+} from '#lib/auditScope.js';
 import type { PageLoad } from './$types';
 
 export const load = (async ({ params, fetch, depends, url }) => {

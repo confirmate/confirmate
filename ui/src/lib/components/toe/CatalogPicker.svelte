@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SchemaCatalog } from '$lib/api/openapi/orchestrator';
+	import type { SchemaCatalog } from '#lib/api/openapi/orchestrator.js';
 
 	let {
 		catalogs,

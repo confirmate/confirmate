@@ -2,8 +2,8 @@
 	import { XMark } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { invalidateAll } from '$app/navigation';
-	import { orchestratorClient } from '$lib/api/client';
-	import type { SchemaControlInScope } from '$lib/api/openapi/orchestrator';
+	import { orchestratorClient } from '#lib/api/client.js';
+	import type { SchemaControlInScope } from '#lib/api/openapi/orchestrator.js';
 
 	type State = NonNullable<SchemaControlInScope['state']>;
 

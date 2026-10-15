@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import type { SchemaUser } from '$lib/api/openapi/orchestrator';
-	import { logout } from '$lib/auth';
-	import { roleLabel } from '$lib/roles';
+	import type { SchemaUser } from '#lib/api/openapi/orchestrator.js';
+	import { logout } from '#lib/auth.js';
+	import { roleLabel } from '#lib/roles.js';
 
 	let { currentUser = null }: { currentUser?: SchemaUser | null } = $props();
 
 	const links = [
-		{ name: 'Dashboard', href: resolve('/dashboard/') },
-		{ name: 'Targets', href: resolve('/toe/') },
-		{ name: 'Metrics', href: resolve('/metrics/') },
-		{ name: 'Users', href: resolve('/users/') }
+		{ name: 'Dashboard', href: resolve('dashboard/') },
+		{ name: 'Targets', href: resolve('toe/') },
+		{ name: 'Metrics', href: resolve('metrics/') },
+		{ name: 'Users', href: resolve('users/') }
 	];
 
 	const displayName = $derived(() => {
@@ -28,9 +28,12 @@
 
 <div class="border-b border-gray-200 bg-white">
 	<div class="relative flex h-14 items-center px-6">
-		<a href={resolve('/dashboard/')} class="flex flex-col leading-tight">
+		<a
+			href={resolve('dashboard/')}
+			class="flex flex-col leading-tight"
+		>
 			<div class="text-lg font-bold text-confirmate">confirmate</div>
-			<div class="text-xs text-gray-400">Compliance &amp; Certification</div>
+			<div class="text-xs text-gray-400">Compliance & Certification</div>
 		</a>
 		<nav class="absolute left-1/2 flex -translate-x-1/2 gap-1">
 			{#each links as link}

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import type { SchemaResourceSnapshot as Resource } from '$lib/api/openapi/evidence';
-	import type { SchemaAssessmentResult as AssessmentResult } from '$lib/api/openapi/orchestrator';
+	import type { SchemaResourceSnapshot as Resource } from '#lib/api/openapi/evidence.js';
+	import type { SchemaAssessmentResult as AssessmentResult } from '#lib/api/openapi/orchestrator.js';
 	import { XMark, CheckCircle, XCircle, ShieldExclamation } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
-	import { metricName } from '$lib/metrics';
+	import { metricName } from '#lib/metrics.js';
 
 	interface Props {
 		resource: Resource;
@@ -33,9 +33,7 @@
 	});
 
 	let resourceType = $derived(resource.resourceType.split(',')[0].trim());
-	let resourceName = $derived(
-		(concreteResource.name as string) ?? shortName(resource.id)
-	);
+	let resourceName = $derived(concreteResource.name as string ?? shortName(resource.id));
 
 	// Extract vulnerabilities from the resource
 	interface Vulnerability {
@@ -76,10 +74,11 @@
 				<p class="mt-0.5 text-xs text-gray-400">
 					{resourceType}
 					{#if results.length > 0}
-						&middot; {results.length} assessment{results.length !== 1 ? 's' : ''}
+						· {results.length} assessment{results.length !== 1 ? 's' : ''}
 					{/if}
 					{#if hasVulnerabilities}
-						&middot; <span class="text-red-500">{vulnerabilities.length} vulnerabilit{vulnerabilities.length !== 1 ? 'ies' : 'y'}</span>
+						· 
+						<span class="text-red-500">{vulnerabilities.length} vulnerabilit{vulnerabilities.length !== 1 ? 'ies' : 'y'}</span>
 					{/if}
 				</p>
 			</div>
@@ -104,7 +103,7 @@
 		<nav class="-mb-px flex space-x-4">
 			{#if results.length > 0}
 				<button
-					onclick={() => (tab = 'results')}
+					onclick={() => tab = 'results'}
 					class="{tab === 'results'
 						? 'border-confirmate text-confirmate'
 						: 'border-transparent text-gray-400 hover:text-gray-600'} flex items-center gap-1.5 border-b-2 py-2.5 text-xs font-medium whitespace-nowrap"
@@ -115,7 +114,7 @@
 			{/if}
 			{#if hasVulnerabilities}
 				<button
-					onclick={() => (tab = 'vulnerabilities')}
+					onclick={() => tab = 'vulnerabilities'}
 					class="{tab === 'vulnerabilities'
 						? 'border-confirmate text-confirmate'
 						: 'border-transparent text-gray-400 hover:text-gray-600'} flex items-center gap-1.5 border-b-2 py-2.5 text-xs font-medium whitespace-nowrap"
@@ -143,7 +142,7 @@
 							{/if}
 							<div class="min-w-0">
 								<a
-									href={resolve(`/toe/${resource.targetOfEvaluationId}/assessment-results/${r.id}/`)}
+									href={resolve(`toe/${resource.targetOfEvaluationId}/assessment-results/${r.id}/`)}
 									class="text-sm font-medium text-blue-600 hover:underline"
 								>
 									{metricName(r.metricId)}

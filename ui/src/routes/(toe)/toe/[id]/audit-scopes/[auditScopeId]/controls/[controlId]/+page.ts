@@ -1,4 +1,4 @@
-import { evidenceClient, orchestratorClient } from '$lib/api/client';
+import { evidenceClient, orchestratorClient } from '#lib/api/client.js';
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 

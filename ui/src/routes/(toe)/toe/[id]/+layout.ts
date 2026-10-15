@@ -1,4 +1,4 @@
-import { orchestratorClient } from '$lib/api/client';
+import { orchestratorClient } from '#lib/api/client.js';
 import { error } from '@sveltejs/kit';
 import type { LayoutLoad } from './$types';
 

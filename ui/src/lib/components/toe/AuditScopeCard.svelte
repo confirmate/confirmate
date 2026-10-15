@@ -2,9 +2,9 @@
 	import { resolve } from '$app/paths';
 	import { ChevronRight, Trash } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
-	import { orchestratorClient } from '$lib/api/client';
+	import { orchestratorClient } from '#lib/api/client.js';
 	import { invalidate } from '$app/navigation';
-	import type { SchemaAuditScope, SchemaCatalog } from '$lib/api/openapi/orchestrator';
+	import type { SchemaAuditScope, SchemaCatalog } from '#lib/api/openapi/orchestrator.js';
 
 	let {
 		auditScope,
@@ -46,7 +46,7 @@
 
 <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 hover:border-confirmate hover:bg-blue-50">
 	<a
-		href={resolve(`/toe/${auditScope.targetOfEvaluationId}/audit-scopes/${auditScope.id}/`)}
+		href={resolve(`toe/${auditScope.targetOfEvaluationId}/audit-scopes/${auditScope.id}/`)}
 		class="flex-1"
 	>
 		<div class="font-medium text-gray-900">{auditScope.name}</div>
@@ -84,15 +84,21 @@
 		{:else if ondelete}
 			<button
 				type="button"
-				onclick={() => (showConfirm = true)}
+				onclick={() => showConfirm = true}
 				title="Delete audit scope"
 				class="rounded p-1 text-gray-300 hover:bg-red-50 hover:text-red-500"
 			>
 				<Icon src={Trash} class="h-4 w-4" />
 			</button>
 		{/if}
-		<a href={resolve(`/toe/${auditScope.targetOfEvaluationId}/audit-scopes/${auditScope.id}/`)}>
-			<Icon src={ChevronRight} class="h-5 w-5 shrink-0 text-gray-400" />
+
+		<a
+			href={resolve(`toe/${auditScope.targetOfEvaluationId}/audit-scopes/${auditScope.id}/`)}
+		>
+			<Icon
+				src={ChevronRight}
+				class="h-5 w-5 shrink-0 text-gray-400"
+			/>
 		</a>
 	</div>
 </div>

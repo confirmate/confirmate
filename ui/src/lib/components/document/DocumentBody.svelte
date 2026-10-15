@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { SchemaEvidence as Evidence } from '$lib/api/openapi/evidence';
-  import { findResource, type ManufacturerInfo, type Placeholders } from '$lib/types/evidence';
+  import type { SchemaEvidence as Evidence } from '#lib/api/openapi/evidence.js';
+  import { findResource, type ManufacturerInfo, type Placeholders } from '#lib/types/evidence.js';
   import Field from './Field.svelte';
 
   interface Props {

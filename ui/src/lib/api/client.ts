@@ -1,5 +1,5 @@
 import createClient from 'openapi-fetch';
-import { base } from '$app/paths';
+import { resolve } from '$app/paths';
 import type { paths as OrchestratorPaths } from './openapi/orchestrator';
 import type { paths as AssessmentPaths } from './openapi/assessment';
 import type { paths as EvidencePaths } from './openapi/evidence';
@@ -15,17 +15,17 @@ export function authHeaders(): HeadersInit {
 }
 
 export function orchestratorClient(fetch?: typeof globalThis.fetch) {
-	return createClient<OrchestratorPaths>({ baseUrl: base, headers: authHeaders(), fetch });
+	return createClient<OrchestratorPaths>({ baseUrl: resolve('/'), headers: authHeaders(), fetch });
 }
 
 export function assessmentClient(fetch?: typeof globalThis.fetch) {
-	return createClient<AssessmentPaths>({ baseUrl: base, headers: authHeaders(), fetch });
+	return createClient<AssessmentPaths>({ baseUrl: resolve('/'), headers: authHeaders(), fetch });
 }
 
 export function evidenceClient(fetch?: typeof globalThis.fetch) {
-	return createClient<EvidencePaths>({ baseUrl: base, headers: authHeaders(), fetch });
+	return createClient<EvidencePaths>({ baseUrl: resolve('/'), headers: authHeaders(), fetch });
 }
 
 export function evaluationClient(fetch?: typeof globalThis.fetch) {
-	return createClient<EvaluationPaths>({ baseUrl: base, headers: authHeaders(), fetch });
+	return createClient<EvaluationPaths>({ baseUrl: resolve('/'), headers: authHeaders(), fetch });
 }

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
-	import AccessControl from '$lib/components/ui/AccessControl.svelte';
+	import SectionHeader from '#lib/components/ui/SectionHeader.svelte';
+	import AccessControl from '#lib/components/ui/AccessControl.svelte';
 	import type { PageProps } from './$types';
-	import { orchestratorClient } from '$lib/api/client';
+	import { orchestratorClient } from '#lib/api/client.js';
 	import { invalidate } from '$app/navigation';
 
 	let { data }: PageProps = $props();

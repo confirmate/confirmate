@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { SchemaResourceSnapshot as Resource } from '$lib/api/openapi/evidence';
-	import type { SchemaAssessmentResult as AssessmentResult } from '$lib/api/openapi/orchestrator';
+	import type { SchemaResourceSnapshot as Resource } from '#lib/api/openapi/evidence.js';
+	import type { SchemaAssessmentResult as AssessmentResult } from '#lib/api/openapi/orchestrator.js';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { CheckCircle, XCircle, MagnifyingGlass, Funnel, MinusCircle } from '@steeze-ui/heroicons';
 

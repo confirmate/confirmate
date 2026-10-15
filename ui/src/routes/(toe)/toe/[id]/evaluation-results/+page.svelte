@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { SchemaEvaluationResult } from '$lib/api/openapi/orchestrator';
-	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
+	import type { SchemaEvaluationResult } from '#lib/api/openapi/orchestrator.js';
+	import SectionHeader from '#lib/components/ui/SectionHeader.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { CheckCircle, XCircle, Clock, QuestionMarkCircle } from '@steeze-ui/heroicons';
 	import type { PageProps } from './$types';

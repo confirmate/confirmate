@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SchemaMetric } from '$lib/api/openapi/orchestrator';
+	import type { SchemaMetric } from '#lib/api/openapi/orchestrator.js';
 	import MetricRow from './MetricRow.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { ChevronDown } from '@steeze-ui/heroicons';
