@@ -302,6 +302,44 @@ func TestService_CreateRiskAssessment(t *testing.T) {
 			},
 		},
 		{
+			name: "happy path: the decisions are derived from the risk profile",
+			args: args{req: &orchestrator.CreateRiskAssessmentRequest{
+				RiskAssessment: &orchestrator.RiskAssessment{
+					TargetOfEvaluationId: orchestratortest.MockToeId1,
+					AuditScopeId:         orchestratortest.MockScopeId1,
+					Method:               orchestrator.RiskAssessmentMethod_RISK_ASSESSMENT_METHOD_BUILT_IN,
+					RiskProfile: &orchestrator.RiskProfile{
+						Assets:       []*orchestrator.AssetImpact{{Name: "Settings", Confidentiality: 1}},
+						Connectivity: orchestrator.Connectivity_CONNECTIVITY_LOCAL,
+					},
+				},
+			}},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					seedRiskAssessmentScope(t, d)
+					assert.NoError(t, d.Create(&orchestrator.Control{
+						Id:              orchestratortest.MockControl1SubControlId2,
+						CatalogId:       orchestratortest.MockCatalogId1,
+						Name:            orchestratortest.MockSubControlName2,
+						ShortName:       orchestratortest.MockSubControlShortName2,
+						ParentControlId: new(orchestratortest.MockControlId1),
+						Applicability: &orchestrator.Applicability{
+							Kind:     orchestrator.ApplicabilityKind_APPLICABILITY_KIND_RISK_BASED,
+							Scenario: riskScenarioHigh,
+						},
+					}))
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.RiskAssessment], msgAndArgs ...any) bool {
+				return assert.Equal(t, 1, len(got.Msg.GetDecisions())) &&
+					assert.Equal(t, orchestratortest.MockControl1SubControlId2, got.Msg.GetDecisions()[0].GetControlId()) &&
+					assert.Equal(t, orchestrator.Connectivity_CONNECTIVITY_LOCAL, got.Msg.GetRiskProfile().GetConnectivity())
+			},
+			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
+		},
+		{
 			name: "happy path: the version counts up",
 			args: args{req: valid()},
 			fields: fields{

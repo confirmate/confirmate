@@ -903,7 +903,9 @@ func TestService_evaluateControl(t *testing.T) {
 		control    *orchestrator.Control
 		manual     []*evaluation.EvaluationResult
 		// latest is the snapshot of the latest assessment results; if it is nil, the orchestrator is asked
-		latest   *latestAssessments
+		latest *latestAssessments
+		// inScope are the IDs of the controls in scope; if it is nil, there is no information about the scope
+		inScope  map[string]struct{}
 		interval int
 	}
 	type fields struct {
@@ -921,6 +923,29 @@ func TestService_evaluateControl(t *testing.T) {
 		nonCompliantResult = &assessment.AssessmentResult{
 			Id:                   orchestratortest.MockResultId2,
 			MetricId:             evaluationtest.MockMetricId1,
+			ResourceId:           orchestratortest.MockResourceId2,
+			Compliant:            false,
+			TargetOfEvaluationId: evaluationtest.MockToeId1,
+		}
+		// A control with two sub-controls: one is compliant, the other is not
+		parentWithTwoSubcontrols = &orchestrator.Control{
+			Id: evaluationtest.MockControlId1,
+			Controls: []*orchestrator.Control{
+				{
+					Id:              evaluationtest.MockControl1SubcontrolId11,
+					ParentControlId: new(evaluationtest.MockControlId1),
+					Metrics:         []*assessment.Metric{evaluationtest.MockMetric1},
+				},
+				{
+					Id:              evaluationtest.MockControl1SubcontrolId12,
+					ParentControlId: new(evaluationtest.MockControlId1),
+					Metrics:         []*assessment.Metric{evaluationtest.MockMetric2},
+				},
+			},
+		}
+		notCompliantMetric2 = &assessment.AssessmentResult{
+			Id:                   orchestratortest.MockResultId2,
+			MetricId:             evaluationtest.MockMetricId2,
 			ResourceId:           orchestratortest.MockResourceId2,
 			Compliant:            false,
 			TargetOfEvaluationId: evaluationtest.MockToeId1,
@@ -963,6 +988,23 @@ func TestService_evaluateControl(t *testing.T) {
 			assert.NoError(t, err)
 
 			return assert.Equal(t, 1, len(res.Msg.Results)) && check(t, res.Msg.Results[0])
+		}
+	}
+	// wantParentStatus checks the status of the stored evaluation result of the control itself; the results of its
+	// sub-controls are stored as well
+	wantParentStatus := func(want evaluation.EvaluationStatus, subResults int) assert.Want[*Service] {
+		return func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+			res, err := got.orchestratorClient.ListEvaluationResults(context.Background(), connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{}))
+			assert.NoError(t, err)
+
+			var parent *evaluation.EvaluationResult
+			for _, r := range res.Msg.Results {
+				if r.GetControlId() == evaluationtest.MockControlId1 {
+					parent = r
+				}
+			}
+			return assert.NotNil(t, parent) && assert.Equal(t, want, parent.GetStatus()) &&
+				assert.Equal(t, subResults+1, len(res.Msg.Results))
 		}
 	}
 	tests := []struct {
@@ -1299,6 +1341,50 @@ func TestService_evaluateControl(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "all sub-controls in scope: a sub-control that is not compliant makes the control not compliant",
+			args: args{
+				ctx:        context.Background(),
+				auditScope: basicAuditScope,
+				catalog:    leveledCatalog,
+				control:    parentWithTwoSubcontrols,
+				latest:     newLatestAssessments([]*assessment.AssessmentResult{compliantResult, notCompliantMetric2}),
+				inScope: map[string]struct{}{
+					evaluationtest.MockControl1SubcontrolId11: {},
+					evaluationtest.MockControl1SubcontrolId12: {},
+				},
+			},
+			fields:  fields{orchestratorClient: newOrchestratorClient(t)},
+			wantSvc: wantParentStatus(evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, 2),
+			wantErr: assert.NoError,
+		},
+		{
+			name: "a sub-control that is out of scope is not evaluated",
+			args: args{
+				ctx:        context.Background(),
+				auditScope: basicAuditScope,
+				catalog:    leveledCatalog,
+				control:    parentWithTwoSubcontrols,
+				latest:     newLatestAssessments([]*assessment.AssessmentResult{compliantResult, notCompliantMetric2}),
+				inScope:    map[string]struct{}{evaluationtest.MockControl1SubcontrolId11: {}},
+			},
+			fields:  fields{orchestratorClient: newOrchestratorClient(t)},
+			wantSvc: wantParentStatus(evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, 1),
+			wantErr: assert.NoError,
+		},
+		{
+			name: "without information about the scope every sub-control is evaluated",
+			args: args{
+				ctx:        context.Background(),
+				auditScope: basicAuditScope,
+				catalog:    leveledCatalog,
+				control:    parentWithTwoSubcontrols,
+				latest:     newLatestAssessments([]*assessment.AssessmentResult{compliantResult, notCompliantMetric2}),
+			},
+			fields:  fields{orchestratorClient: newOrchestratorClient(t)},
+			wantSvc: wantParentStatus(evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, 2),
+			wantErr: assert.NoError,
+		},
+		{
 			name: "all sub-controls out of scope: the metrics of the control itself are not used",
 			args: args{
 				ctx:        context.Background(),
@@ -1323,7 +1409,7 @@ func TestService_evaluateControl(t *testing.T) {
 				catalogControls:    tt.fields.catalogControls,
 			}
 
-			gotErr := svc.evaluateControl(tt.args.ctx, tt.args.auditScope, tt.args.catalog, tt.args.control, tt.args.manual, tt.args.latest)
+			gotErr := svc.evaluateControl(tt.args.ctx, tt.args.auditScope, tt.args.catalog, tt.args.control, tt.args.manual, tt.args.latest, tt.args.inScope)
 
 			tt.wantErr(t, gotErr)
 			tt.wantSvc(t, &svc)
