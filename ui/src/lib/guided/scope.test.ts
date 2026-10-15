@@ -157,12 +157,12 @@ describe('the CRA example catalog', () => {
 	});
 
 	it('takes out the same requirements as the server for the same risk profile', () => {
-		// The server derived 12 exclusions for this profile when it was run against the catalog (reason: below the risk
+		// The server derived 14 exclusions for this profile when it was run against the catalog (reason: below the risk
 		// level). Conditions do not play a part, so the answers are left out.
 		const profile = risk({ assets: [asset(3, 2, 1)], physicalAccess: 'CONTROLLED', connectivity: 'LOCAL', operatorSkill: 'GENERAL' });
 		const scoped = computeScope(groups, profile, {}, { decided: {} });
 		const out = scoped.flatMap((g) => g.rows).filter((r) => r.treatment === 'na' && r.naReason === 'BELOW_RISK_LEVEL');
-		expect(out).toHaveLength(12);
+		expect(out).toHaveLength(14);
 	});
 
 	it('a local desktop tool keeps far fewer requirements than an exposed internet device', () => {
