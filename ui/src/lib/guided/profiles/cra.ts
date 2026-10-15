@@ -1,5 +1,4 @@
 import type { FrameworkProfile } from '../profile';
-import { craRequirementGroups } from './cra-requirements';
 
 /**
  * The CRA profile. The texts of the classes and routes are sample content until they are reviewed together with the
@@ -34,11 +33,11 @@ export const craProfile: FrameworkProfile = {
 		},
 		{
 			id: 'risk',
-			type: 'questionnaire',
+			type: 'risk',
 			label: 'Risk assessment',
 			title: 'Assess the risks of the product',
 			intro:
-				'The CRA asks for a cybersecurity risk assessment. It also decides which of the product requirements apply to you. Most of them always do.'
+				'The CRA asks for a cybersecurity risk assessment, and it decides which requirements apply to your product. Say what the product protects and where it runs. The requirements that depend on the risk follow from that.'
 		},
 		{
 			id: 'scope',
@@ -132,58 +131,59 @@ export const craProfile: FrameworkProfile = {
 			}
 		}
 	],
-	questionnaire: {
-		heading: 'Product requirements, Annex I, part I',
-		questions: [
-			{ id: 'data', text: 'Does the product process or store data of users, or data about them?', help: 'Credentials, personal data, usage data', defaultAnswer: 'yes' },
-			{ id: 'net', text: 'Does it have a network interface or any other external interface?', help: 'Network, USB, serial, bluetooth, an API', defaultAnswer: 'yes' },
-			{ id: 'acc', text: 'Does it have user accounts or a login?', help: 'Any form of authentication', defaultAnswer: 'yes' },
-			{ id: 'upd', text: 'Can it be updated after it has been delivered?', help: 'Remotely or locally', defaultAnswer: 'yes' },
-			{ id: 'dbg', text: 'Is there a debug, service or manufacturing interface?', help: 'Typical for firmware and devices', defaultAnswer: 'no' }
-		],
-		groups: craRequirementGroups,
-		suggestions: [
+	risk: {
+		heading: 'Requirements of the CRA',
+		assetSuggestions: ['User credentials', 'User data', 'Firmware or program code', 'Configuration', 'Keys and secrets'],
+		presets: [
 			{
-				when: { net: 'no' },
-				requirements: ['CRA-I-1.1.10.1', 'CRA-I-1.1.9.2', 'CRA-I-1.1.5.5'],
-				treatment: 'na',
-				reason: 'No network or other external interface.'
+				id: 'connected',
+				label: 'A connected app or service',
+				hint: 'Used by consumers or customers over the internet',
+				profile: {
+					assets: [
+						{ name: 'Account credentials', confidentiality: 4, integrity: 4, availability: 2 },
+						{ name: 'User content', confidentiality: 3, integrity: 3, availability: 3 }
+					],
+					physicalAccess: 'SUPERVISED',
+					connectivity: 'INTERNET',
+					operatorSkill: 'GENERAL'
+				}
 			},
 			{
-				when: { dbg: 'no' },
-				requirements: ['CRA-I-1.1.5.6'],
-				treatment: 'na',
-				reason: 'No debug, service or manufacturing interface.'
+				id: 'desktop',
+				label: 'A desktop or command-line tool',
+				hint: 'Runs on the computer of the user, mostly offline',
+				profile: {
+					assets: [{ name: 'User data', confidentiality: 3, integrity: 2, availability: 1 }],
+					physicalAccess: 'CONTROLLED',
+					connectivity: 'LOCAL',
+					operatorSkill: 'GENERAL'
+				}
 			},
 			{
-				when: { data: 'no' },
-				requirements: ['CRA-I-1.1.6.1', 'CRA-I-1.1.6.4', 'CRA-I-1.1.8.2', 'CRA-I-1.1.14.1', 'CRA-I-1.1.14.2'],
-				treatment: 'na',
-				reason: 'No user data is processed.'
+				id: 'business',
+				label: 'Business software in a company network',
+				hint: 'Operated by administrators in a private network',
+				profile: {
+					assets: [{ name: 'Business data', confidentiality: 4, integrity: 4, availability: 3 }],
+					physicalAccess: 'CONTROLLED',
+					connectivity: 'PRIVATE_NETWORK',
+					operatorSkill: 'EXPERT'
+				}
 			},
 			{
-				when: { net: 'no', acc: 'no' },
-				requirements: ['CRA-I-1.1.5.1', 'CRA-I-1.1.5.3'],
-				treatment: 'na',
-				reason: 'No accounts and no external interface.'
-			},
-			{
-				when: { net: 'no' },
-				requirements: ['CRA-I-1.1.13.4'],
-				treatment: 'risk',
-				reason: 'Logs stay on the device of the user and are not offered through a separate interface.'
-			}
-		],
-		notes: [
-			{
-				when: { upd: 'no' },
-				tone: 'warn',
-				text: 'A product that cannot be updated can rarely meet the requirements on security updates and on vulnerability handling. Think about how you will deliver fixes.'
-			},
-			{
-				when: { dbg: 'yes' },
-				tone: 'brand',
-				text: 'Requirements for protecting debug and service interfaces will be added to your scope.'
+				id: 'device',
+				label: 'A device or firmware in the field',
+				hint: 'Installed where anybody can reach it, connected to the internet',
+				profile: {
+					assets: [
+						{ name: 'Device credentials and keys', confidentiality: 5, integrity: 5, availability: 3 },
+						{ name: 'Firmware', confidentiality: 2, integrity: 5, availability: 4 }
+					],
+					physicalAccess: 'OPEN',
+					connectivity: 'INTERNET',
+					operatorSkill: 'GENERAL'
+				}
 			}
 		]
 	},
@@ -228,8 +228,4 @@ export const craProfile: FrameworkProfile = {
 			snippet: '- uses: confirmate/send-results@v1\n  with:\n    product: pythonpass\n    files: sbom.cdx.json, results.sarif'
 		}
 	],
-	alwaysApplies: {
-		count: 30,
-		text: 'The risk assessment itself, handling of vulnerabilities (Annex I, part II), the obligations of manufacturers, reporting of exploited vulnerabilities and incidents, and the technical documentation with the declaration of conformity.'
-	}
 };

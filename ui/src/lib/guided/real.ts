@@ -11,6 +11,8 @@ import type {
 	SchemaUser
 } from '$lib/api/openapi/orchestrator';
 import { bucketControlsByCategory, flattenControls } from '$lib/auditScope';
+import { groupsOf } from './catalog';
+import type { RiskProfile } from './profile';
 import { computeScope } from './scope';
 import type {
 	AcceptedRisk,
@@ -66,6 +68,16 @@ const productTypes: Record<string, string> = {
  */
 function request(value: object): never {
 	return value as never;
+}
+
+/** The risk profile in the form of the API. */
+function riskProfileOf(r: RiskProfile) {
+	return {
+		assets: r.assets.map((a) => ({ name: a.name, confidentiality: a.confidentiality, integrity: a.integrity, availability: a.availability })),
+		physicalAccess: r.physicalAccess ? `PHYSICAL_ACCESS_${r.physicalAccess}` : 'PHYSICAL_ACCESS_UNSPECIFIED',
+		connectivity: r.connectivity ? `CONNECTIVITY_${r.connectivity}` : 'CONNECTIVITY_UNSPECIFIED',
+		operatorSkill: r.operatorSkill ? `OPERATOR_SKILL_${r.operatorSkill}` : 'OPERATOR_SKILL_UNSPECIFIED'
+	};
 }
 
 /** Turns an error response of the API into an error with a readable message. */
@@ -294,11 +306,24 @@ export const realSource: GuidedSource = {
 		return {
 			...summaryItem,
 			plain: control?.description ?? '',
+			compensatedBy: control?.applicability?.compensatedBy ?? [],
 			scopeReason: 'In scope',
 			checks: metrics.map((m) => checkOf(m, resultsRes?.data?.results ?? [])),
 			history: [],
 			comments: []
 		} satisfies RequirementDetail;
+	},
+
+	async listRequirementGroups(catalogId) {
+		const client = orchestratorClient();
+		const [catalogRes, controlsRes] = await Promise.all([
+			client.GET('/v1/orchestrator/catalogs/{catalogId}', { params: { path: { catalogId } } }),
+			client.GET('/v1/orchestrator/controls', { params: { query: { 'filter.catalogId': catalogId, pageSize: 1500 } } })
+		]);
+		if (catalogRes.error || controlsRes.error) fail('Could not load the requirements of the catalog', catalogRes.error ?? controlsRes.error);
+
+		const byCategory = bucketControlsByCategory(catalogRes.data?.categories ?? [], controlsRes.data?.controls ?? []);
+		return groupsOf(Object.entries(byCategory).map(([name, controls]) => ({ name, controls: controls as never })));
 	},
 
 	async createTarget(input: NewTarget) {
@@ -338,25 +363,41 @@ export const realSource: GuidedSource = {
 		const scope = scopeRes.data;
 		if (!scope?.id) fail('Could not create the audit scope', scopeRes.error);
 
-		// 3. The risk assessment with the scope decisions of the questionnaire, approved right away.
+		// 3. The risk assessment with the risk profile and the scope decisions that follow from it, approved right away.
 		const controlsRes = await client.GET('/v1/orchestrator/controls', {
 			params: { query: { 'filter.catalogId': profile.catalogId, pageSize: 1500 } }
 		});
-		const byShortName = new Map((controlsRes.data?.controls ?? []).map((c) => [c.shortName ?? '', c.id ?? '']));
-		const groups = computeScope(profile.questionnaire, answers, input.decisions);
-		const decisions: { controlId: string; inScope: boolean; justification: string; source: string }[] = [];
-		for (const g of groups) {
+		const byShortName = new Map(flattenControls(controlsRes.data?.controls ?? []).map((c) => [c.shortName ?? '', c.id ?? '']));
+		const scoped = computeScope(input.groups, input.risk, answers, input.decisions);
+		const decisions: Record<string, unknown>[] = [];
+		for (const g of scoped) {
 			for (const row of g.rows) {
 				const controlId = byShortName.get(row.requirement.id);
-				if (!controlId || row.treatment === 'applies') continue;
+				if (!controlId) continue;
+				const source = row.source === 'rule' ? 'SCOPE_DECISION_SOURCE_RULE' : 'SCOPE_DECISION_SOURCE_MANUAL';
+
+				if (row.treatment === 'applies') {
+					// A person kept a requirement that the risk profile or an answer would take out. Say so, or the server derives
+					// it from the profile again.
+					if (row.source === 'person' && row.rule.treatment === 'na') {
+						decisions.push({ controlId, inScope: true, justification: row.reason, source });
+					}
+					continue;
+				}
+				if (row.treatment === 'na') {
+					decisions.push({
+						controlId,
+						inScope: false,
+						justification: row.reason,
+						reason: `NOT_APPLICABLE_REASON_${row.naReason ?? 'TARGET_ABSENT'}`,
+						compensatingControlId: row.compensatedBy ? byShortName.get(row.compensatedBy) : undefined,
+						source
+					});
+					continue;
+				}
 				// An accepted residual risk keeps the requirement in scope; the backend has no field for it yet, so the reason
 				// carries it.
-				decisions.push({
-					controlId,
-					inScope: row.treatment === 'risk',
-					justification: row.treatment === 'risk' ? `Accepted residual risk: ${row.reason}` : row.reason,
-					source: row.source === 'rule' ? 'SCOPE_DECISION_SOURCE_RULE' : 'SCOPE_DECISION_SOURCE_MANUAL'
-				});
+				decisions.push({ controlId, inScope: true, justification: `Accepted residual risk: ${row.reason}`, source });
 			}
 		}
 
@@ -365,8 +406,9 @@ export const realSource: GuidedSource = {
 				targetOfEvaluationId: toe.id,
 				auditScopeId: scope.id,
 				method: 'RISK_ASSESSMENT_METHOD_BUILT_IN',
-				summary: 'Quick check in the setup wizard.',
+				summary: 'Risk assessment in the setup wizard.',
 				answers,
+				riskProfile: riskProfileOf(input.risk),
 				decisions
 			})
 		});
@@ -407,11 +449,20 @@ export const realSource: GuidedSource = {
 		const previous = (res.data?.riskAssessments ?? []).find((a) => a.status === 'RISK_ASSESSMENT_STATUS_APPROVED');
 
 		// The new version keeps every earlier decision except the one that is replaced.
-		const decisions = (previous?.decisions ?? []).filter((d) => d.controlId !== change.requirementId);
+		const decisions: Record<string, unknown>[] = (previous?.decisions ?? []).filter((d) => d.controlId !== change.requirementId);
+		let compensatingControlId: string | undefined;
+		if (change.compensatedBy) {
+			const controlsRes = await client.GET('/v1/orchestrator/controls', {
+				params: { query: { 'filter.catalogId': scope.catalogId, pageSize: 1500 } }
+			});
+			compensatingControlId = flattenControls(controlsRes.data?.controls ?? []).find((c) => c.shortName === change.compensatedBy)?.id;
+		}
 		decisions.push({
 			controlId: change.requirementId,
 			inScope: change.treatment === 'risk',
 			justification: change.treatment === 'risk' ? `Accepted residual risk: ${change.reason}` : change.reason,
+			reason: change.treatment === 'na' ? `NOT_APPLICABLE_REASON_${change.naReason ?? 'TARGET_ABSENT'}` : undefined,
+			compensatingControlId,
 			source: 'SCOPE_DECISION_SOURCE_MANUAL'
 		});
 

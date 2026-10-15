@@ -1,3 +1,4 @@
+import { groupsOf } from './catalog';
 import type { AcceptedRisk, GuidedSource, RequirementDetail, TargetDetail, TargetSummary } from './source';
 
 /** Sample data for the preview of the guided experience. It is replaced by the real source. */
@@ -50,6 +51,7 @@ const requirementDetails: RequirementDetail[] = [
 			reference: 'Annex I, part I, (2)(b)',
 			status: 'attention',
 			plain: 'The product is delivered with a secure default configuration, and users can reset it to that state.',
+			compensatedBy: [],
 			scopeReason: 'Applies because of risk assessment, version 1',
 			checks: [
 				{
@@ -173,6 +175,11 @@ export const mockSource: GuidedSource = {
 	async getRequirement(targetId, requirementId) {
 		if (targetId !== pythonpass.id) return undefined;
 		return requirementDetails.find((r) => r.id === requirementId);
+	},
+	async listRequirementGroups() {
+		// The catalog file of example-data, loaded only when the setup is used.
+		const { default: catalog } = await import('../../../../example-data/catalogs/cra-example-catalog.json');
+		return groupsOf(catalog[0].categories.map((c) => ({ name: c.name, controls: c.controls as never })));
 	},
 	async createTarget() {
 		// Nothing is stored for sample data, the wizard ends on the sample product.

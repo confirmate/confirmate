@@ -4,11 +4,19 @@
 	import { Button, Chip, PageHeading } from '$lib/ds';
 	import type { FrameworkProfile } from '../profile';
 	import { plannedProfiles, profiles } from '../profiles';
+	import { guidedSource } from '../select';
 	import { wizard } from '../wizard.svelte';
 
-	function start(profile: FrameworkProfile) {
-		wizard.start(profile);
-		goto(resolve(`/guided/new/${profile.steps[0].id}/`));
+	let error = $state<string | null>(null);
+
+	async function start(profile: FrameworkProfile) {
+		error = null;
+		try {
+			wizard.start(profile, await guidedSource.listRequirementGroups(profile.catalogId));
+			await goto(resolve(`/guided/new/${profile.steps[0].id}/`));
+		} catch (e) {
+			error = e instanceof Error ? e.message : 'The requirements could not be loaded.';
+		}
 	}
 </script>
 
@@ -17,6 +25,8 @@
 		title="What do you want to check?"
 		intro="The type of Target of Evaluation (ToE) decides the questions we ask and the framework that fits. You can add more frameworks to a ToE later."
 	/>
+
+	{#if error}<p role="alert" class="text-sm text-bad">{error}</p>{/if}
 
 	<div class="grid grid-cols-[repeat(auto-fit,minmax(min(18.75rem,100%),1fr))] gap-5">
 		{#each profiles as profile (profile.id)}

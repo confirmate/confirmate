@@ -98,10 +98,15 @@ All colors, fonts and radii of the guided experience come from tokens in `ui/src
 
 ## Patterns
 
-- **Wizard.** Steps come from a profile and use the fixed step types (details, choice, questionnaire, scope,
-  sources). Every step has a title, one sentence of introduction, a default, and a way back. A side panel shows the
+- **Wizard.** Steps come from a profile and use the fixed step types (details, choice, risk, scope, sources). Every step has a title, one sentence of introduction, a default, and a way back. A side panel shows the
   consequence of the answers as they change (for example how many requirements apply). Progress is kept when the
   person leaves.
+- **Scope from the catalog.** The requirements, their legal basis and when they apply (always, if a condition holds,
+  or depending on the risk) come from the catalog, never from a list in the UI. The risk step collects assets with
+  their impact and the environment; the answers about the conditions come from the conditions that the catalog names.
+  A requirement is only taken out by an explicit answer or a risk profile below its scenario, never by "don't know".
+  Every requirement that is not applicable has one of the fixed reasons and a sentence; a point of the law cannot
+  drop out as a whole. The matching in `risk.ts` is the same as the one of the server and is tested against it.
 - **Work queue.** A list of tasks with a status, an explanation of why, who is responsible and when. Each task links
   to the place where it is solved.
 - **Requirement view.** The requirement in plain words and its reference, the status, the checks with the evidence

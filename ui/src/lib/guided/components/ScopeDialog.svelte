@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
-	import { Button, Dialog, Field, OptionCard, TextArea } from '$lib/ds';
+	import { Button, Dialog, Field, OptionCard, Select, TextArea } from '$lib/ds';
+	import { notApplicableReasons, type NotApplicableReason } from '../scope';
 	import { guidedSource } from '../select';
 	import type { RequirementDetail } from '../source';
 
@@ -12,6 +13,14 @@
 
 	let treatment = $state<'applies' | 'na' | 'risk'>('na');
 	let reason = $state('');
+	let naReason = $state<NotApplicableReason>('TARGET_ABSENT');
+	let compensatedBy = $state('');
+	// A requirement can only be compensated if the catalog names the requirements that replace it.
+	const reasons = $derived(
+		notApplicableReasons
+			.filter((r) => r.value !== 'COMPENSATED' || requirement.compensatedBy.length > 0)
+			.map((r) => ({ value: r.value, label: r.label }))
+	);
 	let busy = $state(false);
 	let error = $state<string | null>(null);
 
@@ -24,10 +33,21 @@
 			error = 'Please give a reason.';
 			return;
 		}
+		if (treatment === 'na' && naReason === 'COMPENSATED' && !compensatedBy) {
+			error = 'Please choose the requirement that is fulfilled instead.';
+			return;
+		}
 		busy = true;
 		error = null;
 		try {
-			await guidedSource.changeScope({ targetId, requirementId: requirement.id, treatment, reason: reason.trim() });
+			await guidedSource.changeScope({
+				targetId,
+				requirementId: requirement.id,
+				treatment,
+				reason: reason.trim(),
+				naReason: treatment === 'na' ? naReason : undefined,
+				compensatedBy: treatment === 'na' && naReason === 'COMPENSATED' ? compensatedBy : undefined
+			});
 			await invalidateAll();
 			reason = '';
 			open = false;
@@ -65,8 +85,23 @@
 		/>
 	</div>
 
+	{#if treatment === 'na'}
+		<Field label="Why is it not applicable?" id="scope-na-reason">
+			<Select id="scope-na-reason" options={reasons} bind:value={naReason} />
+		</Field>
+		{#if naReason === 'COMPENSATED'}
+			<Field label="Which requirement is fulfilled instead?" id="scope-compensation">
+				<Select
+					id="scope-compensation"
+					options={requirement.compensatedBy.map((c) => ({ value: c, label: c }))}
+					bind:value={compensatedBy}
+				/>
+			</Field>
+		{/if}
+	{/if}
+
 	{#if treatment !== 'applies'}
-		<Field label="Reason" id="scope-reason">
+		<Field label="Explanation" id="scope-reason">
 			<TextArea id="scope-reason" bind:value={reason} rows={3} />
 		</Field>
 		<p class="rounded-control bg-sunken px-3.5 py-3 text-sm text-ink-soft">

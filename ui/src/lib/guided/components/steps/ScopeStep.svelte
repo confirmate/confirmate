@@ -7,17 +7,20 @@
 
 	let { profile }: { profile: FrameworkProfile } = $props();
 
-	const groups = $derived(computeScope(profile.questionnaire, wizard.answers, wizard.decisions));
+	const groups = $derived(computeScope(wizard.groups, wizard.risk, wizard.answers, wizard.decisions));
 	const summary = $derived(summarize(groups));
+	const titles = $derived(new Map(wizard.groups.flatMap((g) => g.requirements.map((r) => [r.id, r.title] as const))));
 
-	const filterNames = ['All', 'Need a decision', 'Not applicable', 'Accepted risk'];
-	let filter = $state('All');
+	const depends = 'Depends on the product';
+	const filterNames = [depends, 'Need a decision', 'Not applicable', 'Accepted risk', 'All'];
+	let filter = $state(depends);
 
 	function visible(group: ScopeGroup) {
 		return group.rows.filter(
 			(r) =>
 				filter === 'All' ||
-				(filter === 'Need a decision' && (r.suggestion || r.missingReason || group.empty)) ||
+				(filter === depends && r.requirement.applicability.kind !== 'always') ||
+				(filter === 'Need a decision' && (r.missingReason || r.missingCompensation || group.empty)) ||
 				(filter === 'Not applicable' && r.treatment === 'na') ||
 				(filter === 'Accepted risk' && r.treatment === 'risk')
 		);
@@ -40,8 +43,9 @@
 				<span class="text-sm text-ink-muted">{s.label}</span>
 			</div>
 		{/each}
-		<span class="ml-auto max-w-xs text-sm text-ink-muted">
-			of {summary.total} product requirements. {profile.alwaysApplies.text}
+		<span class="ml-auto max-w-sm text-sm text-ink-muted">
+			of {summary.total} requirements of the {profile.name}. {summary.total - summary.depends} always apply and are listed
+			under "All". The others depend on your product.
 		</span>
 	</section>
 
@@ -70,12 +74,15 @@
 				{#each g.visible as row (row.requirement.id)}
 					<ScopeRow
 						{row}
-						ondecide={(t, reason) => wizard.decide(row.requirement.id, t, reason)}
+						titleOf={(id) => titles.get(id) ?? id}
+						ondecide={(t, reason, naReason, compensatedBy) => wizard.decide(row.requirement.id, t, reason, naReason, compensatedBy)}
 						onreason={(reason) => wizard.setReason(row.requirement.id, reason)}
-						ondismiss={() => wizard.dismiss(row.requirement.id)}
+						onreset={() => wizard.reset(row.requirement.id)}
 					/>
 				{/each}
 			</section>
+		{:else}
+			<p class="rounded-card border border-line bg-surface px-6 py-5 text-sm text-ink-muted">Nothing to show with this filter.</p>
 		{/each}
 	</div>
 

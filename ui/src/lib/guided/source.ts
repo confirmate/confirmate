@@ -1,5 +1,5 @@
-import type { Answer, FrameworkProfile } from './profile';
-import type { Decisions } from './scope';
+import type { Answer, FrameworkProfile, RequirementGroup, RiskProfile } from './profile';
+import type { Decisions, NotApplicableReason } from './scope';
 
 /** What the list of targets of evaluation shows about one target. */
 export interface TargetSummary {
@@ -78,6 +78,8 @@ export interface Check {
 
 export interface RequirementDetail extends RequirementSummary {
 	plain: string;
+	/** The short names of requirements that can be fulfilled instead of this one. */
+	compensatedBy: string[];
 	scopeReason: string;
 	checks: Check[];
 	history: { when: string; what: string }[];
@@ -98,6 +100,11 @@ export interface NewTarget {
 	profile: FrameworkProfile;
 	details: Record<string, string>;
 	choiceId: string;
+	/** The requirements of the catalog that the scope was worked out for. */
+	groups: RequirementGroup[];
+	/** The assets and the environment of the risk assessment. */
+	risk: RiskProfile;
+	/** The answers about the conditions of the requirements, by condition ID. */
 	answers: Record<string, Answer>;
 	/** The decisions about single requirements that go with the answers. */
 	decisions: Decisions;
@@ -130,6 +137,10 @@ export interface ScopeChange {
 	requirementId: string;
 	treatment: 'na' | 'risk';
 	reason: string;
+	/** For "not applicable": why. */
+	naReason?: NotApplicableReason;
+	/** For the reason "compensated": the control that is fulfilled instead. */
+	compensatedBy?: string;
 }
 
 /**
@@ -140,6 +151,8 @@ export interface GuidedSource {
 	listTargets(): Promise<TargetSummary[]>;
 	getTarget(id: string): Promise<TargetDetail | undefined>;
 	getRequirement(targetId: string, requirementId: string): Promise<RequirementDetail | undefined>;
+	/** The requirements of a catalog with their legal basis and when they apply, grouped by point of the law. */
+	listRequirementGroups(catalogId: string): Promise<RequirementGroup[]>;
 	/** Creates the Target of Evaluation, its audit scope and an approved risk assessment, and returns its ID. */
 	createTarget(input: NewTarget): Promise<{ id: string }>;
 	addStatement(statement: NewStatement): Promise<void>;

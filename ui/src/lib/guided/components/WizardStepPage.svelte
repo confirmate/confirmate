@@ -9,7 +9,7 @@
 	import ChoiceStep from './steps/ChoiceStep.svelte';
 	import DetailsStep from './steps/DetailsStep.svelte';
 	import NextSteps from './steps/NextSteps.svelte';
-	import QuestionnaireStep from './steps/QuestionnaireStep.svelte';
+	import RiskStep from './steps/RiskStep.svelte';
 	import ScopePreview from './steps/ScopePreview.svelte';
 	import ScopeStep from './steps/ScopeStep.svelte';
 	import SourcesStep from './steps/SourcesStep.svelte';
@@ -29,11 +29,13 @@
 				profile,
 				details: { ...wizard.details },
 				choiceId: wizard.choiceId,
+				groups: wizard.groups,
+				risk: $state.snapshot(wizard.risk),
 				answers: { ...wizard.answers },
 				decisions: $state.snapshot(wizard.decisions)
 			});
 			await invalidateAll();
-			wizard.start(profile);
+			wizard.start(profile, wizard.groups);
 			await goto(resolve(`/guided/${created.id}/`));
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'The setup failed.';
@@ -46,7 +48,7 @@
 {#snippet aside()}
 	{#if step.type === 'choice'}
 		<ChoiceResult {profile} />
-	{:else if step.type === 'questionnaire'}
+	{:else if step.type === 'risk'}
 		<ScopePreview {profile} />
 	{:else if step.type === 'details'}
 		<NextSteps />
@@ -56,7 +58,7 @@
 <WizardShell
 	{profile}
 	stepId={step.id}
-	nextDisabled={step.type === 'scope' && (!wizard.approved || summarize(computeScope(profile.questionnaire, wizard.answers, wizard.decisions)).review > 0)}
+	nextDisabled={step.type === 'scope' && (!wizard.approved || summarize(computeScope(wizard.groups, wizard.risk, wizard.answers, wizard.decisions)).review > 0)}
 	onfinish={step.type === 'sources' ? finish : undefined}
 	{busy}
 	{error}
@@ -66,8 +68,8 @@
 		<DetailsStep {profile} />
 	{:else if step.type === 'choice'}
 		<ChoiceStep {profile} />
-	{:else if step.type === 'questionnaire'}
-		<QuestionnaireStep {profile} />
+	{:else if step.type === 'risk'}
+		<RiskStep {profile} />
 	{:else if step.type === 'scope'}
 		<ScopeStep {profile} />
 	{:else if step.type === 'sources'}

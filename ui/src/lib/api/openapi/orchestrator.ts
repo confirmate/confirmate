@@ -994,6 +994,23 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * @description Applicability says when a requirement applies. It is catalog content: the catalog author decides it, and it is
+         *      shown to the person who takes the decision.
+         */
+        Applicability: {
+            /**
+             * Format: enum
+             * @enum {string}
+             */
+            kind?: "APPLICABILITY_KIND_UNSPECIFIED" | "APPLICABILITY_KIND_ALWAYS" | "APPLICABILITY_KIND_CONDITIONAL" | "APPLICABILITY_KIND_RISK_BASED";
+            /** @description For CONDITIONAL: the condition in plain words, for example "the product has a network interface". */
+            condition?: string;
+            /** @description For RISK_BASED: the risk at which the requirement applies. */
+            scenario?: components["schemas"]["RiskScenario"];
+            /** @description The short names of requirements that can be fulfilled instead, if they give at least the same protection. */
+            compensatedBy?: string[];
+        };
         /** @description Request for ApproveRiskAssessment. */
         ApproveRiskAssessmentRequest: {
             riskAssessmentId: string;
@@ -1106,6 +1123,20 @@ export interface components {
             description?: string;
             /** @description a list of metrics that this tool can assess, referred by their ids */
             availableMetrics: string[];
+        };
+        /** @description AssetImpact is the impact on an asset if its confidentiality, integrity or availability is lost. */
+        AssetImpact: {
+            /** @description For example "User credentials" or "Firmware image". */
+            name?: string;
+            /**
+             * Format: int32
+             * @description From 1 (low) to 5 (very high); 0 if the property is not relevant for the asset.
+             */
+            confidentiality?: number;
+            /** Format: int32 */
+            integrity?: number;
+            /** Format: int32 */
+            availability?: number;
         };
         /**
          * @description A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
@@ -1272,6 +1303,16 @@ export interface components {
             controlsInScope?: components["schemas"]["ControlInScope"][];
             /** @description Catalog ID of the catalog this control belongs to. */
             catalogId: string;
+            /**
+             * Format: enum
+             * @description What kind of evidence the control asks for.
+             * @enum {string}
+             */
+            type?: "CONTROL_TYPE_UNSPECIFIED" | "CONTROL_TYPE_TECHNICAL" | "CONTROL_TYPE_ACTIVITY" | "CONTROL_TYPE_DOCUMENTATION";
+            /** @description When the control applies. A control without applicability always applies. */
+            applicability?: components["schemas"]["Applicability"];
+            /** @description Where the control comes from, for example the legal basis, and which items of other frameworks it maps to. */
+            references?: components["schemas"]["ControlReference"][];
         };
         /**
          * @description ControlInScope tracks the implementation status of a specific control within an audit scope.
@@ -1307,6 +1348,20 @@ export interface components {
             createdAt?: string;
             /** Format: date-time */
             updatedAt?: string;
+        };
+        /** @description ControlReference points to the place a requirement comes from or is related to. */
+        ControlReference: {
+            /** @description The framework or document, for example "CRA" or "BSI TR-03183-1". */
+            framework?: string;
+            /** @description The identifier within it, for example "Annex I, Part I, (2)(e)" or a control ID. */
+            identifier?: string;
+            /**
+             * @description How the requirement relates to it: "legal-basis" for the law the requirement is derived from, "subset-of" if it is
+             *      a part of the referenced item, "equivalent" or "related". The values follow the OSCAL mapping relationships.
+             */
+            relationship?: string;
+            /** @description Optional link. */
+            url?: string;
         };
         CreateControlInScopeRequest: {
             auditScopeId: string;
@@ -1667,6 +1722,51 @@ export interface components {
              * @description The time by which the assessment has to be reviewed. If omitted, it is one year after the approval.
              */
             reviewDueAt?: string;
+            /** @description The assets and the environment the scope decisions were derived from, if any. */
+            riskProfile?: components["schemas"]["RiskProfile"];
+        };
+        /**
+         * @description RiskProfile is the part of a risk assessment that tells which requirements apply: the assets with their impact and
+         *      the environment of the target of evaluation.
+         */
+        RiskProfile: {
+            assets?: components["schemas"]["AssetImpact"][];
+            /**
+             * Format: enum
+             * @enum {string}
+             */
+            physicalAccess?: "PHYSICAL_ACCESS_UNSPECIFIED" | "PHYSICAL_ACCESS_CONTROLLED" | "PHYSICAL_ACCESS_SUPERVISED" | "PHYSICAL_ACCESS_OPEN";
+            /**
+             * Format: enum
+             * @enum {string}
+             */
+            connectivity?: "CONNECTIVITY_UNSPECIFIED" | "CONNECTIVITY_LOCAL" | "CONNECTIVITY_PRIVATE_NETWORK" | "CONNECTIVITY_INTERNET";
+            /**
+             * Format: enum
+             * @enum {string}
+             */
+            operatorSkill?: "OPERATOR_SKILL_UNSPECIFIED" | "OPERATOR_SKILL_EXPERT" | "OPERATOR_SKILL_GENERAL";
+        };
+        /**
+         * @description RiskScenario is the risk at which a requirement applies. A requirement applies if the risk profile of the target of
+         *      evaluation reaches the scenario: some asset has at least the given impacts, and the environment is one of the
+         *      given ones. A value that is not set does not restrict.
+         */
+        RiskScenario: {
+            /**
+             * Format: int32
+             * @description The lowest impact on confidentiality, integrity or availability of an asset, from 1 (low) to 5 (very high).
+             *      0 means the property is not relevant.
+             */
+            minConfidentiality?: number;
+            /** Format: int32 */
+            minIntegrity?: number;
+            /** Format: int32 */
+            minAvailability?: number;
+            /** @description The environments in which the requirement applies. An empty list means any. */
+            physicalAccess?: ("PHYSICAL_ACCESS_UNSPECIFIED" | "PHYSICAL_ACCESS_CONTROLLED" | "PHYSICAL_ACCESS_SUPERVISED" | "PHYSICAL_ACCESS_OPEN")[];
+            connectivity?: ("CONNECTIVITY_UNSPECIFIED" | "CONNECTIVITY_LOCAL" | "CONNECTIVITY_PRIVATE_NETWORK" | "CONNECTIVITY_INTERNET")[];
+            operatorSkill?: ("OPERATOR_SKILL_UNSPECIFIED" | "OPERATOR_SKILL_EXPERT" | "OPERATOR_SKILL_GENERAL")[];
         };
         Runtime: {
             /** @description release_version is the latest Confirmate release version for this commit */
@@ -1699,6 +1799,14 @@ export interface components {
              * @enum {string}
              */
             source?: "SCOPE_DECISION_SOURCE_UNSPECIFIED" | "SCOPE_DECISION_SOURCE_RULE" | "SCOPE_DECISION_SOURCE_IMPORT" | "SCOPE_DECISION_SOURCE_MANUAL";
+            /**
+             * Format: enum
+             * @description Why the control does not apply. It is required if the control is out of scope, unless it is an accepted risk.
+             * @enum {string}
+             */
+            reason?: "NOT_APPLICABLE_REASON_UNSPECIFIED" | "NOT_APPLICABLE_REASON_TARGET_ABSENT" | "NOT_APPLICABLE_REASON_CONDITION_NOT_MET" | "NOT_APPLICABLE_REASON_COMPENSATED" | "NOT_APPLICABLE_REASON_CONFLICTING_REGULATION" | "NOT_APPLICABLE_REASON_BELOW_RISK_LEVEL";
+            /** @description The control that is fulfilled instead, if the reason is COMPENSATED. */
+            compensatingControlId?: string;
         };
         /** @description A state of a certificate at a given time */
         State: {
@@ -1901,9 +2009,11 @@ export interface components {
     headers: never;
     pathItems: never;
 }
+export type SchemaApplicability = components['schemas']['Applicability'];
 export type SchemaApproveRiskAssessmentRequest = components['schemas']['ApproveRiskAssessmentRequest'];
 export type SchemaAssessmentResult = components['schemas']['AssessmentResult'];
 export type SchemaAssessmentTool = components['schemas']['AssessmentTool'];
+export type SchemaAssetImpact = components['schemas']['AssetImpact'];
 export type SchemaAuditScope = components['schemas']['AuditScope'];
 export type SchemaAuditTrailEvent = components['schemas']['AuditTrailEvent'];
 export type SchemaCatalog = components['schemas']['Catalog'];
@@ -1913,6 +2023,7 @@ export type SchemaCertificate = components['schemas']['Certificate'];
 export type SchemaComparisonResult = components['schemas']['ComparisonResult'];
 export type SchemaControl = components['schemas']['Control'];
 export type SchemaControlInScope = components['schemas']['ControlInScope'];
+export type SchemaControlReference = components['schemas']['ControlReference'];
 export type SchemaCreateControlInScopeRequest = components['schemas']['CreateControlInScopeRequest'];
 export type SchemaDependency = components['schemas']['Dependency'];
 export type SchemaEvaluationResult = components['schemas']['EvaluationResult'];
@@ -1943,6 +2054,8 @@ export type SchemaMetricImplementation = components['schemas']['MetricImplementa
 export type SchemaOrganizationPostalAddress = components['schemas']['Organization_PostalAddress'];
 export type SchemaRecord = components['schemas']['Record'];
 export type SchemaRiskAssessment = components['schemas']['RiskAssessment'];
+export type SchemaRiskProfile = components['schemas']['RiskProfile'];
+export type SchemaRiskScenario = components['schemas']['RiskScenario'];
 export type SchemaRuntime = components['schemas']['Runtime'];
 export type SchemaScopeDecision = components['schemas']['ScopeDecision'];
 export type SchemaState = components['schemas']['State'];
