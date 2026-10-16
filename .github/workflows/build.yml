@@ -18,12 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           submodules: true
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version-file: core/go.mod
           cache: true
@@ -72,20 +72,20 @@ jobs:
           tparse -format markdown -file output-collectors.json >> $GITHUB_STEP_SUMMARY
         working-directory: ./collectors/cloud
       - name: Upload coverage to Codecov (core)
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: ./core/coverage-core.cov
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
       - name: Upload coverage to Codecov (collectors)
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: ./collectors/coverage-collectors.cov
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
       - name: Upload test results to Codecov (core)
         if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./core/junit-core.xml
@@ -93,13 +93,13 @@ jobs:
 
       - name: Upload test results to Codecov (collectors)
         if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./collectors/junit-collectors.xml
           report_type: test_results
       - name: "Upload Artifact"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: core-build
           path: core/build
