@@ -12,10 +12,11 @@ import type {
 } from '$lib/api/openapi/orchestrator';
 import { bucketControlsByCategory, flattenControls } from '$lib/auditScope';
 import { groupsOf } from './catalog';
-import type { RiskProfile } from './profile';
-import { computeScope } from './scope';
+import type { Connectivity, OperatorSkill, PhysicalAccess, RiskProfile } from './profile';
+import { computeScope, type NotApplicableReason } from './scope';
 import type {
 	AcceptedRisk,
+	AssessmentDecision,
 	Check,
 	GuidedSource,
 	NewStatement,
@@ -26,6 +27,7 @@ import type {
 	RequirementDetail,
 	RequirementStatus,
 	RequirementSummary,
+	RiskAssessmentView,
 	Task,
 	TargetDetail,
 	TargetSummary
@@ -79,6 +81,31 @@ function riskProfileOf(r: RiskProfile) {
 		operatorSkill: r.operatorSkill ? `OPERATOR_SKILL_${r.operatorSkill}` : 'OPERATOR_SKILL_UNSPECIFIED'
 	};
 }
+
+/** The risk profile of an assessment as the API returns it: zero values are omitted. */
+function riskProfileFrom(r: NonNullable<SchemaRiskAssessment['riskProfile']>): RiskProfile {
+	const strip = <T extends string>(v: string | undefined, prefix: string): T | '' => {
+		const s = (v ?? '').replace(prefix, '');
+		return s === 'UNSPECIFIED' ? '' : (s as T);
+	};
+	return {
+		assets: (r.assets ?? []).map((a) => ({
+			name: a.name ?? '',
+			confidentiality: a.confidentiality ?? 0,
+			integrity: a.integrity ?? 0,
+			availability: a.availability ?? 0
+		})),
+		physicalAccess: strip<PhysicalAccess>(r.physicalAccess, 'PHYSICAL_ACCESS_'),
+		connectivity: strip<Connectivity>(r.connectivity, 'CONNECTIVITY_'),
+		operatorSkill: strip<OperatorSkill>(r.operatorSkill, 'OPERATOR_SKILL_')
+	};
+}
+
+const methodLabels: Record<string, string> = {
+	RISK_ASSESSMENT_METHOD_BUILT_IN: 'Risk assessment in the setup',
+	RISK_ASSESSMENT_METHOD_IMPORT: 'Imported from a tool',
+	RISK_ASSESSMENT_METHOD_DOCUMENT: 'Uploaded document'
+};
 
 /** Turns an error response of the API into an error with a readable message. */
 function fail(what: string, error: unknown): never {
@@ -483,6 +510,69 @@ export const realSource: GuidedSource = {
 			body: { riskAssessmentId: created.data.id }
 		});
 		if (approved.error) fail('Could not approve the risk assessment', approved.error);
+	},
+
+	async getRiskAssessment(targetId) {
+		const client = orchestratorClient();
+		const { scopes, users } = await loadAll();
+		const scope = scopes.find((x) => x.targetOfEvaluationId === targetId);
+		if (!scope) return undefined;
+
+		const [assessments, controls] = await Promise.all([
+			client.GET('/v1/orchestrator/risk_assessments', { params: { query: { 'filter.auditScopeId': scope.id, pageSize: 50 } } }),
+			client.GET('/v1/orchestrator/controls', { params: { query: { 'filter.catalogId': scope.catalogId, pageSize: 1500 } } })
+		]);
+		const all = assessments.data?.riskAssessments ?? [];
+		const approved = all.find((a) => a.status === 'RISK_ASSESSMENT_STATUS_APPROVED');
+		if (!approved) return undefined;
+
+		const byId = new Map(flattenControls(controls.data?.controls ?? []).map((c) => [c.id ?? '', c]));
+		const date = (v?: string) => (v ? new Date(v).toLocaleDateString() : '');
+		const person = (id?: string) => {
+			const u = users.find((x) => x.id === id);
+			return u ? [u.firstName, u.lastName].filter(Boolean).join(' ') || u.username || '' : 'Unknown';
+		};
+		const prefix = 'Accepted residual risk: ';
+		const sources: Record<string, AssessmentDecision['source']> = {
+			SCOPE_DECISION_SOURCE_RULE: 'rule',
+			SCOPE_DECISION_SOURCE_IMPORT: 'import',
+			SCOPE_DECISION_SOURCE_MANUAL: 'person'
+		};
+
+		const decisions = (approved.decisions ?? []).map((d): AssessmentDecision => {
+			const control = byId.get(d.controlId ?? '');
+			const risk = d.inScope && (d.justification ?? '').startsWith(prefix);
+			const reason = (d.reason ?? '').replace('NOT_APPLICABLE_REASON_', '');
+			return {
+				requirementId: control?.shortName ?? d.controlId ?? '',
+				title: control?.name ?? d.controlId ?? '',
+				reference: control?.references?.find((r) => r.relationship === 'legal-basis')?.identifier ?? '',
+				outcome: !d.inScope ? 'not-applicable' : risk ? 'accepted-risk' : 'kept',
+				reason: !d.inScope && reason && reason !== 'UNSPECIFIED' ? (reason as NotApplicableReason) : undefined,
+				compensatedBy: d.compensatingControlId ? byId.get(d.compensatingControlId)?.name : undefined,
+				text: risk ? (d.justification ?? '').slice(prefix.length) : (d.justification ?? ''),
+				source: sources[d.source ?? ''] ?? 'person'
+			};
+		});
+
+		return {
+			version: approved.version ?? 1,
+			method: methodLabels[approved.method ?? ''] ?? 'Risk assessment',
+			summary: approved.summary ?? '',
+			approvedBy: person(approved.approvedBy),
+			approvedAt: date(approved.approvedAt),
+			reviewDueAt: date(approved.reviewDueAt),
+			profile: approved.riskProfile ? riskProfileFrom(approved.riskProfile) : undefined,
+			decisions,
+			versions: [...all]
+				.sort((a, b) => (b.version ?? 0) - (a.version ?? 0))
+				.map((a) => ({
+					version: a.version ?? 0,
+					status: a.status === 'RISK_ASSESSMENT_STATUS_APPROVED' ? 'approved' : a.status === 'RISK_ASSESSMENT_STATUS_SUPERSEDED' ? 'superseded' : 'draft',
+					createdAt: date(a.createdAt),
+					summary: a.summary ?? ''
+				}))
+		} satisfies RiskAssessmentView;
 	},
 
 	async listAcceptedRisks(targetId) {

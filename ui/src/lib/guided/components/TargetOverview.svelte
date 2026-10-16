@@ -16,7 +16,7 @@
 			<a href={resolve('/guided/')} class="text-sm no-underline">All Targets of Evaluation</a>
 		{/snippet}
 		{#snippet actions()}
-			<Button variant="quiet">Risk assessment, version 1</Button>
+			<Button variant="quiet" href={resolve(`/guided/${target.id}/risk-assessment/`)}>Risk assessment</Button>
 			<Button>Create declaration of conformity</Button>
 		{/snippet}
 	</PageHeading>

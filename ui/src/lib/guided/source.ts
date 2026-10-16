@@ -143,6 +143,43 @@ export interface ScopeChange {
 	compensatedBy?: string;
 }
 
+/** One decision of a risk assessment about a requirement, as it is shown after the setup. */
+export interface AssessmentDecision {
+	requirementId: string;
+	title: string;
+	reference: string;
+	/** Taken out of the scope, kept although the risk profile would take it out, or kept with an accepted risk. */
+	outcome: 'not-applicable' | 'accepted-risk' | 'kept';
+	/** For "not applicable": why, as one of the fixed reasons. */
+	reason?: NotApplicableReason;
+	/** The requirement that is fulfilled instead, for the reason "compensated". */
+	compensatedBy?: string;
+	text: string;
+	/** Where the decision comes from: the rules of the risk profile, an import or a person. */
+	source: 'rule' | 'import' | 'person';
+}
+
+export interface AssessmentVersion {
+	version: number;
+	status: 'draft' | 'approved' | 'superseded';
+	createdAt: string;
+	summary: string;
+}
+
+/** The approved risk assessment of a Target of Evaluation and what it changed. */
+export interface RiskAssessmentView {
+	version: number;
+	method: string;
+	summary: string;
+	approvedBy: string;
+	approvedAt: string;
+	reviewDueAt: string;
+	/** The assets and the environment, if the assessment was made from a risk profile. */
+	profile?: RiskProfile;
+	decisions: AssessmentDecision[];
+	versions: AssessmentVersion[];
+}
+
 /**
  * Where the guided experience gets its data from. There is a source with sample data and one that reads from the
  * orchestrator. The screens only depend on this interface.
@@ -159,4 +196,6 @@ export interface GuidedSource {
 	/** Takes a requirement out of scope or accepts its residual risk, as a new version of the risk assessment. */
 	changeScope(change: ScopeChange): Promise<void>;
 	listAcceptedRisks(targetId: string): Promise<AcceptedRisk[]>;
+	/** The approved risk assessment of the target and what it changed, or nothing if there is none. */
+	getRiskAssessment(targetId: string): Promise<RiskAssessmentView | undefined>;
 }

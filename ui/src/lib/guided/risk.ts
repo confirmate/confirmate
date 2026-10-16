@@ -12,6 +12,11 @@ export const impactLevels = [
 
 const impactNames = ['not relevant', 'very low', 'low', 'moderate', 'high', 'very high'];
 
+/** The impact level in words, for example "high (4)". */
+export function impactName(level: number): string {
+	return level > 0 ? `${impactNames[level] ?? level} (${level})` : impactNames[0];
+}
+
 export const physicalAccessOptions: { value: PhysicalAccess; label: string; hint: string }[] = [
 	{ value: 'CONTROLLED', label: 'Controlled', hint: 'Only authorised people can reach the device or the system it runs on' },
 	{ value: 'SUPERVISED', label: 'Supervised', hint: 'Many people can reach it, but it is watched' },

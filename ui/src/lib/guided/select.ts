@@ -15,5 +15,6 @@ export const guidedSource: GuidedSource = {
 	createTarget: (input) => (sourceMode.current === 'sample' ? mockSource : realSource).createTarget(input),
 	addStatement: (s) => (sourceMode.current === 'sample' ? mockSource : realSource).addStatement(s),
 	changeScope: (c) => (sourceMode.current === 'sample' ? mockSource : realSource).changeScope(c),
+	getRiskAssessment: (t) => (sourceMode.current === 'sample' ? mockSource : realSource).getRiskAssessment(t),
 	listAcceptedRisks: (t) => (sourceMode.current === 'sample' ? mockSource : realSource).listAcceptedRisks(t)
 };

@@ -11,6 +11,7 @@
 		{ name: 'Overview', href: resolve(`/guided/${target.id}/`), exact: true },
 		{ name: 'To do', href: resolve(`/guided/${target.id}/todo/`), exact: false, count: target.tasks.length },
 		{ name: 'Requirements', href: resolve(`/guided/${target.id}/requirements/`), exact: false },
+		{ name: 'Risk assessment', href: resolve(`/guided/${target.id}/risk-assessment/`), exact: false },
 		{ name: 'Accepted risks', href: resolve(`/guided/${target.id}/risks/`), exact: false }
 	]);
 </script>

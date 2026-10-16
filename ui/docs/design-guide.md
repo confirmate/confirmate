@@ -110,6 +110,9 @@ All colors, fonts and radii of the guided experience come from tokens in `ui/src
   drop out as a whole. The matching in `risk.ts` is the same as the one of the server and is tested against it.
   Choices of the setup, such as the kind of product, can suggest the answers about the conditions (`conditionDefaults` of
   the details field); the screen says where a suggestion comes from, and an answer of a person is never overwritten.
+- **Risk assessment page.** After the setup, the approved risk assessment is a page of its own (`/guided/<id>/risk-assessment/`):
+  who approved it and when it has to be reviewed, the risk profile (assets with their impact, the environment), what it
+  changed with the reason for every requirement that is not applicable and where each decision comes from, and the versions.
 - **Work queue.** A list of tasks with a status, an explanation of why, who is responsible and when. Each task links
   to the place where it is solved.
 - **Requirement view.** The requirement in plain words and its reference, the status, the checks with the evidence

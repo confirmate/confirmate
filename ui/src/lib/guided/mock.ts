@@ -1,5 +1,5 @@
 import { groupsOf } from './catalog';
-import type { AcceptedRisk, GuidedSource, RequirementDetail, TargetDetail, TargetSummary } from './source';
+import type { AcceptedRisk, RiskAssessmentView, GuidedSource, RequirementDetail, TargetDetail, TargetSummary } from './source';
 
 /** Sample data for the preview of the guided experience. It is replaced by the real source. */
 const targets: TargetSummary[] = [
@@ -163,6 +163,44 @@ const acceptedRisks: AcceptedRisk[] = [
 	}
 ];
 
+const sampleAssessment: RiskAssessmentView = {
+	version: 1,
+	method: 'Quick check in the setup',
+	summary: 'Risk assessment of the setup, made together with the product team.',
+	approvedBy: 'Bob',
+	approvedAt: '1 October 2026',
+	reviewDueAt: '1 October 2027',
+	profile: {
+		assets: [
+			{ name: 'Stored credentials', confidentiality: 5, integrity: 5, availability: 3 },
+			{ name: 'Browser extension', confidentiality: 3, integrity: 4, availability: 2 }
+		],
+		physicalAccess: 'OPEN',
+		connectivity: 'INTERNET',
+		operatorSkill: 'GENERAL'
+	},
+	decisions: [
+		{
+			requirementId: 'CRA-I-1.1.9.1',
+			title: 'DDoS Protection',
+			reference: 'Annex I, Part I, (2)(h)',
+			outcome: 'not-applicable',
+			reason: 'TARGET_ABSENT',
+			text: 'The product is a standalone application. No other system depends on it and it offers no function over a network.',
+			source: 'person'
+		},
+		{
+			requirementId: 'CRA-I-1.1.13.4',
+			title: 'Security Data Access',
+			reference: 'Annex I, Part I, (2)(l)',
+			outcome: 'accepted-risk',
+			text: 'Logs stay on the device of the user and are not offered through a separate interface.',
+			source: 'person'
+		}
+	],
+	versions: [{ version: 1, status: 'approved', createdAt: '1 October 2026', summary: 'Risk assessment of the setup' }]
+};
+
 export const mockSource: GuidedSource = {
 	async listTargets() {
 		return targets;
@@ -190,6 +228,9 @@ export const mockSource: GuidedSource = {
 	},
 	async changeScope() {
 		// Nothing is stored for sample data.
+	},
+	async getRiskAssessment(targetId) {
+		return targetId === pythonpass.id ? sampleAssessment : undefined;
 	},
 	async listAcceptedRisks(targetId) {
 		return targetId === pythonpass.id ? acceptedRisks : [];
