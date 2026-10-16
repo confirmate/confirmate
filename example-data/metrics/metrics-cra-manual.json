@@ -1,0 +1,542 @@
+[
+  {
+    "id": "CeMarkingAffixed",
+    "name": "CeMarkingAffixed",
+    "description": "The CE marking is affixed to the product or its documentation",
+    "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "ComponentDueDiligence",
+    "name": "ComponentDueDiligence",
+    "description": "Due diligence is exercised for third-party components, including open source components",
+    "category": "Risk Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "ConformityRouteCompleted",
+    "name": "ConformityRouteCompleted",
+    "description": "The conformity assessment procedure for the product class is carried out",
+    "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "CvdPolicyPublished",
+    "name": "CvdPolicyPublished",
+    "description": "A coordinated vulnerability disclosure policy is published",
+    "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "DataTransferSecure",
+    "name": "DataTransferSecure",
+    "description": "Data transfer to other products or systems is secure",
+    "category": "Data Protection",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "DebugInterfacesProtected",
+    "name": "DebugInterfacesProtected",
+    "description": "Debug and service interfaces are disabled or protected in the delivered product",
+    "category": "Identity Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "DeclarationOfConformityIssued",
+    "name": "DeclarationOfConformityIssued",
+    "description": "An EU declaration of conformity according to Annex V exists for the released version",
+    "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "DocumentationRetained",
+    "name": "DocumentationRetained",
+    "description": "Technical documentation and EU declaration of conformity are retained for the required period",
+    "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "EssentialFunctionsResilient",
+    "name": "EssentialFunctionsResilient",
+    "description": "Essential functions remain available under attack or fault conditions",
+    "category": "Network Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "ExploitationMitigationApplied",
+    "name": "ExploitationMitigationApplied",
+    "description": "Exploitation mitigation techniques (hardening flags, memory protection, sandboxing) are applied",
+    "category": "Application Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "ExploitedVulnerabilitiesReportedInTime",
+    "name": "ExploitedVulnerabilitiesReportedInTime",
+    "description": "Actively exploited vulnerabilities are reported within the required time limits",
+    "category": "Security Incidents",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "FixedVulnerabilitiesDisclosed",
+    "name": "FixedVulnerabilitiesDisclosed",
+    "description": "An advisory with the required information is published for every fixed vulnerability",
+    "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "KeysProtected",
+    "name": "KeysProtected",
+    "description": "Cryptographic keys and secrets are stored in protected storage",
+    "category": "Storage Encryption",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "NoDefaultCredentials",
+    "name": "NoDefaultCredentials",
+    "description": "The product has no default or shared credentials",
+    "category": "Identity Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "ProductClassDetermined",
+    "name": "ProductClassDetermined",
+    "description": "The product class is determined and documented",
+    "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "ProductIdentified",
+    "name": "ProductIdentified",
+    "description": "The product type, version or batch and the manufacturer are identified on or with the product",
+    "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "ReportingProcessDefined",
+    "name": "ReportingProcessDefined",
+    "description": "A process for reporting exploited vulnerabilities and severe incidents is defined and tested",
+    "category": "Security Incidents",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "ResetToOriginalStatePossible",
+    "name": "ResetToOriginalStatePossible",
+    "description": "The product can be reset to its original secure state",
+    "category": "Configuration Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "RiskAssessmentDocumented",
+    "name": "RiskAssessmentDocumented",
+    "description": "A cybersecurity risk assessment of the product is documented and has been approved",
+    "category": "Risk Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "RiskAssessmentUpdated",
+    "name": "RiskAssessmentUpdated",
+    "description": "The cybersecurity risk assessment is reviewed and updated at defined intervals and after relevant changes",
+    "category": "Risk Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SbomAvailable",
+    "name": "SbomAvailable",
+    "description": "A machine-readable SBOM exists for each release of the product",
+    "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SbomComplete",
+    "name": "SbomComplete",
+    "description": "The SBOM is valid and covers at least the top-level dependencies",
+    "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SecurityPatchesFree",
+    "name": "SecurityPatchesFree",
+    "description": "Security patches are provided free of charge with advisory messages",
+    "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SecurityPatchesTimely",
+    "name": "SecurityPatchesTimely",
+    "description": "Security patches are disseminated without delay",
+    "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SecurityTestingRegular",
+    "name": "SecurityTestingRegular",
+    "description": "Security tests and scans run regularly and for every release",
+    "category": "Application Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SecurityUpdatesSeparable",
+    "name": "SecurityUpdatesSeparable",
+    "description": "Security updates are provided separately from functionality updates where technically feasible",
+    "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SevereIncidentsReportedInTime",
+    "name": "SevereIncidentsReportedInTime",
+    "description": "Severe incidents are reported within the required time limits",
+    "category": "Security Incidents",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SoftwareIntegrityProtected",
+    "name": "SoftwareIntegrityProtected",
+    "description": "Software and firmware integrity is protected (signed updates, secure boot or equivalent)",
+    "category": "Application Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SupportPeriodCommunicated",
+    "name": "SupportPeriodCommunicated",
+    "description": "The support period is stated to users",
+    "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SupportPeriodDetermined",
+    "name": "SupportPeriodDetermined",
+    "description": "A support period of at least five years (or a justified shorter period) is determined",
+    "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "TechnicalDocumentationComplete",
+    "name": "TechnicalDocumentationComplete",
+    "description": "The technical documentation is complete according to Annex VII and up to date",
+    "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "UpdatesDistributedSecurely",
+    "name": "UpdatesDistributedSecurely",
+    "description": "Updates are signed, distributed over an authenticated channel and verified before installation",
+    "category": "Endpoint Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "UserInformationProvided",
+    "name": "UserInformationProvided",
+    "description": "User information and instructions according to Annex II are provided",
+    "category": "Governance",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "UsersInformedOfIncidents",
+    "name": "UsersInformedOfIncidents",
+    "description": "Affected users are informed about exploited vulnerabilities, incidents and corrective measures",
+    "category": "Security Incidents",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "VulnerabilityContactProvided",
+    "name": "VulnerabilityContactProvided",
+    "description": "A contact address for vulnerability reports is provided and monitored",
+    "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "VulnerabilityRemediationTimely",
+    "name": "VulnerabilityRemediationTimely",
+    "description": "Known vulnerabilities are triaged and remediated within the defined time",
+    "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  }
+]
