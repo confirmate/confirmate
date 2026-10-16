@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import type { SchemaAssessmentResult, SchemaComparisonResult } from '$lib/api/openapi/orchestrator';
-	import PageHeader from '$lib/components/ui/PageHeader.svelte';
+	import type { SchemaAssessmentResult, SchemaComparisonResult } from '#lib/api/openapi/orchestrator.js';
+	import PageHeader from '#lib/components/ui/PageHeader.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import {
 		ArrowLeft,
@@ -15,7 +15,7 @@
 	} from '@steeze-ui/heroicons';
 	import { page } from '$app/state';
 	import type { PageProps } from './$types';
-	import { metricName } from '$lib/metrics';
+	import { metricName } from '#lib/metrics.js';
 
 	let { data }: PageProps = $props();
 
@@ -32,7 +32,7 @@
 <div>
 	<div class="mb-6">
 		<a
-			href={resolve(`/toe/${toeId}/assessment-results/`)}
+			href={resolve(`toe/${toeId}/assessment-results/`)}
 			class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-confirmate"
 		>
 			<Icon src={ArrowLeft} class="h-4 w-4" />
@@ -88,7 +88,7 @@
 			</div>
 			<div class="mt-2">
 				<a
-					href={resolve(`/toe/${toeId}/evidences/${result.evidenceId}/`)}
+					href={resolve(`toe/${toeId}/evidences/${result.evidenceId}/`)}
 					class="text-sm font-mono text-confirmate hover:underline"
 				>
 					{result.evidenceId}
@@ -178,7 +178,7 @@
 							<tr class="hover:bg-gray-50">
 								<td class="whitespace-nowrap px-4 py-2">
 									<a
-										href={resolve(`/toe/${toeId}/evidences/${record.evidenceId}/`)}
+										href={resolve(`toe/${toeId}/evidences/${record.evidenceId}/`)}
 										class="font-mono text-sm text-confirmate hover:underline"
 									>
 										{record.evidenceId}

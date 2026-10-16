@@ -2,8 +2,8 @@
 	import { XMark } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import ManualEvaluationDialog from './ManualEvaluationDialog.svelte';
-	import type { SchemaEvaluationResult } from '$lib/api/openapi/orchestrator';
-	import { metricName } from '$lib/metrics';
+	import type { SchemaEvaluationResult } from '#lib/api/openapi/orchestrator.js';
+	import { metricName } from '#lib/metrics.js';
 
 	let {
 		open = $bindable(false),

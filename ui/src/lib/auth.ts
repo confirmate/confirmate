@@ -1,7 +1,7 @@
-import { base, resolve } from '$app/paths';
+import { resolve } from '$app/paths';
 
 // Used only for the authorize redirect (full navigation, not fetch)
-const AUTHORIZE_BASE = import.meta.env.VITE_AUTH_BASE ?? base;
+const AUTHORIZE_BASE = import.meta.env.VITE_AUTH_BASE ?? resolve('/');
 const CLIENT_ID = 'ui';
 const RETURN_TO_KEY = 'auth_return_to';
 const CODE_VERIFIER_KEY = 'auth_code_verifier';
@@ -47,7 +47,7 @@ export function isAuthenticated(): boolean {
 	return !!getToken();
 }
 
-export async function login(returnTo: string = resolve('/dashboard/')): Promise<void> {
+export async function login(returnTo: string = resolve('dashboard/')): Promise<void> {
 	sessionStorage.setItem(RETURN_TO_KEY, returnTo);
 
 	const { verifier, challenge } = await generatePKCE();
@@ -86,7 +86,7 @@ export async function exchangeCode(code: string): Promise<void> {
 	});
 
 	// Use relative URL so the request goes through the Vite proxy (avoids CORS)
-	const res = await fetch(`${base}/v1/auth/token`, {
+	const res = await fetch(`${resolve('/')}v1/auth/token`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 		body: body.toString()
@@ -103,7 +103,7 @@ export async function exchangeCode(code: string): Promise<void> {
 }
 
 export function getReturnTo(): string {
-	return sessionStorage.getItem(RETURN_TO_KEY) ?? resolve('/dashboard/');
+	return sessionStorage.getItem(RETURN_TO_KEY) ?? resolve('dashboard/');
 }
 
 export function clearReturnTo(): void {

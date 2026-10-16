@@ -1,8 +1,8 @@
 <script lang="ts">
-	import UserAvatar from '$lib/components/ui/UserAvatar.svelte';
-	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
-	import EmptyState from '$lib/components/ui/EmptyState.svelte';
-	import { roleLabel } from '$lib/roles';
+	import UserAvatar from '#lib/components/ui/UserAvatar.svelte';
+	import SectionHeader from '#lib/components/ui/SectionHeader.svelte';
+	import EmptyState from '#lib/components/ui/EmptyState.svelte';
+	import { roleLabel } from '#lib/roles.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();

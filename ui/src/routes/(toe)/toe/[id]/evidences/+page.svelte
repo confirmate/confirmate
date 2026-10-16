@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import type { SchemaEvidence } from '$lib/api/openapi/evidence';
-	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
+	import type { SchemaEvidence } from '#lib/api/openapi/evidence.js';
+	import SectionHeader from '#lib/components/ui/SectionHeader.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { DocumentText, Beaker, Clock, ServerStack } from '@steeze-ui/heroicons';
 	import { page } from '$app/state';
@@ -76,7 +76,7 @@
 						<tr class="hover:bg-gray-50">
 							<td class="whitespace-nowrap px-4 py-3">
 								<a
-									href={resolve(`/toe/${toeId}/evidences/${evidence.id}/`)}
+									href={resolve(`toe/${toeId}/evidences/${evidence.id}/`)}
 									class="flex items-center gap-2 text-sm font-mono text-gray-900 hover:text-confirmate"
 								>
 									<Icon src={DocumentText} class="h-4 w-4 text-gray-400" />

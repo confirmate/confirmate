@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SchemaCategory, SchemaControl, SchemaControlInScope, SchemaUser } from '$lib/api/openapi/orchestrator';
+	import type { SchemaCategory, SchemaControl, SchemaControlInScope, SchemaUser } from '#lib/api/openapi/orchestrator.js';
 	import ImplementationRow from './ImplementationRow.svelte';
 
 	let {

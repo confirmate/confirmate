@@ -1,6 +1,6 @@
-import { orchestratorClient } from '$lib/api/client';
+import { orchestratorClient } from '#lib/api/client.js';
 import { error } from '@sveltejs/kit';
-import type { SchemaControl } from '$lib/api/openapi/orchestrator';
+import type { SchemaControl } from '#lib/api/openapi/orchestrator.js';
 import {
 	bucketControlsByCategory,
 	countAssessmentsByMetric,
@@ -8,7 +8,7 @@ import {
 	indexControlsById,
 	indexControlsInScope,
 	indexEvaluationsByControl
-} from '$lib/auditScope';
+} from '#lib/auditScope.js';
 import type { PageLoad } from './$types';
 
 export const load = (async ({ params, fetch, depends, url }) => {
@@ -142,11 +142,11 @@ export const load = (async ({ params, fetch, depends, url }) => {
 
 	// Fetch the current user's permission on this audit scope so the UI
 	// can show/hide admin-only actions like "Set out of scope".
-	const { data: permResp } = await client.GET('/v1/users/permissions/{objectType}/{objectId}', {
+	const { data: permResp } = await client.GET('/v1/users/permissions/{filter.object_type}/{filter.object_id}', {
 		params: {
 			path: {
-				objectType: 'OBJECT_TYPE_AUDIT_SCOPE',
-				objectId: params.auditScopeId
+				'filter.object_type': 'OBJECT_TYPE_AUDIT_SCOPE',
+				'filter.object_id': params.auditScopeId
 			}
 		}
 	});

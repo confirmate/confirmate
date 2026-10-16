@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import type { SchemaEvidence, SchemaResource } from '$lib/api/openapi/evidence';
-	import PageHeader from '$lib/components/ui/PageHeader.svelte';
-	import EmptyState from '$lib/components/ui/EmptyState.svelte';
+	import type { SchemaEvidence, SchemaResource } from '#lib/api/openapi/evidence.js';
+	import PageHeader from '#lib/components/ui/PageHeader.svelte';
+	import EmptyState from '#lib/components/ui/EmptyState.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import {
 		ArrowLeft,
@@ -119,7 +119,7 @@ function getResourceName(resource: SchemaResource | undefined): string {
 <div>
 	<div class="mb-6">
 		<a
-			href={resolve(`/toe/${toeId}/evidences/`)}
+			href={resolve(`toe/${toeId}/evidences/`)}
 			class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-confirmate"
 		>
 			<Icon src={ArrowLeft} class="h-4 w-4" />
@@ -147,84 +147,84 @@ function getResourceName(resource: SchemaResource | undefined): string {
 		description="Evidence details"
 	/>
 
-	<div class="mt-6 grid grid-cols-3 gap-4">
+		<div class="mt-6 grid grid-cols-3 gap-4">
 		<div class="rounded-lg border border-gray-200 bg-white px-5 py-4">
 			<div class="flex items-center gap-2 text-sm font-medium text-gray-500">
-				<Icon src={DocumentText} class="h-4 w-4" />
-				Evidence ID
+					<Icon src={DocumentText} class="h-4 w-4" />
+					Evidence ID
+				</div>
+				<div class="mt-2 font-mono text-sm text-gray-900">{evidence.id}</div>
 			</div>
-			<div class="mt-2 font-mono text-sm text-gray-900">{evidence.id}</div>
-		</div>
 
 		<div class="rounded-lg border border-gray-200 bg-white px-5 py-4">
 			<div class="flex items-center gap-2 text-sm font-medium text-gray-500">
 				<Icon src={Beaker} class="h-4 w-4" />
 				Tool
 			</div>
-			<div class="mt-2 text-sm text-gray-900">{evidence.toolId ?? 'Unknown'}</div>
-		</div>
+				<div class="mt-2 text-sm text-gray-900">{evidence.toolId ?? 'Unknown'}</div>
+			</div>
 
 		<div class="rounded-lg border border-gray-200 bg-white px-5 py-4">
 			<div class="flex items-center gap-2 text-sm font-medium text-gray-500">
 				<Icon src={Clock} class="h-4 w-4" />
 				Timestamp
 			</div>
-			<div class="mt-2 text-sm text-gray-900">
+				<div class="mt-2 text-sm text-gray-900">
 				{evidence.timestamp ? new Date(evidence.timestamp).toLocaleString() : 'Unknown'}
+				</div>
 			</div>
 		</div>
-	</div>
 
-	{#if evidence.resource}
+		{#if evidence.resource}
 		<div class="mt-6 rounded-lg border border-gray-200 bg-white">
-			<div class="border-b border-gray-200 px-5 py-4">
-				<div class="flex items-center gap-2 text-sm font-medium text-gray-500">
-					<Icon src={ServerStack} class="h-4 w-4" />
-					Resource
+				<div class="border-b border-gray-200 px-5 py-4">
+					<div
+						class="flex items-center gap-2 text-sm font-medium text-gray-500"
+					><Icon src={ServerStack} class="h-4 w-4" />Resource</div>
 				</div>
-			</div>
-			<div class="px-5 py-4">
-				<div class="grid grid-cols-2 gap-4">
-					<div>
-						<div class="text-xs font-medium uppercase text-gray-400">Type</div>
-						<div class="mt-1 text-sm text-gray-900">{getResourceType(evidence.resource)}</div>
-					</div>
-					<div>
-						<div class="text-xs font-medium uppercase text-gray-400">Name</div>
-						<div class="mt-1 text-sm text-gray-900">{getResourceName(evidence.resource)}</div>
-					</div>
-					<div class="col-span-2">
-						<div class="text-xs font-medium uppercase text-gray-400">ID</div>
-						<div class="mt-1 font-mono text-sm text-gray-900">{getResourceId(evidence.resource)}</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	{/if}
 
-	{#if evidence.targetOfEvaluationId}
+				<div class="px-5 py-4">
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+						<div class="text-xs font-medium uppercase text-gray-400">Type</div>
+							<div class="mt-1 text-sm text-gray-900">{getResourceType(evidence.resource)}</div>
+						</div>
+						<div>
+						<div class="text-xs font-medium uppercase text-gray-400">Name</div>
+							<div class="mt-1 text-sm text-gray-900">{getResourceName(evidence.resource)}</div>
+						</div>
+						<div class="col-span-2">
+						<div class="text-xs font-medium uppercase text-gray-400">ID</div>
+							<div class="mt-1 font-mono text-sm text-gray-900">{getResourceId(evidence.resource)}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		{/if}
+
+		{#if evidence.targetOfEvaluationId}
 		<div class="mt-6 rounded-lg border border-gray-200 bg-white px-5 py-4">
 			<div class="flex items-center gap-2 text-sm font-medium text-gray-500">
-				<Icon src={User} class="h-4 w-4" />
-				Target of Evaluation
+					<Icon src={User} class="h-4 w-4" />
+					Target of Evaluation
+				</div>
+				<div class="mt-2 text-sm text-gray-900">{evidence.targetOfEvaluationId}</div>
 			</div>
-			<div class="mt-2 text-sm text-gray-900">{evidence.targetOfEvaluationId}</div>
-		</div>
-	{/if}
+		{/if}
 
-	{#if evidence.experimentalRelatedResourceIds && evidence.experimentalRelatedResourceIds.length > 0}
+		{#if evidence.experimentalRelatedResourceIds && evidence.experimentalRelatedResourceIds.length > 0}
 		<div class="mt-6 rounded-lg border border-gray-200 bg-white">
 			<div class="border-b border-gray-200 px-5 py-4">
 				<div class="text-sm font-medium text-gray-500">Related Resource IDs</div>
 			</div>
-			<div class="px-5 py-4">
-				<ul class="space-y-1">
-					{#each evidence.experimentalRelatedResourceIds as relatedId}
-						<li class="font-mono text-sm text-gray-600">{relatedId}</li>
-					{/each}
-				</ul>
+				<div class="px-5 py-4">
+					<ul class="space-y-1">
+						{#each evidence.experimentalRelatedResourceIds as relatedId}
+							<li class="font-mono text-sm text-gray-600">{relatedId}</li>
+						{/each}
+					</ul>
+				</div>
 			</div>
-		</div>
-	{/if}
+		{/if}
 	{/if}
 </div>

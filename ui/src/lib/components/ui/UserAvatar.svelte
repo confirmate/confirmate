@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SchemaUser } from '$lib/api/openapi/orchestrator';
+	import type { SchemaUser } from '#lib/api/openapi/orchestrator.js';
 
 	let { user, size = 'md' }: { user: SchemaUser; size?: 'sm' | 'md' } = $props();
 

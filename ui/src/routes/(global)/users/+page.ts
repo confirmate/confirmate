@@ -1,4 +1,4 @@
-import { orchestratorClient } from '$lib/api/client';
+import { orchestratorClient } from '#lib/api/client.js';
 import type { PageLoad } from './$types';
 
 export const load = (async ({ fetch }) => {

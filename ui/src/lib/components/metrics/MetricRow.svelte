@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SchemaMetric } from '$lib/api/openapi/orchestrator';
+	import type { SchemaMetric } from '#lib/api/openapi/orchestrator.js';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { CheckCircle, XCircle } from '@steeze-ui/heroicons';
 

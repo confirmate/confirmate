@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-  import type { SchemaEvidence as Evidence } from '$lib/api/openapi/evidence';
-  import type { SchemaTargetOfEvaluation } from '$lib/api/openapi/orchestrator';
-  import PageHeader from '$lib/components/navigation/PageHeader.svelte';
-  import Card from '$lib/components/ui/Card.svelte';
-  import Collapsible from '$lib/components/ui/Collapsible.svelte';
-  import ProgressBar from '$lib/components/ui/ProgressBar.svelte';
-  import TextField from '$lib/components/ui/TextField.svelte';
-  import DocumentBody from '$lib/components/document/DocumentBody.svelte';
-  import EvidencePopover from '$lib/components/document/EvidencePopover.svelte';
-  import type { ManufacturerInfo, Placeholders } from '$lib/types/evidence';
+  import type { SchemaEvidence as Evidence } from '#lib/api/openapi/evidence.js';
+  import type { SchemaTargetOfEvaluation } from '#lib/api/openapi/orchestrator.js';
+  import PageHeader from '#lib/components/navigation/PageHeader.svelte';
+  import Card from '#lib/components/ui/Card.svelte';
+  import Collapsible from '#lib/components/ui/Collapsible.svelte';
+  import ProgressBar from '#lib/components/ui/ProgressBar.svelte';
+  import TextField from '#lib/components/ui/TextField.svelte';
+  import DocumentBody from '#lib/components/document/DocumentBody.svelte';
+  import EvidencePopover from '#lib/components/document/EvidencePopover.svelte';
+  import type { ManufacturerInfo, Placeholders } from '#lib/types/evidence.js';
 
   let { data }: { 
     data: { 
@@ -90,7 +90,7 @@
   <div class="border-b border-gray-200">
     <nav class="-mb-px flex space-x-8" aria-label="Tabs">
       <a
-        href={resolve(`/toe/${data.toe.id}/documentation/`)}
+        href={resolve(`toe/${data.toe.id}/documentation/`)}
         class="border-confirmate text-confirmate flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium"
       >
         Document Generator
@@ -122,7 +122,11 @@
 <div class="mb-6"></div>
 
 <Card padding="lg" bind:element={docHtmlElement}>
-  <DocumentBody {evidences} bind:manufacturer bind:placeholders />
+  <DocumentBody
+    evidences={evidences}
+    bind:manufacturer
+    bind:placeholders
+  />
 </Card>
 
 <EvidencePopover />

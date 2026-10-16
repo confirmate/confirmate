@@ -37,10 +37,10 @@ npm run generate:types
 
 ## UI Development Guidelines
 
-Route files (`+page.svelte`, `+layout.svelte`) should be **minimal** — they receive data via props and pass it to reusable components. Business logic, display logic, and UI patterns live in `$lib/components/`.
+Route files (`+page.svelte`, `+layout.svelte`) should be **minimal** — they receive data via props and pass it to reusable components. Business logic, display logic, and UI patterns live in `#lib/components/`.
 
 - **Route files**: only wire up data to components, handle top-level page structure
-- **`$lib/components/`**: all reusable UI — cards, lists, dialogs, forms
+- **`#lib/components/`**: all reusable UI — cards, lists, dialogs, forms
   - `nav/` — sidebar, navigation items
   - `ui/` — generic UI primitives (buttons, badges, empty states, etc.)
   - `toe/` — Target of Evaluation specific components
@@ -56,7 +56,7 @@ Route files (`+page.svelte`, `+layout.svelte`) should be **minimal** — they re
 ### API Client Pattern
 
 ```ts
-import { orchestratorClient } from '$lib/api/client';
+import { orchestratorClient } from '#lib/api/client';
 // In load functions: orchestratorClient(fetch)
 // In browser event handlers: orchestratorClient()
 ```
