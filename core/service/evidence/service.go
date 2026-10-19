@@ -196,6 +196,36 @@ func (svc *Service) sendToAssessment(evidence *evidence.Evidence) (err error) {
 	return nil
 }
 
+// sendToFHEProxy forwards evidence to the FHE proxy service for processing.
+func (svc *Service) sendToFHEProxy(evidence *evidence.Evidence) (err error) {
+	if svc.cfg.FheHTTPClient == nil {
+		return fmt.Errorf("FHE HTTP client is not initialized")
+	}
+
+	// Create a new HTTP request to the FHE proxy service
+	req, err := http.NewRequest("POST", svc.cfg.FheAddress+"/process-evidence", nil)
+	if err != nil {
+		return fmt.Errorf("failed to create request to FHE proxy: %w", err)
+	}
+
+	// Add evidence ID and tool ID as headers for identification
+	req.Header.Set("X-Evidence-ID", evidence.Id)
+	req.Header.Set("X-Tool-ID", evidence.ToolId)
+
+	// Send the request to the FHE proxy service
+	resp, err := svc.cfg.FheHTTPClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to send evidence %s to FHE proxy: %w", evidence.Id, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("FHE proxy returned non-OK status: %s", resp.Status)
+	}
+
+	return nil
+}
+
 // initAssessmentStream creates the restartable assessment stream once during service startup.
 func (svc *Service) initAssessmentStream() (err error) {
 	if svc.assessmentStream != nil {
@@ -232,18 +262,35 @@ func (svc *Service) initEvidenceChannel() {
 			if e == nil {
 				continue
 			}
-			// Fire-and-forget dispatch; errors are only logged here.
-			if err := svc.sendToAssessment(e); err != nil {
-				slog.Error("error while sending evidence",
-					slog.String("evidence_id", e.GetId()),
-					slog.String("tool_id", e.GetToolId()),
-					tint.Err(err),
-				)
+
+			// If FHE is enabled, send the evidence to the FHE proxy service instead of the assessment service.
+			if svc.cfg.FheEnabled {
+				if err := svc.sendToFHEProxy(e); err != nil {
+					slog.Error("error while sending evidence to FHE proxy",
+						slog.String("evidence_id", e.GetId()),
+						slog.String("tool_id", e.GetToolId()),
+						tint.Err(err),
+					)
+				} else {
+					slog.Debug("evidence sent to FHE proxy",
+						slog.String("evidence_id", e.GetId()),
+						slog.String("tool_id", e.GetToolId()),
+					)
+				}
 			} else {
-				slog.Debug("evidence sent to assessment service",
-					slog.String("evidence_id", e.GetId()),
-					slog.String("tool_id", e.GetToolId()),
-				)
+				// Fire-and-forget dispatch; errors are only logged here.
+				if err := svc.sendToAssessment(e); err != nil {
+					slog.Error("error while sending evidence",
+						slog.String("evidence_id", e.GetId()),
+						slog.String("tool_id", e.GetToolId()),
+						tint.Err(err),
+					)
+				} else {
+					slog.Debug("evidence sent to assessment service",
+						slog.String("evidence_id", e.GetId()),
+						slog.String("tool_id", e.GetToolId()),
+					)
+				}
 			}
 		}
 	}()
