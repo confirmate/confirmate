@@ -83,6 +83,7 @@ var EvidenceCommand = &cli.Command{
 			AssessmentHTTPClient: assessmentClient,
 			EvidenceQueueSize:    evidence.DefaultConfig.EvidenceQueueSize,
 			FheEnabled:           cmd.Bool("fhe-enabled"),
+			FheAddress:           cmd.String("fhe-address"),
 		}
 
 		// Add auth config

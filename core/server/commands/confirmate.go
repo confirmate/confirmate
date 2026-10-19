@@ -246,6 +246,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 			SkipMetricsOnError:     cmd.Bool("assessment-skip-metrics-on-error"),
 			CacheApplicableMetrics: cmd.Bool("assessment-cache-applicable-metrics"),
 			FheEnabled:             cmd.Bool("fhe-enabled"),
+			FheAddress:             cmd.String("fhe-address"),
 		}),
 	}, assessmentOptions...)
 

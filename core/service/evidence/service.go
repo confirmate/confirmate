@@ -53,6 +53,7 @@ var DefaultConfig = Config{
 	AssessmentHTTPClient: service.DefaultHTTPClient,
 	PersistenceConfig:    persistence.DefaultConfig,
 	EvidenceQueueSize:    defaultEvidenceQueueSize,
+	FheEnabled:           false,
 }
 
 // Config represents the configuration for the evidence store [Service].
@@ -76,6 +77,9 @@ type Config struct {
 
 	// FheEnabled indicates whether FHE (Fully Homomorphic Encryption) is enabled for the service.
 	FheEnabled bool
+
+	// FheAddress is the address of the FHE proxy service.
+	FheAddress string
 }
 
 // Service is an implementation of the Confirmate req service (evidenceServer)

@@ -76,6 +76,8 @@ type Config struct {
 	CacheApplicableMetrics bool
 	// FheEnabled indicates whether FHE (Fully Homomorphic Encryption) is enabled for the service.
 	FheEnabled bool
+	// FheAddress is the address of the FHE proxy service.
+	FheAddress string
 }
 
 const (

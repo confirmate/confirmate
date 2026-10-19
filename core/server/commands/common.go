@@ -127,6 +127,12 @@ var (
 			Value:   false,
 			Sources: envVarSources("fhe-enabled"),
 		},
+		&cli.StringFlag{
+			Name:    "fhe-address",
+			Usage:   "Address of the FHE (Fully Homomorphic Encryption) proxy service the assessment and evidence service connects to",
+			Value:   "localhost:8081",
+			Sources: envVarSources("fhe-address"),
+		},
 	}
 )
 
