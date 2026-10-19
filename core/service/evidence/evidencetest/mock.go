@@ -17,7 +17,6 @@ package evidencetest
 
 import (
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
@@ -28,7 +27,7 @@ var (
 	//	// It includes an ontology VM resource and uses random IDs (uuid.NewString()).
 	MockEvidenceWithVMResource = &evidence.Evidence{
 		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		TargetOfEvaluationId: uuid.NewString(),
 		ToolId:               "MockTool1",
 		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
@@ -42,7 +41,7 @@ var (
 	// as [MockEvidenceWithVMResource]. Use it to test “upsert”/deduplication behavior for resources in persistence.
 	MockEvidenceWithVMResource2 = &evidence.Evidence{
 		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		TargetOfEvaluationId: uuid.NewString(),
 		ToolId:               "MockTool1",
 		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
@@ -57,7 +56,7 @@ var (
 	//	// Use it to test validation/error paths and nil-handling in store/convert logic.
 	MockEvidenceWithoutResource = &evidence.Evidence{
 		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		TargetOfEvaluationId: uuid.NewString(),
 		ToolId:               "MockTool1",
 		Resource:             nil,
@@ -67,7 +66,7 @@ var (
 	// It represents tool "tool-a" and a fixed TargetOfEvaluationId (ToE) and VM resource identity.
 	MockEvidenceListA = &evidence.Evidence{
 		Id:                   "00000000-0000-0000-0000-000000000001",
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		TargetOfEvaluationId: "11111111-1111-1111-1111-111111111111",
 		ToolId:               "tool-a",
 		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
@@ -81,7 +80,7 @@ var (
 	// Compared to [MockEvidenceListA] it varies the ToE and VM identity, while keeping tool "tool-a".
 	MockEvidenceListB = &evidence.Evidence{
 		Id:                   "00000000-0000-0000-0000-000000000002",
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		TargetOfEvaluationId: "22222222-2222-2222-2222-222222222222",
 		ToolId:               "tool-a",
 		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
@@ -95,7 +94,7 @@ var (
 	// Compared to [MockEvidenceListA] it varies the tool (tool-b) while keeping the same ToE as ListA.
 	MockEvidenceListC = &evidence.Evidence{
 		Id:                   "00000000-0000-0000-0000-000000000003",
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		TargetOfEvaluationId: "11111111-1111-1111-1111-111111111111",
 		ToolId:               "tool-b",
 		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{

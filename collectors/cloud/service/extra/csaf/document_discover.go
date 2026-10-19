@@ -26,10 +26,10 @@ import (
 	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
 	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/timestamp"
 
 	"github.com/gocsaf/csaf/v3/csaf"
 	csafutil "github.com/gocsaf/csaf/v3/util"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (d *csafCollector) collectSecurityAdvisories(md *csaf.LoadedProviderMetadata, keyring openpgp.EntityList, parentId string) (documents []ontology.IsResource, err error) {
@@ -121,7 +121,7 @@ func (d *csafCollector) handleAdvisory(label csaf.TLPLabel, file csaf.AdvisoryFi
 				},
 			},
 		},
-		CreationTime: timestamppb.New(t),
+		CreationTime: timestamp.New(t),
 		ValidatedBy: &ontology.SchemaValidation{
 			SchemaUrl: new("https://docs.oasis-open.org/csaf/csaf/v2.0/csaf_json_schema.json"),
 			Format:    new("Common Security Advisory Framework"),

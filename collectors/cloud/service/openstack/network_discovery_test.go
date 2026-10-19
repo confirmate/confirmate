@@ -23,10 +23,10 @@ import (
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
 	"github.com/gophercloud/gophercloud/v2/testhelper/client"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Test_openstackCollector_collectNetworkInterfaces(t *testing.T) {
@@ -79,7 +79,7 @@ func Test_openstackCollector_collectNetworkInterfaces(t *testing.T) {
 				want := &ontology.NetworkInterface{
 					Id:           new("d32019d3-bc6e-4319-9c1d-6722fc136a22"),
 					Name:         new("public"),
-					CreationTime: timestamppb.New(t1),
+					CreationTime: timestamp.New(t1),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("test region"),
 					},

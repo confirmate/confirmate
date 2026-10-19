@@ -23,10 +23,10 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
 	"golang.org/x/oauth2/clientcredentials"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // TestConfirmate_AuthEnabled_EvidenceProducesAssessmentResults is a regression
@@ -150,7 +150,7 @@ func waitFor(t *testing.T, timeout, interval time.Duration, condition func() boo
 func loadBalancerEvidence() *evidence.Evidence {
 	return &evidence.Evidence{
 		Id:                   "50000000-0000-0000-0000-000000000000",
-		Timestamp:            timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
+		Timestamp:            timestamp.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
 		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
 		ToolId:               "manual",
 		Resource: &ontology.Resource{
@@ -159,7 +159,7 @@ func loadBalancerEvidence() *evidence.Evidence {
 					Id:           new("123e4567-e89b-12d3-a456-426614174000"),
 					Name:         new("Example Load Balancer"),
 					Description:  new("Example Load Balancer"),
-					CreationTime: timestamppb.New(time.Date(2023, 5, 11, 14, 16, 9, 0, time.UTC)),
+					CreationTime: timestamp.New(time.Date(2023, 5, 11, 14, 16, 9, 0, time.UTC)),
 					ParentId:     new("123e4567-e89b-12d3-a456-426614174002"),
 					GeoLocation:  &ontology.GeoLocation{Region: new("Germany")},
 					AccessRestriction: &ontology.AccessRestriction{

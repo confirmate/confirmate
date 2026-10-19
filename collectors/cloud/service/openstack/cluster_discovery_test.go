@@ -23,10 +23,10 @@ import (
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
 	"github.com/gophercloud/gophercloud/v2/testhelper/client"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Test_openstackCollector_collectCluster(t *testing.T) {
@@ -81,7 +81,7 @@ func Test_openstackCollector_collectCluster(t *testing.T) {
 
 				want := &ontology.ContainerOrchestration{
 					Id:           new("746e779a-751a-456b-a3e9-c883d734946f"),
-					CreationTime: timestamppb.New(t1),
+					CreationTime: timestamp.New(t1),
 					Name:         new("k8s"),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("test region"),
@@ -92,7 +92,7 @@ func Test_openstackCollector_collectCluster(t *testing.T) {
 
 				want1 := &ontology.ContainerOrchestration{
 					Id:           new("846e779a-751a-456b-a3e9-c883d734946f"),
-					CreationTime: timestamppb.New(t2),
+					CreationTime: timestamp.New(t2),
 					Name:         new("k8s"),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("test region"),

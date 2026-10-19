@@ -32,7 +32,6 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const DefaultEvidenceStoreAddress = ""
@@ -246,7 +245,7 @@ func (svc *Service) sendResourcesToEvidenceStore(ctx context.Context, collector 
 		req = &evidence.StoreEvidenceRequest{
 			Evidence: &evidence.Evidence{
 				Id:                   uuid.NewString(),
-				Timestamp:            timestamppb.Now(),
+				Timestamp:            timestamp.Now(),
 				TargetOfEvaluationId: svc.cfg.TargetOfEvaluationID,
 				ToolId:               toolID,
 				Resource:             ontology.ProtoResource(resource),

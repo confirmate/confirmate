@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
@@ -136,7 +135,7 @@ func TestValidateMessage_ChangeEvent(t *testing.T) {
 		{
 			name: "valid metric change",
 			event: &orchestrator.ChangeEvent{
-				Timestamp:            timestamppb.Now(),
+				Timestamp:            timestamp.Now(),
 				Category:             orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
 				RequestType:          orchestrator.RequestType_REQUEST_TYPE_CREATED,
 				EntityId:             "metric-1",
@@ -147,7 +146,7 @@ func TestValidateMessage_ChangeEvent(t *testing.T) {
 		{
 			name: "missing required fields",
 			event: &orchestrator.ChangeEvent{
-				Timestamp: timestamppb.Now(),
+				Timestamp: timestamp.Now(),
 				// Missing category, change_type, entity_id - should fail validation
 			},
 			wantErr: true,
@@ -155,7 +154,7 @@ func TestValidateMessage_ChangeEvent(t *testing.T) {
 		{
 			name: "invalid entity id",
 			event: &orchestrator.ChangeEvent{
-				Timestamp:   timestamppb.Now(),
+				Timestamp:   timestamp.Now(),
 				Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
 				RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 				EntityId:    "", // Empty entity ID should fail validation

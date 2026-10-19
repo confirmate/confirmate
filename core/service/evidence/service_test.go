@@ -35,9 +35,9 @@ import (
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestMain(m *testing.M) {
@@ -928,7 +928,7 @@ func TestService_ListTools(t *testing.T) {
 	newEvidence := func(toolId string, targetOfEvaluationId string, after time.Duration) *evidence.Evidence {
 		return &evidence.Evidence{
 			Id:                   uuid.NewString(),
-			Timestamp:            timestamppb.New(start.Add(after)),
+			Timestamp:            timestamp.New(start.Add(after)),
 			TargetOfEvaluationId: targetOfEvaluationId,
 			ToolId:               toolId,
 		}

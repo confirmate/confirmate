@@ -48,7 +48,6 @@ import (
 	"github.com/lmittmann/tint"
 	"github.com/urfave/cli/v3"
 	"golang.org/x/oauth2/clientcredentials"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -463,7 +462,7 @@ func (svc *Service) StartCollector(collector collector.Collector) {
 		ev = &evidence.Evidence{
 			Id:                   uuid.New().String(),
 			TargetOfEvaluationId: svc.GetTargetOfEvaluationId(),
-			Timestamp:            timestamppb.Now(),
+			Timestamp:            timestamp.Now(),
 			ToolId:               svc.cloudConfig.collectorToolID,
 			Resource:             ontology.ProtoResource(resource),
 		}
