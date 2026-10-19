@@ -52,6 +52,7 @@ var DefaultConfig = Config{
 	RegoPackage:            policies.DefaultRegoPackage,
 	SkipMetricsOnError:     false,
 	CacheApplicableMetrics: false,
+	FheEnabled:             false,
 }
 
 // Config represents the configuration for the assessment [Service].
@@ -78,6 +79,8 @@ type Config struct {
 	FheEnabled bool
 	// FheAddress is the address of the FHE proxy service.
 	FheAddress string
+	// FheHTTPClient is the HTTP client used for communication with the FHE proxy service.
+	FheHTTPClient *http.Client
 }
 
 const (
@@ -213,6 +216,12 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 	err = svc.initOrchestratorStream()
 	if err != nil {
 		return nil, err
+	}
+
+	// If FHE is enabled, set the FHE HTTP client to the default HTTP client. This is used for communication with the FHE proxy service.
+	if svc.cfg.FheEnabled {
+		slog.Info("FHE is enabled for the evidence store service", slog.String("fhe_address", svc.cfg.FheAddress))
+		svc.cfg.FheHTTPClient = service.DefaultHTTPClient
 	}
 
 	slog.Info("Orchestrator URL is set", slog.String("orchestrator_url", svc.cfg.OrchestratorAddress))

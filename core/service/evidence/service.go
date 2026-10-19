@@ -80,6 +80,9 @@ type Config struct {
 
 	// FheAddress is the address of the FHE proxy service.
 	FheAddress string
+
+	// FheHTTPClient is the HTTP client used for communication with the FHE proxy service.
+	FheHTTPClient *http.Client
 }
 
 // Service is an implementation of the Confirmate req service (evidenceServer)
@@ -154,6 +157,12 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	// Initialize the assessment service client
 	svc.assessmentClient = assessmentconnect.NewAssessmentClient(
 		assessmentHTTPClient, svc.cfg.AssessmentAddress)
+
+	// If FHE is enabled, set the FHE HTTP client to the default HTTP client. This is used for communication with the FHE proxy service.
+	if svc.cfg.FheEnabled {
+		slog.Info("FHE is enabled for the evidence store service", slog.String("fhe_address", svc.cfg.FheAddress))
+		svc.cfg.FheHTTPClient = service.DefaultHTTPClient
+	}
 
 	// Initialize the restartable stream for assessment service
 	err = svc.initAssessmentStream()
