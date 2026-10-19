@@ -74,6 +74,8 @@ type Config struct {
 	// depend on which fields are populated on a specific resource, not just its type. See
 	// [policies.WithApplicableMetricsCache] for details.
 	CacheApplicableMetrics bool
+	// FheEnabled indicates whether FHE (Fully Homomorphic Encryption) is enabled for the service.
+	FheEnabled bool
 }
 
 const (

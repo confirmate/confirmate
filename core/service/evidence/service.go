@@ -73,6 +73,9 @@ type Config struct {
 	// service-to-service authentication with the orchestrator. When set, all outgoing
 	// orchestrator calls use this token.
 	ServiceOAuth2Config *clientcredentials.Config
+
+	// FheEnabled indicates whether FHE (Fully Homomorphic Encryption) is enabled for the service.
+	FheEnabled bool
 }
 
 // Service is an implementation of the Confirmate req service (evidenceServer)

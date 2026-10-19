@@ -119,6 +119,15 @@ var (
 
 	// dbFlags contains the default database flags used by services that require persistence.
 	dbFlags = newDBFlags(persistence.DefaultConfig.InMemoryDB)
+
+	fheFlags = []cli.Flag{
+		&cli.BoolFlag{
+			Name:    "fhe-enabled",
+			Usage:   "Enable FHE (Fully Homomorphic Encryption) for data processing across the components Evidence Store and Assessment. Note: This feature is experimental and may impact performance.",
+			Value:   false,
+			Sources: envVarSources("fhe-enabled"),
+		},
+	}
 )
 
 // envVarSources constructs a [cli.ValueSourceChain] that looks up the given flag name in

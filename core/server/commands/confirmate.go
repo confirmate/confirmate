@@ -112,6 +112,7 @@ var ConfirmateCommand = &cli.Command{
 		authFlags,
 		serviceAuthFlags,
 		newDBFlags(true),
+		fheFlags,
 		assessmentFlags,
 		evidenceFlags,
 		oauthServerFlags,
@@ -244,6 +245,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 			RegoPackage:            cmd.String("assessment-rego-package"),
 			SkipMetricsOnError:     cmd.Bool("assessment-skip-metrics-on-error"),
 			CacheApplicableMetrics: cmd.Bool("assessment-cache-applicable-metrics"),
+			FheEnabled:             cmd.Bool("fhe-enabled"),
 		}),
 	}, assessmentOptions...)
 
@@ -273,6 +275,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 				MaxConn:    cmd.Int("db-max-connections"),
 			},
 			AssessmentHTTPClient: assessmentClient,
+			FheEnabled:           cmd.Bool("fhe-enabled"),
 		}),
 	}, evidenceOptions...)
 

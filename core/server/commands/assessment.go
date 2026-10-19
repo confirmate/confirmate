@@ -77,6 +77,7 @@ var AssessmentCommand = &cli.Command{
 			RegoPackage:            cmd.String("assessment-rego-package"),
 			SkipMetricsOnError:     cmd.Bool("assessment-skip-metrics-on-error"),
 			CacheApplicableMetrics: cmd.Bool("assessment-cache-applicable-metrics"),
+			FheEnabled:             cmd.Bool("fhe-enabled"),
 		}
 
 		if cmd.Bool("auth-enabled") {
@@ -126,6 +127,7 @@ var AssessmentCommand = &cli.Command{
 		apiFlags,
 		authFlags,
 		serviceAuthFlags,
+		fheFlags,
 		assessmentFlags,
 	),
 }
