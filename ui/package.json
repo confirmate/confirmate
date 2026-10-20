@@ -23,13 +23,13 @@
 		"@tailwindcss/vite": "^4.2.2",
 		"openapi-typescript": "^7.13.0",
 		"svelte": "^5.57.2",
-		"svelte-check": "^4.4.2",
+		"svelte-check": "^4.7.7",
 		"tailwindcss": "^4.2.2",
 		"typescript": "^5.9.3",
 		"vite": "^8.3.4"
 	},
 	"dependencies": {
-		"cytoscape": "^3.33.1",
+		"cytoscape": "^3.34.4",
 		"cytoscape-cola": "^2.5.1",
 		"openapi-fetch": "^0.17.0"
 	},
