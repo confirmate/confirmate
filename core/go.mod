@@ -26,9 +26,9 @@ require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.2
 	buf.build/go/protovalidate v1.4.0
 	cel.dev/expr v0.25.3 // indirect
-	connectrpc.com/connect v1.21.0
+	connectrpc.com/connect v1.21.1
 	connectrpc.com/grpcreflect v1.3.1
-	connectrpc.com/vanguard v0.4.0
+	connectrpc.com/vanguard v0.5.0
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/google/uuid v1.6.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688
@@ -45,7 +45,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/proullon/ramsql v0.1.4
-	golang.org/x/crypto v0.55.0 // indirect
+	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/exp v0.0.0-20260820142414-ca536658362e // indirect
 	golang.org/x/text v0.42.0 // indirect
 	gorm.io/driver/postgres v1.6.3
@@ -66,7 +66,7 @@ require (
 	github.com/lestrrat-go/httprc/v3 v3.0.6 // indirect
 	github.com/lestrrat-go/jwx/v3 v3.3.0 // indirect
 	github.com/lestrrat-go/option/v2 v2.0.0 // indirect
-	github.com/open-policy-agent/opa v1.21.0
+	github.com/open-policy-agent/opa v1.21.2
 	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/sirupsen/logrus v1.10.2 // indirect
@@ -113,6 +113,7 @@ require (
 
 require (
 	cel.dev/cel-go v0.32.0 // indirect
+	connectrpc.com/connect/v2 v2.0.0 // indirect
 	github.com/boombuler/barcode v1.1.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/hhrutter/lzw v1.0.0 // indirect
@@ -128,7 +129,7 @@ require (
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
 	golang.org/x/image v0.41.0 // indirect
-	golang.org/x/net v0.58.0 // indirect
+	golang.org/x/net v0.60.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
