@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "LLM-powered extractor that turns unstructured documents into structured compliance evidence."
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["openai>=3.29.0", "pypdf>=6.20.0", "httpx>=0.28.1"]
+dependencies = ["openai>=3.34.0", "pypdf>=6.21.1", "httpx>=0.28.1"]
 authors = [{ name = "Document-Analyser" }]
 
 [project.scripts]
