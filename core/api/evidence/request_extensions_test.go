@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 )
 
 func TestStoreEvidenceRequest_TargetOfEvaluationId(t *testing.T) {

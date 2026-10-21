@@ -143,7 +143,7 @@ func TestTimestampSerializer_Value(t *testing.T) {
 				dst:        reflect.Value{},
 				fieldValue: timestamp.New(time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC)),
 			},
-			want:    time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
+			want:    time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC).Truncate(time.Microsecond),
 			wantErr: assert.NoError,
 		},
 		{

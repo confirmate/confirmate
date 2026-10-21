@@ -28,6 +28,7 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
+	"confirmate.io/core/util/timestamp"
 	"golang.org/x/oauth2/clientcredentials"
 
 	"connectrpc.com/connect"

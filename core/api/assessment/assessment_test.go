@@ -22,10 +22,11 @@ import (
 
 	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 )
 
 func Test_ValidateAssessmentResult(t *testing.T) {
-	timestamp := timestamp.Now()
+	timestampNow := timestamp.Now()
 
 	type args struct {
 		AssessmentResult *AssessmentResult
@@ -41,7 +42,7 @@ func Test_ValidateAssessmentResult(t *testing.T) {
 			args: args{
 				&AssessmentResult{
 					Id:        evidencetest.MockAssessmentResultID,
-					CreatedAt: timestamp,
+					CreatedAt: timestampNow,
 					MetricId:  evidencetest.MockMetricID1,
 					MetricConfiguration: &MetricConfiguration{
 						Operator:             "==",
@@ -56,10 +57,10 @@ func Test_ValidateAssessmentResult(t *testing.T) {
 					ResourceTypes:        []string{"Resource"},
 					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 					ToolId:               new(AssessmentToolId),
-					HistoryUpdatedAt:     timestamp,
+					HistoryUpdatedAt:     timestampNow,
 					History: []*Record{
 						{
-							EvidenceRecordedAt: timestamp,
+							EvidenceRecordedAt: timestampNow,
 							EvidenceId:         evidencetest.MockEvidenceID1,
 						},
 					},
