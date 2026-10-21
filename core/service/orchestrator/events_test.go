@@ -29,6 +29,7 @@ import (
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 )
 
 // types contains all Orchestrator types that we need to auto-migrate into database tables

@@ -24,6 +24,7 @@ import (
 	"confirmate.io/core/auth"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"

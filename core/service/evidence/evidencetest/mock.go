@@ -20,6 +20,7 @@ import (
 
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/timestamp"
 )
 
 var (
