@@ -26,10 +26,10 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // StoreAssessmentResult stores a single assessment result.
@@ -57,8 +57,11 @@ func (svc *Service) StoreAssessmentResult(
 		return nil, service.ErrPermissionDenied
 	}
 
+	// Normalize timestamps in the assessment result to microsecond precision
+	timestamp.NormalizeTimestampAssessmentResult(result)
+
 	// Set timestamp
-	result.CreatedAt = timestamppb.Now()
+	result.CreatedAt = timestamp.Now()
 
 	// Persist the assessment result in the database
 	err = svc.db.Create(result)
@@ -68,7 +71,7 @@ func (svc *Service) StoreAssessmentResult(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_RESULT,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
 		EntityId:    result.Id,
@@ -98,7 +101,7 @@ func (svc *Service) StoreManualAssessmentResult(
 		resourceTypes = []string{"Manual"}
 		existing      assessment.AssessmentResult
 		count         int64
-		now           = timestamppb.Now()
+		now           = timestamp.Now()
 	)
 
 	// Validate the request
@@ -175,7 +178,7 @@ func (svc *Service) StoreManualAssessmentResult(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_RESULT,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
 		EntityId:    result.Id,

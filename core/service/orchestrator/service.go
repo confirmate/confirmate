@@ -31,9 +31,9 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Service implements the Orchestrator Service handler (see
@@ -282,7 +282,7 @@ func (svc *Service) GetRuntimeInfo(
 				runtime.CommitHash = setting.Value
 			case "vcs.time":
 				if t, err := time.Parse(time.RFC3339, setting.Value); err == nil {
-					runtime.CommitTime = timestamppb.New(t)
+					runtime.CommitTime = timestamp.New(t)
 				}
 			}
 		}

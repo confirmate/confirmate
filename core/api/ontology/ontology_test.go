@@ -21,9 +21,9 @@ import (
 	"time"
 
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestResourceTypes(t *testing.T) {
@@ -127,7 +127,7 @@ func TestResourceMap(t *testing.T) {
 				r: &VirtualMachine{
 					Id:           new("my-id"),
 					Name:         new("My VM"),
-					CreationTime: timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+					CreationTime: timestamp.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 					AutomaticUpdates: &AutomaticUpdates{
 						Interval: durationpb.New(time.Hour * 24 * 2),
 					},

@@ -24,8 +24,8 @@ import (
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util/timestamp"
 	"connectrpc.com/connect"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // StoreEvaluationResult is a method implementation of the evaluation interface
@@ -47,7 +47,7 @@ func (svc *Service) StoreEvaluationResult(_ context.Context, req *connect.Reques
 		ControlCatalogId:     req.Msg.Result.GetControlCatalogId(),
 		ParentControlId:      req.Msg.Result.ParentControlId,
 		Status:               req.Msg.Result.GetStatus(),
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		AssessmentResultIds:  req.Msg.Result.GetAssessmentResultIds(),
 		Comment:              req.Msg.Result.Comment,
 		ValidUntil:           req.Msg.Result.GetValidUntil(),

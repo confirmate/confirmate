@@ -26,7 +26,6 @@ import (
 	"github.com/open-policy-agent/opa/v1/rego"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/structpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evidence"
@@ -35,6 +34,7 @@ import (
 	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
+	"confirmate.io/core/util/timestamp"
 	"connectrpc.com/connect"
 )
 
@@ -126,7 +126,7 @@ func Test_regoEval_Eval(t *testing.T) {
 			args: args{
 				resource: &ontology.ObjectStorage{
 					Id:           new(mockObjStorage1ResourceID),
-					CreationTime: timestamppb.New(time.Unix(1621086669, 0)),
+					CreationTime: timestamp.New(time.Unix(1621086669, 0)),
 					AtRestEncryption: &ontology.AtRestEncryption{
 						Type: &ontology.AtRestEncryption_CustomerKeyEncryption{
 							CustomerKeyEncryption: &ontology.CustomerKeyEncryption{
@@ -153,7 +153,7 @@ func Test_regoEval_Eval(t *testing.T) {
 			args: args{
 				resource: &ontology.ObjectStorage{
 					Id:           new(mockObjStorage1ResourceID),
-					CreationTime: timestamppb.New(time.Unix(1621086669, 0)),
+					CreationTime: timestamp.New(time.Unix(1621086669, 0)),
 					AtRestEncryption: &ontology.AtRestEncryption{
 						Type: &ontology.AtRestEncryption_CustomerKeyEncryption{
 							CustomerKeyEncryption: &ontology.CustomerKeyEncryption{
@@ -184,7 +184,7 @@ func Test_regoEval_Eval(t *testing.T) {
 			args: args{
 				resource: &ontology.ObjectStorage{
 					Id:           new(mockObjStorage1ResourceID),
-					CreationTime: timestamppb.New(time.Unix(1621086669, 0)),
+					CreationTime: timestamp.New(time.Unix(1621086669, 0)),
 					AtRestEncryption: &ontology.AtRestEncryption{
 						Type: &ontology.AtRestEncryption_CustomerKeyEncryption{
 							CustomerKeyEncryption: &ontology.CustomerKeyEncryption{
@@ -774,7 +774,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 						Operator:             "==",
 						TargetValue:          structpb.NewBoolValue(false),
 						IsDefault:            false,
-						UpdatedAt:            timestamppb.New(time.Date(2022, 12, 1, 0, 0, 0, 0, time.Local)),
+						UpdatedAt:            timestamp.New(time.Date(2022, 12, 1, 0, 0, 0, 0, time.Local)),
 						MetricId:             "84eaed86-759d-4419-9954-f3d3ea1f5200",
 						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 					},

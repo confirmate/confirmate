@@ -34,7 +34,6 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"golang.org/x/oauth2/clientcredentials"
 	"google.golang.org/protobuf/testing/protocmp"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
@@ -43,6 +42,7 @@ import (
 	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
 )
@@ -501,8 +501,8 @@ func Test_preferAutomaticResults(t *testing.T) {
 	manual := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1, Manual: true, ResourceId: assessment.ManualTargetOfEvaluationResourceId(evaluationtest.MockToeId1)}
 	manualOfResource := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1, Manual: true, ResourceId: evaluationtest.MockResourceId1}
 	manualOtherMetric := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true, ResourceId: assessment.ManualTargetOfEvaluationResourceId(evaluationtest.MockToeId1)}
-	manualExpired := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true, ValidUntil: timestamppb.New(now.Add(-time.Hour))}
-	manualValid := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId3, Manual: true, ValidUntil: timestamppb.New(now.Add(time.Hour))}
+	manualExpired := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true, ValidUntil: timestamp.New(now.Add(-time.Hour))}
+	manualValid := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId3, Manual: true, ValidUntil: timestamp.New(now.Add(time.Hour))}
 
 	type args struct {
 		results []*assessment.AssessmentResult

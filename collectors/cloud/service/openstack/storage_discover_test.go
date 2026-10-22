@@ -25,10 +25,10 @@ import (
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
 	"github.com/gophercloud/gophercloud/v2/testhelper/client"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Test_openstackCollector_collectBlockStorage(t *testing.T) {
@@ -83,7 +83,7 @@ func Test_openstackCollector_collectBlockStorage(t *testing.T) {
 					Id:           new("289da7f8-6440-407c-9fb4-7db01ec49164"),
 					Name:         new("vol-001"),
 					Description:  new(""),
-					CreationTime: timestamppb.New(t1),
+					CreationTime: timestamp.New(t1),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("test region"),
 					},
