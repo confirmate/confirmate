@@ -18,10 +18,9 @@ package evidence
 import (
 	"testing"
 
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestEvidence_GetOntologyResource(t *testing.T) {

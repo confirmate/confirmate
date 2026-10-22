@@ -21,7 +21,7 @@ import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"confirmate.io/core/util/timestamp"
 )
 
 const (
@@ -120,7 +120,7 @@ var (
 		ControlId:            MockControlId1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-		Timestamp:            timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
+		Timestamp:            timestamp.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
 		Comment:              new("Mock evaluation result 1"),
 		Data:                 []byte{},
@@ -133,7 +133,7 @@ var (
 		ControlId:            MockControlId2,
 		ControlCatalogId:     MockCatalogId2,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
-		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(5 * time.Minute)),
+		Timestamp:            timestamp.New(MockEvaluationResult1.Timestamp.AsTime().Add(5 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId3},
 		Comment:              new("Mock evaluation result 2"),
 		Data:                 []byte{},
@@ -147,7 +147,7 @@ var (
 		ParentControlId:      new(MockControlId1),
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(10 * time.Minute)),
+		Timestamp:            timestamp.New(MockEvaluationResult1.Timestamp.AsTime().Add(10 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1},
 		Comment:              new("Mock evaluation result 3"),
 		Data:                 []byte{},
@@ -159,7 +159,7 @@ var (
 		ControlId:            MockControlId1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-		Timestamp:            timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
+		Timestamp:            timestamp.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
 		Comment:              new("Mock evaluation result 1"),
 		Data:                 []byte{},
@@ -173,9 +173,9 @@ var (
 		ControlCatalogId:     MockCatalogId1,
 		ParentControlId:      new(""),
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
-		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(20 * time.Minute)),
+		Timestamp:            timestamp.New(MockEvaluationResult1.Timestamp.AsTime().Add(20 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
-		ValidUntil:           timestamppb.New(time.Now().Add(48 * time.Hour)),
+		ValidUntil:           timestamp.New(time.Now().Add(48 * time.Hour)),
 		Comment:              new("Mock manual evaluation result 1"),
 		Data:                 make([]byte, 2*2), // small blob
 	}
@@ -187,9 +187,9 @@ var (
 		ControlId:            MockControl1SubcontrolId11,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
-		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(25 * time.Minute)),
+		Timestamp:            timestamp.New(MockEvaluationResult1.Timestamp.AsTime().Add(25 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
-		ValidUntil:           timestamppb.New(time.Now().Add(48 * time.Hour)),
+		ValidUntil:           timestamp.New(time.Now().Add(48 * time.Hour)),
 		ParentControlId:      new(MockControlId1),
 		Comment:              new("Mock manual evaluation result 2"),
 		Data:                 make([]byte, 2*2), // small blob
@@ -202,8 +202,8 @@ var (
 		ControlId:            MockControlId1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
-		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(15 * time.Minute)),
-		ValidUntil:           timestamppb.New(time.Now().Add(24 * time.Hour)),
+		Timestamp:            timestamp.New(MockEvaluationResult1.Timestamp.AsTime().Add(15 * time.Minute)),
+		ValidUntil:           timestamp.New(time.Now().Add(24 * time.Hour)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1},
 		Comment:              new("Mock evaluation result 3"),
 		Data:                 []byte{},
@@ -217,8 +217,8 @@ var (
 		ControlId:            MockControlId1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
-		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(-15 * time.Minute)),
-		ValidUntil:           timestamppb.New(time.Now().Add(-24 * time.Hour)),
+		Timestamp:            timestamp.New(MockEvaluationResult1.Timestamp.AsTime().Add(-15 * time.Minute)),
+		ValidUntil:           timestamp.New(time.Now().Add(-24 * time.Hour)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1},
 		Comment:              new("Mock evaluation result 4"),
 		Data:                 []byte{},

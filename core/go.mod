@@ -1,6 +1,6 @@
 module confirmate.io/core
 
-go 1.26.1
+go 1.27.1
 
 // runtime dependencies - CLI
 require (

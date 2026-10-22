@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/timestamp"
 )
 
 type EvidenceHookFunc func(ctx context.Context, evidence *Evidence, err error)
@@ -56,4 +57,11 @@ func ToResourceSnapshot(resource ontology.IsResource, toeId string, toolId strin
 	}
 
 	return
+}
+
+// NormalizeTimestampEvidence normalizes the timestamp in the given evidence to microsecond precision.
+func NormalizeTimestampEvidence(ev *Evidence) {
+	if ev.Timestamp != nil {
+		ev.Timestamp = timestamp.New(ev.Timestamp.AsTime())
+	}
 }

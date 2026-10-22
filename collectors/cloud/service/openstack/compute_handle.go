@@ -22,11 +22,11 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/timestamp"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/lmittmann/tint"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // handleServer creates a virtual machine resource based on the CSC Hub Ontology
@@ -68,7 +68,7 @@ func (d *openstackCollector) handleServer(server *servers.Server) (ontology.IsRe
 	r := &ontology.VirtualMachine{
 		Id:           new(server.ID),
 		Name:         new(server.Name),
-		CreationTime: timestamppb.New(server.Created),
+		CreationTime: timestamp.New(server.Created),
 		GeoLocation: &ontology.GeoLocation{
 			Region: new(d.region),
 		},

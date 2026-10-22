@@ -32,11 +32,11 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/clitest"
+	"confirmate.io/core/util/timestamp"
 
 	"go.yaml.in/yaml/v3"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Mock resource IDs for testing
@@ -254,7 +254,7 @@ func (u *updatedMockMetricsSource) MetricConfiguration(_ context.Context, target
 		Operator:             "==",
 		TargetValue:          structpb.NewBoolValue(false),
 		IsDefault:            false,
-		UpdatedAt:            timestamppb.New(time.Date(2022, 12, 1, 0, 0, 0, 0, time.Local)),
+		UpdatedAt:            timestamp.New(time.Date(2022, 12, 1, 0, 0, 0, 0, time.Local)),
 		MetricId:             metric.Id,
 		TargetOfEvaluationId: targetID,
 	}, nil

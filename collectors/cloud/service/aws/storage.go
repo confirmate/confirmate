@@ -25,7 +25,7 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"confirmate.io/core/util/timestamp"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -161,7 +161,7 @@ func (d *awsS3Collector) List() (resources []ontology.IsResource, err error) {
 			&ontology.ObjectStorage{
 				Id:           new(b.arn),
 				Name:         new(b.name),
-				CreationTime: timestamppb.New(b.creationTime),
+				CreationTime: timestamp.New(b.creationTime),
 				GeoLocation: &ontology.GeoLocation{
 					Region: new(b.region),
 				},
@@ -172,7 +172,7 @@ func (d *awsS3Collector) List() (resources []ontology.IsResource, err error) {
 			&ontology.ObjectStorageService{
 				Id:           new(b.arn),
 				Name:         new(b.name),
-				CreationTime: timestamppb.New(b.creationTime),
+				CreationTime: timestamp.New(b.creationTime),
 				GeoLocation: &ontology.GeoLocation{
 					Region: new(b.region),
 				},

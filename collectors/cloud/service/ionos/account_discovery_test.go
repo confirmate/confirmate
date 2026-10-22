@@ -22,7 +22,7 @@ import (
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"confirmate.io/core/util/timestamp"
 )
 
 func Test_ionosCollector_collectDatacenters(t *testing.T) {
@@ -42,7 +42,7 @@ func Test_ionosCollector_collectDatacenters(t *testing.T) {
 		Id:           new(testdata.MockIonosDatacenterID1),
 		Name:         new(testdata.MockIonosDatacenterName1),
 		Description:  new(testdata.MockIonosDatacenterDescription1),
-		CreationTime: timestamppb.New(time.Time{}),
+		CreationTime: timestamp.New(time.Time{}),
 		GeoLocation: &ontology.GeoLocation{
 			Region: new(testdata.MockIonosDatacenterLocation1),
 		},

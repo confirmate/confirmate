@@ -32,13 +32,13 @@ import (
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
 	pdfapi "github.com/pdfcpu/pdfcpu/pkg/api"
 	pdfmodel "github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/xuri/excelize/v2"
 	"google.golang.org/protobuf/types/known/structpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestService_ExportAuditScopeReport(t *testing.T) {
@@ -156,7 +156,7 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 
 		assert.NoError(t, d.Create(&assessment.AssessmentResult{
 			Id:                   "70000000-0000-0000-0000-000000000001",
-			CreatedAt:            timestamppb.New(evalTime),
+			CreatedAt:            timestamp.New(evalTime),
 			MetricId:             metric2Id,
 			TargetOfEvaluationId: toeId,
 			Compliant:            true,
@@ -173,7 +173,7 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		}))
 		assert.NoError(t, d.Create(&assessment.AssessmentResult{
 			Id:                   "70000000-0000-0000-0000-000000000002",
-			CreatedAt:            timestamppb.New(evalTime),
+			CreatedAt:            timestamp.New(evalTime),
 			MetricId:             metric3Id,
 			TargetOfEvaluationId: toeId,
 			Compliant:            false,

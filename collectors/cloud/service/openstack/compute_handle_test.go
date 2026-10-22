@@ -24,12 +24,12 @@ import (
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
 	"github.com/gophercloud/gophercloud/v2/testhelper/client"
 	"google.golang.org/protobuf/testing/protocmp"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Test_openstackCollector_handleServer(t *testing.T) {
@@ -138,7 +138,7 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 				want := &ontology.VirtualMachine{
 					Id:           new("ef079b0c-e610-4dfb-b1aa-b49f07ac48e5"),
 					Name:         new("herp"),
-					CreationTime: timestamppb.New(t1),
+					CreationTime: timestamp.New(t1),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("test region"),
 					},
@@ -201,7 +201,7 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 				want := &ontology.VirtualMachine{
 					Id:           new("ef079b0c-e610-4dfb-b1aa-b49f07ac48e5"),
 					Name:         new("herp"),
-					CreationTime: timestamppb.New(t1),
+					CreationTime: timestamp.New(t1),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("test region"),
 					},

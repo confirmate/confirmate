@@ -20,9 +20,9 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/timestamp"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/containerinfra/v1/clusters"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // handleCluster creates a container resource based on the CSC Hub Ontology
@@ -30,7 +30,7 @@ func (d *openstackCollector) handleCluster(cluster *clusters.Cluster) (ontology.
 	r := &ontology.ContainerOrchestration{
 		Id:           new(cluster.UUID),
 		Name:         new(cluster.Name),
-		CreationTime: timestamppb.New(cluster.CreatedAt),
+		CreationTime: timestamp.New(cluster.CreatedAt),
 		GeoLocation: &ontology.GeoLocation{
 			Region: new(d.region),
 		},

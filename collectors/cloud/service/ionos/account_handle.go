@@ -22,10 +22,10 @@ import (
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/timestamp"
 
 	ionoscloud "github.com/ionos-cloud/sdk-go/v6"
 	"github.com/lmittmann/tint"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // handleDatacenter creates an account resource based on the CSC Hub Ontology
@@ -41,7 +41,7 @@ func (d *ionosCollector) handleDatacenter(dc ionoscloud.Datacenter) (ontology.Is
 		Id:           dc.Id,
 		Name:         dc.Properties.Name,
 		Description:  dc.Properties.Description,
-		CreationTime: timestamppb.New(pointer.Deref(dc.Metadata.GetCreatedDate())),
+		CreationTime: timestamp.New(pointer.Deref(dc.Metadata.GetCreatedDate())),
 		GeoLocation: &ontology.GeoLocation{
 			Region: dc.Properties.Location,
 		},

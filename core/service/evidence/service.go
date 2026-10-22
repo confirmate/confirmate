@@ -246,6 +246,9 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 		return nil, err
 	}
 
+	// Normalize timestamps to microsecond precision to avoid issues with database storage and comparison.
+	evidence.NormalizeTimestampEvidence(req.Msg.Evidence)
+
 	// Store evidence
 	err = svc.db.Create(req.Msg.Evidence)
 	if err = service.HandleDatabaseError(err); err != nil {

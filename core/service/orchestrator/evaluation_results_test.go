@@ -29,10 +29,10 @@ import (
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service/evaluation/evaluationtest"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/testing/protocmp"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestService_StoreEvaluationResult(t *testing.T) {
@@ -157,8 +157,8 @@ func TestService_StoreEvaluationResult_LargeBlobIntegration(t *testing.T) {
 			ControlId:            evaluationtest.MockControlId1,
 			ControlCatalogId:     evaluationtest.MockCatalogId1,
 			Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
-			Timestamp:            timestamppb.Now(),
-			ValidUntil:           timestamppb.Now(),
+			Timestamp:            timestamp.Now(),
+			ValidUntil:           timestamp.Now(),
 			Comment:              new("Integration test for large blob storage"),
 			Data:                 largeBlob,
 		},
@@ -608,14 +608,14 @@ func TestService_ListEvaluationResults_LatestByControlIdPagination(t *testing.T)
 				TargetOfEvaluationId: evaluationtest.MockToeId1,
 				ControlId:            controlId,
 				Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-				Timestamp:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+				Timestamp:            timestamp.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 			}
 			latest := &evaluation.EvaluationResult{
 				Id:                   fmt.Sprintf("result-%d-latest", i),
 				TargetOfEvaluationId: evaluationtest.MockToeId1,
 				ControlId:            controlId,
 				Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-				Timestamp:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
+				Timestamp:            timestamp.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
 			}
 
 			assert.NoError(t, d.Create(older))
