@@ -57,6 +57,9 @@ func (svc *Service) StoreAssessmentResult(
 		return nil, service.ErrPermissionDenied
 	}
 
+	// Normalize timestamps in the assessment result to microsecond precision
+	timestamp.NormalizeTimestampAssessmentResult(result)
+
 	// Set timestamp
 	result.CreatedAt = timestamp.Now()
 
