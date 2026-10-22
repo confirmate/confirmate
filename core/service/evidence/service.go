@@ -34,7 +34,6 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
-	"confirmate.io/core/util/timestamp"
 	"golang.org/x/oauth2/clientcredentials"
 
 	"connectrpc.com/connect"
@@ -248,7 +247,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	}
 
 	// Normalize timestamps to microsecond precision to avoid issues with database storage and comparison.
-	timestamp.NormalizeTimestampEvidence(req.Msg.Evidence)
+	evidence.NormalizeTimestampEvidence(req.Msg.Evidence)
 
 	// Store evidence
 	err = svc.db.Create(req.Msg.Evidence)
