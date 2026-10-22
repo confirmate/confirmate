@@ -423,7 +423,7 @@ func (svc *Service) TransitionControlInScopeState(
 		// next run. Without this, old manual EvaluationResults (which have no
 		// expiry) would cause the evaluation to skip the control forever.
 		if toState == orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN {
-			now := timestamppb.Now()
+			now := timestamp.Now()
 			err = tx.Update(
 				&evaluation.EvaluationResult{ValidUntil: now},
 				"audit_scope_id = ? AND control_id = ? AND status IN ?",

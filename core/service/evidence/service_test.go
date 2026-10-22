@@ -38,6 +38,7 @@ import (
 	"confirmate.io/core/util/timestamp"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestMain(m *testing.M) {
@@ -922,7 +923,7 @@ func TestService_ListGraphEdges(t *testing.T) {
 	// Store a BlockStorage resource.
 	bsEvidence := &evidence.Evidence{
 		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		TargetOfEvaluationId: uuid.NewString(),
 		ToolId:               "MockTool1",
 		Resource: &ontology.Resource{Type: &ontology.Resource_BlockStorage{
