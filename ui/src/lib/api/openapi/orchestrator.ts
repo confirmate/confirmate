@@ -1648,6 +1648,8 @@ export interface components {
             targetType: "TARGET_TYPE_UNSPECIFIED" | "TARGET_TYPE_CLOUD" | "TARGET_TYPE_PRODUCT" | "TARGET_TYPE_ORGANIZATION";
             /** @description Organization details for this target of evaluation. */
             organization?: components["schemas"]["TargetOfEvaluation_Organization"];
+            /** @description Product details for this target of evaluation. */
+            product?: components["schemas"]["TargetOfEvaluation_Product"];
         };
         TargetOfEvaluation_Metadata: {
             /** @description a map of key/value pairs, e.g., env:prod */
@@ -1669,6 +1671,30 @@ export interface components {
             contactEmail?: string;
             /** @description Website URL of the organization. */
             website?: string;
+        };
+        /** @description Product contains details of a product. It is only used if the target type is TARGET_TYPE_PRODUCT. */
+        TargetOfEvaluation_Product: {
+            /**
+             * Format: enum
+             * @description Classification of the product.
+             * @enum {string}
+             */
+            classification?: "CLASSIFICATION_UNSPECIFIED" | "CLASSIFICATION_DEFAULT" | "CLASSIFICATION_IMPORTANT_I" | "CLASSIFICATION_IMPORTANT_II" | "CLASSIFICATION_CRITICAL";
+            /**
+             * Format: enum
+             * @description The kind of product.
+             * @enum {string}
+             */
+            productType?: "PRODUCT_TYPE_UNSPECIFIED" | "PRODUCT_TYPE_SOFTWARE_APPLICATION" | "PRODUCT_TYPE_LIBRARY" | "PRODUCT_TYPE_FIRMWARE" | "PRODUCT_TYPE_ONLINE_SERVICE_WITH_CLIENT";
+            /** @description The currently supported release, for example "1.4.0". */
+            currentRelease?: string;
+            /**
+             * Format: date-time
+             * @description The time until which the product is supported with security updates.
+             */
+            supportUntil?: string;
+            /** @description The ID of the user who is responsible for the product. */
+            responsibleUserId?: string;
         };
         TransitionControlInScopeStateRequest: {
             id: string;
@@ -1790,6 +1816,7 @@ export type SchemaStoreManualAssessmentResultRequest = components['schemas']['St
 export type SchemaTargetOfEvaluation = components['schemas']['TargetOfEvaluation'];
 export type SchemaTargetOfEvaluationMetadata = components['schemas']['TargetOfEvaluation_Metadata'];
 export type SchemaTargetOfEvaluationOrganization = components['schemas']['TargetOfEvaluation_Organization'];
+export type SchemaTargetOfEvaluationProduct = components['schemas']['TargetOfEvaluation_Product'];
 export type SchemaTransitionControlInScopeStateRequest = components['schemas']['TransitionControlInScopeStateRequest'];
 export type SchemaUpdateControlInScopeRequest = components['schemas']['UpdateControlInScopeRequest'];
 export type SchemaUpsertUserPermissionRequest = components['schemas']['UpsertUserPermissionRequest'];
