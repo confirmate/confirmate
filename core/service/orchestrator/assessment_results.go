@@ -57,9 +57,6 @@ func (svc *Service) StoreAssessmentResult(
 		return nil, service.ErrPermissionDenied
 	}
 
-	// Set timestamp
-	result.CreatedAt = timestamppb.Now()
-
 	// Persist the assessment result in the database
 	err = svc.db.Create(result)
 	if err = service.HandleDatabaseError(err); err != nil {
