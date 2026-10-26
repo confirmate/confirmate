@@ -463,7 +463,7 @@ var File_api_assessment_result_proto protoreflect.FileDescriptor
 
 const file_api_assessment_result_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/assessment/result.proto\x12\x18confirmate.assessment.v1\x1a\x1bapi/assessment/metric.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xb9\x11\n" +
+	"\x1bapi/assessment/result.proto\x12\x18confirmate.assessment.v1\x1a\x1bapi/assessment/metric.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xbb\x11\n" +
 	"\x10AssessmentResult\x12\xc0\x01\n" +
 	"\x02id\x18\x01 \x01(\tB\xaf\x01\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x9e\x01gorm:\"index:idx_assessment_results_resource_metric_created,priority:4,sort:desc;index:idx_assessment_results_toe_resource_metric_created,priority:5,sort:desc\"R\x02id\x12\x8f\x02\n" +
 	"\n" +
@@ -488,8 +488,8 @@ const file_api_assessment_result_proto_rawDesc = "" +
 	"\x06manual\x18\x18 \x01(\bB\x03\xe0A\x01R\x06manual\x12v\n" +
 	"\vvalid_until\x18\x19 \x01(\v2\x1a.google.protobuf.TimestampB4\xe0A\x01\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"H\x01R\n" +
 	"validUntil\x88\x01\x01\x12 \n" +
-	"\x06author\x18\x1a \x01(\tB\x03\xe0A\x01H\x02R\x06author\x88\x01\x01:\xa7\x01\xbaH\xa3\x01\x1a\xa0\x01\n" +
-	"0assessment_result.valid_until.required_if_manual\x12+valid_until must be set when manual is true\x1a?!this.manual || has(this.valid_until) || this.valid_until > nowB\n" +
+	"\x06author\x18\x1a \x01(\tB\x03\xe0A\x01H\x02R\x06author\x88\x01\x01:\xa9\x01\xbaH\xa5\x01\x1a\xa2\x01\n" +
+	"0assessment_result.valid_until.required_if_manual\x12+valid_until must be set when manual is true\x1aA!this.manual || (has(this.valid_until) && this.valid_until > now)B\n" +
 	"\n" +
 	"\b_tool_idB\x0e\n" +
 	"\f_valid_untilB\t\n" +
