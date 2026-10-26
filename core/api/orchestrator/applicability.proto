@@ -1,0 +1,163 @@
+// Copyright 2026 Fraunhofer AISEC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+package confirmate.orchestrator.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "confirmate.io/core/api/orchestrator";
+
+// ControlType tells what kind of evidence a requirement asks for.
+enum ControlType {
+  CONTROL_TYPE_UNSPECIFIED = 0;
+  // A property of the product itself, for example a mechanism that is built in.
+  CONTROL_TYPE_TECHNICAL = 1;
+  // Something the manufacturer does, for example a process or a review.
+  CONTROL_TYPE_ACTIVITY = 2;
+  // A document that has to exist.
+  CONTROL_TYPE_DOCUMENTATION = 3;
+}
+
+// ApplicabilityKind tells when a requirement applies.
+enum ApplicabilityKind {
+  APPLICABILITY_KIND_UNSPECIFIED = 0;
+  // The requirement applies to every target of evaluation of the catalog.
+  APPLICABILITY_KIND_ALWAYS = 1;
+  // The requirement applies if a condition holds, for example if the product has a network interface.
+  APPLICABILITY_KIND_CONDITIONAL = 2;
+  // The requirement applies if the risk of the target of evaluation reaches a level, see RiskScenario.
+  APPLICABILITY_KIND_RISK_BASED = 3;
+}
+
+// PhysicalAccess describes who can get hold of the device or the system it runs on.
+enum PhysicalAccess {
+  PHYSICAL_ACCESS_UNSPECIFIED = 0;
+  // Only authorised people can reach it.
+  PHYSICAL_ACCESS_CONTROLLED = 1;
+  // Many people can reach it, but it is supervised.
+  PHYSICAL_ACCESS_SUPERVISED = 2;
+  // Anybody can reach it, or it is carried around.
+  PHYSICAL_ACCESS_OPEN = 3;
+}
+
+// Connectivity describes how the product can be reached.
+enum Connectivity {
+  CONNECTIVITY_UNSPECIFIED = 0;
+  // Only local interfaces.
+  CONNECTIVITY_LOCAL = 1;
+  // A network whose participants are known and trusted.
+  CONNECTIVITY_PRIVATE_NETWORK = 2;
+  // The product can be reached from the internet.
+  CONNECTIVITY_INTERNET = 3;
+}
+
+// OperatorSkill describes who operates the product.
+enum OperatorSkill {
+  OPERATOR_SKILL_UNSPECIFIED = 0;
+  // Operated by trained administrators.
+  OPERATOR_SKILL_EXPERT = 1;
+  // Operated by people without security knowledge, for example consumers.
+  OPERATOR_SKILL_GENERAL = 2;
+}
+
+// NotApplicableReason is the reason a requirement does not apply to a target of evaluation. It is one of a fixed set,
+// so that the reasons can be compared and reported.
+enum NotApplicableReason {
+  NOT_APPLICABLE_REASON_UNSPECIFIED = 0;
+  // The thing the requirement protects does not exist in the target of evaluation.
+  NOT_APPLICABLE_REASON_TARGET_ABSENT = 1;
+  // The condition of the requirement does not hold.
+  NOT_APPLICABLE_REASON_CONDITION_NOT_MET = 2;
+  // Another requirement is fulfilled instead and gives at least the same protection.
+  NOT_APPLICABLE_REASON_COMPENSATED = 3;
+  // Another regulation does not allow it.
+  NOT_APPLICABLE_REASON_CONFLICTING_REGULATION = 4;
+  // The risk assessment shows that the risk is below the level at which the requirement applies.
+  NOT_APPLICABLE_REASON_BELOW_RISK_LEVEL = 5;
+}
+
+// RiskScenario is the risk at which a requirement applies. A requirement applies if the risk profile of the target of
+// evaluation reaches the scenario: some asset has at least the given impacts, and the environment is one of the
+// given ones. A value that is not set does not restrict.
+message RiskScenario {
+  // The lowest impact on confidentiality, integrity or availability of an asset, from 1 (low) to 5 (very high).
+  // 0 means the property is not relevant.
+  int32 min_confidentiality = 1 [(buf.validate.field).int32 = {gte: 0, lte: 5}];
+  int32 min_integrity = 2 [(buf.validate.field).int32 = {gte: 0, lte: 5}];
+  int32 min_availability = 3 [(buf.validate.field).int32 = {gte: 0, lte: 5}];
+
+  // The environments in which the requirement applies. An empty list means any.
+  repeated PhysicalAccess physical_access = 4 [(buf.validate.field).repeated.items.enum.defined_only = true];
+  repeated Connectivity connectivity = 5 [(buf.validate.field).repeated.items.enum.defined_only = true];
+  repeated OperatorSkill operator_skill = 6 [(buf.validate.field).repeated.items.enum.defined_only = true];
+}
+
+// Applicability says when a requirement applies. It is catalog content: the catalog author decides it, and it is
+// shown to the person who takes the decision.
+message Applicability {
+  ApplicabilityKind kind = 1 [(buf.validate.field).enum.defined_only = true];
+
+  // For CONDITIONAL: the condition in plain words, for example "the product has a network interface".
+  string condition = 2;
+
+  // For RISK_BASED: the risk at which the requirement applies.
+  RiskScenario scenario = 3;
+
+  // The short names of requirements that can be fulfilled instead, if they give at least the same protection.
+  repeated string compensated_by = 4;
+
+  option (buf.validate.message).cel = {
+    id: "scenario_for_risk_based"
+    message: "a risk based requirement needs a scenario"
+    expression: "this.kind != 3 || has(this.scenario)"
+  };
+}
+
+// ControlReference points to the place a requirement comes from or is related to.
+message ControlReference {
+  // The framework or document, for example "CRA" or "BSI TR-03183-1".
+  string framework = 1 [(buf.validate.field).string.min_len = 1];
+
+  // The identifier within it, for example "Annex I, Part I, (2)(e)" or a control ID.
+  string identifier = 2 [(buf.validate.field).string.min_len = 1];
+
+  // How the requirement relates to it: "legal-basis" for the law the requirement is derived from, "subset-of" if it is
+  // a part of the referenced item, "equivalent" or "related". The values follow the OSCAL mapping relationships.
+  string relationship = 3;
+
+  // Optional link.
+  string url = 4;
+}
+
+// AssetImpact is the impact on an asset if its confidentiality, integrity or availability is lost.
+message AssetImpact {
+  // For example "User credentials" or "Firmware image".
+  string name = 1 [(buf.validate.field).string.min_len = 1];
+
+  // From 1 (low) to 5 (very high); 0 if the property is not relevant for the asset.
+  int32 confidentiality = 2 [(buf.validate.field).int32 = {gte: 0, lte: 5}];
+  int32 integrity = 3 [(buf.validate.field).int32 = {gte: 0, lte: 5}];
+  int32 availability = 4 [(buf.validate.field).int32 = {gte: 0, lte: 5}];
+}
+
+// RiskProfile is the part of a risk assessment that tells which requirements apply: the assets with their impact and
+// the environment of the target of evaluation.
+message RiskProfile {
+  repeated AssetImpact assets = 1;
+
+  PhysicalAccess physical_access = 2 [(buf.validate.field).enum.defined_only = true];
+  Connectivity connectivity = 3 [(buf.validate.field).enum.defined_only = true];
+  OperatorSkill operator_skill = 4 [(buf.validate.field).enum.defined_only = true];
+}

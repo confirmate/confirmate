@@ -680,7 +680,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	g, gctx := errgroup.WithContext(ctx)
 	for _, control := range relevant {
 		g.Go(func() error {
-			err := svc.evaluateControl(gctx, auditScope, catalog, control, manual[control.Id], latest)
+			err := svc.evaluateControl(gctx, auditScope, catalog, control, manual[control.Id], latest, inScopeIds)
 			if err != nil {
 				return err
 			}
@@ -744,8 +744,8 @@ func (svc *Service) fetchInScopeControlIds(ctx context.Context, auditScopeId str
 }
 
 // evaluateControl evaluates a control, e.g., OPS-13. Therefore, the method needs to wait till all sub-controls (e.g.,
-// OPS-13.1) are evaluated.
-func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, control *orchestrator.Control, manual []*evaluation.EvaluationResult, latest *latestAssessments) (err error) {
+// OPS-13.1) are evaluated. Sub-controls that are not in inScopeIds are skipped, unless it is nil.
+func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, control *orchestrator.Control, manual []*evaluation.EvaluationResult, latest *latestAssessments, inScopeIds map[string]struct{}) (err error) {
 	var (
 		status              = evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING
 		result              *evaluation.EvaluationResult
@@ -767,6 +767,14 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		// If we ignore the control, we can skip it
 		if slices.Contains(ignored, subControl.Id) {
 			continue
+		}
+
+		// A sub-control that was taken out of the scope, for example by a risk assessment, is not evaluated. Without
+		// information about the scope (nil), every sub-control is.
+		if inScopeIds != nil {
+			if _, ok := inScopeIds[subControl.Id]; !ok {
+				continue
+			}
 		}
 
 		if subControl.IsRelevantFor(auditScope, catalog) {

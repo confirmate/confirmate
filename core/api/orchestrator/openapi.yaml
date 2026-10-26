@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.3.0-41-g87180a7d
+    version: core/v0.3.0-43-g4ef9e85e
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -2506,6 +2506,32 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
+        Applicability:
+            type: object
+            properties:
+                kind:
+                    enum:
+                        - APPLICABILITY_KIND_UNSPECIFIED
+                        - APPLICABILITY_KIND_ALWAYS
+                        - APPLICABILITY_KIND_CONDITIONAL
+                        - APPLICABILITY_KIND_RISK_BASED
+                    type: string
+                    format: enum
+                condition:
+                    type: string
+                    description: 'For CONDITIONAL: the condition in plain words, for example "the product has a network interface".'
+                scenario:
+                    allOf:
+                        - $ref: '#/components/schemas/RiskScenario'
+                    description: 'For RISK_BASED: the risk at which the requirement applies.'
+                compensatedBy:
+                    type: array
+                    items:
+                        type: string
+                    description: The short names of requirements that can be fulfilled instead, if they give at least the same protection.
+            description: |-
+                Applicability says when a requirement applies. It is catalog content: the catalog author decides it, and it is
+                 shown to the person who takes the decision.
         ApproveRiskAssessmentRequest:
             required:
                 - riskAssessmentId
@@ -2660,6 +2686,23 @@ components:
             description: |-
                 Represents an external tool or service that offers assessments according to
                  certain metrics.
+        AssetImpact:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: For example "User credentials" or "Firmware image".
+                confidentiality:
+                    type: integer
+                    description: From 1 (low) to 5 (very high); 0 if the property is not relevant for the asset.
+                    format: int32
+                integrity:
+                    type: integer
+                    format: int32
+                availability:
+                    type: integer
+                    format: int32
+            description: AssetImpact is the impact on an asset if its confidentiality, integrity or availability is lost.
         AuditScope:
             required:
                 - id
@@ -2931,6 +2974,24 @@ components:
                 catalogId:
                     type: string
                     description: Catalog ID of the catalog this control belongs to.
+                type:
+                    enum:
+                        - CONTROL_TYPE_UNSPECIFIED
+                        - CONTROL_TYPE_TECHNICAL
+                        - CONTROL_TYPE_ACTIVITY
+                        - CONTROL_TYPE_DOCUMENTATION
+                    type: string
+                    description: What kind of evidence the control asks for.
+                    format: enum
+                applicability:
+                    allOf:
+                        - $ref: '#/components/schemas/Applicability'
+                    description: When the control applies. A control without applicability always applies.
+                references:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ControlReference'
+                    description: Where the control comes from, for example the legal basis, and which items of other frameworks it maps to.
             description: |-
                 Control represents a certain Control that needs to be fulfilled. It could be
                  a Control in a certification catalog. It follows the OSCAL model. A
@@ -2986,6 +3047,24 @@ components:
                  There is exactly one ControlInScope per (audit scope, control) pair. Records are auto-created
                  when an audit scope is created and can also be managed manually via the CreateControlInScope /
                  RemoveControlInScope RPCs.
+        ControlReference:
+            type: object
+            properties:
+                framework:
+                    type: string
+                    description: The framework or document, for example "CRA" or "BSI TR-03183-1".
+                identifier:
+                    type: string
+                    description: The identifier within it, for example "Annex I, Part I, (2)(e)" or a control ID.
+                relationship:
+                    type: string
+                    description: |-
+                        How the requirement relates to it: "legal-basis" for the law the requirement is derived from, "subset-of" if it is
+                         a part of the referenced item, "equivalent" or "related". The values follow the OSCAL mapping relationships.
+                url:
+                    type: string
+                    description: Optional link.
+            description: ControlReference points to the place a requirement comes from or is related to.
         CreateControlInScopeRequest:
             required:
                 - auditScopeId
@@ -3548,9 +3627,95 @@ components:
                     type: string
                     description: The time by which the assessment has to be reviewed. If omitted, it is one year after the approval.
                     format: date-time
+                riskProfile:
+                    allOf:
+                        - $ref: '#/components/schemas/RiskProfile'
+                    description: The assets and the environment the scope decisions were derived from, if any.
             description: |-
                 RiskAssessment is the cybersecurity risk assessment of a target of evaluation and the decisions about the scope
                  that follow from it. Confirmate stores and applies it; it does not replace a full risk assessment tool.
+        RiskProfile:
+            type: object
+            properties:
+                assets:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AssetImpact'
+                physicalAccess:
+                    enum:
+                        - PHYSICAL_ACCESS_UNSPECIFIED
+                        - PHYSICAL_ACCESS_CONTROLLED
+                        - PHYSICAL_ACCESS_SUPERVISED
+                        - PHYSICAL_ACCESS_OPEN
+                    type: string
+                    format: enum
+                connectivity:
+                    enum:
+                        - CONNECTIVITY_UNSPECIFIED
+                        - CONNECTIVITY_LOCAL
+                        - CONNECTIVITY_PRIVATE_NETWORK
+                        - CONNECTIVITY_INTERNET
+                    type: string
+                    format: enum
+                operatorSkill:
+                    enum:
+                        - OPERATOR_SKILL_UNSPECIFIED
+                        - OPERATOR_SKILL_EXPERT
+                        - OPERATOR_SKILL_GENERAL
+                    type: string
+                    format: enum
+            description: |-
+                RiskProfile is the part of a risk assessment that tells which requirements apply: the assets with their impact and
+                 the environment of the target of evaluation.
+        RiskScenario:
+            type: object
+            properties:
+                minConfidentiality:
+                    type: integer
+                    description: |-
+                        The lowest impact on confidentiality, integrity or availability of an asset, from 1 (low) to 5 (very high).
+                         0 means the property is not relevant.
+                    format: int32
+                minIntegrity:
+                    type: integer
+                    format: int32
+                minAvailability:
+                    type: integer
+                    format: int32
+                physicalAccess:
+                    type: array
+                    items:
+                        enum:
+                            - PHYSICAL_ACCESS_UNSPECIFIED
+                            - PHYSICAL_ACCESS_CONTROLLED
+                            - PHYSICAL_ACCESS_SUPERVISED
+                            - PHYSICAL_ACCESS_OPEN
+                        type: string
+                        format: enum
+                    description: The environments in which the requirement applies. An empty list means any.
+                connectivity:
+                    type: array
+                    items:
+                        enum:
+                            - CONNECTIVITY_UNSPECIFIED
+                            - CONNECTIVITY_LOCAL
+                            - CONNECTIVITY_PRIVATE_NETWORK
+                            - CONNECTIVITY_INTERNET
+                        type: string
+                        format: enum
+                operatorSkill:
+                    type: array
+                    items:
+                        enum:
+                            - OPERATOR_SKILL_UNSPECIFIED
+                            - OPERATOR_SKILL_EXPERT
+                            - OPERATOR_SKILL_GENERAL
+                        type: string
+                        format: enum
+            description: |-
+                RiskScenario is the risk at which a requirement applies. A requirement applies if the risk profile of the target of
+                 evaluation reaches the scenario: some asset has at least the given impacts, and the environment is one of the
+                 given ones. A value that is not set does not restrict.
         Runtime:
             type: object
             properties:
@@ -3598,6 +3763,20 @@ components:
                     type: string
                     description: Where the decision comes from.
                     format: enum
+                reason:
+                    enum:
+                        - NOT_APPLICABLE_REASON_UNSPECIFIED
+                        - NOT_APPLICABLE_REASON_TARGET_ABSENT
+                        - NOT_APPLICABLE_REASON_CONDITION_NOT_MET
+                        - NOT_APPLICABLE_REASON_COMPENSATED
+                        - NOT_APPLICABLE_REASON_CONFLICTING_REGULATION
+                        - NOT_APPLICABLE_REASON_BELOW_RISK_LEVEL
+                    type: string
+                    description: Why the control does not apply. It is required if the control is out of scope, unless it is an accepted risk.
+                    format: enum
+                compensatingControlId:
+                    type: string
+                    description: The control that is fulfilled instead, if the reason is COMPENSATED.
             description: ScopeDecision says whether a control is in the scope of an audit scope, and why.
         State:
             type: object

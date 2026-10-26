@@ -15,6 +15,7 @@ syntax = "proto3";
 
 package confirmate.orchestrator.v1;
 
+import "api/orchestrator/applicability.proto";
 import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
@@ -72,6 +73,12 @@ message ScopeDecision {
 
   // Where the decision comes from.
   ScopeDecisionSource source = 4 [(buf.validate.field).enum.defined_only = true];
+
+  // Why the control does not apply. It is required if the control is out of scope, unless it is an accepted risk.
+  NotApplicableReason reason = 5 [(buf.validate.field).enum.defined_only = true];
+
+  // The control that is fulfilled instead, if the reason is COMPENSATED.
+  optional string compensating_control_id = 6 [(buf.validate.field).string.uuid = true];
 
   option (buf.validate.message).cel = {
     id: "justification_for_out_of_scope"
@@ -150,4 +157,7 @@ message RiskAssessment {
 
   // The time by which the assessment has to be reviewed. If omitted, it is one year after the approval.
   optional google.protobuf.Timestamp review_due_at = 17 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+
+  // The assets and the environment the scope decisions were derived from, if any.
+  optional RiskProfile risk_profile = 18 [(tagger.tags) = "gorm:\"serializer:json\""];
 }

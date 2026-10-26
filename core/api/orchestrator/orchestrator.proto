@@ -19,6 +19,7 @@ import "api/assessment/metric.proto";
 import "api/assessment/result.proto";
 import "api/common/runtime.proto";
 import "api/evaluation/evaluation.proto";
+import "api/orchestrator/applicability.proto";
 import "api/orchestrator/risk_assessment.proto";
 import "api/orchestrator/user.proto";
 import "api/orchestrator/workflow.proto";
@@ -1203,6 +1204,15 @@ message Control {
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
   ];
+
+  // What kind of evidence the control asks for.
+  ControlType type = 15 [(buf.validate.field).enum.defined_only = true];
+
+  // When the control applies. A control without applicability always applies.
+  optional Applicability applicability = 16 [(tagger.tags) = "gorm:\"serializer:json\""];
+
+  // Where the control comes from, for example the legal basis, and which items of other frameworks it maps to.
+  repeated ControlReference references = 17 [(tagger.tags) = "gorm:\"serializer:json\""];
 }
 
 // AuditScopeStatus represents the lifecycle status of an audit scope.

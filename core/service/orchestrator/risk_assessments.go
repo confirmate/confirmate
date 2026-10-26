@@ -46,6 +46,7 @@ func (svc *Service) CreateRiskAssessment(
 		scope      orchestrator.AuditScope
 		assessment *orchestrator.RiskAssessment
 		allowed    bool
+		decisions  []*orchestrator.ScopeDecision
 		now        = timestamppb.Now()
 	)
 
@@ -74,7 +75,16 @@ func (svc *Service) CreateRiskAssessment(
 		return nil, service.ErrPermissionDenied
 	}
 
-	err = svc.validateScopeDecisions(&scope, input.GetDecisions())
+	// Decisions that are not given are derived from the risk profile
+	decisions = input.GetDecisions()
+	if input.GetRiskProfile() != nil && len(decisions) == 0 {
+		decisions, err = svc.deriveScopeDecisions(&scope, input.GetRiskProfile())
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = svc.validateScopeDecisions(&scope, decisions)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +100,8 @@ func (svc *Service) CreateRiskAssessment(
 		Summary:              input.GetSummary(),
 		DocumentEvidenceId:   input.DocumentEvidenceId,
 		Answers:              input.GetAnswers(),
-		Decisions:            input.GetDecisions(),
+		Decisions:            decisions,
+		RiskProfile:          input.RiskProfile,
 		CreatedAt:            now,
 		ReviewDueAt:          input.GetReviewDueAt(),
 	}
@@ -321,6 +332,10 @@ func (svc *Service) validateScopeDecisions(scope *orchestrator.AuditScope, decis
 
 		if d.GetInScope() {
 			continue
+		}
+
+		if d.GetReason() == orchestrator.NotApplicableReason_NOT_APPLICABLE_REASON_COMPENSATED && d.CompensatingControlId == nil {
+			return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("the decision for control %s is compensated, but it does not say by which control", d.GetControlId()))
 		}
 
 		children, err := svc.db.Count(&orchestrator.Control{}, "parent_control_id = ?", ctrl.Id)
