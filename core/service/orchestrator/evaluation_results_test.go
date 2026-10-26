@@ -158,7 +158,7 @@ func TestService_StoreEvaluationResult_LargeBlobIntegration(t *testing.T) {
 			ControlCatalogId:     evaluationtest.MockCatalogId1,
 			Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
 			Timestamp:            timestamppb.Now(),
-			ValidUntil:           timestamppb.Now(),
+			ValidUntil:           timestamppb.New(time.Now().Add(time.Hour)),
 			Comment:              new("Integration test for large blob storage"),
 			Data:                 largeBlob,
 		},

@@ -197,6 +197,16 @@ message EvaluationResult {
   // Optional, but if you use manually created evaluation results, you can provide a justification for the manual
   // creation, such as a large file like a policy in PDF format.
   optional bytes data = 21 [(tagger.tags) = "gorm:\"type:bytea\""];
+
+  // Cross-field constraint: valid_until is necessary, when EVALUATION_STATUS_*_MANUALLY.
+  option (buf.validate.message).cel = {
+    id: "evaluation_result.valid_until.required_if_manual"
+    message: "valid_until must be set and in the future when the status is *_MANUALLY"
+    expression:
+      "!(this.status == confirmate.evaluation.v1.EvaluationStatus.EVALUATION_STATUS_COMPLIANT_MANUALLY"
+      " || this.status == confirmate.evaluation.v1.EvaluationStatus.EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY)"
+      " || (has(this.valid_until) && this.valid_until > now)"
+  };
 }
 
 enum EvaluationStatus {
