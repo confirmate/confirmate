@@ -181,7 +181,7 @@ message AssessmentResult {
   option (buf.validate.message).cel = {
     id: "assessment_result.valid_until.required_if_manual"
     message: "valid_until must be set when manual is true"
-    expression: "!this.manual || has(this.valid_until) || this.valid_until > now"
+    expression: "!this.manual || (has(this.valid_until) && this.valid_until > now)"
   };
 }
 
