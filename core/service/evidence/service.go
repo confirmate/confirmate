@@ -53,6 +53,8 @@ var DefaultConfig = Config{
 	AssessmentHTTPClient: service.DefaultHTTPClient,
 	PersistenceConfig:    persistence.DefaultConfig,
 	EvidenceQueueSize:    defaultEvidenceQueueSize,
+	FheEnabled:           false,
+	FheAddress:           "http://localhost:8081",
 }
 
 // Config represents the configuration for the evidence store [Service].
@@ -73,6 +75,12 @@ type Config struct {
 	// service-to-service authentication with the orchestrator. When set, all outgoing
 	// orchestrator calls use this token.
 	ServiceOAuth2Config *clientcredentials.Config
+
+	// FheEnabled indicates whether FHE (Fully Homomorphic Encryption) is enabled for the service.
+	FheEnabled bool
+
+	// FheAddress is the address of the FHE proxy service.
+	FheAddress string
 }
 
 // Service is an implementation of the Confirmate req service (evidenceServer)
@@ -142,6 +150,12 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 			assessmentHTTPClient,
 			api.NewOAuthAuthorizerFromClientCredentials(svc.cfg.ServiceOAuth2Config),
 		)
+	}
+
+	// If FHE is enabled, set the FHE HTTP client to the default HTTP client. This is used for communication with the FHE proxy service.
+	if svc.cfg.FheEnabled {
+		slog.Info("FHE is enabled for the evidence store service", slog.String("fhe_address", svc.cfg.FheAddress))
+		svc.cfg.AssessmentAddress = svc.cfg.FheAddress
 	}
 
 	// Initialize the assessment service client
@@ -216,21 +230,49 @@ func (svc *Service) initEvidenceChannel() {
 			if e == nil {
 				continue
 			}
-			// Fire-and-forget dispatch; errors are only logged here.
-			if err := svc.sendToAssessment(e); err != nil {
-				slog.Error("error while sending evidence",
-					slog.String("evidence_id", e.GetId()),
-					slog.String("tool_id", e.GetToolId()),
-					tint.Err(err),
-				)
+
+			// If FHE is enabled, send the evidence to the FHE proxy service instead of the assessment service.
+			if svc.cfg.FheEnabled {
+				if err := svc.sendToFHEProxy(e); err != nil {
+					slog.Error("error while sending evidence to FHE proxy",
+						slog.String("evidence_id", e.GetId()),
+						slog.String("tool_id", e.GetToolId()),
+						tint.Err(err),
+					)
+				} else {
+					slog.Debug("evidence sent to FHE proxy",
+						slog.String("evidence_id", e.GetId()),
+						slog.String("tool_id", e.GetToolId()),
+					)
+				}
 			} else {
-				slog.Debug("evidence sent to assessment service",
-					slog.String("evidence_id", e.GetId()),
-					slog.String("tool_id", e.GetToolId()),
-				)
+				// Fire-and-forget dispatch; errors are only logged here.
+				if err := svc.sendToAssessment(e); err != nil {
+					slog.Error("error while sending evidence",
+						slog.String("evidence_id", e.GetId()),
+						slog.String("tool_id", e.GetToolId()),
+						tint.Err(err),
+					)
+				} else {
+					slog.Debug("evidence sent to assessment service",
+						slog.String("evidence_id", e.GetId()),
+						slog.String("tool_id", e.GetToolId()),
+					)
+				}
 			}
 		}
 	}()
+}
+
+func (svc *Service) sendToFHEProxy(evidence *evidence.Evidence) (err error) {
+	// Send evidence to the FHE proxy service using the assessment client, which is configured to point to the FHE proxy.
+	_, err = svc.assessmentClient.AssessEvidence(context.Background(), connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: evidence}))
+
+	if err != nil {
+		return fmt.Errorf("failed to send evidence %s to FHE proxy: %w", evidence.Id, err)
+	}
+
+	return nil
 }
 
 // StoreEvidence receives an evidence and stores it into the database

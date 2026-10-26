@@ -25,6 +25,22 @@
                 "--auth-enabled"
             ]
         },
+        {
+            "name": "Launch confirmate with FHE",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/core/cmd/confirmate",
+            "cwd": "${workspaceFolder}/core",
+            "args": [
+                "--db-in-memory",
+                "--log-level",
+                "debug",
+                // "--auth-enabled",
+                "--fhe-enabled",
+                "--fhe-address=http://localhost:8081"
+            ]
+        },
 		{
             "name": "Launch confirmate (demo)",
             "type": "go",
