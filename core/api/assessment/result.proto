@@ -176,6 +176,13 @@ message AssessmentResult {
 
   // Confirmate user ID of the author of a manual result, if known.
   optional string author = 26 [(google.api.field_behavior) = OPTIONAL];
+
+  // Cross-field constraint: valid_until is necessary, when manual=true.
+  option (buf.validate.message).cel = {
+    id: "assessment_result.valid_until.required_if_manual"
+    message: "valid_until must be set when manual is true"
+    expression: "!this.manual || has(this.valid_until) || this.valid_until > now"
+  };
 }
 
 // An optional structure containing more details how a comparison inside an assessment result was done and if it was successful.
