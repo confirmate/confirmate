@@ -41,6 +41,8 @@ var types = []any{
 	// Category depends on Control (category_controls join table).
 	&orchestrator.Category{},
 	&orchestrator.AuditScope{},
+	// RiskAssessment depends on AuditScope.
+	&orchestrator.RiskAssessment{},
 	&orchestrator.AssessmentTool{},
 	&assessment.MetricConfiguration{},
 	&assessment.AssessmentResult{},

@@ -19,6 +19,7 @@ import "api/assessment/metric.proto";
 import "api/assessment/result.proto";
 import "api/common/runtime.proto";
 import "api/evaluation/evaluation.proto";
+import "api/orchestrator/risk_assessment.proto";
 import "api/orchestrator/user.proto";
 import "api/orchestrator/workflow.proto";
 import "buf/validate/validate.proto";
@@ -464,6 +465,34 @@ service Orchestrator {
   // Manually removes a control from scope within an audit scope, creating an AuditTrailEvent.
   rpc RemoveControlInScope(RemoveControlInScopeRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/orchestrator/controls_in_scope/{id}"};
+  }
+
+  // Stores a risk assessment as a draft. Its scope decisions are applied when it is approved.
+  rpc CreateRiskAssessment(CreateRiskAssessmentRequest) returns (RiskAssessment) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/risk_assessments"
+      body: "risk_assessment"
+    };
+  }
+
+  // Retrieves a risk assessment by ID.
+  rpc GetRiskAssessment(GetRiskAssessmentRequest) returns (RiskAssessment) {
+    option (google.api.http) = {get: "/v1/orchestrator/risk_assessments/{risk_assessment_id}"};
+  }
+
+  // Lists risk assessments, optionally filtered by audit scope or target of evaluation.
+  rpc ListRiskAssessments(ListRiskAssessmentsRequest) returns (ListRiskAssessmentsResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/risk_assessments"};
+  }
+
+  // Approves a draft risk assessment and applies its scope decisions to the audit scope: controls that are out
+  // of scope are removed from it (with the justification in the audit trail) and controls that are in scope again
+  // are added. The assessment that was approved before is superseded.
+  rpc ApproveRiskAssessment(ApproveRiskAssessmentRequest) returns (RiskAssessment) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/risk_assessments/{risk_assessment_id}/approve"
+      body: "*"
+    };
   }
 
   // Lists audit trail events, optionally filtered by audit scope.
@@ -1339,6 +1368,55 @@ message GetAuditScopeStatisticsResponse {
   // were actually evaluated at, since metrics are typically attached to sub-controls rather than
   // their top-level parent.
   map<string, int64> counts_by_compliance_status = 2;
+}
+
+// Request for CreateRiskAssessment.
+message CreateRiskAssessmentRequest {
+  RiskAssessment risk_assessment = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// Request for GetRiskAssessment.
+message GetRiskAssessmentRequest {
+  string risk_assessment_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// Request for ListRiskAssessments.
+message ListRiskAssessmentsRequest {
+  message Filter {
+    // Optional. List only risk assessments of a specific audit scope.
+    optional string audit_scope_id = 1;
+    // Optional. List only risk assessments of a specific target of evaluation.
+    optional string target_of_evaluation_id = 2;
+  }
+
+  optional Filter filter = 1;
+
+  // The maximum number of risk assessments to return. The default and the maximum are the pagination defaults of the
+  // service.
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+// Response of ListRiskAssessments.
+message ListRiskAssessmentsResponse {
+  repeated RiskAssessment risk_assessments = 1;
+  string next_page_token = 2;
+}
+
+// Request for ApproveRiskAssessment.
+message ApproveRiskAssessmentRequest {
+  string risk_assessment_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 message ListAuditScopesRequest {

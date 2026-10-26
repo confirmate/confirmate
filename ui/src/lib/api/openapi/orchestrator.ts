@@ -616,6 +616,62 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/orchestrator/risk_assessments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists risk assessments, optionally filtered by audit scope or target of evaluation. */
+        get: operations["Orchestrator_ListRiskAssessments"];
+        put?: never;
+        /** @description Stores a risk assessment as a draft. Its scope decisions are applied when it is approved. */
+        post: operations["Orchestrator_CreateRiskAssessment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/risk_assessments/{riskAssessmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieves a risk assessment by ID. */
+        get: operations["Orchestrator_GetRiskAssessment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/risk_assessments/{riskAssessmentId}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Approves a draft risk assessment and applies its scope decisions to the audit scope: controls that are out
+         *      of scope are removed from it (with the justification in the audit trail) and controls that are in scope again
+         *      are added. The assessment that was approved before is superseded.
+         */
+        post: operations["Orchestrator_ApproveRiskAssessment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/orchestrator/runtime_info": {
         parameters: {
             query?: never;
@@ -938,6 +994,10 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description Request for ApproveRiskAssessment. */
+        ApproveRiskAssessmentRequest: {
+            riskAssessmentId: string;
+        };
         /**
          * @description A result resource, representing the result after assessing the cloud resource
          *      with id resource_id.
@@ -1458,6 +1518,11 @@ export interface components {
             certificates?: components["schemas"]["Certificate"][];
             nextPageToken?: string;
         };
+        /** @description Response of ListRiskAssessments. */
+        ListRiskAssessmentsResponse: {
+            riskAssessments?: components["schemas"]["RiskAssessment"][];
+            nextPageToken?: string;
+        };
         ListTargetsOfEvaluationResponse: {
             targetsOfEvaluation: components["schemas"]["TargetOfEvaluation"][];
             nextPageToken?: string;
@@ -1551,6 +1616,58 @@ export interface components {
             /** Format: date-time */
             evidenceRecordedAt: string;
         };
+        /**
+         * @description RiskAssessment is the cybersecurity risk assessment of a target of evaluation and the decisions about the scope
+         *      that follow from it. Confirmate stores and applies it; it does not replace a full risk assessment tool.
+         */
+        RiskAssessment: {
+            id: string;
+            targetOfEvaluationId: string;
+            /** @description The audit scope whose controls in scope follow from the assessment. */
+            auditScopeId: string;
+            /**
+             * Format: int32
+             * @description The version of the assessment within its audit scope, starting at 1.
+             */
+            readonly version?: number;
+            /**
+             * Format: enum
+             * @enum {string}
+             */
+            readonly status?: "RISK_ASSESSMENT_STATUS_UNSPECIFIED" | "RISK_ASSESSMENT_STATUS_DRAFT" | "RISK_ASSESSMENT_STATUS_APPROVED" | "RISK_ASSESSMENT_STATUS_SUPERSEDED";
+            /**
+             * Format: enum
+             * @enum {string}
+             */
+            method: "RISK_ASSESSMENT_METHOD_UNSPECIFIED" | "RISK_ASSESSMENT_METHOD_BUILT_IN" | "RISK_ASSESSMENT_METHOD_IMPORT" | "RISK_ASSESSMENT_METHOD_DOCUMENT";
+            /** @description The tool of an imported assessment, for example "QuBA-libre". */
+            tool?: string;
+            /** @description The version of that tool. */
+            toolVersion?: string;
+            /** @description A short summary of the assessment in the words of the author. */
+            summary?: string;
+            /** @description A document of the assessment, stored as evidence before. */
+            documentEvidenceId?: string;
+            /** @description The answers of the built-in questionnaire by question ID. */
+            answers?: {
+                [key: string]: string;
+            };
+            /** @description The decisions about the scope. Controls without a decision stay as they are. */
+            decisions?: components["schemas"]["ScopeDecision"][];
+            /** Format: date-time */
+            readonly createdAt?: string;
+            /** @description The ID of the user who created the assessment, if known. */
+            readonly createdBy?: string;
+            /** Format: date-time */
+            readonly approvedAt?: string;
+            /** @description The ID of the user who approved the assessment, if known. */
+            readonly approvedBy?: string;
+            /**
+             * Format: date-time
+             * @description The time by which the assessment has to be reviewed. If omitted, it is one year after the approval.
+             */
+            reviewDueAt?: string;
+        };
         Runtime: {
             /** @description release_version is the latest Confirmate release version for this commit */
             releaseVersion?: string;
@@ -1567,6 +1684,21 @@ export interface components {
             golangVersion?: string;
             /** @description dependency is a list of used runtime dependencies */
             dependencies?: components["schemas"]["Dependency"][];
+        };
+        /** @description ScopeDecision says whether a control is in the scope of an audit scope, and why. */
+        ScopeDecision: {
+            /** @description The control the decision is about. */
+            controlId: string;
+            /** @description Whether the control is in scope. */
+            inScope?: boolean;
+            /** @description The reason for the decision. It is required if the control is out of scope. */
+            justification?: string;
+            /**
+             * Format: enum
+             * @description Where the decision comes from.
+             * @enum {string}
+             */
+            source?: "SCOPE_DECISION_SOURCE_UNSPECIFIED" | "SCOPE_DECISION_SOURCE_RULE" | "SCOPE_DECISION_SOURCE_IMPORT" | "SCOPE_DECISION_SOURCE_MANUAL";
         };
         /** @description A state of a certificate at a given time */
         State: {
@@ -1769,6 +1901,7 @@ export interface components {
     headers: never;
     pathItems: never;
 }
+export type SchemaApproveRiskAssessmentRequest = components['schemas']['ApproveRiskAssessmentRequest'];
 export type SchemaAssessmentResult = components['schemas']['AssessmentResult'];
 export type SchemaAssessmentTool = components['schemas']['AssessmentTool'];
 export type SchemaAuditScope = components['schemas']['AuditScope'];
@@ -1799,6 +1932,7 @@ export type SchemaListEvaluationResultsResponse = components['schemas']['ListEva
 export type SchemaListMetricConfigurationResponse = components['schemas']['ListMetricConfigurationResponse'];
 export type SchemaListMetricsResponse = components['schemas']['ListMetricsResponse'];
 export type SchemaListPublicCertificatesResponse = components['schemas']['ListPublicCertificatesResponse'];
+export type SchemaListRiskAssessmentsResponse = components['schemas']['ListRiskAssessmentsResponse'];
 export type SchemaListTargetsOfEvaluationResponse = components['schemas']['ListTargetsOfEvaluationResponse'];
 export type SchemaListUserPermissionsResponse = components['schemas']['ListUserPermissionsResponse'];
 export type SchemaListUserRolesResponse = components['schemas']['ListUserRolesResponse'];
@@ -1808,7 +1942,9 @@ export type SchemaMetricConfiguration = components['schemas']['MetricConfigurati
 export type SchemaMetricImplementation = components['schemas']['MetricImplementation'];
 export type SchemaOrganizationPostalAddress = components['schemas']['Organization_PostalAddress'];
 export type SchemaRecord = components['schemas']['Record'];
+export type SchemaRiskAssessment = components['schemas']['RiskAssessment'];
 export type SchemaRuntime = components['schemas']['Runtime'];
+export type SchemaScopeDecision = components['schemas']['ScopeDecision'];
 export type SchemaState = components['schemas']['State'];
 export type SchemaStatus = components['schemas']['Status'];
 export type SchemaStoreAssessmentResultResponse = components['schemas']['StoreAssessmentResultResponse'];
@@ -3385,6 +3521,147 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ListPublicCertificatesResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListRiskAssessments: {
+        parameters: {
+            query?: {
+                /** @description Optional. List only risk assessments of a specific audit scope. */
+                "filter.auditScopeId"?: string;
+                /** @description Optional. List only risk assessments of a specific target of evaluation. */
+                "filter.targetOfEvaluationId"?: string;
+                /**
+                 * @description The maximum number of risk assessments to return. The default and the maximum are the pagination defaults of the
+                 *      service.
+                 */
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListRiskAssessmentsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_CreateRiskAssessment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RiskAssessment"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RiskAssessment"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetRiskAssessment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                riskAssessmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RiskAssessment"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ApproveRiskAssessment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                riskAssessmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveRiskAssessmentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RiskAssessment"];
                 };
             };
             /** @description Default error response */
