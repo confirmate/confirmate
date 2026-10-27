@@ -22,7 +22,7 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"confirmate.io/core/util/timestamp"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -103,7 +103,7 @@ func (d *k8sStorageCollector) handlePV(pv *v1.PersistentVolume) ontology.IsResou
 		v := &ontology.BlockStorage{
 			Id:               new(string(pv.UID)),
 			Name:             new(pv.Name),
-			CreationTime:     timestamppb.New(pv.CreationTimestamp.Time),
+			CreationTime:     timestamp.New(pv.CreationTimestamp.Time),
 			Labels:           pv.Labels,
 			AtRestEncryption: &ontology.AtRestEncryption{},
 			Raw:              new(collector.Raw(pv)),
@@ -115,7 +115,7 @@ func (d *k8sStorageCollector) handlePV(pv *v1.PersistentVolume) ontology.IsResou
 		v := &ontology.FileStorage{
 			Id:               new(string(pv.UID)),
 			Name:             new(pv.Name),
-			CreationTime:     timestamppb.New(pv.CreationTimestamp.Time),
+			CreationTime:     timestamp.New(pv.CreationTimestamp.Time),
 			Labels:           pv.Labels,
 			AtRestEncryption: &ontology.AtRestEncryption{},
 			Raw:              new(collector.Raw(pv)),

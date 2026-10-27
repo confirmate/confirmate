@@ -24,8 +24,8 @@ import (
 	"testing"
 	"time"
 
+	"confirmate.io/core/util/timestamp"
 	"github.com/google/go-cmp/cmp"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type MyStruct struct {
@@ -77,8 +77,8 @@ func TestEqual(t *testing.T) {
 			name: "compare protobuf",
 			args: args{
 				t:    &fakeT{},
-				want: timestamppb.New(time.Unix(0, 0)),
-				got:  timestamppb.Now(),
+				want: timestamp.New(time.Unix(0, 0)),
+				got:  timestamp.Now(),
 			},
 			want: false,
 		},
@@ -126,8 +126,8 @@ func TestNotEqual(t *testing.T) {
 			name: "compare protobuf",
 			args: args{
 				t:    t,
-				want: timestamppb.New(time.Unix(0, 0)),
-				got:  timestamppb.Now(),
+				want: timestamp.New(time.Unix(0, 0)),
+				got:  timestamp.Now(),
 			},
 			want: true,
 		},

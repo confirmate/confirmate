@@ -22,10 +22,10 @@ import (
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/timestamp"
 
 	ionoscloud "github.com/ionos-cloud/sdk-go/v6"
 	"github.com/lmittmann/tint"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // handleServer creates a virtual machine resource based on the CSC Hub Ontology
@@ -40,7 +40,7 @@ func (d *ionosCollector) handleServer(server ionoscloud.Server, dc ionoscloud.Da
 	r := &ontology.VirtualMachine{
 		Id:                  server.Id,
 		Name:                server.Properties.Name,
-		CreationTime:        timestamppb.New(pointer.Deref(server.Metadata.GetCreatedDate())),
+		CreationTime:        timestamp.New(pointer.Deref(server.Metadata.GetCreatedDate())),
 		GeoLocation:         &ontology.GeoLocation{Region: dc.Properties.GetLocation()},
 		Labels:              labels(l),
 		ParentId:            dc.GetId(),
@@ -67,7 +67,7 @@ func (d *ionosCollector) handleBlockStorage(blockStorage ionoscloud.Volume, dc i
 	r := &ontology.BlockStorage{
 		Id:           blockStorage.Id,
 		Name:         blockStorage.Properties.Name,
-		CreationTime: timestamppb.New(pointer.Deref(blockStorage.Metadata.GetCreatedDate())),
+		CreationTime: timestamp.New(pointer.Deref(blockStorage.Metadata.GetCreatedDate())),
 		GeoLocation:  &ontology.GeoLocation{Region: dc.Properties.GetLocation()},
 		Labels:       labels(l),
 		ParentId:     dc.GetId(),
@@ -84,7 +84,7 @@ func (d *ionosCollector) handleLoadBalancer(loadBalancer ionoscloud.Loadbalancer
 	r := &ontology.LoadBalancer{
 		Id:           loadBalancer.Id,
 		Name:         loadBalancer.Properties.Name,
-		CreationTime: timestamppb.New(pointer.Deref(loadBalancer.Metadata.GetCreatedDate())),
+		CreationTime: timestamp.New(pointer.Deref(loadBalancer.Metadata.GetCreatedDate())),
 		GeoLocation:  &ontology.GeoLocation{Region: dc.Properties.Location},
 		ParentId:     dc.GetId(),
 		Raw:          new(collector.Raw(loadBalancer, dc)),

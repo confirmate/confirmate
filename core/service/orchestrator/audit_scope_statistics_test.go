@@ -28,11 +28,11 @@ import (
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 
 	"connectrpc.com/connect"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // failingEvaluationResultsListDB is a [persistence.DB] whose List fails for evaluation results, while everything else
@@ -80,25 +80,25 @@ func newAuditScopeStatisticsTestDB(t *testing.T) persistence.DB {
 			Id: uuid.NewString(), TargetOfEvaluationId: orchestratortest.MockToeId1, AuditScopeId: orchestratortest.MockScopeId1,
 			ControlId: orchestratortest.MockControlId1, ControlCatalogId: orchestratortest.MockCatalogId1,
 			Status:    evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-			Timestamp: timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
+			Timestamp: timestamp.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
 		}))
 		assert.NoError(t, d.Create(&evaluation.EvaluationResult{
 			Id: uuid.NewString(), TargetOfEvaluationId: orchestratortest.MockToeId1, AuditScopeId: orchestratortest.MockScopeId1,
 			ControlId: orchestratortest.MockControl1SubControlId1, ControlCatalogId: orchestratortest.MockCatalogId1, ParentControlId: new(orchestratortest.MockControlId1),
 			Status:    evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
-			Timestamp: timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
+			Timestamp: timestamp.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
 		}))
 		assert.NoError(t, d.Create(&evaluation.EvaluationResult{
 			Id: uuid.NewString(), TargetOfEvaluationId: orchestratortest.MockToeId1, AuditScopeId: orchestratortest.MockScopeId1,
 			ControlId: orchestratortest.MockControlId2, ControlCatalogId: orchestratortest.MockCatalogId1,
 			Status:    evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
-			Timestamp: timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
+			Timestamp: timestamp.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
 		}))
 		assert.NoError(t, d.Create(&evaluation.EvaluationResult{
 			Id: uuid.NewString(), TargetOfEvaluationId: orchestratortest.MockToeId1, AuditScopeId: orchestratortest.MockScopeId1,
 			ControlId: orchestratortest.MockControlId2, ControlCatalogId: orchestratortest.MockCatalogId1,
 			Status:    evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-			Timestamp: timestamppb.New(time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC)),
+			Timestamp: timestamp.New(time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC)),
 		}))
 	})
 }

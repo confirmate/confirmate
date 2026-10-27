@@ -24,10 +24,10 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm/schema"
 )
 
@@ -141,9 +141,9 @@ func TestTimestampSerializer_Value(t *testing.T) {
 			args: args{
 				field:      &schema.Field{Name: "timestamp"},
 				dst:        reflect.Value{},
-				fieldValue: timestamppb.New(time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC)),
+				fieldValue: timestamp.New(time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC)),
 			},
-			want:    time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
+			want:    time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC).Truncate(time.Microsecond),
 			wantErr: assert.NoError,
 		},
 		{

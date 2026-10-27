@@ -22,7 +22,7 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"confirmate.io/core/util/timestamp"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -97,7 +97,7 @@ func (d *k8sNetworkCollector) handleService(service *corev1.Service) ontology.Is
 	return &ontology.GenericNetworkService{
 		Id:           new(getNetworkServiceResourceID(service)),
 		Name:         new(service.Name),
-		CreationTime: timestamppb.New(service.CreationTimestamp.Time),
+		CreationTime: timestamp.New(service.CreationTimestamp.Time),
 		Labels:       service.Labels,
 		Raw:          new(collector.Raw(service)),
 		Ips:          service.Spec.ClusterIPs,
@@ -113,7 +113,7 @@ func (d *k8sNetworkCollector) handleIngress(ingress *v1.Ingress) ontology.IsReso
 	lb := &ontology.LoadBalancer{
 		Id:           new(getLoadBalancerResourceID(ingress)),
 		Name:         new(ingress.Name),
-		CreationTime: timestamppb.New(ingress.CreationTimestamp.Time),
+		CreationTime: timestamp.New(ingress.CreationTimestamp.Time),
 		Labels:       ingress.Labels,
 		Raw:          new(collector.Raw(ingress)),
 		Ports:        []uint32{80, 443},

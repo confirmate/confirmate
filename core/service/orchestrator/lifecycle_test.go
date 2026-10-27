@@ -29,11 +29,11 @@ import (
 	"confirmate.io/core/service/evaluation/evaluationtest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/testing/protocmp"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestService_updateCertificateLifecycle(t *testing.T) {
@@ -138,7 +138,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 						AuditScopeId: orchestratortest.MockScopeId1,
 						ControlId:    evaluationtest.MockControlId1,
 						Status:       evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
-						Timestamp:    timestamppb.Now(),
+						Timestamp:    timestamp.Now(),
 					}))
 				}),
 			},
@@ -174,7 +174,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 						AuditScopeId: orchestratortest.MockScopeId1,
 						ControlId:    evaluationtest.MockControlId1,
 						Status:       evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-						Timestamp:    timestamppb.Now(),
+						Timestamp:    timestamp.Now(),
 					}))
 				}),
 			},
@@ -197,7 +197,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockToeId1,
 						AuditScopeId:         orchestratortest.MockScopeId1,
 						States: []*orchestrator.State{
-							{Id: "00000000-0000-0000-0088-000000000001", State: CertificateStateNew, Timestamp: timestamppb.New(time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)), CertificateId: orchestratortest.MockCertificateId1},
+							{Id: "00000000-0000-0000-0088-000000000001", State: CertificateStateNew, Timestamp: timestamp.New(time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)), CertificateId: orchestratortest.MockCertificateId1},
 						},
 					}
 					assert.NoError(t, d.Create(cert))
@@ -206,7 +206,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 						AuditScopeId: orchestratortest.MockScopeId1,
 						ControlId:    evaluationtest.MockControlId1,
 						Status:       evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-						Timestamp:    timestamppb.Now(),
+						Timestamp:    timestamp.Now(),
 					}))
 				}),
 			},
@@ -228,7 +228,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockToeId1,
 						AuditScopeId:         orchestratortest.MockScopeId1,
 						States: []*orchestrator.State{
-							{Id: "00000000-0000-0000-0088-000000000001", State: CertificateStateWithdrawn, Timestamp: timestamppb.New(time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)), CertificateId: orchestratortest.MockCertificateId1},
+							{Id: "00000000-0000-0000-0088-000000000001", State: CertificateStateWithdrawn, Timestamp: timestamp.New(time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)), CertificateId: orchestratortest.MockCertificateId1},
 						},
 					}
 					assert.NoError(t, d.Create(cert))
@@ -237,7 +237,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 						AuditScopeId: orchestratortest.MockScopeId1,
 						ControlId:    evaluationtest.MockControlId1,
 						Status:       evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
-						Timestamp:    timestamppb.Now(),
+						Timestamp:    timestamp.Now(),
 					}))
 				}),
 			},
@@ -261,7 +261,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 						AuditScopeId: orchestratortest.MockScopeId1,
 						ControlId:    evaluationtest.MockControlId1,
 						Status:       evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-						Timestamp:    timestamppb.Now(),
+						Timestamp:    timestamp.Now(),
 					}))
 					// Sub-control is not compliant — must not affect the certificate state.
 					parent := evaluationtest.MockControlId1
@@ -271,7 +271,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 						ControlId:       evaluationtest.MockControl1SubcontrolId11,
 						ParentControlId: &parent,
 						Status:          evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
-						Timestamp:       timestamppb.Now(),
+						Timestamp:       timestamp.Now(),
 					}))
 				}),
 			},
@@ -302,7 +302,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 							AuditScopeId: orchestratortest.MockScopeId1,
 							ControlId:    fmt.Sprintf("%s-%03d", evaluationtest.MockControlId1, i),
 							Status:       status,
-							Timestamp:    timestamppb.Now(),
+							Timestamp:    timestamp.Now(),
 						}))
 					}
 				}),
@@ -365,7 +365,7 @@ func TestService_UpdateCertificateLifecycle(t *testing.T) {
 						AuditScopeId: orchestratortest.MockScopeId1,
 						ControlId:    evaluationtest.MockControlId1,
 						Status:       evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
-						Timestamp:    timestamppb.Now(),
+						Timestamp:    timestamp.Now(),
 					}))
 				}),
 				authz: &denyAuthorizationStrategy{},
@@ -392,7 +392,7 @@ func TestService_UpdateCertificateLifecycle(t *testing.T) {
 						AuditScopeId: orchestratortest.MockScopeId1,
 						ControlId:    evaluationtest.MockControlId1,
 						Status:       evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
-						Timestamp:    timestamppb.Now(),
+						Timestamp:    timestamp.Now(),
 					}))
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},

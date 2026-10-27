@@ -23,7 +23,7 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"confirmate.io/core/util/timestamp"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -85,7 +85,7 @@ func (d *k8sComputeCollector) handlePod(pod *v1.Pod) *ontology.Container {
 	r := &ontology.Container{
 		Id:                  new(getContainerResourceID(pod)),
 		Name:                new(pod.Name),
-		CreationTime:        timestamppb.New(pod.CreationTimestamp.Time),
+		CreationTime:        timestamp.New(pod.CreationTimestamp.Time),
 		Labels:              pod.Labels,
 		Raw:                 new(collector.Raw(pod)),
 		NetworkInterfaceIds: []string{},

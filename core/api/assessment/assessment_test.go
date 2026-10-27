@@ -22,12 +22,11 @@ import (
 
 	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/util/assert"
-
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"confirmate.io/core/util/timestamp"
 )
 
 func Test_ValidateAssessmentResult(t *testing.T) {
-	timestamp := timestamppb.Now()
+	timestampNow := timestamp.Now()
 
 	type args struct {
 		AssessmentResult *AssessmentResult
@@ -43,7 +42,7 @@ func Test_ValidateAssessmentResult(t *testing.T) {
 			args: args{
 				&AssessmentResult{
 					Id:        evidencetest.MockAssessmentResultID,
-					CreatedAt: timestamp,
+					CreatedAt: timestampNow,
 					MetricId:  evidencetest.MockMetricID1,
 					MetricConfiguration: &MetricConfiguration{
 						Operator:             "==",
@@ -58,10 +57,10 @@ func Test_ValidateAssessmentResult(t *testing.T) {
 					ResourceTypes:        []string{"Resource"},
 					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 					ToolId:               new(AssessmentToolId),
-					HistoryUpdatedAt:     timestamp,
+					HistoryUpdatedAt:     timestampNow,
 					History: []*Record{
 						{
-							EvidenceRecordedAt: timestamp,
+							EvidenceRecordedAt: timestampNow,
 							EvidenceId:         evidencetest.MockEvidenceID1,
 						},
 					},
@@ -149,7 +148,7 @@ func Test_ValidateAssessmentResult(t *testing.T) {
 			args: args{
 				&AssessmentResult{
 					Id:        evidencetest.MockAssessmentResultID,
-					CreatedAt: timestamppb.Now(),
+					CreatedAt: timestamp.Now(),
 					MetricConfiguration: &MetricConfiguration{
 						Operator:    "<",
 						TargetValue: evidencetest.MockMetricConfigurationTargetValueString,
@@ -167,7 +166,7 @@ func Test_ValidateAssessmentResult(t *testing.T) {
 			args: args{
 				&AssessmentResult{
 					Id:        evidencetest.MockAssessmentResultID,
-					CreatedAt: timestamppb.Now(),
+					CreatedAt: timestamp.Now(),
 					MetricId:  evidencetest.MockMetricID1,
 					MetricConfiguration: &MetricConfiguration{
 						MetricId:             evidencetest.MockMetricID1,
@@ -188,7 +187,7 @@ func Test_ValidateAssessmentResult(t *testing.T) {
 			args: args{
 				&AssessmentResult{
 					Id:            evidencetest.MockAssessmentResultID,
-					CreatedAt:     timestamppb.Now(),
+					CreatedAt:     timestamp.Now(),
 					MetricId:      evidencetest.MockMetricID1,
 					EvidenceId:    evidencetest.MockEvidenceID1,
 					ResourceTypes: []string{"Resource"},
@@ -203,7 +202,7 @@ func Test_ValidateAssessmentResult(t *testing.T) {
 			args: args{
 				&AssessmentResult{
 					Id:        evidencetest.MockAssessmentResultID,
-					CreatedAt: timestamppb.Now(),
+					CreatedAt: timestamp.Now(),
 					MetricId:  evidencetest.MockMetricID1,
 					MetricConfiguration: &MetricConfiguration{
 						TargetValue: evidencetest.MockMetricConfigurationTargetValueString,
@@ -222,7 +221,7 @@ func Test_ValidateAssessmentResult(t *testing.T) {
 			args: args{
 				&AssessmentResult{
 					Id:        evidencetest.MockAssessmentResultID,
-					CreatedAt: timestamppb.Now(),
+					CreatedAt: timestamp.Now(),
 					MetricId:  evidencetest.MockMetricID1,
 					MetricConfiguration: &MetricConfiguration{
 						Operator: "<",
@@ -240,7 +239,7 @@ func Test_ValidateAssessmentResult(t *testing.T) {
 			args: args{
 				&AssessmentResult{
 					Id:        evidencetest.MockAssessmentResultID,
-					CreatedAt: timestamppb.Now(),
+					CreatedAt: timestamp.Now(),
 					MetricId:  evidencetest.MockMetricID1,
 					MetricConfiguration: &MetricConfiguration{
 						Operator:    ">",
