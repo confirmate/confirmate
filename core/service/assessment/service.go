@@ -36,8 +36,8 @@ import (
 	"confirmate.io/core/policies"
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
+	"confirmate.io/core/util/timestamp"
 	"golang.org/x/oauth2/clientcredentials"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -441,7 +441,7 @@ func (svc *Service) handleEvidence(
 
 		types = ontology.ResourceTypes(resource)
 
-		now := timestamppb.Now()
+		now := timestamp.Now()
 		result = &assessment.AssessmentResult{
 			Id:                   uuid.NewString(),
 			CreatedAt:            now,
