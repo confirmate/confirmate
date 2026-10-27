@@ -38,7 +38,6 @@ import (
 	"confirmate.io/core/util/timestamp"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestMain(m *testing.M) {

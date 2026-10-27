@@ -60,9 +60,6 @@ func (svc *Service) StoreAssessmentResult(
 	// Normalize timestamps in the assessment result to microsecond precision
 	assessment.NormalizeTimestampAssessmentResult(result)
 
-	// Set timestamp
-	result.CreatedAt = timestamp.Now()
-
 	// Persist the assessment result in the database
 	err = svc.db.Create(result)
 	if err = service.HandleDatabaseError(err); err != nil {
