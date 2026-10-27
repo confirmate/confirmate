@@ -31,12 +31,12 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
-	"github.com/google/uuid"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
 	"go.yaml.in/yaml/v3"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
@@ -67,7 +67,7 @@ func (svc *Service) CreateMetric(
 			MetricId:  metricID,
 			Lang:      req.Msg.GetMetric().GetImplementation().GetLang(),
 			Code:      req.Msg.GetMetric().GetImplementation().GetCode(),
-			UpdatedAt: timestamppb.Now(),
+			UpdatedAt: timestamp.Now(),
 		}
 	}
 
@@ -98,7 +98,7 @@ func (svc *Service) CreateMetric(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
 		EntityId:    metric.Id,
@@ -214,7 +214,7 @@ func (svc *Service) UpdateMetric(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:    metric.Id,
@@ -260,7 +260,7 @@ func (svc *Service) RemoveMetric(
 
 	// Set timestamp if not already set (soft delete)
 	if metric.DeprecatedSince == nil {
-		metric.DeprecatedSince = timestamppb.Now()
+		metric.DeprecatedSince = timestamp.Now()
 	}
 
 	// Update the metric with the deprecated timestamp
@@ -271,7 +271,7 @@ func (svc *Service) RemoveMetric(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_DELETED,
 		EntityId:    req.Msg.MetricId,
@@ -332,7 +332,7 @@ func (svc *Service) UpdateMetricImplementation(
 		MetricId:  req.Msg.GetImplementation().GetMetricId(),
 		Lang:      req.Msg.GetImplementation().GetLang(),
 		Code:      req.Msg.GetImplementation().GetCode(),
-		UpdatedAt: timestamppb.Now(),
+		UpdatedAt: timestamp.Now(),
 	}
 
 	// Update the metric implementation
@@ -343,7 +343,7 @@ func (svc *Service) UpdateMetricImplementation(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:    impl.MetricId,
@@ -459,7 +459,7 @@ func (svc *Service) UpdateMetricConfiguration(
 		Operator:             req.Msg.GetConfiguration().GetOperator(),
 		TargetValue:          req.Msg.GetConfiguration().GetTargetValue(),
 		IsDefault:            false,
-		UpdatedAt:            timestamppb.Now(),
+		UpdatedAt:            timestamp.Now(),
 	}
 
 	// Check access via the configured auth strategy
@@ -479,7 +479,7 @@ func (svc *Service) UpdateMetricConfiguration(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		Category:             orchestrator.EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION,
 		RequestType:          orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:             config.MetricId,
@@ -705,7 +705,7 @@ func loadMetricImplementation(metricID, metricDir string) (impl *assessment.Metr
 		MetricId:  metricID,
 		Lang:      assessment.MetricImplementation_LANGUAGE_REGO,
 		Code:      string(b),
-		UpdatedAt: timestamppb.Now(),
+		UpdatedAt: timestamp.Now(),
 	}
 
 	return impl, nil

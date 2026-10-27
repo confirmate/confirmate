@@ -21,12 +21,12 @@ import (
 
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/machinelearning/armmachinelearning"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/subscription/armsubscription"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Test_handleMLWorkspace(t *testing.T) {
@@ -84,7 +84,7 @@ func Test_handleMLWorkspace(t *testing.T) {
 				want := &ontology.MachineLearningService{
 					Id:                         new(resourceID(new(id))),
 					Name:                       new("mlWorkspace"),
-					CreationTime:               timestamppb.New(creationTime),
+					CreationTime:               timestamp.New(creationTime),
 					GeoLocation:                &ontology.GeoLocation{Region: new("westeurope")},
 					Labels:                     map[string]string{"tag1": "tag1", "tag2": "tag2"},
 					ParentId:                   new(parent),
@@ -169,7 +169,7 @@ func Test_azureCollector_handleMLCompute(t *testing.T) {
 				want := &ontology.Container{
 					Id:                  new(resourceID(new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace/computes/compute1"))),
 					Name:                new("compute1"),
-					CreationTime:        timestamppb.New(time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)),
+					CreationTime:        timestamp.New(time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)),
 					GeoLocation:         &ontology.GeoLocation{Region: new("westeurope")},
 					Labels:              map[string]string{"tag1": "tag1", "tag2": "tag2"},
 					ParentId:            resourceIDPointer(new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace")),
@@ -207,7 +207,7 @@ func Test_azureCollector_handleMLCompute(t *testing.T) {
 				want := &ontology.VirtualMachine{
 					Id:                  new(resourceID(new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace/computes/compute1"))),
 					Name:                new("compute1"),
-					CreationTime:        timestamppb.New(time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)),
+					CreationTime:        timestamp.New(time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)),
 					GeoLocation:         &ontology.GeoLocation{Region: new("westeurope")},
 					Labels:              map[string]string{"tag1": "tag1", "tag2": "tag2"},
 					ParentId:            resourceIDPointer(new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace")),

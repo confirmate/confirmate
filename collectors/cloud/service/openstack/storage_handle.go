@@ -23,6 +23,7 @@ import (
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/constants"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/timestamp"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v2/backups"
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
@@ -30,7 +31,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/objectstorage/v1/containers"
 	"github.com/gophercloud/gophercloud/v2/pagination"
 	"github.com/lmittmann/tint"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // handleBlockStorage creates a block storage resource based on the CSC Hub Ontology
@@ -133,7 +133,7 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 		Id:           new(volume.ID),
 		Name:         new(name),
 		Description:  new(volume.Description),
-		CreationTime: timestamppb.New(volume.CreatedAt),
+		CreationTime: timestamp.New(volume.CreatedAt),
 		GeoLocation: &ontology.GeoLocation{
 			Region: new(d.region),
 		},
