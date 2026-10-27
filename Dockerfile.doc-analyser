@@ -1,5 +1,5 @@
 # Dockerfile for the document analyser (optional)
-FROM mcr.microsoft.com/devcontainers/typescript-node:0-18
+FROM mcr.microsoft.com/devcontainers/typescript-node:5-26
 
 WORKDIR /app
 
