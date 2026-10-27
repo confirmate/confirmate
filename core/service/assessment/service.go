@@ -441,9 +441,10 @@ func (svc *Service) handleEvidence(
 
 		types = ontology.ResourceTypes(resource)
 
+		now := timestamp.Now()
 		result = &assessment.AssessmentResult{
 			Id:                   uuid.NewString(),
-			CreatedAt:            timestamp.Now(),
+			CreatedAt:            now,
 			TargetOfEvaluationId: ev.GetTargetOfEvaluationId(),
 			MetricId:             metricID,
 			MetricConfiguration:  data.Config,
@@ -454,10 +455,10 @@ func (svc *Service) handleEvidence(
 			ComplianceComment:    data.Message,
 			ComplianceDetails:    data.ComparisonResult,
 			ToolId:               new(assessment.AssessmentToolId),
-			HistoryUpdatedAt:     timestamp.Now(),
+			HistoryUpdatedAt:     now,
 			History: []*assessment.Record{{ // TODO(all): Update history in another PR, see Issue #1724
 				EvidenceId:         ev.GetId(),
-				EvidenceRecordedAt: timestamp.Now(),
+				EvidenceRecordedAt: now,
 			}},
 		}
 
