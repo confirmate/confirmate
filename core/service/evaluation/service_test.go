@@ -498,12 +498,12 @@ func Test_getMetricIds(t *testing.T) {
 func Test_preferAutomaticResults(t *testing.T) {
 	now := time.Now()
 	auto := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1}
-	manual := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1, Manual: true, ResourceId: assessment.ManualTargetOfEvaluationResourceId(evaluationtest.MockToeId1), ValidUntil: timestamppb.New(now.Add(time.Hour))}
-	manualOfResource := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1, Manual: true, ResourceId: evaluationtest.MockResourceId1, ValidUntil: timestamppb.New(now.Add(time.Hour))}
-	manualOtherMetric := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true, ResourceId: assessment.ManualTargetOfEvaluationResourceId(evaluationtest.MockToeId1), ValidUntil: timestamppb.New(now.Add(time.Hour))}
+	manual := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1, Manual: true, ResourceId: assessment.ManualTargetOfEvaluationResourceId(evaluationtest.MockToeId1), ValidUntil: timestamp.New(now.Add(time.Hour))}
+	manualOfResource := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId1, Manual: true, ResourceId: evaluationtest.MockResourceId1, ValidUntil: timestamp.New(now.Add(time.Hour))}
+	manualOtherMetric := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true, ResourceId: assessment.ManualTargetOfEvaluationResourceId(evaluationtest.MockToeId1), ValidUntil: timestamp.New(now.Add(time.Hour))}
 	manualOtherMetricInvalid := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true, ResourceId: assessment.ManualTargetOfEvaluationResourceId(evaluationtest.MockToeId1)}
-	manualExpired := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true, ValidUntil: timestamppb.New(now.Add(-time.Hour))}
-	manualValid := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId3, Manual: true, ValidUntil: timestamppb.New(now.Add(time.Hour))}
+	manualExpired := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId2, Manual: true, ValidUntil: timestamp.New(now.Add(-time.Hour))}
+	manualValid := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId3, Manual: true, ValidUntil: timestamp.New(now.Add(time.Hour))}
 	manualInvalidMissingValidUntil := &assessment.AssessmentResult{MetricId: evaluationtest.MockMetricId3, Manual: true}
 
 	type args struct {
