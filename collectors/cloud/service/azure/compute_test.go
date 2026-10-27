@@ -23,11 +23,11 @@ import (
 	"confirmate.io/collectors/cloud/internal/constants"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/appservice/armappservice/v2"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v3"
 	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Test_azureComputeCollector_collectFunctionsWebApps(t *testing.T) {
@@ -379,7 +379,7 @@ func Test_azureComputeCollector_collectVirtualMachines(t *testing.T) {
 				&ontology.VirtualMachine{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.compute/virtualmachines/vm1"),
 					Name:         new("vm1"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					Labels:       map[string]string{},
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("eastus"),
@@ -583,7 +583,7 @@ func Test_azureComputeCollector_handleVirtualMachines(t *testing.T) {
 			want: &ontology.VirtualMachine{
 				Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.compute/virtualmachines/vm1"),
 				Name:         new("vm1"),
-				CreationTime: timestamppb.New(creationTime),
+				CreationTime: timestamp.New(creationTime),
 				Labels:       map[string]string{},
 				GeoLocation: &ontology.GeoLocation{
 					Region: new("eastus"),
@@ -833,7 +833,7 @@ func Test_azureComputeCollector_collectBlockStorage(t *testing.T) {
 				&ontology.BlockStorage{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.compute/disks/disk1"),
 					Name:         new("disk1"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("eastus"),
 					},
@@ -859,7 +859,7 @@ func Test_azureComputeCollector_collectBlockStorage(t *testing.T) {
 				&ontology.BlockStorage{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.compute/disks/disk2"),
 					Name:         new("disk2"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("eastus"),
 					},
@@ -886,7 +886,7 @@ func Test_azureComputeCollector_collectBlockStorage(t *testing.T) {
 				&ontology.BlockStorage{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res2/providers/microsoft.compute/disks/disk3"),
 					Name:         new("disk3"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("eastus"),
 					},
@@ -1019,7 +1019,7 @@ func Test_azureComputeCollector_handleBlockStorage(t *testing.T) {
 			want: &ontology.BlockStorage{
 				Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.compute/disks/disk1"),
 				Name:         new("disk1"),
-				CreationTime: timestamppb.New(creationTime),
+				CreationTime: timestamp.New(creationTime),
 				GeoLocation: &ontology.GeoLocation{
 					Region: new("eastus"),
 				},

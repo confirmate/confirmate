@@ -29,10 +29,10 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
+	"confirmate.io/core/util/timestamp"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // listAssessmentResultsCall holds the parts of a ListAssessmentResults request that tests want to assert on.
@@ -200,7 +200,7 @@ func (m *mockOrchestratorHandler) StoreEvaluationResult(
 
 	eval := &evaluation.EvaluationResult{
 		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		ControlCatalogId:     req.Msg.GetResult().GetControlCatalogId(),
 		ControlId:            req.Msg.GetResult().GetControlId(),
 		ParentControlId:      req.Msg.GetResult().ParentControlId,

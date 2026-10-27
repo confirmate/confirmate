@@ -26,6 +26,7 @@ import (
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/timestamp"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/monitor/armmonitor"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
@@ -239,7 +240,7 @@ func creationTime(t *time.Time) *timestamppb.Timestamp {
 		return nil
 	}
 
-	return timestamppb.New(*t)
+	return timestamp.New(*t)
 }
 
 func location(region *string) *ontology.GeoLocation {

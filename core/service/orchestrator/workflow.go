@@ -29,13 +29,13 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // validTransitions defines the allowed state machine transitions for a ControlInScope.
@@ -87,7 +87,7 @@ func createAuditTrailEvent(db persistence.DB, actorId, auditScopeId, controlInSc
 		AuditScopeId: auditScopeId,
 		ActorId:      actorId,
 		Comment:      comment,
-		CreatedAt:    timestamppb.Now(),
+		CreatedAt:    timestamp.Now(),
 		EventData:    data,
 	}
 	if controlInScopeId != "" {
@@ -144,7 +144,7 @@ func (svc *Service) CreateControlInScope(
 		}
 	}
 
-	now := timestamppb.Now()
+	now := timestamp.Now()
 	cis = &orchestrator.ControlInScope{
 		Id:                   uuid.NewString(),
 		AuditScopeId:         req.Msg.GetAuditScopeId(),
@@ -327,7 +327,7 @@ func (svc *Service) UpdateControlInScope(
 	prevDetails := existing.GetImplementationDetails()
 	existing.AssigneeId = req.Msg.AssigneeId
 	existing.ImplementationDetails = req.Msg.ImplementationDetails
-	existing.UpdatedAt = timestamppb.Now()
+	existing.UpdatedAt = timestamp.Now()
 
 	err = svc.db.Transaction(func(tx persistence.DB) error {
 		if err := tx.Update(&existing, "id = ?", existing.Id); err != nil {
@@ -413,7 +413,7 @@ func (svc *Service) TransitionControlInScopeState(
 
 	err = svc.db.Transaction(func(tx persistence.DB) error {
 		cis.State = toState
-		cis.UpdatedAt = timestamppb.Now()
+		cis.UpdatedAt = timestamp.Now()
 		if err = tx.Update(&cis, "id = ?", cis.Id); err != nil {
 			return err
 		}

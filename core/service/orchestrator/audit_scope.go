@@ -21,12 +21,12 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util/timestamp"
 
 	"buf.build/go/protovalidate"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // CreateAuditScope creates a new audit scope.
@@ -85,7 +85,7 @@ func (svc *Service) CreateAuditScope(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_AUDIT_SCOPE,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
 		EntityId:    scope.Id,
@@ -235,7 +235,7 @@ func (svc *Service) UpdateAuditScope(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_AUDIT_SCOPE,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:    scope.Id,
@@ -285,7 +285,7 @@ func (svc *Service) RemoveAuditScope(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_AUDIT_SCOPE,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_DELETED,
 		EntityId:    req.Msg.AuditScopeId,
@@ -310,7 +310,7 @@ func autoCreateControlsInScope(ctx context.Context, tx persistence.DB, scope *or
 		return service.HandleDatabaseError(err)
 	}
 
-	now := timestamppb.Now()
+	now := timestamp.Now()
 	seen := make(map[string]bool, len(controls))
 	for _, ctrl := range controls {
 		if seen[ctrl.Id] {

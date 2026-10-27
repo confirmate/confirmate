@@ -22,9 +22,9 @@ import (
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/util/timestamp"
 
 	"google.golang.org/protobuf/types/known/structpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Mock UUIDs for consistent testing
@@ -168,7 +168,7 @@ var (
 		Description:     "Mock Deprecated Metric",
 		Version:         MockDefaultVersion,
 		Category:        MockTestCategory,
-		DeprecatedSince: timestamppb.Now(),
+		DeprecatedSince: timestamp.Now(),
 	}
 
 	// Mock Metric Implementations
@@ -490,7 +490,7 @@ var (
 	// Mock Assessment Results
 	MockAssessmentResult1 = &assessment.AssessmentResult{
 		Id:                   MockResultId1,
-		CreatedAt:            timestamppb.Now(),
+		CreatedAt:            timestamp.Now(),
 		MetricId:             MockMetricId1,
 		MetricConfiguration:  MockMetricConfiguration1,
 		Compliant:            true,
@@ -500,17 +500,17 @@ var (
 		ComplianceComment:    MockCompliantComment,
 		TargetOfEvaluationId: MockToeId1,
 		ToolId:               new(MockToolId1),
-		HistoryUpdatedAt:     timestamppb.Now(),
+		HistoryUpdatedAt:     timestamp.Now(),
 		History: []*assessment.Record{
 			{
 				EvidenceId:         MockEvidenceId1,
-				EvidenceRecordedAt: timestamppb.Now(),
+				EvidenceRecordedAt: timestamp.Now(),
 			},
 		},
 	}
 	MockAssessmentResult2 = &assessment.AssessmentResult{
 		Id:                   MockResultId2,
-		CreatedAt:            timestamppb.Now(),
+		CreatedAt:            timestamp.Now(),
 		MetricId:             MockMetricId2,
 		MetricConfiguration:  MockMetricConfiguration2,
 		Compliant:            false,
@@ -520,11 +520,11 @@ var (
 		ComplianceComment:    MockNotCompliantComment,
 		TargetOfEvaluationId: MockToeId1,
 		ToolId:               new(MockToolId1),
-		HistoryUpdatedAt:     timestamppb.Now(),
+		HistoryUpdatedAt:     timestamp.Now(),
 		History: []*assessment.Record{
 			{
 				EvidenceId:         MockEvidenceId2,
-				EvidenceRecordedAt: timestamppb.Now(),
+				EvidenceRecordedAt: timestamp.Now(),
 			},
 		},
 	}
@@ -532,7 +532,7 @@ var (
 	// Mock Assessment Results for Store tests
 	MockNewAssessmentResult = &assessment.AssessmentResult{
 		Id:                   MockResultId3,
-		CreatedAt:            timestamppb.Now(),
+		CreatedAt:            timestamp.Now(),
 		MetricId:             MockMetricId1,
 		MetricConfiguration:  MockMetricConfiguration1,
 		Compliant:            true,
@@ -542,11 +542,11 @@ var (
 		ComplianceComment:    MockCompliantComment,
 		TargetOfEvaluationId: MockToeId1,
 		ToolId:               new(MockToolId1),
-		HistoryUpdatedAt:     timestamppb.Now(),
+		HistoryUpdatedAt:     timestamp.Now(),
 		History: []*assessment.Record{
 			{
 				EvidenceId:         MockEvidenceId1,
-				EvidenceRecordedAt: timestamppb.Now(),
+				EvidenceRecordedAt: timestamp.Now(),
 			},
 		},
 	}
@@ -554,7 +554,7 @@ var (
 	// MockAssessmentResult3 for integration testing - can be reused for additional result in streams
 	MockAssessmentResult3 = &assessment.AssessmentResult{
 		Id:                   "00000000-0000-0000-0003-000000000005",
-		CreatedAt:            timestamppb.Now(),
+		CreatedAt:            timestamp.Now(),
 		MetricId:             MockMetricId3,
 		MetricConfiguration:  MockMetricConfiguration3,
 		Compliant:            true,
@@ -564,11 +564,11 @@ var (
 		ComplianceComment:    "Third resource test",
 		TargetOfEvaluationId: MockToeId1,
 		ToolId:               new(MockToolId1),
-		HistoryUpdatedAt:     timestamppb.Now(),
+		HistoryUpdatedAt:     timestamp.Now(),
 		History: []*assessment.Record{
 			{
 				EvidenceId:         MockEvidenceId1,
-				EvidenceRecordedAt: timestamppb.Now(),
+				EvidenceRecordedAt: timestamp.Now(),
 			},
 		},
 	}
@@ -576,7 +576,7 @@ var (
 	// MockAssessmentResult3 for integration testing - can be reused for additional result in streams
 	MockAssessmentResultToE2 = &assessment.AssessmentResult{
 		Id:                   "00000000-0000-0000-0003-000000000006",
-		CreatedAt:            timestamppb.Now(),
+		CreatedAt:            timestamp.Now(),
 		MetricId:             MockMetricId3,
 		MetricConfiguration:  MockMetricConfiguration3,
 		Compliant:            true,
@@ -586,11 +586,11 @@ var (
 		ComplianceComment:    "Third resource test",
 		TargetOfEvaluationId: MockToeId2,
 		ToolId:               new(MockToolId1),
-		HistoryUpdatedAt:     timestamppb.Now(),
+		HistoryUpdatedAt:     timestamp.Now(),
 		History: []*assessment.Record{
 			{
 				EvidenceId:         MockEvidenceId1,
-				EvidenceRecordedAt: timestamppb.Now(),
+				EvidenceRecordedAt: timestamp.Now(),
 			},
 		},
 	}
@@ -598,7 +598,7 @@ var (
 	// MockAssessmentResultForDuplicate - result with id that can be pre-created to test duplicate errors
 	MockAssessmentResultForDuplicate = &assessment.AssessmentResult{
 		Id:                   "00000000-0000-0000-0002-000000000004",
-		CreatedAt:            timestamppb.Now(),
+		CreatedAt:            timestamp.Now(),
 		MetricId:             MockMetricId2,
 		MetricConfiguration:  MockMetricConfiguration2,
 		Compliant:            false,
@@ -608,11 +608,11 @@ var (
 		ComplianceComment:    "Duplicate test",
 		TargetOfEvaluationId: MockToeId1,
 		ToolId:               new(MockToolId1),
-		HistoryUpdatedAt:     timestamppb.Now(),
+		HistoryUpdatedAt:     timestamp.Now(),
 		History: []*assessment.Record{
 			{
 				EvidenceId:         MockEvidenceId2,
-				EvidenceRecordedAt: timestamppb.Now(),
+				EvidenceRecordedAt: timestamp.Now(),
 			},
 		},
 	}
@@ -683,7 +683,7 @@ func NewMockAssessmentResultForConcurrentStream(streamID int) *assessment.Assess
 
 	return &assessment.AssessmentResult{
 		Id:                   validUUID,
-		CreatedAt:            timestamppb.Now(),
+		CreatedAt:            timestamp.Now(),
 		MetricId:             MockMetricId1,
 		MetricConfiguration:  MockMetricConfiguration1,
 		Compliant:            true,
@@ -693,11 +693,11 @@ func NewMockAssessmentResultForConcurrentStream(streamID int) *assessment.Assess
 		ComplianceComment:    "Concurrent stream test",
 		TargetOfEvaluationId: MockToeId1,
 		ToolId:               new(MockToolIdConcurrent),
-		HistoryUpdatedAt:     timestamppb.Now(),
+		HistoryUpdatedAt:     timestamp.Now(),
 		History: []*assessment.Record{
 			{
 				EvidenceId:         MockEvidenceId1,
-				EvidenceRecordedAt: timestamppb.Now(),
+				EvidenceRecordedAt: timestamp.Now(),
 			},
 		},
 	}

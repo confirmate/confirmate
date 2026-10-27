@@ -23,6 +23,7 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util/timestamp"
 
 	"buf.build/go/protovalidate"
 	"connectrpc.com/connect"
@@ -38,7 +39,7 @@ func (svc *Service) CreateTargetOfEvaluation(
 ) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
 	var (
 		toe     *orchestrator.TargetOfEvaluation
-		now     = timestamppb.Now()
+		now     = timestamp.Now()
 		allowed bool
 	)
 
@@ -86,7 +87,7 @@ func (svc *Service) CreateTargetOfEvaluation(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_TARGET_OF_EVALUATION,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
 		EntityId:    toe.Id,
@@ -212,7 +213,7 @@ func (svc *Service) UpdateTargetOfEvaluation(
 		Metadata:          req.Msg.GetTargetOfEvaluation().GetMetadata(),
 		Organization:      req.Msg.GetTargetOfEvaluation().GetOrganization(),
 		TargetType:        req.Msg.GetTargetOfEvaluation().GetTargetType(),
-		UpdatedAt:         timestamppb.Now(),
+		UpdatedAt:         timestamp.Now(),
 	}
 
 	// Check access via the configured auth strategy
@@ -232,7 +233,7 @@ func (svc *Service) UpdateTargetOfEvaluation(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_TARGET_OF_EVALUATION,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:    toe.Id,
@@ -277,7 +278,7 @@ func (svc *Service) RemoveTargetOfEvaluation(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_TARGET_OF_EVALUATION,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_DELETED,
 		EntityId:    req.Msg.TargetOfEvaluationId,
@@ -377,7 +378,7 @@ func (svc *Service) CreateDefaultTargetOfEvaluation() (target *orchestrator.Targ
 
 	if count == 0 {
 		var now *timestamppb.Timestamp
-		now = timestamppb.Now()
+		now = timestamp.Now()
 
 		// Create a default target of evaluation
 		target = &orchestrator.TargetOfEvaluation{

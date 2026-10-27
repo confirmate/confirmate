@@ -24,9 +24,9 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	_ "github.com/proullon/ramsql/driver"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -145,7 +145,7 @@ func Test_DB_Get(t *testing.T) {
 	var impl = &assessment.MetricImplementation{
 		MetricId:  MockMetricId1,
 		Code:      "TestCode",
-		UpdatedAt: timestamppb.New(time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC)),
+		UpdatedAt: timestamp.New(time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC)),
 	}
 	// Check if impl has all necessary fields
 	// assert.NoError(t, api.Validate(impl))

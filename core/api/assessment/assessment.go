@@ -17,6 +17,8 @@ package assessment
 
 import (
 	"context"
+
+	"confirmate.io/core/util/timestamp"
 )
 
 type ResultHookFunc func(ctx context.Context, result *AssessmentResult, err error)
@@ -28,3 +30,23 @@ const (
 )
 
 const AssessmentToolId = "Clouditor Assessment"
+
+// NormalizeTimestampAssessmentResult normalizes the timestamp in the given assessment result to microsecond precision.
+func NormalizeTimestampAssessmentResult(ar *AssessmentResult) {
+	if ar.CreatedAt != nil {
+		ar.CreatedAt = timestamp.New(ar.CreatedAt.AsTime())
+	}
+	if ar.HistoryUpdatedAt != nil {
+		ar.HistoryUpdatedAt = timestamp.New(ar.HistoryUpdatedAt.AsTime())
+	}
+	if ar.History != nil {
+		for _, h := range ar.History {
+			if h.EvidenceRecordedAt != nil {
+				h.EvidenceRecordedAt = timestamp.New(h.EvidenceRecordedAt.AsTime())
+			}
+		}
+	}
+	if ar.ValidUntil != nil {
+		ar.ValidUntil = timestamp.New(ar.ValidUntil.AsTime())
+	}
+}
