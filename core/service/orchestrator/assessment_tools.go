@@ -20,10 +20,10 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // RegisterAssessmentTool registers a new assessment tool.
@@ -50,7 +50,7 @@ func (svc *Service) RegisterAssessmentTool(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
 		EntityId:    tool.Id,
@@ -139,7 +139,7 @@ func (svc *Service) UpdateAssessmentTool(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:    tool.Id,
@@ -174,7 +174,7 @@ func (svc *Service) DeregisterAssessmentTool(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
+		Timestamp:   timestamp.Now(),
 		Category:    orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_DELETED,
 		EntityId:    req.Msg.ToolId,

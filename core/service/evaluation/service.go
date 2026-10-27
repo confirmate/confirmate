@@ -35,13 +35,13 @@ import (
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/log"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
 	"github.com/google/uuid"
 	"golang.org/x/oauth2/clientcredentials"
 	"golang.org/x/sync/errgroup"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -363,9 +363,9 @@ func (svc *Service) ListEvaluationJobs(ctx context.Context, req *connect.Request
 		evaluationJobs = append(evaluationJobs, &evaluation.EvaluationJob{
 			AuditScopeId: jobScopeId,
 			RunCount:     int32(job.FinishedRunCount()),
-			LastRun:      timestamppb.New(job.LastRun()),
+			LastRun:      timestamp.New(job.LastRun()),
 			Interval:     int32(job.ScheduledInterval()),
-			StartedAt:    timestamppb.New(job.LastRun()),
+			StartedAt:    timestamp.New(job.LastRun()),
 		})
 	}
 
@@ -850,7 +850,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 
 	result = &evaluation.EvaluationResult{
 		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		ControlCatalogId:     auditScope.CatalogId,
 		ControlId:            control.Id,
 		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
@@ -893,7 +893,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 	// Create evaluation result
 	eval = &evaluation.EvaluationResult{
 		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		ControlCatalogId:     auditScope.CatalogId,
 		ControlId:            control.Id,
 		ParentControlId:      control.ParentControlId,
@@ -1032,7 +1032,7 @@ func preferAutomaticResults(results []*assessment.AssessmentResult, now time.Tim
 			if _, ok := automatic[r.GetMetricId()]; ok && r.IsManualForTargetOfEvaluation() {
 				continue
 			}
-			if r.GetValidUntil() != nil && r.GetValidUntil().AsTime().Before(now) {
+			if r.GetValidUntil() == nil || r.GetValidUntil().AsTime().Before(now) {
 				continue
 			}
 		}

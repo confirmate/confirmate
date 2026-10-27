@@ -22,7 +22,7 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"confirmate.io/core/util/timestamp"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
@@ -168,7 +168,7 @@ func (d *computeCollector) collectVolumes() ([]*ontology.BlockStorage, error) {
 		blocks = append(blocks, &ontology.BlockStorage{
 			Id:           new(d.arnify("volume", volume.VolumeId)),
 			Name:         new(d.nameOrID(volume.Tags, volume.VolumeId)),
-			CreationTime: timestamppb.New(createTime),
+			CreationTime: timestamp.New(createTime),
 			GeoLocation: &ontology.GeoLocation{
 				Region: new(d.awsConfig.cfg.Region),
 			},

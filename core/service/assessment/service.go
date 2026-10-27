@@ -36,11 +36,11 @@ import (
 	"confirmate.io/core/policies"
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
+	"confirmate.io/core/util/timestamp"
 	"golang.org/x/oauth2/clientcredentials"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const DefaultOrchestratorURL = "http://localhost:8080"
@@ -443,7 +443,7 @@ func (svc *Service) handleEvidence(
 
 		result = &assessment.AssessmentResult{
 			Id:                   uuid.NewString(),
-			CreatedAt:            timestamppb.Now(),
+			CreatedAt:            timestamp.Now(),
 			TargetOfEvaluationId: ev.GetTargetOfEvaluationId(),
 			MetricId:             metricID,
 			MetricConfiguration:  data.Config,
@@ -454,10 +454,10 @@ func (svc *Service) handleEvidence(
 			ComplianceComment:    data.Message,
 			ComplianceDetails:    data.ComparisonResult,
 			ToolId:               new(assessment.AssessmentToolId),
-			HistoryUpdatedAt:     timestamppb.Now(),
+			HistoryUpdatedAt:     timestamp.Now(),
 			History: []*assessment.Record{{ // TODO(all): Update history in another PR, see Issue #1724
 				EvidenceId:         ev.GetId(),
-				EvidenceRecordedAt: timestamppb.Now(),
+				EvidenceRecordedAt: timestamp.Now(),
 			}},
 		}
 

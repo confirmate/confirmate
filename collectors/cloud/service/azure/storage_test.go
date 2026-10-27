@@ -24,11 +24,11 @@ import (
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Test_accountName(t *testing.T) {
@@ -274,7 +274,7 @@ func Test_handleFileStorage(t *testing.T) {
 				want := &ontology.FileStorage{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/fileservices/default/shares/fileshare1"),
 					Name:         new(fileShareName),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new(accountRegion),
 					},
@@ -414,7 +414,7 @@ func Test_azureStorageCollector_handleStorageAccount(t *testing.T) {
 				want := &ontology.ObjectStorageService{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1"),
 					Name:         new(accountName),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new(accountRegion),
 					},
@@ -559,7 +559,7 @@ func Test_handleObjectStorage(t *testing.T) {
 				want := &ontology.ObjectStorage{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/blobservices/default/containers/container1"),
 					Name:         new(containerName),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new(accountRegion),
 					},
@@ -673,7 +673,7 @@ func Test_azureStorageCollector_collectFileStorages(t *testing.T) {
 				want0 := &ontology.FileStorage{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/fileservices/default/shares/fileshare1"),
 					Name:         new("fileshare1"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					Labels:       map[string]string{},
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("eastus"),
@@ -696,7 +696,7 @@ func Test_azureStorageCollector_collectFileStorages(t *testing.T) {
 				want1 := &ontology.FileStorage{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/fileservices/default/shares/fileshare2"),
 					Name:         new("fileshare2"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					Labels:       map[string]string{},
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("eastus"),
@@ -811,7 +811,7 @@ func Test_azureStorageCollector_collectObjectStorages(t *testing.T) {
 				want0 := &ontology.ObjectStorage{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/blobservices/default/containers/container1"),
 					Name:         new("container1"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					Labels:       map[string]string{},
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("eastus"),
@@ -843,7 +843,7 @@ func Test_azureStorageCollector_collectObjectStorages(t *testing.T) {
 				want1 := &ontology.ObjectStorage{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/blobservices/default/containers/container2"),
 					Name:         new("container2"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					Labels:       map[string]string{},
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("eastus"),
@@ -1149,7 +1149,7 @@ func Test_azureStorageCollector_collectCosmosDB(t *testing.T) {
 				&ontology.DocumentDatabaseService{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.documentdb/databaseaccounts/dbaccount1"),
 					Name:         new("DBAccount1"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new(testdata.MockLocationEastUs),
 					},
@@ -1205,7 +1205,7 @@ func Test_azureStorageCollector_collectCosmosDB(t *testing.T) {
 				&ontology.DocumentDatabaseService{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.documentdb/databaseaccounts/dbaccount2"),
 					Name:         new("DBAccount2"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new(testdata.MockLocationEastUs),
 					},
@@ -1275,7 +1275,7 @@ func Test_azureStorageCollector_handleCosmosDB(t *testing.T) {
 				&ontology.DocumentDatabaseService{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.documentdb/databaseaccounts/dbaccount1"),
 					Name:         new("DBAccount1"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new(testdata.MockLocationWestEurope),
 					},
@@ -1316,7 +1316,7 @@ func Test_azureStorageCollector_handleCosmosDB(t *testing.T) {
 				&ontology.DocumentDatabaseService{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.documentdb/databaseaccounts/dbaccount1"),
 					Name:         new("DBAccount1"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new(testdata.MockLocationWestEurope),
 					},
@@ -1357,7 +1357,7 @@ func Test_azureStorageCollector_handleCosmosDB(t *testing.T) {
 				&ontology.DocumentDatabaseService{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.documentdb/databaseaccounts/dbaccount1"),
 					Name:         new("DBAccount1"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new(testdata.MockLocationWestEurope),
 					},
@@ -1398,7 +1398,7 @@ func Test_azureStorageCollector_handleCosmosDB(t *testing.T) {
 				&ontology.DocumentDatabaseService{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.documentdb/databaseaccounts/dbaccount1"),
 					Name:         new("DBAccount1"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new(testdata.MockLocationWestEurope),
 					},
@@ -1481,7 +1481,7 @@ func Test_azureStorageCollector_handleCosmosDB(t *testing.T) {
 				&ontology.DocumentDatabaseService{
 					Id:           new("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.documentdb/databaseaccounts/dbaccount2"),
 					Name:         new("DBAccount2"),
-					CreationTime: timestamppb.New(creationTime),
+					CreationTime: timestamp.New(creationTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("eastus"),
 					},

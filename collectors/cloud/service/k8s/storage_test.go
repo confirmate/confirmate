@@ -24,9 +24,9 @@ import (
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	"google.golang.org/protobuf/testing/protocmp"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -166,7 +166,7 @@ func Test_k8sStorageCollector_handlePV(t *testing.T) {
 				Id:               new("my-id"),
 				Name:             new("test"),
 				AtRestEncryption: &ontology.AtRestEncryption{},
-				CreationTime:     timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+				CreationTime:     timestamp.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 				Raw:              new(`{"*v1.PersistentVolume":[{"metadata":{"name":"test","uid":"my-id","creationTimestamp":"2024-01-01T00:00:00Z"},"spec":{"hostPath":{"path":"/tmp"}},"status":{}}]}`),
 			},
 		},

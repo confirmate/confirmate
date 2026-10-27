@@ -21,12 +21,12 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/timestamp"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	"github.com/gophercloud/gophercloud/v2/pagination"
 	"github.com/lmittmann/tint"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // handleNetworkInterfaces creates a network interface resource based on the CSC Hub Ontology
@@ -70,7 +70,7 @@ func (d *openstackCollector) handleNetworkInterfaces(network *networks.Network) 
 		Id:           new(network.ID),
 		Name:         new(network.Name),
 		Description:  new(network.Description),
-		CreationTime: timestamppb.New(network.CreatedAt),
+		CreationTime: timestamp.New(network.CreatedAt),
 		GeoLocation: &ontology.GeoLocation{
 			Region: new(d.region),
 		},

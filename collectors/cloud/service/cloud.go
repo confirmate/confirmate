@@ -41,6 +41,7 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/collection"
+	"confirmate.io/core/util/timestamp"
 	"connectrpc.com/connect"
 
 	"github.com/go-co-op/gocron"
@@ -48,7 +49,6 @@ import (
 	"github.com/lmittmann/tint"
 	"github.com/urfave/cli/v3"
 	"golang.org/x/oauth2/clientcredentials"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -463,7 +463,7 @@ func (svc *Service) StartCollector(collector collector.Collector) {
 		ev = &evidence.Evidence{
 			Id:                   uuid.New().String(),
 			TargetOfEvaluationId: svc.GetTargetOfEvaluationId(),
-			Timestamp:            timestamppb.Now(),
+			Timestamp:            timestamp.Now(),
 			ToolId:               svc.cloudConfig.collectorToolID,
 			Resource:             ontology.ProtoResource(resource),
 		}

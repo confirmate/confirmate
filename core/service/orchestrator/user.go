@@ -24,10 +24,10 @@ import (
 	"confirmate.io/core/auth"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // UpsertUserPermission creates or updates a specific permission entry for a user and object.
@@ -390,7 +390,7 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 			Enabled:    true,
 			Email:      new(claims.Email),
 			Roles:      claims.Roles,
-			LastAccess: timestamppb.Now(),
+			LastAccess: timestamp.Now(),
 		}
 		err = svc.db.Create(user)
 		if err != nil {
@@ -402,7 +402,7 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 		// User exists: update only identity fields that are non-empty in the claims, to avoid
 		// overwriting seeded values (e.g. FirstName/LastName) with empty JWT claims.
 		user.Roles = claims.Roles
-		user.LastAccess = timestamppb.Now()
+		user.LastAccess = timestamp.Now()
 		if claims.PreferredUsername != "" {
 			user.Username = new(claims.PreferredUsername)
 		}

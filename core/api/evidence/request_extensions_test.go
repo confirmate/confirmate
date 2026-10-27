@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"confirmate.io/core/util/assert"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"confirmate.io/core/util/timestamp"
 )
 
 func TestStoreEvidenceRequest_TargetOfEvaluationId(t *testing.T) {
@@ -63,7 +63,7 @@ func TestStoreEvidenceRequest_GetPayload(t *testing.T) {
 	ev := &Evidence{
 		Id:                   "e-1",
 		TargetOfEvaluationId: "toe-1",
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 	}
 	req := &StoreEvidenceRequest{Evidence: ev}
 

@@ -24,11 +24,11 @@ import (
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util/timestamp"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -130,7 +130,7 @@ func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId
 	state := &orchestrator.State{
 		Id:            uuid.NewString(),
 		State:         target,
-		Timestamp:     timestamppb.Now(),
+		Timestamp:     timestamp.Now(),
 		CertificateId: cert.Id,
 	}
 	if err = svc.db.Create(state); err != nil {

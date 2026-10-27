@@ -23,13 +23,13 @@ import (
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
 	"github.com/gophercloud/gophercloud/v2/openstack/objectstorage/v1/containers"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
 	"github.com/gophercloud/gophercloud/v2/testhelper/client"
 	"google.golang.org/protobuf/testing/protocmp"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // volumeTypeHandlers returns the handlers of a block storage service with one volume type "enc-type", whose
@@ -87,7 +87,7 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 				want := &ontology.BlockStorage{
 					Id:           new(testdata.MockOpenstackVolumeID1),
 					Name:         new(testdata.MockOpenstackVolumeID1),
-					CreationTime: timestamppb.New(testTime),
+					CreationTime: timestamp.New(testTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("test region"),
 					},
@@ -127,7 +127,7 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 				want := &ontology.BlockStorage{
 					Id:           new(testdata.MockOpenstackVolumeID1),
 					Name:         new(testdata.MockOpenstackVolumeName1),
-					CreationTime: timestamppb.New(testTime),
+					CreationTime: timestamp.New(testTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("test region"),
 					},
@@ -168,7 +168,7 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 				want := &ontology.BlockStorage{
 					Id:           new(testdata.MockOpenstackVolumeID1),
 					Name:         new(testdata.MockOpenstackVolumeName1),
-					CreationTime: timestamppb.New(testTime),
+					CreationTime: timestamp.New(testTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: new("test region"),
 					},

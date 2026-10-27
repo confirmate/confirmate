@@ -29,6 +29,7 @@ import (
 	"gorm.io/gorm/schema"
 
 	"confirmate.io/core/util"
+	"confirmate.io/core/util/timestamp"
 )
 
 // DurationSerializer is a GORM serializer that allows the serialization and deserialization of the
@@ -104,7 +105,7 @@ func (TimestampSerializer) Scan(ctx context.Context, field *schema.Field, dst re
 	if dbValue != nil {
 		switch v := dbValue.(type) {
 		case time.Time:
-			t = timestamppb.New(v)
+			t = timestamp.New(v)
 		default:
 			return ErrUnsupportedType
 		}

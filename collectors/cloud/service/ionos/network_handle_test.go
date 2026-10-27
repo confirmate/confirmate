@@ -22,9 +22,9 @@ import (
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	ionoscloud "github.com/ionos-cloud/sdk-go/v6"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Test_ionosCollector_handleNetworkInterface(t *testing.T) {
@@ -62,7 +62,7 @@ func Test_ionosCollector_handleNetworkInterface(t *testing.T) {
 	want := &ontology.NetworkInterface{
 		Id:           new(testdata.MockIonosNicID1),
 		Name:         new(testdata.MockIonosNicName1),
-		CreationTime: timestamppb.New(testTime),
+		CreationTime: timestamp.New(testTime),
 		GeoLocation: &ontology.GeoLocation{
 			Region: new(testdata.MockIonosDatacenterLocation1),
 		},

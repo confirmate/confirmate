@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evidence"
@@ -36,6 +35,7 @@ import (
 	"confirmate.io/core/service/orchestrator"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
+	"confirmate.io/core/util/timestamp"
 )
 
 // Test evidence IDs
@@ -73,7 +73,7 @@ func TestService_AssessEvidenceWaitFor(t *testing.T) {
 				}),
 				TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationID1,
 				ToolId:                         "my-tool",
-				Timestamp:                      timestamppb.Now(),
+				Timestamp:                      timestamp.Now(),
 				ExperimentalRelatedResourceIds: []string{testResourceID3},
 			},
 			wantStatus: assessment.AssessmentStatus_ASSESSMENT_STATUS_WAITING_FOR_RELATED,
@@ -90,7 +90,7 @@ func TestService_AssessEvidenceWaitFor(t *testing.T) {
 				}),
 				TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationID1,
 				ToolId:                         "my-tool",
-				Timestamp:                      timestamppb.Now(),
+				Timestamp:                      timestamp.Now(),
 				ExperimentalRelatedResourceIds: []string{testResourceID3},
 			},
 			wantStatus: assessment.AssessmentStatus_ASSESSMENT_STATUS_WAITING_FOR_RELATED,
@@ -106,7 +106,7 @@ func TestService_AssessEvidenceWaitFor(t *testing.T) {
 				}),
 				TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationID1,
 				ToolId:                         "my-tool",
-				Timestamp:                      timestamppb.Now(),
+				Timestamp:                      timestamp.Now(),
 				ExperimentalRelatedResourceIds: []string{testResourceID1},
 			},
 			wantStatus:     assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
@@ -256,7 +256,7 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 		}),
 		TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationZerosID,
 		ToolId:                         "my-tool",
-		Timestamp:                      timestamppb.Now(),
+		Timestamp:                      timestamp.Now(),
 		ExperimentalRelatedResourceIds: []string{testResourceID3},
 	}
 
@@ -274,7 +274,7 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 		}),
 		TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationZerosID,
 		ToolId:                         "my-tool",
-		Timestamp:                      timestamppb.Now(),
+		Timestamp:                      timestamp.Now(),
 		ExperimentalRelatedResourceIds: []string{testResourceID3},
 	}
 
@@ -291,7 +291,7 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 		}),
 		TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationZerosID,
 		ToolId:                         "my-tool",
-		Timestamp:                      timestamppb.Now(),
+		Timestamp:                      timestamp.Now(),
 		ExperimentalRelatedResourceIds: []string{testResourceID1},
 	}
 

@@ -22,9 +22,9 @@ import (
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/timestamp"
 
 	ionoscloud "github.com/ionos-cloud/sdk-go/v6"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func mockDatacenterForHandle() ionoscloud.Datacenter {
@@ -69,7 +69,7 @@ func Test_ionosCollector_handleServer(t *testing.T) {
 	want := &ontology.VirtualMachine{
 		Id:           new(testdata.MockIonosVMID1),
 		Name:         new(testdata.MockIonosVMName1),
-		CreationTime: timestamppb.New(testTime),
+		CreationTime: timestamp.New(testTime),
 		GeoLocation: &ontology.GeoLocation{
 			Region: new(testdata.MockIonosDatacenterLocation1),
 		},
@@ -112,7 +112,7 @@ func Test_ionosCollector_handleBlockStorage(t *testing.T) {
 	want := &ontology.BlockStorage{
 		Id:           new(testdata.MockIonosVolumeID1),
 		Name:         new(testdata.MockIonosVolumeName1),
-		CreationTime: timestamppb.New(testTime),
+		CreationTime: timestamp.New(testTime),
 		GeoLocation: &ontology.GeoLocation{
 			Region: new(testdata.MockIonosDatacenterLocation1),
 		},
@@ -152,7 +152,7 @@ func Test_ionosCollector_handleLoadBalancer(t *testing.T) {
 	want := &ontology.LoadBalancer{
 		Id:           new(testdata.MockIonosLoadBalancerID1),
 		Name:         new(testdata.MockIonosLoadBalancerName1),
-		CreationTime: timestamppb.New(testTime),
+		CreationTime: timestamp.New(testTime),
 		GeoLocation: &ontology.GeoLocation{
 			Region: new(testdata.MockIonosDatacenterLocation1),
 		},
