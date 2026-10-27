@@ -1032,7 +1032,7 @@ func preferAutomaticResults(results []*assessment.AssessmentResult, now time.Tim
 			if _, ok := automatic[r.GetMetricId()]; ok && r.IsManualForTargetOfEvaluation() {
 				continue
 			}
-			if r.GetValidUntil() != nil && r.GetValidUntil().AsTime().Before(now) {
+			if r.GetValidUntil() == nil || r.GetValidUntil().AsTime().Before(now) {
 				continue
 			}
 		}
