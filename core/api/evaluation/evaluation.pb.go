@@ -784,7 +784,7 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"\x0f_audit_scope_idB\t\n" +
 	"\a_filter\"n\n" +
 	"\x1aListEvaluationJobsResponse\x12P\n" +
-	"\x0fevaluation_jobs\x18\x01 \x03(\v2'.confirmate.evaluation.v1.EvaluationJobR\x0eevaluationJobs\"\xef\x0f\n" +
+	"\x0fevaluation_jobs\x18\x01 \x03(\v2'.confirmate.evaluation.v1.EvaluationJobR\x0eevaluationJobs\"\xf1\x12\n" +
 	"\x10EvaluationResult\x12\xfb\x01\n" +
 	"\x02id\x18\x01 \x01(\tB\xea\x01\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\xd9\x01gorm:\"index:idx_evaluation_results_control_timestamp_id,priority:3,sort:desc;index:idx_evaluation_results_audit_scope_parents,priority:4,sort:desc;index:idx_evaluation_results_audit_scope_control,priority:4,sort:desc\"R\x02id\x12\x88\x01\n" +
 	"\x17target_of_evaluation_id\x18\x02 \x01(\tBQ\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03Dgorm:\"index:idx_evaluation_results_toe_control_timestamp,priority:1\"R\x14targetOfEvaluationId\x12\xb2\x01\n" +
@@ -800,7 +800,8 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"\acomment\x18\v \x01(\tH\x01R\acomment\x88\x01\x01\x12s\n" +
 	"\vvalid_until\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"H\x02R\n" +
 	"validUntil\x88\x01\x01\x12/\n" +
-	"\x04data\x18\x15 \x01(\fB\x16\x9a\x84\x9e\x03\x11gorm:\"type:bytea\"H\x03R\x04data\x88\x01\x01B\x14\n" +
+	"\x04data\x18\x15 \x01(\fB\x16\x9a\x84\x9e\x03\x11gorm:\"type:bytea\"H\x03R\x04data\x88\x01\x01:\xff\x02\xbaH\xfb\x02\x1a\xf8\x02\n" +
+	"0evaluation_result.valid_until.required_if_manual\x12Gvalid_until must be set and in the future when the status is *_MANUALLY\x1a\xfa\x01!(this.status == confirmate.evaluation.v1.EvaluationStatus.EVALUATION_STATUS_COMPLIANT_MANUALLY || this.status == confirmate.evaluation.v1.EvaluationStatus.EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY) || (has(this.valid_until) && this.valid_until > now)B\x14\n" +
 	"\x12_parent_control_idB\n" +
 	"\n" +
 	"\b_commentB\x0e\n" +
