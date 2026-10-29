@@ -590,12 +590,15 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 // [ontology.Related]) and replaces any previously stored edges for that resource
 // in the graph_edges table.  It is called from [Service.StoreEvidence] after the
 // snapshot has been persisted.
+//
+// Only edges where the target resource exists as a resource snapshot are
+// stored, so that every edge in the graph connects two known resources.
 func (svc *Service) updateGraphEdges(r *evidence.ResourceSnapshot) error {
 	if r == nil || r.Resource == nil {
 		return nil
 	}
 
-	var edges []graphEdge
+	var candidates []graphEdge
 
 	// The ontology Resource is a oneof — ranging over it visits only the set concrete field.
 	r.Resource.ProtoReflect().Range(func(_ protoreflect.FieldDescriptor, v protoreflect.Value) bool {
@@ -604,7 +607,7 @@ func (svc *Service) updateGraphEdges(r *evidence.ResourceSnapshot) error {
 			return true
 		}
 		for _, rel := range ontology.Related(concrete) {
-			edges = append(edges, graphEdge{
+			candidates = append(candidates, graphEdge{
 				Id:     r.Id + "→" + rel.Value + "→" + rel.Property,
 				Source: r.Id,
 				Target: rel.Value,
@@ -613,6 +616,23 @@ func (svc *Service) updateGraphEdges(r *evidence.ResourceSnapshot) error {
 		}
 		return true
 	})
+
+	// Filter out edges whose target resource doesn't exist as a snapshot.
+	// This prevents dangling edges pointing to resources that were referenced
+	// (e.g. via parentId) but never stored.
+	var edges []graphEdge
+	for _, e := range candidates {
+		count, err := svc.db.Count(&evidence.ResourceSnapshot{}, "id = ?", e.Target)
+		if err != nil {
+			slog.Debug("Failed to check target resource existence for graph edge",
+				slog.String("target", e.Target),
+				tint.Err(err))
+			continue
+		}
+		if count > 0 {
+			edges = append(edges, e)
+		}
+	}
 
 	// Replace old edges for this source atomically.
 	return svc.db.Transaction(func(tx persistence.DB) error {
