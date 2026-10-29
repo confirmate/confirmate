@@ -7,7 +7,7 @@ info:
     description: |-
         Representing the link between orchestrator and discovery: Assessing evidences
          from discovery and sending results to orchestrator
-    version: core/v0.3.0-85-g1c4ba091
+    version: core/v0.3.0-87-gb415d6df
 paths:
     /v1/assessment/evidences:
         post:
@@ -2449,8 +2449,6 @@ components:
                     $ref: '#/components/schemas/NetworkThreatMitigationPolicy'
                 outsourcingPolicy:
                     $ref: '#/components/schemas/OutsourcingPolicy'
-                passwordBasedAuthenticationPolicy:
-                    $ref: '#/components/schemas/PasswordBasedAuthenticationPolicy'
                 sdnFunctionValidationPolicy:
                     $ref: '#/components/schemas/SDNFunctionValidationPolicy'
                 secureDevelopmentPolicy:
@@ -4676,12 +4674,6 @@ components:
                     description: Maximum password rotation interval in months
                     format: int32
             description: PasswordBasedAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-        PasswordBasedAuthenticationPolicy:
-            type: object
-            properties:
-                passwordBasedAuthentication:
-                    $ref: '#/components/schemas/PasswordBasedAuthentication'
-            description: PasswordBasedAuthenticationPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         PasswordPolicy:
             type: object
             properties:
@@ -4793,8 +4785,8 @@ components:
                     $ref: '#/components/schemas/NetworkThreatMitigationPolicy'
                 outsourcingPolicy:
                     $ref: '#/components/schemas/OutsourcingPolicy'
-                passwordBasedAuthenticationPolicy:
-                    $ref: '#/components/schemas/PasswordBasedAuthenticationPolicy'
+                passwordBasedAuthentication:
+                    $ref: '#/components/schemas/PasswordBasedAuthentication'
                 parentId:
                     type: string
                 sdnFunctionValidationPolicy:
