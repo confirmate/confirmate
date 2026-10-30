@@ -133,13 +133,20 @@ type reportSummary struct {
 
 func summarizeReportControls(controls []reportControlRow) reportSummary {
 	s := reportSummary{controls: len(controls)}
+	uniqueMetrics := make(map[string]bool)
+
 	for _, c := range controls {
-		compliant, evaluated, total := c.metricCounts()
-		s.totalMetrics += total
+		compliant, evaluated, _ := c.metricCounts()
 		s.compliantMetrics += compliant
 		s.evaluatedMetrics += evaluated
 		s.actionRequired += evaluated - compliant
+
+		for _, m := range c.metrics {
+			uniqueMetrics[m.name] = true
+		}
 	}
+
+	s.totalMetrics = len(uniqueMetrics)
 	return s
 }
 
