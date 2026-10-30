@@ -940,7 +940,7 @@ func TestService_ListGraphEdges(t *testing.T) {
 	// Store a VirtualMachine that references the BlockStorage via block_storage_ids.
 	vmEvidence := &evidence.Evidence{
 		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamp.Now(),
 		TargetOfEvaluationId: uuid.NewString(),
 		ToolId:               "MockTool1",
 		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
