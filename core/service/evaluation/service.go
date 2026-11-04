@@ -990,9 +990,9 @@ func (svc *Service) assessControl(ctx context.Context, auditScope *orchestrator.
 
 	assessments = preferAutomaticResults(assessments, time.Now())
 
-	// If no assessment_results are available we are stuck at pending
+	// If no assessment_results are available it is not possible to evaluate the control, so we set the status to NOT_COMPLIANT. This is a design decision and can be changed in the future.
 	if len(assessments) == 0 {
-		status = evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING
+		status = evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT
 	} else {
 		// Otherwise, there are some results and first we assume that everything is compliant, unless someone proves it
 		// otherwise
