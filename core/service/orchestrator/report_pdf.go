@@ -126,19 +126,27 @@ func truncate(s string, n int) string {
 	return string(r[:n-1]) + "…"
 }
 
-// reportSummary holds the metric counts shown in the PDF's summary cards and header status pill.
+// reportSummary holds the counts shown in the PDF's summary cards and header status pill.
+// actionRequired counts the controls whose aggregated status is "Action Required", so it
+// matches the status labels shown in the report tables.
 type reportSummary struct {
 	controls, totalMetrics, compliantMetrics, evaluatedMetrics, actionRequired int
 }
 
 func summarizeReportControls(controls []reportControlRow) reportSummary {
+	if controls == nil {
+		return reportSummary{}
+	}
+
 	s := reportSummary{controls: len(controls)}
 	for _, c := range controls {
 		compliant, evaluated, total := c.metricCounts()
 		s.totalMetrics += total
 		s.compliantMetrics += compliant
 		s.evaluatedMetrics += evaluated
-		s.actionRequired += evaluated - compliant
+		if c.statusLabel() == "Action Required" {
+			s.actionRequired++
+		}
 	}
 	return s
 }
@@ -298,7 +306,7 @@ func pdfOverviewTableHeaderRow() core.Row {
 }
 
 func pdfOverviewRow(ctrl reportControlRow) core.Row {
-	compliant, _, total := ctrl.metricCounts()
+	_, _, total := ctrl.metricCounts()
 	statusChip := controlStatusChip(ctrl.statusLabel())
 	implChip := implementationChip(ctrl.implementationStateEnum)
 
@@ -318,7 +326,7 @@ func pdfOverviewRow(ctrl reportControlRow) core.Row {
 		text.New(fmt.Sprint(total), props.Text{Top: 2.5, Size: 8.5, Align: align.Center, Color: pdfInk}),
 	)
 	statusCol := col.New(2).Add(
-		text.New(fmt.Sprintf("%s (%d/%d)", ctrl.statusLabel(), compliant, total), props.Text{Top: 2.5, Size: 7.5, Style: fontstyle.Bold, Align: align.Center, Color: statusChip.text}),
+		text.New(ctrl.statusWithCounts(), props.Text{Top: 2.5, Size: 7.5, Style: fontstyle.Bold, Align: align.Center, Color: statusChip.text}),
 	).WithStyle(&props.Cell{BackgroundColor: statusChip.bg})
 
 	return row.New(8).Add(idCol, nameCol, categoryCol, implCol, metricsCol, statusCol)
@@ -332,7 +340,6 @@ func pdfControlCardRows(ctrl reportControlRow) []core.Row {
 	statusChip := controlStatusChip(ctrl.statusLabel())
 	accent := &props.Cell{BorderType: border.Left, BorderColor: statusChip.text, BorderThickness: 1.5}
 
-	compliant, _, total := ctrl.metricCounts()
 	rows := []core.Row{
 		row.New(10).Add(
 			col.New(8).Add(
@@ -340,7 +347,7 @@ func pdfControlCardRows(ctrl reportControlRow) []core.Row {
 				text.New(truncate(ctrl.controlName, 55), props.Text{Top: 2.5, Left: 30, Size: 9.5, Color: pdfMuted}),
 			),
 			col.New(4).Add(
-				text.New(fmt.Sprintf("%s (%d/%d)", ctrl.statusLabel(), compliant, total), props.Text{Top: 3, Size: 8, Style: fontstyle.Bold, Align: align.Right, Right: 3, Color: statusChip.text}),
+				text.New(ctrl.statusWithCounts(), props.Text{Top: 3, Size: 8, Style: fontstyle.Bold, Align: align.Right, Right: 3, Color: statusChip.text}),
 			),
 		).WithStyle(mergeCellStyle(accent, &props.Cell{BackgroundColor: pdfZebra})),
 	}
