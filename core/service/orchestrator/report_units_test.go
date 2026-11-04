@@ -78,6 +78,112 @@ func TestReportControlRow_StatusLabel(t *testing.T) {
 	}}.statusLabel())
 }
 
+func TestReportControlRow_StatusWithCounts(t *testing.T) {
+	tests := []struct {
+		name string
+		row  reportControlRow
+		want string
+	}{
+		{
+			name: "no metrics renders just the label",
+			row:  reportControlRow{},
+			want: "No Metrics",
+		},
+		{
+			name: "not evaluated counts all metrics as requiring action",
+			row: reportControlRow{metrics: []reportMetricRow{
+				{evaluated: false},
+				{evaluated: false},
+			}},
+			want: "Not Evaluated (2/2)",
+		},
+		{
+			name: "passed counts compliant metrics",
+			row: reportControlRow{metrics: []reportMetricRow{
+				{evaluated: true, compliant: true},
+				{evaluated: true, compliant: true},
+				{evaluated: true, compliant: true},
+				{evaluated: true, compliant: true},
+				{evaluated: true, compliant: true},
+			}},
+			want: "Passed (5/5)",
+		},
+		{
+			name: "action required counts non-compliant and non-evaluated metrics",
+			row: reportControlRow{metrics: []reportMetricRow{
+				{evaluated: true, compliant: true},
+				{evaluated: true, compliant: false},
+			}},
+			want: "Action Required (1/2)",
+		},
+		{
+			name: "action required includes not-yet-evaluated metrics in the action count",
+			row: reportControlRow{metrics: []reportMetricRow{
+				{evaluated: true, compliant: true},
+				{evaluated: true, compliant: false},
+				{evaluated: false},
+			}},
+			want: "Action Required (2/3)",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, tt.row.statusWithCounts())
+		})
+	}
+}
+
+func TestSummarizeReportControls(t *testing.T) {
+	tests := []struct {
+		name     string
+		controls []reportControlRow
+		want     reportSummary
+	}{
+		{
+			name:     "no controls",
+			controls: nil,
+			want:     reportSummary{},
+		},
+		{
+			name: "action required counts controls, not non-compliant metrics",
+			controls: []reportControlRow{
+				// One control with three non-compliant metrics: still just one "Action Required".
+				{metrics: []reportMetricRow{
+					{name: "m1", evaluated: true, compliant: false},
+					{name: "m2", evaluated: true, compliant: false},
+					{name: "m3", evaluated: true, compliant: false},
+				}},
+				// Passed: two compliant metrics.
+				{metrics: []reportMetricRow{
+					{name: "m4", evaluated: true, compliant: true},
+					{name: "m5", evaluated: true, compliant: true},
+				}},
+				// Not evaluated: doesn't count as action required.
+				{metrics: []reportMetricRow{
+					{name: "m6", evaluated: false},
+				}},
+				// No metrics at all.
+				{},
+			},
+			want: reportSummary{
+				controls:         4,
+				totalMetrics:     6,
+				compliantMetrics: 2,
+				evaluatedMetrics: 5,
+				actionRequired:   1,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// reportSummary contains unexported fields, so the comparison needs to export them.
+			assert.Equal(t, tt.want, summarizeReportControls(tt.controls), assert.CompareAllUnexported())
+		})
+	}
+}
+
 func TestControlStatusChip(t *testing.T) {
 	assert.Equal(t, pdfGreen, controlStatusChip("Passed").text)
 	assert.Equal(t, pdfAmber, controlStatusChip("Action Required").text)

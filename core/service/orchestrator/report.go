@@ -112,6 +112,24 @@ func (c reportControlRow) statusLabel() string {
 	}
 }
 
+// statusWithCounts renders the control's status label together with its metric counts, e.g.
+// "Action Required (1/2)". For "Passed" the first number counts compliant metrics (e.g.
+// "Passed (5/5)"); for every other status it counts the metrics that still require action,
+// i.e. the non-compliant and not-yet-evaluated ones. Controls without metrics render just
+// the label.
+func (c reportControlRow) statusWithCounts() string {
+	compliant, _, total := c.metricCounts()
+	label := c.statusLabel()
+	if total == 0 {
+		return label
+	}
+	count := compliant
+	if label != "Passed" {
+		count = total - compliant
+	}
+	return fmt.Sprintf("%s (%d/%d)", label, count, total)
+}
+
 // ExportAuditScopeReport generates a compliance report for the given audit scope, listing every
 // in-scope control ("evaluation result") together with its implementation state and the
 // aggregated compliance status of each of its metrics.
