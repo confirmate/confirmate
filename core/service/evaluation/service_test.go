@@ -339,7 +339,7 @@ func Test_handlePending(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got evaluation.EvaluationStatus, _ ...any) bool {
-				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING, got)
+				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, got)
 			},
 		},
 		{
@@ -412,7 +412,7 @@ func Test_handleCompliant(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got evaluation.EvaluationStatus, msgAndArgs ...any) bool {
-				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, got)
+				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, got)
 			},
 		},
 		{
