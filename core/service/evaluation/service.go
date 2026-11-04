@@ -1111,13 +1111,13 @@ func handlePending(er *evaluation.EvaluationResult) evaluation.EvaluationStatus 
 	)
 
 	switch er.Status {
-	case evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING:
-		// Evaluation status does not change
+	// case evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING:
+	// 	// Evaluation status does not change
 	case evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
 		evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY:
 		evalStatus = evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT
 	case evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
-		evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY:
+		evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY, evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING:
 		evalStatus = evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT
 	}
 
@@ -1131,9 +1131,9 @@ func handleCompliant(er *evaluation.EvaluationResult) evaluation.EvaluationStatu
 	)
 
 	switch er.Status {
-	case evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY:
+	case evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY:
 		// valuation status does not change
-	case evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY:
+	case evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY, evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING:
 		evalStatus = evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT
 	}
 
