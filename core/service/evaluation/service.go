@@ -976,8 +976,6 @@ func (svc *Service) assessControl(ctx context.Context, auditScope *orchestrator.
 				slog.Any("metric ids", getMetricIds(metrics)),
 				log.Err(err))
 		} else if len(assessments) == 0 {
-			// We let the scheduler running if we do not get the assessment results from the orchestrator, maybe it is
-			// only a temporary network problem
 			slog.Debug("No assessment results available",
 				slog.String("audit_scope_id", auditScope.GetId()),
 				slog.Any("metric_ids", getMetricIds(metrics)))
@@ -990,23 +988,25 @@ func (svc *Service) assessControl(ctx context.Context, auditScope *orchestrator.
 
 	assessments = preferAutomaticResults(assessments, time.Now())
 
-	// If no assessment_results are available we are stuck at pending
+	// If no assessment_results are available it is not possible to evaluate the control, so we set the status to NOT_COMPLIANT. This is a design decision and can be changed in the future.
 	if len(assessments) == 0 {
-		status = evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING
+		status = evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT
+	} else if !hasResultForEveryMetric(metrics, assessments) {
+		// If there is no assessment result for at least one metric, it is not possible to evaluate the control, so we set the status to NOT_COMPLIANT. This is a design decision and can be changed in the future. Comparing the number of assessment results with the number of metrics is not sufficient here, because a metric can have several results, one per resource.
+		status = evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT
 	} else {
 		// Otherwise, there are some results and first we assume that everything is compliant, unless someone proves it
 		// otherwise
 		status = evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT
-	}
 
-	// Here the actual evaluation takes place. We check if the assessment results are compliant.
-	for _, r := range assessments {
-		if !r.Compliant {
-			status = evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT
+		// Here the actual evaluation takes place. We check if the assessment results are compliant.
+		for _, r := range assessments {
+			if !r.Compliant {
+				status = evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT
+			}
+			resultIds = append(resultIds, r.GetId())
 		}
-		resultIds = append(resultIds, r.GetId())
 	}
-
 	return status, resultIds
 }
 
@@ -1111,13 +1111,13 @@ func handlePending(er *evaluation.EvaluationResult) evaluation.EvaluationStatus 
 	)
 
 	switch er.Status {
-	case evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING:
-		// Evaluation status does not change
+	// case evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING:
+	// 	// Evaluation status does not change
 	case evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
 		evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY:
 		evalStatus = evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT
 	case evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
-		evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY:
+		evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY, evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING:
 		evalStatus = evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT
 	}
 
@@ -1131,13 +1131,37 @@ func handleCompliant(er *evaluation.EvaluationResult) evaluation.EvaluationStatu
 	)
 
 	switch er.Status {
-	case evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY:
+	case evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY:
 		// valuation status does not change
-	case evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY:
+	case evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY, evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING:
 		evalStatus = evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT
 	}
 
 	return evalStatus
+}
+
+// hasResultForEveryMetric reports whether at least one assessment result is available for every
+// given metric. A metric can have several assessment results, one per resource, so comparing
+// the number of results with the number of metrics is not sufficient.
+func hasResultForEveryMetric(metrics []*assessment.Metric, results []*assessment.AssessmentResult) bool {
+	// A single result covers exactly one metric, so if there are fewer results than metrics, at
+	// least one metric cannot have a result.
+	if len(results) < len(metrics) {
+		return false
+	}
+
+	assessed := make(map[string]struct{}, len(results))
+	for _, r := range results {
+		assessed[r.GetMetricId()] = struct{}{}
+	}
+
+	for _, m := range metrics {
+		if _, ok := assessed[m.GetId()]; !ok {
+			return false
+		}
+	}
+
+	return true
 }
 
 // getMetricIds returns the metric Ids for the given metrics

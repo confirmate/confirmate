@@ -50,15 +50,15 @@ func TestService_evaluateSubcontrol_withoutLatestAssessments(t *testing.T) {
 			want: evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
 		},
 		{
-			name: "no assessment results are pending",
-			want: evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
+			name: "no assessment results available for given metrics",
+			want: evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
 		},
 		{
-			name: "an orchestrator error does not fail the evaluation, it stays pending",
+			name: "an orchestrator error does not fail the evaluation",
 			opts: []func(*mockOrchestratorHandler){func(m *mockOrchestratorHandler) {
 				m.listAssessmentResultError = errors.New("boom")
 			}},
-			want: evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
+			want: evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
 		},
 	}
 	for _, tt := range tests {
