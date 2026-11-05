@@ -142,7 +142,8 @@ func summarizeReportControls(controls []reportControlRow) reportSummary {
 	s := reportSummary{controls: len(controls)}
 
 	for _, c := range controls {
-		compliant, evaluated, _ := c.metricCounts()
+		compliant, evaluated, total := c.metricCounts()
+		s.totalMetrics += total
 		s.compliantMetrics += compliant
 		s.evaluatedMetrics += evaluated
 		s.actionRequiredMetrics += evaluated - compliant
