@@ -213,6 +213,18 @@ func TestCompliancePercent(t *testing.T) {
 	assert.Equal(t, float64(100), reportSummary{evaluatedMetrics: 2, compliantMetrics: 2}.compliancePercent())
 }
 
+func TestNotCompliantControlsPercent(t *testing.T) {
+	assert.Equal(t, float64(0), reportSummary{}.notCompliantControlsPercent())
+	assert.Equal(t, float64(50), reportSummary{controls: 4, compliantControls: 2}.notCompliantControlsPercent())
+	assert.Equal(t, float64(0), reportSummary{controls: 4, compliantControls: 4}.notCompliantControlsPercent())
+}
+
+func TestNotCompliantMetricsPercent(t *testing.T) {
+	assert.Equal(t, float64(0), reportSummary{}.notCompliantMetricsPercent())
+	assert.Equal(t, float64(50), reportSummary{totalMetrics: 4, compliantMetrics: 2}.notCompliantMetricsPercent())
+	assert.Equal(t, float64(0), reportSummary{totalMetrics: 4, compliantMetrics: 4}.notCompliantMetricsPercent())
+}
+
 func TestBuildReportMetricRow(t *testing.T) {
 	m := &assessment.Metric{Id: "metric1", Name: "TestMetric"}
 

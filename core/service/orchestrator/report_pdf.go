@@ -130,7 +130,8 @@ func truncate(s string, n int) string {
 // actionRequired counts the controls whose aggregated status is "Action Required", so it
 // matches the status labels shown in the report tables.
 type reportSummary struct {
-	controls, totalMetrics, compliantMetrics, evaluatedMetrics, actionRequired int
+	controls, compliantControls, actionRequiredControls                     int
+	totalMetrics, compliantMetrics, evaluatedMetrics, actionRequiredMetrics int
 }
 
 func summarizeReportControls(controls []reportControlRow) reportSummary {
@@ -139,22 +140,19 @@ func summarizeReportControls(controls []reportControlRow) reportSummary {
 	}
 
 	s := reportSummary{controls: len(controls)}
-	uniqueMetrics := make(map[string]bool)
 
 	for _, c := range controls {
 		compliant, evaluated, _ := c.metricCounts()
 		s.compliantMetrics += compliant
 		s.evaluatedMetrics += evaluated
-		if c.statusLabel() == "Action Required" {
-			s.actionRequired++
-		}
-
-		for _, m := range c.metrics {
-			uniqueMetrics[m.name] = true
+		s.actionRequiredMetrics += evaluated - compliant
+		switch c.statusLabel() {
+		case "Passed":
+			s.compliantControls++
+		case "Action Required":
+			s.actionRequiredControls++
 		}
 	}
-
-	s.totalMetrics = len(uniqueMetrics)
 	return s
 }
 
@@ -165,6 +163,24 @@ func (s reportSummary) compliancePercent() float64 {
 		return 0
 	}
 	return 100 * float64(s.compliantMetrics) / float64(s.evaluatedMetrics)
+}
+
+// notCompliantControlsPercent returns the share of controls that are not fully compliant (i.e.
+// whose aggregated status is anything other than "Passed"), out of all controls in scope.
+func (s reportSummary) notCompliantControlsPercent() float64 {
+	if s.controls == 0 {
+		return 0
+	}
+	return 100 * float64(s.controls-s.compliantControls) / float64(s.controls)
+}
+
+// notCompliantMetricsPercent returns the share of metrics that are not compliant, out of all
+// metrics configured for the in-scope controls.
+func (s reportSummary) notCompliantMetricsPercent() float64 {
+	if s.totalMetrics == 0 {
+		return 0
+	}
+	return 100 * float64(s.totalMetrics-s.compliantMetrics) / float64(s.totalMetrics)
 }
 
 // overallStatusPassThreshold mirrors the confirmate demo report template, which still labels a
@@ -200,9 +216,9 @@ func renderAuditScopeReportPDF(auditScope *orchestrator.AuditScope, toe *orchest
 	}
 
 	m.AddRows(pdfInfoRow(auditScope, toe, catalog))
-	m.AddRows(pdfSummaryRow(summary))
 
 	m.AddRows(pdfSectionHeaderRow("1. Evaluation Results Overview"))
+	m.AddRows(pdfControlsSummaryRow(summary))
 	m.AddRows(pdfOverviewTableHeaderRow())
 	for _, ctrl := range controls {
 		m.AddRows(pdfOverviewRow(ctrl))
@@ -210,6 +226,7 @@ func renderAuditScopeReportPDF(auditScope *orchestrator.AuditScope, toe *orchest
 
 	m.AddRows(row.New(6))
 	m.AddRows(pdfSectionHeaderRow("2. Metrics by Evaluation Result"))
+	m.AddRows(pdfMetricsSummaryRow(summary))
 	for _, ctrl := range controls {
 		for _, r := range pdfControlCardRows(ctrl) {
 			m.AddRows(r)
@@ -273,19 +290,33 @@ func pdfInfoRow(auditScope *orchestrator.AuditScope, toe *orchestrator.TargetOfE
 	).WithStyle(&props.Cell{BorderType: border.Bottom, BorderColor: pdfBorderGray, BorderThickness: 0.4})
 }
 
-func pdfSummaryCard(size int, label string, value int, color *props.Color) core.Col {
+func pdfSummaryCard(size int, label, value string, color *props.Color) core.Col {
 	return col.New(size).Add(
-		text.New(fmt.Sprint(value), props.Text{Top: 4, Size: 20, Style: fontstyle.Bold, Align: align.Center, Color: color}),
+		text.New(value, props.Text{Top: 4, Size: 20, Style: fontstyle.Bold, Align: align.Center, Color: color}),
 		text.New(label, props.Text{Top: 13, Size: 7, Align: align.Center, Color: pdfMuted}),
 	).WithStyle(&props.Cell{BorderType: border.Full, BorderColor: pdfBorderGray, BorderThickness: 0.4})
 }
 
-func pdfSummaryRow(s reportSummary) core.Row {
+// pdfControlsSummaryRow renders the header summary cards for section 1 (controls): the total
+// number of in-scope controls, how many are fully compliant, how many require action, and the
+// percentage of controls that are not compliant.
+func pdfControlsSummaryRow(s reportSummary) core.Row {
 	return row.New(20).Add(
-		pdfSummaryCard(3, "EVALUATION RESULTS", s.controls, pdfInk),
-		pdfSummaryCard(3, "TOTAL METRICS", s.totalMetrics, pdfInk),
-		pdfSummaryCard(3, "COMPLIANT METRICS", s.compliantMetrics, pdfGreen),
-		pdfSummaryCard(3, "ACTION REQUIRED", s.actionRequired, pdfAmber),
+		pdfSummaryCard(3, "TOTAL CONTROLS", fmt.Sprint(s.controls), pdfInk),
+		pdfSummaryCard(3, "COMPLIANT CONTROLS", fmt.Sprint(s.compliantControls), pdfGreen),
+		pdfSummaryCard(3, "ACTION REQUIRED CONTROLS", fmt.Sprint(s.actionRequiredControls), pdfAmber),
+		pdfSummaryCard(3, "NOT-COMPLIANT CONTROLS", fmt.Sprintf("%.1f%%", s.notCompliantControlsPercent()), pdfRed),
+	)
+}
+
+// pdfMetricsSummaryRow renders the header summary cards for section 2 (metrics): the total
+// number of configured metrics, how many are compliant, and the percentage of metrics that are
+// not compliant.
+func pdfMetricsSummaryRow(s reportSummary) core.Row {
+	return row.New(20).Add(
+		pdfSummaryCard(4, "TOTAL METRICS", fmt.Sprint(s.totalMetrics), pdfInk),
+		pdfSummaryCard(4, "COMPLIANT METRICS", fmt.Sprint(s.compliantMetrics), pdfGreen),
+		pdfSummaryCard(4, "NOT-COMPLIANT METRICS", fmt.Sprintf("%.1f%%", s.notCompliantMetricsPercent()), pdfRed),
 	)
 }
 

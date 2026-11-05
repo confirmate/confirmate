@@ -295,7 +295,7 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		assert.NoError(t, err)
 		pages, err := pdfapi.PageCount(r, pdfmodel.NewDefaultConfiguration())
 		assert.NoError(t, err)
-		assert.Equal(t, 1, pages)
+		assert.Equal(t, 2, pages)
 	})
 
 	t.Run("http-level: served as a raw XLSX response, not a JSON envelope", func(t *testing.T) {
