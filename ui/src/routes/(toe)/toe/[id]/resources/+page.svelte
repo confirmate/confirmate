@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import type { SchemaResourceSnapshot as Resource } from '$lib/api/openapi/evidence';
-	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
-	import ResourceOverview from '$lib/components/evidence/ResourceOverview.svelte';
-	import NodeDetail from '$lib/components/graph/NodeDetail.svelte';
-	import ResourceGraph from '$lib/components/graph/ResourceGraph.svelte';
-	import ResourceDetailModal from '$lib/components/graph/ResourceDetailModal.svelte';
+	import type { SchemaResourceSnapshot as Resource } from '#lib/api/openapi/evidence.js';
+	import SectionHeader from '#lib/components/ui/SectionHeader.svelte';
+	import ResourceOverview from '#lib/components/evidence/ResourceOverview.svelte';
+	import NodeDetail from '#lib/components/graph/NodeDetail.svelte';
+	import ResourceGraph from '#lib/components/graph/ResourceGraph.svelte';
+	import ResourceDetailModal from '#lib/components/graph/ResourceDetailModal.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { Share, TableCells } from '@steeze-ui/heroicons';
 

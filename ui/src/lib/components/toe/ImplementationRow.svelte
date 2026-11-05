@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import type { SchemaControl, SchemaControlInScope, SchemaUser } from '$lib/api/openapi/orchestrator';
-	import WorkflowDialog from '$lib/components/ui/WorkflowDialog.svelte';
-	import ScopeCommentDialog from '$lib/components/ui/ScopeCommentDialog.svelte';
-	import { orchestratorClient } from '$lib/api/client';
+	import type { SchemaControl, SchemaControlInScope, SchemaUser } from '#lib/api/openapi/orchestrator.js';
+	import WorkflowDialog from '#lib/components/ui/WorkflowDialog.svelte';
+	import ScopeCommentDialog from '#lib/components/ui/ScopeCommentDialog.svelte';
+	import { orchestratorClient } from '#lib/api/client.js';
 	import { invalidateAll } from '$app/navigation';
 
 	let {
@@ -45,11 +45,9 @@
 		CONTROL_IN_SCOPE_STATE_ACCEPTED: { label: 'Accepted', dot: 'bg-emerald-500', pill: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' }
 	};
 
-	const stateCfg = $derived(
-		cis?.state
-			? (STATE_CONFIG[cis.state as State] ?? STATE_CONFIG.CONTROL_IN_SCOPE_STATE_OPEN)
-			: STATE_CONFIG.CONTROL_IN_SCOPE_STATE_OPEN
-	);
+	const stateCfg = $derived(cis?.state
+		? STATE_CONFIG[cis.state as State] ?? STATE_CONFIG.CONTROL_IN_SCOPE_STATE_OPEN
+		: STATE_CONFIG.CONTROL_IN_SCOPE_STATE_OPEN);
 
 	let showWorkflowDialog = $state(false);
 	let showScopeDialog = $state(false);
@@ -140,8 +138,12 @@
 	);
 </script>
 
-<div class="{depth > 0 ? 'ml-4 border-l border-gray-100 pl-2' : ''}">
-	<div class="group flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-gray-50 {cis ? '' : 'opacity-40 hover:opacity-70'}">
+<div
+	class={depth > 0 ? 'ml-4 border-l border-gray-100 pl-2' : ''}
+>
+	<div
+		class="group flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-gray-50 {cis ? '' : 'opacity-40 hover:opacity-70'}"
+	>
 		<!-- ID badge -->
 		<span
 			class="shrink-0 whitespace-nowrap rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-500"
@@ -151,41 +153,41 @@
 
 		<!-- Name -->
 		<a
-			href={resolve(`/toe/${targetId}/audit-scopes/${auditScopeId}/controls/${control.id}/`)}
+			href={resolve(`toe/${targetId}/audit-scopes/${auditScopeId}/controls/${control.id}/`)}
 			class="min-w-0 flex-1 truncate text-sm hover:underline {depth === 0 ? 'font-medium text-gray-900' : 'text-gray-700'}"
 		>
 			{displayName}
 		</a>
 
-	{#if cis}
-		<!-- Assignee selector -->
-		<div class="w-32 shrink-0">
-			<select
-				class="cursor-pointer rounded-full border border-transparent bg-transparent py-0.5 pl-2 pr-6 text-xs font-medium hover:border-gray-200 hover:bg-white focus:border-gray-300 focus:outline-none disabled:opacity-50 {assignee ? 'text-gray-800' : 'text-gray-400'}"
-				value={cis.assigneeId ?? ''}
-				disabled={assigneeBusy}
-				onchange={(e) => updateAssignee((e.target as HTMLSelectElement).value)}
-			>
-				<option value="">Unassigned</option>
-				{#each users as u}
+		{#if cis}
+			<!-- Assignee selector -->
+			<div class="w-32 shrink-0">
+				<select
+					class="cursor-pointer rounded-full border border-transparent bg-transparent py-0.5 pl-2 pr-6 text-xs font-medium hover:border-gray-200 hover:bg-white focus:border-gray-300 focus:outline-none disabled:opacity-50 {assignee ? 'text-gray-800' : 'text-gray-400'}"
+					value={cis.assigneeId ?? ''}
+					disabled={assigneeBusy}
+					onchange={(e) => updateAssignee((e.target as HTMLSelectElement).value)}
+				>
+					<option value="">Unassigned</option>
+					{#each users as u}
 					<option value={u.id}>
 						{[u.firstName, u.lastName].filter(Boolean).join(' ') || u.username || u.id}
 					</option>
-				{/each}
-			</select>
-		</div>
+					{/each}
+				</select>
+			</div>
 
-		<!-- State chip -->
-		<button
-			type="button"
-			class="inline-flex w-36 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors {stateCfg?.pill}"
-			onclick={() => (showWorkflowDialog = true)}
-		>
-			<span class="h-1.5 w-1.5 rounded-full {stateCfg?.dot}"></span>
-			{stateCfg?.label}
-		</button>
+			<!-- State chip -->
+			<button
+				type="button"
+				class="inline-flex w-36 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors {stateCfg?.pill}"
+				onclick={() => showWorkflowDialog = true}
+			>
+				<span class="h-1.5 w-1.5 rounded-full {stateCfg?.dot}"></span>
+				{stateCfg?.label}
+			</button>
 
-		<!-- Updated -->
+			<!-- Updated -->
 		<span class="w-14 shrink-0 text-right text-xs text-gray-400">
 			{updatedDate ?? '—'}
 		</span>
@@ -221,17 +223,17 @@
 	{#each subControls as sub}
 		<svelte:self
 			control={sub}
-			{controlInScopeByControlId}
-			{users}
-			{auditScopeId}
-			{targetId}
+			controlInScopeByControlId={controlInScopeByControlId}
+			users={users}
+			auditScopeId={auditScopeId}
+			targetId={targetId}
 			depth={depth + 1}
-			{filterAssigneeId}
-			{filterStatus}
-			{hideOutOfScope}
+			filterAssigneeId={filterAssigneeId}
+			filterStatus={filterStatus}
+			hideOutOfScope={hideOutOfScope}
 			parentInScope={!!cis}
-			{canManageScope}
-		/>
+			canManageScope={canManageScope}
+		></svelte:self>
 	{/each}
 </div>
 

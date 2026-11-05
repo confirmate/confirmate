@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { NodeDefinition, EdgeDefinition } from 'cytoscape';
-	import type { SchemaResourceSnapshot as Resource, SchemaGraphEdge as GraphEdge } from '$lib/api/openapi/evidence';
-	import type { SchemaAssessmentResult as AssessmentResult } from '$lib/api/openapi/orchestrator';
+	import type { SchemaResourceSnapshot as Resource, SchemaGraphEdge as GraphEdge } from '#lib/api/openapi/evidence.js';
+	import type { SchemaAssessmentResult as AssessmentResult } from '#lib/api/openapi/orchestrator.js';
 	import DiscoveryGraph from './DiscoveryGraph.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { ViewfinderCircle } from '@steeze-ui/heroicons';

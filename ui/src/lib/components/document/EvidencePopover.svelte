@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SchemaResource } from '$lib/api/openapi/evidence';
+  import type { SchemaResource } from '#lib/api/openapi/evidence.js';
   import { popover, closePopover } from './popoverStore.svelte';
   import { tick } from 'svelte';
 

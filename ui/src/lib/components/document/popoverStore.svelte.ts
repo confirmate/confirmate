@@ -1,4 +1,4 @@
-import type { SchemaEvidence as Evidence } from '$lib/api/openapi/evidence';
+import type { SchemaEvidence as Evidence } from '#lib/api/openapi/evidence.js';
 
 interface PopoverState {
   evidence: Evidence | null;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 
 	// Overridable at build time for deployments where the code-analysis dashboard isn't reachable
 	// at localhost from the browser (e.g. Docker/Kubernetes).

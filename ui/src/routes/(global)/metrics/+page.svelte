@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { SchemaMetric } from '$lib/api/openapi/orchestrator';
-	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
-	import EmptyState from '$lib/components/ui/EmptyState.svelte';
-	import MetricGroup from '$lib/components/metrics/MetricGroup.svelte';
+	import type { SchemaMetric } from '#lib/api/openapi/orchestrator.js';
+	import SectionHeader from '#lib/components/ui/SectionHeader.svelte';
+	import EmptyState from '#lib/components/ui/EmptyState.svelte';
+	import MetricGroup from '#lib/components/metrics/MetricGroup.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { MagnifyingGlass, ChevronDown } from '@steeze-ui/heroicons';
 	import type { PageProps } from './$types';
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 
 	let { data }: PageProps = $props();
 
@@ -22,10 +22,11 @@
 		allMetrics.reduce<Record<string, number>>((acc, m) => {
 			acc[categoryOf(m)] = (acc[categoryOf(m)] ?? 0) + 1;
 			return acc;
-		}, {})
-	);
-	const implementedCount = $derived(allMetrics.filter((m) => m.implementation).length);
+		},
+		{}
+	));
 
+	const implementedCount = $derived(allMetrics.filter((m) => m.implementation).length);
 	let search = $state('');
 	let selectedCategories = $state<Set<string>>(new Set());
 	let filterOpen = $state(false);
@@ -60,14 +61,14 @@
 
 	const filtered = $derived(
 		allMetrics.filter((m) => {
-			const q = search.toLowerCase();
+		const q = search.toLowerCase();
 			const matchSearch =
 				!q ||
 				(m.name || m.id).toLowerCase().includes(q) ||
 				(m.description ?? '').toLowerCase().includes(q) ||
 				categoryOf(m).toLowerCase().includes(q);
-			const matchCat = selectedCategories.size === 0 || selectedCategories.has(categoryOf(m));
-			return matchSearch && matchCat;
+		const matchCat = selectedCategories.size === 0 || selectedCategories.has(categoryOf(m));
+		return matchSearch && matchCat;
 		})
 	);
 
@@ -129,7 +130,7 @@
 		<div class="relative" bind:this={filterRef}>
 			<button
 				type="button"
-				onclick={() => (filterOpen = !filterOpen)}
+				onclick={() => filterOpen = !filterOpen}
 				class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
 			>
 				Category
@@ -165,7 +166,7 @@
 						<div class="border-t border-gray-100 p-2">
 							<button
 								type="button"
-								onclick={() => (selectedCategories = new Set())}
+								onclick={() => selectedCategories = new Set()}
 								class="w-full rounded-md px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
 							>
 								Clear filter
@@ -206,7 +207,7 @@
 			{#each [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b)) as [cat, metrics]}
 				<MetricGroup
 					category={cat}
-					{metrics}
+					metrics={metrics}
 					open={!closedGroups.has(cat)}
 					ontoggle={() => toggleGroup(cat)}
 				/>

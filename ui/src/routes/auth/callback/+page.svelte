@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { exchangeCode, getReturnTo, clearReturnTo } from '$lib/auth';
+	import { exchangeCode, getReturnTo, clearReturnTo } from '#lib/auth.js';
 	import { onMount } from 'svelte';
 
 	let error = $state<string | null>(null);
@@ -36,7 +36,7 @@
 		<div class="text-center">
 			<p class="text-red-600">{error}</p>
 			<button
-				onclick={() => window.location.href = resolve('/dashboard/')}
+				onclick={() => window.location.href = resolve('dashboard/')}
 				class="mt-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
 			>
 				Back to dashboard

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
+	import SectionHeader from '#lib/components/ui/SectionHeader.svelte';
 import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();

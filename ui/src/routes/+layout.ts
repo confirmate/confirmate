@@ -1,6 +1,6 @@
-import { base } from '$app/paths';
-import { orchestratorClient } from '$lib/api/client';
-import { clearToken, isAuthenticated, login } from '$lib/auth';
+import { resolve } from '$app/paths';
+import { orchestratorClient } from '#lib/api/client.js';
+import { clearToken, isAuthenticated, login } from '#lib/auth.js';
 import type { LayoutLoad } from './$types';
 
 export const ssr = false;
@@ -8,8 +8,13 @@ export const trailingSlash = 'always';
 
 export const load = (async ({ url, fetch }) => {
 	// Skip auth check for the OAuth callback route
-	if (url.pathname.startsWith(`${base}/auth/`)) {
-		return { services: [], catalogs: [], metrics: new Map(), currentUser: null };
+	if (url.pathname.startsWith(resolve('/auth/callback'))) {
+		return {
+			services: [],
+			catalogs: [],
+			metrics: new Map(),
+			currentUser: null
+		};
 	}
 
 	if (!isAuthenticated()) {

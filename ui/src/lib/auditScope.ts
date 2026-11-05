@@ -3,7 +3,7 @@ import type {
 	SchemaControl,
 	SchemaControlInScope,
 	SchemaEvaluationResult
-} from '$lib/api/openapi/orchestrator';
+} from '#lib/api/openapi/orchestrator.js';
 
 /**
  * Buckets top-level controls by the name of the category they belong to, using the catalog's

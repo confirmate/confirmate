@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SchemaCategory, SchemaControl, SchemaControlInScope, SchemaEvaluationResult, SchemaUser } from '$lib/api/openapi/orchestrator';
+	import type { SchemaCategory, SchemaControl, SchemaControlInScope, SchemaEvaluationResult, SchemaUser } from '#lib/api/openapi/orchestrator.js';
 	import ControlRow from './ControlRow.svelte';
 	import { ChevronDown } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';

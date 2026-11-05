@@ -1,4 +1,4 @@
-import type {SchemaEvidence, SchemaResource} from '$lib/api/openapi/evidence';
+import type {SchemaEvidence, SchemaResource} from '#lib/api/openapi/evidence.js';
 
 export type ResourceType = keyof SchemaResource;
 

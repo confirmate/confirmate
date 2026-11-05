@@ -1,7 +1,7 @@
 import type { PageLoad } from './$types';
-import { evidenceClient, orchestratorClient } from '$lib/api/client';
-import type { SchemaResourceSnapshot as Resource, SchemaGraphEdge as GraphEdge } from '$lib/api/openapi/evidence';
-import type { SchemaAssessmentResult as AssessmentResult } from '$lib/api/openapi/orchestrator';
+import { evidenceClient, orchestratorClient } from '#lib/api/client.js';
+import type { SchemaResourceSnapshot as Resource, SchemaGraphEdge as GraphEdge } from '#lib/api/openapi/evidence.js';
+import type { SchemaAssessmentResult as AssessmentResult } from '#lib/api/openapi/orchestrator.js';
 
 export const load = (async ({ fetch, params }) => {
 	const toeId = params.id;

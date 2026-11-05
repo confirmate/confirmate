@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { invalidateAll } from '$app/navigation';
-	import { orchestratorClient } from '$lib/api/client';
-	import type { SchemaControl, SchemaControlInScope, SchemaEvaluationResult, SchemaUser } from '$lib/api/openapi/orchestrator';
-	import EvaluationDetailDialog from '$lib/components/ui/EvaluationDetailDialog.svelte';
-	import WorkflowDialog from '$lib/components/ui/WorkflowDialog.svelte';
+	import { orchestratorClient } from '#lib/api/client.js';
+	import type { SchemaControl, SchemaControlInScope, SchemaEvaluationResult, SchemaUser } from '#lib/api/openapi/orchestrator.js';
+	import EvaluationDetailDialog from '#lib/components/ui/EvaluationDetailDialog.svelte';
+	import WorkflowDialog from '#lib/components/ui/WorkflowDialog.svelte';
 	import { ChevronDown } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 
@@ -60,16 +60,15 @@
 	let assigneeBusy = $state(false);
 	let actionError = $state<string | null>(null);
 
-	const stateLabel = $derived(
-		controlInScope?.state ? (STATE_LABELS[controlInScope.state as State] ?? 'Open') : 'Open'
-	);
-	const stateColor = $derived(
-		controlInScope?.state ? (STATE_COLORS[controlInScope.state as State] ?? 'bg-gray-100 text-gray-600') : 'bg-gray-100 text-gray-600'
-	);
+	const stateLabel = $derived(controlInScope?.state
+		? STATE_LABELS[controlInScope.state as State] ?? 'Open'
+		: 'Open');
 
-	const assignee = $derived(
-		users.find((u) => u.id === controlInScope?.assigneeId)
-	);
+	const stateColor = $derived(controlInScope?.state
+		? STATE_COLORS[controlInScope.state as State] ?? 'bg-gray-100 text-gray-600'
+		: 'bg-gray-100 text-gray-600');
+
+	const assignee = $derived(users.find((u) => u.id === controlInScope?.assigneeId));
 
 	async function updateAssignee(assigneeId: string) {
 		if (!controlInScope?.id || assigneeBusy) return;
@@ -160,7 +159,7 @@
 		}
 	});
 
-	</script>
+</script>
 
 <div class="{depth > 0 ? 'ml-5 border-l border-gray-100 pl-4' : ''} {inScope ? '' : 'opacity-50'}">
 	<div class="flex items-start gap-3 py-2.5">
@@ -183,10 +182,8 @@
 				type="button"
 				class="mt-0.5 shrink-0 rounded px-2 py-0.5 text-xs font-medium {stateColor} hover:opacity-80"
 				title="Click to change workflow state"
-				onclick={() => (showWorkflowDialog = true)}
-			>
-				{stateLabel}
-			</button>
+				onclick={() => showWorkflowDialog = true}
+			>{stateLabel}</button>
 		{/if}
 		<button
 			type="button"
@@ -199,7 +196,7 @@
 		{#if hasMetrics}
 			<button
 				type="button"
-				onclick={() => (open = !open)}
+				onclick={() => open = !open}
 				class="mt-0.5 flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-gray-400 hover:bg-gray-100 hover:text-gray-600"
 			>
 				<Icon
@@ -211,14 +208,14 @@
 		{:else if hasChildren}
 			<button
 				type="button"
-				onclick={() => (open = !open)}
+				onclick={() => open = !open}
 				class="mt-0.5 flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-gray-400 hover:bg-gray-100 hover:text-gray-600"
 			>
 				<Icon
 					src={ChevronDown}
 					class="h-3.5 w-3.5 transition-transform {open ? '' : '-rotate-90'}"
 				/>
-				{control.controls!.length}
+				{(control.controls!).length}
 			</button>
 		{/if}
 	</div>
@@ -229,17 +226,17 @@
 				<svelte:self
 					control={sub}
 					evaluation={evaluationByControl[sub.id ?? '']}
-					{evaluationByControl}
-					{allEvaluations}
-					{assessmentCountByMetric}
-					{assessmentById}
-					{controlInScopeByControlId}
+					evaluationByControl={evaluationByControl}
+					allEvaluations={allEvaluations}
+					assessmentCountByMetric={assessmentCountByMetric}
+					assessmentById={assessmentById}
+					controlInScopeByControlId={controlInScopeByControlId}
 					controlInScope={controlInScopeByControlId[sub.id ?? '']}
-					{auditScopeId}
-					{targetId}
-					{users}
+					auditScopeId={auditScopeId}
+					targetId={targetId}
+					users={users}
 					depth={depth + 1}
-				/>
+				></svelte:self>
 			{/each}
 		</div>
 	{/if}
@@ -250,7 +247,7 @@
 				{@const counts = assessmentCountByMetric[metric.id ?? ''] ?? { passing: 0, failing: 0 }}
 				<div class="flex items-center gap-2 text-xs">
 					<a
-						href={resolve(`/toe/${targetId}/assessment-results/`) + `?metric=${encodeURIComponent(metric.id)}`}
+						href={resolve(`toe/${targetId}/assessment-results/`) + `?metric=${encodeURIComponent(metric.id)}`}
 						class="shrink-0 rounded bg-purple-50 px-1.5 py-0.5 font-mono text-purple-600 hover:bg-purple-100 hover:underline"
 						title="Show assessment results for this metric"
 					>
@@ -275,18 +272,18 @@
 
 <EvaluationDetailDialog
 	bind:open={showDetailDialog}
-	{control}
+	control={control}
 	evaluation={evaluation}
-	{allEvaluations}
-	{assessmentById}
-	{auditScopeId}
-	{targetId}
+	allEvaluations={allEvaluations}
+	assessmentById={assessmentById}
+	auditScopeId={auditScopeId}
+	targetId={targetId}
 />
 
 {#if controlInScope}
 	<WorkflowDialog
 		bind:open={showWorkflowDialog}
-		{controlInScope}
+		controlInScope={controlInScope}
 		controlName={control.shortName ?? control.name ?? control.id ?? ''}
 	/>
 {/if}

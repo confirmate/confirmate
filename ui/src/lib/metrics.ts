@@ -1,5 +1,5 @@
 import { page } from '$app/state';
-import type { SchemaMetric } from '$lib/api/openapi/orchestrator';
+import type { SchemaMetric } from '#lib/api/openapi/orchestrator.js';
 
 /**
  * Returns the display name of the metric with the given ID. Metric IDs are UUIDs, so pages show

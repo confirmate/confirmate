@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { SchemaEvidence as Evidence } from '$lib/api/openapi/evidence';
-	import type { SchemaAssessmentResult as AssessmentResult } from '$lib/api/openapi/orchestrator';
+	import type { SchemaEvidence as Evidence } from '#lib/api/openapi/evidence.js';
+	import type { SchemaAssessmentResult as AssessmentResult } from '#lib/api/openapi/orchestrator.js';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { CheckCircle, XCircle, ChevronDown, ChevronRight } from '@steeze-ui/heroicons';
-	import { metricName } from '$lib/metrics';
+	import { metricName } from '#lib/metrics.js';
 
 	interface Props {
 		evidence: Evidence;

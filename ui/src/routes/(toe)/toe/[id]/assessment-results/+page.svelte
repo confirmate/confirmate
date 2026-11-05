@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import type { SchemaAssessmentResult } from '$lib/api/openapi/orchestrator';
-	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
-	import EmptyState from '$lib/components/ui/EmptyState.svelte';
+	import type { SchemaAssessmentResult } from '#lib/api/openapi/orchestrator.js';
+	import SectionHeader from '#lib/components/ui/SectionHeader.svelte';
+	import EmptyState from '#lib/components/ui/EmptyState.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { CheckCircle, XCircle } from '@steeze-ui/heroicons';
 	import { page } from '$app/state';
 	import type { PageProps } from './$types';
-	import { metricName } from '$lib/metrics';
+	import { metricName } from '#lib/metrics.js';
 
 	let { data }: PageProps = $props();
 
@@ -80,7 +80,7 @@
 			Filtered by metric
 			<span class="font-medium">{metricName(data.metricFilter)}</span>
 			<a
-				href={resolve(`/toe/${toeId}/assessment-results/`)}
+				href={resolve(`toe/${toeId}/assessment-results/`)}
 				class="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-purple-500 hover:bg-purple-100 hover:text-purple-700"
 				aria-label="Clear filter"
 				title="Clear filter"
@@ -108,9 +108,9 @@
 			<EmptyState title="No assessment results yet" description="Assessment results are generated when collectors gather evidence. Run a collection or evaluation to see results here." />
 		{:else}
 		<div class="overflow-x-auto rounded-lg border border-gray-200">
-			<table class="min-w-full divide-y divide-gray-200">
-				<thead class="bg-gray-50">
-					<tr>
+				<table class="min-w-full divide-y divide-gray-200">
+					<thead class="bg-gray-50">
+						<tr>
 						<th scope="col" class="w-32 px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
 							Status
 						</th>
@@ -129,64 +129,65 @@
 						<th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
 							Date
 						</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-gray-200 bg-white">
-					{#each data.assessmentResults as result}
-						<tr class="hover:bg-gray-50">
-							<td class="whitespace-nowrap px-4 py-3">
-								{#if result.compliant}
-									<div class="flex items-center gap-1.5 text-green-600">
-										<Icon src={CheckCircle} class="h-4 w-4" />
-										<span class="text-sm font-medium">Compliant</span>
-									</div>
-								{:else}
-									<div class="flex items-center gap-1.5 text-red-600">
-										<Icon src={XCircle} class="h-4 w-4" />
-										<span class="text-sm font-medium">Non-Compliant</span>
-									</div>
-								{/if}
-							</td>
-							<td class="whitespace-nowrap px-4 py-3">
-								<a href={resolve(`/toe/${toeId}/assessment-results/${result.id}/`)} class="text-sm text-gray-900 hover:text-confirmate">
-									{metricName(result.metricId)}
-								</a>
-							</td>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-200 bg-white">
+						{#each data.assessmentResults as result}
+							<tr class="hover:bg-gray-50">
+								<td class="whitespace-nowrap px-4 py-3">
+									{#if result.compliant}
+										<div class="flex items-center gap-1.5 text-green-600">
+											<Icon src={CheckCircle} class="h-4 w-4" />
+											<span class="text-sm font-medium">Compliant</span>
+										</div>
+									{:else}
+										<div class="flex items-center gap-1.5 text-red-600">
+											<Icon src={XCircle} class="h-4 w-4" />
+											<span class="text-sm font-medium">Non-Compliant</span>
+										</div>
+									{/if}
+								</td>
+								<td class="whitespace-nowrap px-4 py-3">
+									<a
+										href={resolve(`toe/${toeId}/assessment-results/${result.id}/`)}
+										class="text-sm text-gray-900 hover:text-confirmate"
+									>{metricName(result.metricId)}</a>
+								</td>
 							<td class="whitespace-nowrap px-4 py-3">
 								<span class="text-sm text-gray-500">{result.resourceId}</span>
 							</td>
 							<td class="whitespace-nowrap px-4 py-3">
 								<span class="text-sm text-gray-500">{result.toolId}</span>
 							</td>
-							<td class="px-4 py-3">
-								{#if result.complianceComment}
-									{@const parts = splitComment(result.complianceComment)}
-									<div class="text-sm text-gray-600 whitespace-pre-wrap">
-										{parts.text}
-										{#if parts.href}
-											{' '}
-											<a
-												href={parts.href}
-												target="_blank"
-												rel="noreferrer"
-												class="text-confirmate hover:underline"
-											>{parts.label}</a>
-										{/if}
-									</div>
-								{:else}
-									—
-								{/if}
-							</td>
+								<td class="px-4 py-3">
+									{#if result.complianceComment}
+										{@const parts = splitComment(result.complianceComment)}
+										<div class="text-sm text-gray-600 whitespace-pre-wrap">
+											{parts.text} 
+											{#if parts.href}
+												{' '} 
+												<a
+													href={parts.href}
+													target="_blank"
+													rel="noreferrer"
+													class="text-confirmate hover:underline"
+												>{parts.label}</a>
+											{/if}
+										</div>
+									{:else}
+										—
+									{/if}
+								</td>
 							<td class="whitespace-nowrap px-4 py-3">
 								<span class="text-sm text-gray-500">
 									{new Date(result.createdAt).toLocaleDateString()}
 								</span>
 							</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
 		{/if}
 	</div>
 </div>

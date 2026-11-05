@@ -1,18 +1,18 @@
 <script lang="ts">
-	import { base, resolve } from '$app/paths';
-	import { browser } from '$app/environment';
+	import { resolve } from '$app/paths';
+	import { browser } from '$app/env';
 	import { page } from '$app/state';
 	import { invalidate } from '$app/navigation';
 	import { goto } from '$app/navigation';
-	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
-	import EmptyState from '$lib/components/ui/EmptyState.svelte';
-	import Button from '$lib/components/ui/Button.svelte';
-	import EvaluationSummary from '$lib/components/ui/EvaluationSummary.svelte';
-	import CategorySection from '$lib/components/toe/CategorySection.svelte';
-	import ImplementationCategory from '$lib/components/toe/ImplementationCategory.svelte';
-	import AuditTrail from '$lib/components/ui/AuditTrail.svelte';
-	import { authHeaders, evaluationClient } from '$lib/api/client';
-	import { downloadFile } from '$lib/download';
+	import SectionHeader from '#lib/components/ui/SectionHeader.svelte';
+	import EmptyState from '#lib/components/ui/EmptyState.svelte';
+	import Button from '#lib/components/ui/Button.svelte';
+	import EvaluationSummary from '#lib/components/ui/EvaluationSummary.svelte';
+	import CategorySection from '#lib/components/toe/CategorySection.svelte';
+	import ImplementationCategory from '#lib/components/toe/ImplementationCategory.svelte';
+	import AuditTrail from '#lib/components/ui/AuditTrail.svelte';
+	import { authHeaders, evaluationClient } from '#lib/api/client.js';
+	import { downloadFile } from '#lib/download.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -25,13 +25,13 @@
 
 	function switchTab(t: 'implementation' | 'compliance' | 'auditTrail') {
 		tab = t;
-		const url = new URL(page.url);
+		const url = new URL(page.url.href);
 		if (t === 'implementation') {
 			url.searchParams.delete('tab');
 		} else {
 			url.searchParams.set('tab', t);
 		}
-		goto(url, { keepFocus: true, noScroll: true, invalidateAll: false });
+		goto(url, { reset: false });
 	}
 
 	const currentUserId = $derived((page.data as { currentUser?: { id?: string } }).currentUser?.id ?? null);
@@ -55,12 +55,12 @@
 		if (!browser) return;
 		evaluationClient()
 			.GET('/v1/evaluation/evaluate', {
-				params: { query: { 'filter.auditScopeId': data.auditScope.id } }
+			params: { query: { 'filter.auditScopeId': data.auditScope.id } }
 			})
 			.then((res) => {
-				if (res.response.ok) {
-					evaluationRunning = (res.data?.evaluationJobs ?? []).length > 0;
-				}
+			if (res.response.ok) {
+				evaluationRunning = (res.data?.evaluationJobs ?? []).length > 0;
+			}
 			})
 			.catch(() => {});
 
@@ -110,11 +110,7 @@
 		try {
 			// This endpoint returns the file itself (correct Content-Type and Content-Disposition
 			// headers), not a JSON envelope, so it can't go through the typed openapi client.
-			await downloadFile(
-				`${base}/v1/orchestrator/audit_scopes/${data.auditScope.id}/report?format=REPORT_FORMAT_${format}`,
-				authHeaders(),
-				`audit-scope-report.${format.toLowerCase()}`
-			);
+			await downloadFile(`${resolve('/')}v1/orchestrator/audit_scopes/${data.auditScope.id}/report?format=REPORT_FORMAT_${format}`, authHeaders(), `audit-scope-report.${format.toLowerCase()}`);
 		} catch {
 			reportError = 'Failed to download report';
 		} finally {
@@ -126,7 +122,7 @@
 
 <div>
 	<a
-		href={resolve(`/toe/${data.auditScope.targetOfEvaluationId}/audit-scopes/`)}
+		href={resolve(`toe/${data.auditScope.targetOfEvaluationId}/audit-scopes/`)}
 		class="text-sm text-gray-500 hover:text-gray-700"
 	>
 		← Back to Audit Scopes
@@ -256,16 +252,16 @@
 			{#if data.catalog?.categories?.length}
 				{#each data.catalog.categories as category}
 					<ImplementationCategory
-						{category}
+						category={category}
 						controls={data.controlsByCategory[category.name] ?? []}
 						controlInScopeByControlId={data.controlInScopeByControlId}
 						users={data.users}
 						auditScopeId={data.auditScope.id}
 						targetId={data.auditScope.targetOfEvaluationId}
-						filterAssigneeId={onlyMyControls ? currentUserId : (filterAssignee || null)}
+						filterAssigneeId={onlyMyControls ? currentUserId : filterAssignee || null}
 						filterStatus={filterStatus || null}
-						{hideOutOfScope}
-						{canManageScope}
+						hideOutOfScope={hideOutOfScope}
+						canManageScope={canManageScope}
 					/>
 				{/each}
 			{:else}
@@ -283,7 +279,7 @@
 				{#if data.catalog?.categories?.length}
 					{#each data.catalog.categories as category}
 						<CategorySection
-							{category}
+							category={category}
 							controls={data.controlsByCategory[category.name] ?? []}
 							evaluationByControl={data.evaluationByControl}
 							allEvaluations={data.allEvaluationResults}

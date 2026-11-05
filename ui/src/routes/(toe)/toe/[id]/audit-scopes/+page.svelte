@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import AuditScopeCard from '$lib/components/toe/AuditScopeCard.svelte';
-	import EmptyState from '$lib/components/ui/EmptyState.svelte';
-	import Button from '$lib/components/ui/Button.svelte';
-	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
+	import AuditScopeCard from '#lib/components/toe/AuditScopeCard.svelte';
+	import EmptyState from '#lib/components/ui/EmptyState.svelte';
+	import Button from '#lib/components/ui/Button.svelte';
+	import SectionHeader from '#lib/components/ui/SectionHeader.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -17,7 +17,9 @@
 		description="Each audit scope evaluates this target against a compliance catalog."
 	>
 		{#snippet actions()}
-			<Button href={resolve(`/toe/${data.toe.id}/audit-scopes/new/`)}>New Audit Scope</Button>
+			<Button
+				href={resolve(`toe/${data.toe.id}/audit-scopes/new/`)}
+			>New Audit Scope</Button>
 		{/snippet}
 	</SectionHeader>
 
@@ -26,7 +28,11 @@
 			<ul class="space-y-3">
 				{#each data.auditScopes as auditScope}
 					<li>
-						<AuditScopeCard {auditScope} catalog={catalogMap.get(auditScope.catalogId)} ondelete={() => {}} />
+						<AuditScopeCard
+							auditScope={auditScope}
+							catalog={catalogMap.get(auditScope.catalogId)}
+							ondelete={() => {}}
+						/>
 					</li>
 				{/each}
 			</ul>
@@ -34,7 +40,7 @@
 			<EmptyState
 				title="No audit scopes yet"
 				description="Create your first audit scope to start tracking compliance against a catalog."
-				actionHref={resolve(`/toe/${data.toe.id}/audit-scopes/new/`)}
+				actionHref={resolve(`toe/${data.toe.id}/audit-scopes/new/`)}
 				actionLabel="New Audit Scope"
 			/>
 		{/if}

@@ -2,7 +2,7 @@
 	import { XMark } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { invalidateAll } from '$app/navigation';
-	import { orchestratorClient } from '$lib/api/client';
+	import { orchestratorClient } from '#lib/api/client.js';
 
 	let {
 		open = $bindable(false),

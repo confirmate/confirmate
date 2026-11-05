@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import type { SchemaAuditTrailEvent, SchemaUser } from '$lib/api/openapi/orchestrator';
+	import type { SchemaAuditTrailEvent, SchemaUser } from '#lib/api/openapi/orchestrator.js';
 
 	let {
 		events,
@@ -48,17 +48,17 @@
 	function eventSummary(event: SchemaAuditTrailEvent): string {
 		const data = event.eventData as Record<string, unknown> | undefined;
 		if (!data) return 'Event recorded';
-		const type = (data['@type'] as string | undefined) ?? '';
+		const type = data['@type'] as string | undefined ?? '';
 		if (type.includes('ControlScopingEvent')) {
 			return data['inScope'] ? 'Control brought into scope' : 'Control removed from scope';
 		}
 		if (type.includes('ControlInScopeTransitionEvent')) {
-			const toState = (data['toState'] as string | undefined) ?? '';
+			const toState = data['toState'] as string | undefined ?? '';
 			return `State → ${STATE_LABELS[toState] ?? toState}`;
 		}
 		if (type.includes('ControlInScopeAssigneeChangedEvent')) {
 			const newId = data['newAssigneeId'] as string | undefined;
-			const newName = newId ? (userById[newId] ?? newId) : null;
+			const newName = newId ? userById[newId] ?? newId : null;
 			return newName ? `Assigned to ${newName}` : 'Assignee removed';
 		}
 		if (type.includes('ControlInScopeDetailsChangedEvent')) {
@@ -101,25 +101,25 @@
 							<td class="whitespace-nowrap px-4 py-2 text-gray-500">{formatDate(event.createdAt)}</td>
 							<td class="px-4 py-2 font-medium text-gray-700">{actorLabel(event.actorId)}</td>
 							<td class="px-4 py-2 text-gray-700">{eventSummary(event)}</td>
-						{#if Object.keys(controlById).length > 0}
-							<td class="px-4 py-2">
-								{#if ctrl}
-									{#if auditScopeId && targetId}
-										{@const controlId = (event.eventData as Record<string, unknown> | undefined)?.['controlId'] as string | undefined}
-										{#if controlId}
-											<a
-												href={resolve(`/toe/${targetId}/audit-scopes/${auditScopeId}/controls/${controlId}/`)}
-												class="font-mono text-xs text-confirmate hover:underline"
-											>{ctrl}</a>
+							{#if Object.keys(controlById).length > 0}
+								<td class="px-4 py-2">
+									{#if ctrl}
+										{#if auditScopeId && targetId}
+											{@const controlId = (event.eventData as Record<string, unknown> | undefined)?.['controlId'] as string | undefined}
+											{#if controlId}
+												<a
+													href={resolve(`toe/${targetId}/audit-scopes/${auditScopeId}/controls/${controlId}/`)}
+													class="font-mono text-xs text-confirmate hover:underline"
+												>{ctrl}</a>
+											{:else}
+												<span class="font-mono text-xs text-gray-500">{ctrl}</span>
+											{/if}
 										{:else}
 											<span class="font-mono text-xs text-gray-500">{ctrl}</span>
 										{/if}
-									{:else}
-										<span class="font-mono text-xs text-gray-500">{ctrl}</span>
 									{/if}
-								{/if}
-							</td>
-						{/if}
+								</td>
+							{/if}
 							<td class="px-4 py-2 text-gray-500">{event.comment ?? ''}</td>
 						</tr>
 					{/each}

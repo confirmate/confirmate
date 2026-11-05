@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SchemaUser } from '$lib/api/openapi/orchestrator';
+	import type { SchemaUser } from '#lib/api/openapi/orchestrator.js';
 	import UserAvatar from './UserAvatar.svelte';
 	import { Trash } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';

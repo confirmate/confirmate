@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SchemaResourceSnapshot as Resource } from '$lib/api/openapi/evidence';
+	import type { SchemaResourceSnapshot as Resource } from '#lib/api/openapi/evidence.js';
 	import { XMark, ShieldExclamation, ArrowTopRightOnSquare } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 

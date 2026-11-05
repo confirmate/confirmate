@@ -1,6 +1,6 @@
 <script lang="ts">
-	import GlobalTopBar from '$lib/components/nav/GlobalTopBar.svelte';
-	import Sidebar from '$lib/components/nav/Sidebar.svelte';
+	import GlobalTopBar from '#lib/components/nav/GlobalTopBar.svelte';
+	import Sidebar from '#lib/components/nav/Sidebar.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { children, data }: LayoutProps = $props();

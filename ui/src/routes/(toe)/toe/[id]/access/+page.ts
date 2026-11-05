@@ -1,6 +1,6 @@
-import { orchestratorClient } from '$lib/api/client';
+import { orchestratorClient } from '#lib/api/client.js';
 import type { PageLoad } from './$types';
-import type { SchemaUser } from '$lib/api/openapi/orchestrator';
+import type { SchemaUser } from '#lib/api/openapi/orchestrator.js';
 
 export const load = (async ({ parent, fetch, params }) => {
 	const { toe } = await parent();
