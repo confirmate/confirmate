@@ -1246,15 +1246,19 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
 				assert.Equal(t, 2, len(got.Msg.Results))
+				// Sort results by ID to ensure consistent ordering for assertions
+				sort.SliceStable(got.Msg.Results, func(i, j int) bool {
+					return got.Msg.Results[i].Id < got.Msg.Results[j].Id
+				})
 				return assert.Equal(t,
 					orchestratortest.MockNewAssessmentResult,
-					got.Msg.Results[0],
+					got.Msg.Results[1],
 					cmp.Options{
 						protocmp.IgnoreFields(&assessment.AssessmentResult{}, "created_at", "history_updated_at", "history"),
 					},
 				) && assert.Equal(t,
 					&assessment.Record{EvidenceId: orchestratortest.MockEvidenceId1},
-					got.Msg.Results[0].History[0],
+					got.Msg.Results[1].History[0],
 					cmp.Options{
 						protocmp.IgnoreFields(&assessment.Record{}, "evidence_recorded_at"),
 					})
