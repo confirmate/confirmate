@@ -174,7 +174,7 @@ func TestService_evaluateSubcontrol_withLatestAssessments(t *testing.T) {
 			args: args{
 				latest: newLatestAssessments([]*assessment.AssessmentResult{orchestratortest.MockAssessmentResult2}),
 			},
-			want: evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
+			want: evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
 		},
 	}
 	for _, tt := range tests {

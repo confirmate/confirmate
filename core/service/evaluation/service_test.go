@@ -554,6 +554,71 @@ func Test_preferAutomaticResults(t *testing.T) {
 	}
 }
 
+func Test_hasResultForEveryMetric(t *testing.T) {
+	type args struct {
+		metrics []*assessment.Metric
+		results []*assessment.AssessmentResult
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "no metrics and no results",
+			args: args{},
+			want: true,
+		},
+		{
+			name: "no results for the metrics",
+			args: args{
+				metrics: []*assessment.Metric{evaluationtest.MockMetric1},
+			},
+			want: false,
+		},
+		{
+			name: "one result per metric",
+			args: args{
+				metrics: []*assessment.Metric{evaluationtest.MockMetric1, evaluationtest.MockMetric2},
+				results: []*assessment.AssessmentResult{
+					{MetricId: evaluationtest.MockMetricId1},
+					{MetricId: evaluationtest.MockMetricId2},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "several results for the same metric, one per resource",
+			args: args{
+				metrics: []*assessment.Metric{evaluationtest.MockMetric1},
+				results: []*assessment.AssessmentResult{
+					{MetricId: evaluationtest.MockMetricId1, ResourceId: evaluationtest.MockResourceId1},
+					{MetricId: evaluationtest.MockMetricId1, ResourceId: orchestratortest.MockResourceId2},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "no result for one of the metrics",
+			args: args{
+				metrics: []*assessment.Metric{evaluationtest.MockMetric1, evaluationtest.MockMetric2},
+				results: []*assessment.AssessmentResult{
+					{MetricId: evaluationtest.MockMetricId1, ResourceId: evaluationtest.MockResourceId1},
+					{MetricId: evaluationtest.MockMetricId1, ResourceId: orchestratortest.MockResourceId2},
+				},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := hasResultForEveryMetric(tt.args.metrics, tt.args.results)
+
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
 func Test_getMetricsFromControl(t *testing.T) {
 	type args struct {
 		control *orchestrator.Control
@@ -594,6 +659,146 @@ func Test_getMetricsFromControl(t *testing.T) {
 			got := getMetricsFromControl(tt.args.control)
 
 			tt.want(t, got)
+		})
+	}
+}
+
+func TestService_assessControl(t *testing.T) {
+	type fields struct {
+		orchestratorClient orchestratorconnect.OrchestratorClient
+	}
+	type args struct {
+		ctx        context.Context
+		auditScope *orchestrator.AuditScope
+		control    *orchestrator.Control
+	}
+	tests := []struct {
+		name       string
+		fields     fields
+		args       args
+		wantStatus evaluation.EvaluationStatus
+		wantIds    []string
+	}{
+		{
+			name: "no assessment results",
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t),
+			},
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				control: &orchestrator.Control{
+					Id:      evaluationtest.MockControlId1,
+					Metrics: []*assessment.Metric{evaluationtest.MockMetric1},
+				},
+			},
+			wantStatus: evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
+			wantIds:    nil,
+		},
+		{
+			name: "several compliant results for the same metric, one per resource",
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t, WithAssessmentResults([]*assessment.AssessmentResult{
+					{
+						Id:                   orchestratortest.MockResultId1,
+						MetricId:             evaluationtest.MockMetricId1,
+						ResourceId:           orchestratortest.MockResourceId1,
+						Compliant:            true,
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+					},
+					{
+						Id:                   orchestratortest.MockResultId2,
+						MetricId:             evaluationtest.MockMetricId1,
+						ResourceId:           orchestratortest.MockResourceId2,
+						Compliant:            true,
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+					},
+				})),
+			},
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				control: &orchestrator.Control{
+					Id:      evaluationtest.MockControlId1,
+					Metrics: []*assessment.Metric{evaluationtest.MockMetric1},
+				},
+			},
+			wantStatus: evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
+			wantIds:    []string{orchestratortest.MockResultId1, orchestratortest.MockResultId2},
+		},
+		{
+			name: "no result for one of the metrics",
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t, WithAssessmentResults([]*assessment.AssessmentResult{
+					{
+						Id:                   orchestratortest.MockResultId1,
+						MetricId:             evaluationtest.MockMetricId1,
+						ResourceId:           orchestratortest.MockResourceId1,
+						Compliant:            true,
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+					},
+					{
+						Id:                   orchestratortest.MockResultId2,
+						MetricId:             evaluationtest.MockMetricId1,
+						ResourceId:           orchestratortest.MockResourceId2,
+						Compliant:            true,
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+					},
+				})),
+			},
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				control: &orchestrator.Control{
+					Id:      evaluationtest.MockControlId1,
+					Metrics: []*assessment.Metric{evaluationtest.MockMetric1, evaluationtest.MockMetric2},
+				},
+			},
+			wantStatus: evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
+			wantIds:    nil,
+		},
+		{
+			name: "one result per metric, one of them not compliant",
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t, WithAssessmentResults([]*assessment.AssessmentResult{
+					{
+						Id:                   orchestratortest.MockResultId1,
+						MetricId:             evaluationtest.MockMetricId1,
+						ResourceId:           orchestratortest.MockResourceId1,
+						Compliant:            true,
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+					},
+					{
+						Id:                   orchestratortest.MockResultId2,
+						MetricId:             evaluationtest.MockMetricId2,
+						ResourceId:           orchestratortest.MockResourceId2,
+						Compliant:            false,
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+					},
+				})),
+			},
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				control: &orchestrator.Control{
+					Id:      evaluationtest.MockControlId1,
+					Metrics: []*assessment.Metric{evaluationtest.MockMetric1, evaluationtest.MockMetric2},
+				},
+			},
+			wantStatus: evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
+			wantIds:    []string{orchestratortest.MockResultId1, orchestratortest.MockResultId2},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				orchestratorClient: tt.fields.orchestratorClient,
+			}
+			gotStatus, gotIds := svc.assessControl(tt.args.ctx, tt.args.auditScope, tt.args.control, nil)
+
+			sort.Strings(gotIds)
+			assert.Equal(t, tt.wantStatus, gotStatus)
+			assert.Equal(t, tt.wantIds, gotIds)
 		})
 	}
 }
@@ -1267,7 +1472,7 @@ func TestService_evaluateControl(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "leaf control without assessment results: pending",
+			name: "leaf control without assessment results: not compliant",
 			args: args{
 				ctx:        context.Background(),
 				auditScope: evaluationtest.MockAuditScope1,
@@ -1279,7 +1484,7 @@ func TestService_evaluateControl(t *testing.T) {
 				orchestratorClient: newOrchestratorClient(t),
 			},
 			wantSvc: wantOneResult(func(t *testing.T, got *evaluation.EvaluationResult) bool {
-				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING, got.GetStatus())
+				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, got.GetStatus())
 			}),
 			wantErr: assert.NoError,
 		},
@@ -1749,7 +1954,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					ControlId:            orchestratortest.MockControlId2,
 					ControlCatalogId:     orchestratortest.MockCatalogId2,
 					ParentControlId:      nil,
-					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
+					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
 					Comment:              nil,
 					ValidUntil:           nil,
 					Data:                 nil,
@@ -1773,7 +1978,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					ControlId:            orchestratortest.MockControlId2,
 					ControlCatalogId:     orchestratortest.MockCatalogId2,
 					ParentControlId:      nil,
-					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
+					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
 					Comment:              nil,
 					ValidUntil:           nil,
 					Data:                 nil,
@@ -1784,7 +1989,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "happy path - metrics but ListAssessmentResults returns error => pending, stored",
+			name: "happy path - metrics but ListAssessmentResults returns error => not-compliant, stored",
 			fields: func() fields {
 				handler := &mockOrchestratorHandler{
 					listAssessmentResultError: connect.NewError(connect.CodeInternal, fmt.Errorf("boom")),
@@ -1840,7 +2045,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      nil,
-					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
+					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
 					Comment:              nil,
 					ValidUntil:           nil,
 					Data:                 nil,
@@ -1864,7 +2069,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      nil,
-					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
+					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
 					Comment:              nil,
 					ValidUntil:           nil,
 					Data:                 nil,
