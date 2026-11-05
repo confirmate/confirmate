@@ -417,6 +417,28 @@ func (svc *Service) TransitionControlInScopeState(
 		if err = tx.Update(&cis, "id = ?", cis.Id); err != nil {
 			return err
 		}
+
+		// When transitioning back to OPEN, invalidate any manual evaluation
+		// results for this control so the evaluation picks it up again on the
+		// next run. Without this, old manual EvaluationResults (which have no
+		// expiry) would cause the evaluation to skip the control forever.
+		if toState == orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN {
+			now := timestamppb.Now()
+			err = tx.Update(
+				&evaluation.EvaluationResult{ValidUntil: now},
+				"audit_scope_id = ? AND control_id = ? AND status IN ?",
+				cis.AuditScopeId, cis.ControlId,
+				[]evaluation.EvaluationStatus{
+					evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+					evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY,
+				},
+			)
+			// ErrRecordNotFound is fine — no manual results to invalidate
+			if err != nil && !errors.Is(err, persistence.ErrRecordNotFound) {
+				return err
+			}
+		}
+
 		return createAuditTrailEvent(tx, actor, cis.AuditScopeId, cis.Id, req.Msg.Comment,
 			&orchestrator.ControlInScopeTransitionEvent{
 				ControlInScopeId: cis.Id,
