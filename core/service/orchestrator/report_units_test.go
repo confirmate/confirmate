@@ -167,11 +167,13 @@ func TestSummarizeReportControls(t *testing.T) {
 				{},
 			},
 			want: reportSummary{
-				controls:         4,
-				totalMetrics:     6,
-				compliantMetrics: 2,
-				evaluatedMetrics: 5,
-				actionRequired:   1,
+				controls:               4,
+				totalMetrics:           6,
+				compliantMetrics:       2,
+				evaluatedMetrics:       5,
+				actionRequiredMetrics:  3,
+				compliantControls:      1,
+				actionRequiredControls: 3,
 			},
 		},
 	}

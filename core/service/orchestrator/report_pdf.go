@@ -135,6 +135,8 @@ type reportSummary struct {
 }
 
 func summarizeReportControls(controls []reportControlRow) reportSummary {
+	var uniqueMetrics = make(map[string]bool)
+
 	if controls == nil {
 		return reportSummary{}
 	}
@@ -142,15 +144,20 @@ func summarizeReportControls(controls []reportControlRow) reportSummary {
 	s := reportSummary{controls: len(controls)}
 
 	for _, c := range controls {
-		compliant, evaluated, total := c.metricCounts()
-		s.totalMetrics += total
+		compliant, evaluated, _ := c.metricCounts()
 		s.compliantMetrics += compliant
 		s.evaluatedMetrics += evaluated
 		s.actionRequiredMetrics += evaluated - compliant
 		if c.statusLabel() == "Passed" {
 			s.compliantControls++
 		}
+		for _, m := range c.metrics {
+			uniqueMetrics[m.name] = true
+		}
 	}
+
+	s.totalMetrics = len(uniqueMetrics)
+
 	// Every control that is not fully compliant requires action, including those whose metrics
 	// have not been evaluated yet or that have no metrics configured at all.
 	s.actionRequiredControls = s.controls - s.compliantControls
