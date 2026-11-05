@@ -140,13 +140,13 @@ func summarizeReportControls(controls []reportControlRow) reportSummary {
 		s.compliantMetrics += compliant
 		s.evaluatedMetrics += evaluated
 		s.actionRequiredMetrics += evaluated - compliant
-		switch c.statusLabel() {
-		case "Passed":
+		if c.statusLabel() == "Passed" {
 			s.compliantControls++
-		case "Action Required":
-			s.actionRequiredControls++
 		}
 	}
+	// Every control that is not fully compliant requires action, including those whose metrics
+	// have not been evaluated yet or that have no metrics configured at all.
+	s.actionRequiredControls = s.controls - s.compliantControls
 	return s
 }
 
