@@ -3,62 +3,75 @@ module confirmate.io/core
 go 1.27.1
 
 // runtime dependencies - CLI
-require (
-	github.com/fatih/color v1.18.0 // indirect
-	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f
-	github.com/lmittmann/tint v1.2.1
-	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.24
-	github.com/oxisto/oauth2go v0.16.0
-	github.com/urfave/cli/v3 v3.14.0
-	golang.org/x/oauth2 v0.37.0
-	golang.org/x/sys v0.48.0 // indirect
-)
-
+//
 // runtime dependencies - auth
-require (
-	github.com/MicahParks/keyfunc/v2 v2.1.0
-	github.com/golang-jwt/jwt/v5 v5.3.1
-)
-
+//
 // runtime dependencies - protobuf/Connect
+//
+// runtime dependencies - database
+//
+// runtime dependencies - assessment
+//
+// runtime dependencies - evaluation
+//
+// test dependencies
+//
+// build dependencies
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.2
 	buf.build/go/protovalidate v1.4.0
-	cel.dev/expr v0.25.3 // indirect
 	connectrpc.com/connect v1.21.0
 	connectrpc.com/grpcreflect v1.3.1
 	connectrpc.com/vanguard v0.4.0
-	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
+	github.com/MicahParks/keyfunc/v2 v2.1.0
+	github.com/go-co-op/gocron v1.37.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
+	github.com/google/addlicense v1.2.0
+	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
+	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f
+	github.com/johnfercher/maroto/v2 v2.4.4
+	github.com/lmittmann/tint v1.2.1
+	github.com/mattn/go-isatty v0.0.24
+	github.com/open-policy-agent/opa v1.21.0
+	github.com/oxisto/oauth2go v0.16.0
+	github.com/pdfcpu/pdfcpu v0.16.2
+	github.com/proullon/ramsql v0.1.4
+	github.com/srikrsna/protoc-gen-gotag v1.0.2
+	github.com/stretchr/testify v1.12.1
+	github.com/urfave/cli/v3 v3.14.0
+	github.com/xuri/excelize/v2 v2.11.0
+	go.yaml.in/yaml/v3 v3.0.5
+	golang.org/x/oauth2 v0.37.0
+	golang.org/x/sync v0.24.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260819154853-08b0e4226688 // indirect
 	google.golang.org/protobuf v1.36.12
+	gorm.io/driver/postgres v1.6.3
+	gorm.io/gorm v1.31.2
 )
 
-// runtime dependencies - database
 require (
+	cel.dev/cel-go v0.32.0 // indirect
+	cel.dev/expr v0.25.3 // indirect
+	github.com/agnivade/levenshtein v1.2.1 // indirect
+	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
+	github.com/bmatcuk/doublestar/v4 v4.10.0 // indirect
+	github.com/boombuler/barcode v1.1.0 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.1 // indirect
+	github.com/fatih/color v1.18.0 // indirect
+	github.com/fatih/structtag v1.2.0 // indirect
+	github.com/gobwas/glob v1.0.0 // indirect
+	github.com/goccy/go-json v0.10.6 // indirect
+	github.com/hhrutter/tiff v1.0.7 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.10.0 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/proullon/ramsql v0.1.4
-	golang.org/x/crypto v0.55.0 // indirect
-	golang.org/x/exp v0.0.0-20260820142414-ca536658362e // indirect
-	golang.org/x/text v0.42.0 // indirect
-	gorm.io/driver/postgres v1.6.3
-	gorm.io/gorm v1.31.2
-)
-
-// runtime dependencies - assessment
-require (
-	github.com/agnivade/levenshtein v1.2.1 // indirect
-	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.1 // indirect
-	github.com/gobwas/glob v1.0.0 // indirect
-	github.com/goccy/go-json v0.10.6 // indirect
+	github.com/johnfercher/go-tree v1.1.0 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.4 // indirect
 	github.com/lestrrat-go/dsig v1.4.0 // indirect
 	github.com/lestrrat-go/dsig-secp256k1 v1.0.0 // indirect
@@ -66,70 +79,37 @@ require (
 	github.com/lestrrat-go/httprc/v3 v3.0.6 // indirect
 	github.com/lestrrat-go/jwx/v3 v3.3.0 // indirect
 	github.com/lestrrat-go/option/v2 v2.0.0 // indirect
-	github.com/open-policy-agent/opa v1.21.0
-	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
-	github.com/segmentio/asm v1.2.1 // indirect
-	github.com/sirupsen/logrus v1.10.2 // indirect
-	github.com/tchap/go-patricia/v2 v2.3.3 // indirect
-	github.com/valyala/fastjson v1.6.10 // indirect
-	github.com/vektah/gqlparser/v2 v2.5.37 // indirect
-	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
-	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
-	github.com/yashtewari/glob-intersection v0.2.0 // indirect
-	go.yaml.in/yaml/v3 v3.0.5
-)
-
-// runtime dependencies - evaluation
-require (
-	github.com/go-co-op/gocron v1.37.0
-	github.com/robfig/cron/v3 v3.0.1 // indirect
-	go.uber.org/atomic v1.9.0 // indirect
-)
-
-// test dependencies
-require (
-	github.com/google/go-cmp v0.7.0
-	github.com/stretchr/testify v1.12.1
-)
-
-// build dependencies
-require (
-	github.com/bmatcuk/doublestar/v4 v4.10.0 // indirect
-	github.com/fatih/structtag v1.2.0 // indirect
-	github.com/google/addlicense v1.2.0
 	github.com/lyft/protoc-gen-star/v2 v2.0.4 // indirect
-	github.com/spf13/afero v1.15.0 // indirect
-	github.com/srikrsna/protoc-gen-gotag v1.0.2
-	golang.org/x/mod v0.41.0 // indirect
-	golang.org/x/sync v0.24.0
-	golang.org/x/tools v0.49.0 // indirect
-)
-
-require (
-	github.com/johnfercher/maroto/v2 v2.4.2
-	github.com/pdfcpu/pdfcpu v0.11.1
-	github.com/xuri/excelize/v2 v2.11.0
-)
-
-require (
-	cel.dev/cel-go v0.32.0 // indirect
-	github.com/boombuler/barcode v1.1.0 // indirect
-	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
-	github.com/hhrutter/lzw v1.0.0 // indirect
-	github.com/hhrutter/pkcs7 v0.2.0 // indirect
-	github.com/hhrutter/tiff v1.0.2 // indirect
-	github.com/johnfercher/go-tree v1.1.0 // indirect
-	github.com/mattn/go-runewidth v0.0.21 // indirect
+	github.com/mattn/go-colorable v0.1.14 // indirect
+	github.com/mattn/go-runewidth v0.0.30 // indirect
 	github.com/phpdave11/gofpdf v1.4.3 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
+	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
 	github.com/richardlehane/mscfb v1.0.7 // indirect
 	github.com/richardlehane/msoleps v1.0.6 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/segmentio/asm v1.2.1 // indirect
+	github.com/sirupsen/logrus v1.10.2 // indirect
+	github.com/spf13/afero v1.15.0 // indirect
+	github.com/tchap/go-patricia/v2 v2.3.3 // indirect
 	github.com/tiendc/go-deepcopy v1.7.2 // indirect
+	github.com/valyala/fastjson v1.6.10 // indirect
+	github.com/vektah/gqlparser/v2 v2.5.37 // indirect
+	github.com/xdg-go/stringprep v1.0.4 // indirect
+	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
+	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
-	golang.org/x/image v0.41.0 // indirect
+	github.com/yashtewari/glob-intersection v0.2.0 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
+	golang.org/x/crypto v0.57.0 // indirect
+	golang.org/x/exp v0.0.0-20260820142414-ca536658362e // indirect
+	golang.org/x/image v0.46.0 // indirect
+	golang.org/x/mod v0.41.0 // indirect
 	golang.org/x/net v0.58.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
+	golang.org/x/tools v0.49.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260819154853-08b0e4226688 // indirect
 )
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
