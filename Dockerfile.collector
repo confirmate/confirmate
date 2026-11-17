@@ -1,6 +1,6 @@
 # Confirmate Code Analysis Collector — Kotlin/Gradle + jep
 # Uses cached Java devcontainer image + conda for Python 3.12
-FROM mcr.microsoft.com/devcontainers/java:1-21-bullseye AS build
+FROM mcr.microsoft.com/devcontainers/java:2-8-bullseye AS build
 
 WORKDIR /src
 
@@ -25,7 +25,7 @@ WORKDIR /src/code-analysis
 RUN chmod +x gradlew && ./gradlew --no-daemon :example-project:installDist
 
 # ── Runtime image ──
-FROM mcr.microsoft.com/devcontainers/java:1-21-bullseye
+FROM mcr.microsoft.com/devcontainers/java:2-8-bullseye
 
 # Install miniconda for Python 3.12 runtime
 RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-$(uname -m).sh -O /tmp/miniconda.sh && \
