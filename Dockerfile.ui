@@ -1,5 +1,5 @@
 # Confirmate UI — pre-built static files served via a simple Node static server with proxy
-FROM mcr.microsoft.com/devcontainers/typescript-node:0-18
+FROM mcr.microsoft.com/devcontainers/typescript-node:5-26
 
 WORKDIR /app
 
